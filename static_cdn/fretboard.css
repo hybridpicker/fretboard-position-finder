@@ -1,0 +1,364 @@
+.fretboard {
+  display: grid;
+  grid-column-gap: 0 !important;
+  grid-template-columns: auto auto auto auto auto auto
+  auto auto auto auto auto auto auto auto auto auto auto;
+  background-image: url(/static/media/fretboard/fretboard_1400.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position-y: top;
+  padding-top: 10px;
+  padding-left: 16px;
+  padding-right: 0;
+  width: 1400px;
+  font-size: 19px;
+}
+#fretboardcontainer{
+  width: 1400px;
+  margin:auto;
+}
+
+.eString{
+  border-top: 2px solid rgb(136,138,154);
+}
+.bString{
+  border-top: 2px solid rgb(136,138,154);
+}
+.gString{
+  border-top: 2px solid rgb(136,138,154);
+}
+.dString{
+  border-top: 2.5px solid rgb(171,173,193);
+}
+.AString{
+  border-top: 3px solid rgb(171,173,193);
+}
+.eLowString{
+  border-top: 3px solid rgb(171,173,193);
+}
+
+.fret .note {
+  color: white;
+}
+.fret.one {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.fret.one.laststring {
+  border-left: 0px;
+}
+.laststring {
+ border-right: 0px;
+}
+
+.note {
+  position: absolute;
+  left: -15px;
+  top: 0;
+}
+.notename {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  visibility: hidden;
+  opacity: 0.85;
+}
+.note > .tone {
+  visibility: hidden;
+  vertical-align: middle;
+  max-height: 30px;
+  max-width: 30px;
+}
+.active {
+  visibility: unset !important;
+}
+#fretboardcontainer{
+  margin-top: 4em;
+}
+#formselect{
+  text-align: center;
+}
+h1 {
+  text-align: center;
+}
+
+.note_name{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.fret {
+  position: relative;
+  text-align: center;
+  height: 50px;
+  /* IMPORTANT */
+  width: 83px;
+}
+@media only screen and (max-width: 360px) {
+  .fret {
+    height:42px
+  }
+  .fretboard {
+    width: 860px;
+  }
+}
+.nofret{
+  font-size: 20px;
+  text-align: center;
+  color: #1D262A;
+  /* IMPORTANT */
+  width: 82px;
+}
+.note-click {
+  position: absolute;
+  top: -17px;
+}
+.notename{
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+  supported by Chrome and Opera */
+}
+
+@media only screen and (max-width: 1430px) {
+
+  .fretboard {
+    background-image: url(/static/media/fretboard/fretboard_1000.png);
+    width: 1010px;
+    padding-left: 14px;
+    margin:auto;
+    background-position-y: top;
+  }
+  .eString{
+    border-top: 1.5px solid rgb(136,138,154)!important;
+  }
+  .bString{
+    border-top: 1.5px solid rgb(136,138,154)!important;
+  }
+  .gString{
+    border-top: 1.5px solid rgb(136,138,154)!important;
+  }
+  .dString{
+    border-top: 2px solid rgb(171,173,193)!important;
+  }
+  .AString{
+    border-top: 2.5px solid rgb(171,173,193)!important;
+  }
+  .eLowString{
+    border-top: 2.5px solid rgb(171,173,193)!important;
+  }
+  #fretboardcontainer{
+    width: 1000px;
+    margin:auto;
+  }
+}
+
+.fret {
+  position: relative;
+  text-align: center;
+  height: 50px;
+  /* IMPORTANT */
+  width: 82px;
+}
+.nofret{
+  font-size: 20px;
+  text-align: center;
+  color: #1D262A;
+  /* IMPORTANT */
+  width: 82px;
+}
+.note-click {
+  position: absolute;
+  top: -17px;
+}
+.notename{
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+  supported by Chrome and Opera */
+}
+@media only screen and (max-width: 1430px) {
+  .fret {
+    width: 59.7px;
+  }
+  .nofret{
+    width: 58.8167px;
+  }
+}
+@media only screen and (max-width: 1050px) {
+  #fretboardcontainer{
+    width: 100%;
+    margin: auto;
+  }
+  .fret {
+    width: 100%;
+  }
+  .nofret{
+    width: 39.2px;
+  }
+  .fretboard{
+    width: 100%;
+    background-size: contain;
+    margin: auto;
+    background-position-y: top;
+    padding-left: 13px;
+    background-image: url(/static/media/fretboard/fretboard_5.png);
+  }
+  .note > .tone {
+    max-height: 26px;
+    max-width: 26px;
+  }
+  .fret .note {
+    font-size: 14px;
+    padding-top: 2px;
+  }
+}
+@media only screen and (max-width: 982px) {
+  .fretboard{
+      background-image: url(/static/media/fretboard/fretboard_4.png);
+  }
+@media only screen and (max-width: 945px) {
+  .fretboard{
+      background-image: url(/static/media/fretboard/fretboard_3.png);
+  }
+}
+@media only screen and (max-width: 895px) {
+  .fretboard{
+      background-image: url(/static/media/fretboard/fretboard_2.png);
+  }
+  @media only screen and (max-width: 820px) {
+    .fretboard{
+        background-image: url(/static/media/fretboard/fretboard_1.png);
+    }
+}
+@media only screen and (max-width: 780px) {
+  #fretboardcontainer{
+    margin-top: 16px;
+  }
+  .fretboard{
+  background-image: url(/static/media/fretboard/fretboard_sq.png);
+  background-size: contain;
+  }
+  .note > .tone {
+    max-height: 26px;
+    max-width: 26px;
+  }
+}
+  @media only screen and (max-width: 700px) {
+    #fretboardcontainer{
+      margin-top: 16px;
+    }
+  }
+  @media only screen and (max-width: 620px) {
+    #fretboardcontainer{
+      margin-top: 10px;
+    }
+  }
+  @media only screen and (max-width: 550px) {
+    #fretboardcontainer{
+      margin-top: 16px;
+    }
+  }
+  @media only screen and (max-width: 500px) {
+    #fretboardcontainer{
+      margin-top: 16px;
+    }
+  }
+  @media only screen and (max-width: 442px) {
+    #fretboardcontainer{
+      margin-top: 16px;
+      overflow-x: scroll;
+      scroll-behavior: smooth;
+    }
+  }
+  @media only screen and (max-width: 545px) {
+    }
+    .fretboard{
+      background-image: url(/static/media/fretboard/fretboard_5.png);
+      width: 1000px;
+      padding-left: 14px;
+      margin:auto;
+      background-position-y: top;
+    }
+}
+@media only screen and (max-width: 772px) {
+  .mbs {
+    margin-top: 3rem;
+  }
+}
+@media only screen and (max-width: 894px) {
+  .fretboard {
+    width: 100%;
+  }
+  .fret {
+    height: 42px
+  }
+}
+@media only screen and (max-width: 795px) {
+  .fretboard {
+    width: 100%;
+  }
+  .fret {
+    height: 38px
+  }
+}
+@media only screen and (max-width: 743px) {
+  .fretboard {
+    width: 100%;
+  }
+  .fret {
+    height: 34px
+  }
+}
+@media only screen and (max-width: 668px) {
+  .fretboard {
+    width: 668px;
+    padding-left: 10px;
+  }
+  .fret {
+    height: 34px
+  }
+}
+
+/* Form Styling */
+@media only screen and (max-width: 936px) {
+  #catsfbsf {
+    width: 90%;
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+  }
+  .sfbsf {
+    width: 90%;
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+  }
+  .sfbsfnr {
+    width: 90%;
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+  }
+  .sfbsfpos {
+    width: 90%;
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+  }
+  .sfbsfnos {
+    width: 90%;
+    margin-top: 0.8em;
+    margin-bottom: 0.8em;
+  }
+}
+.analysis_container {
+  font-size: 19px;
+  padding-bottom: 1%;
+}
