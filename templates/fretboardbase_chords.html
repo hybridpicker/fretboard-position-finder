@@ -134,9 +134,12 @@
   }
 
 </script>
+{% block head %}
+{% endblock %}
 
 <div class="mbs">
-  <h1>The Fretboard Project</h1>
+  {% block heading %}
+  {% endblock %}
 
   <form id="fretboard_form" action="" method="get" style="text-align: center;">
     <div class="sfbsf" id="catsfbsf">
@@ -184,6 +187,7 @@
     </div>
     <div class="sfbsfpos">
       <select name="position_select" id="position_select">
+        <option value="0" selected>Basic Position</option>
         <option value="0">Basic Position</option>
         <option value="1">First Inversion</option>
         <option value="2">Second Inversion</option>
@@ -194,14 +198,15 @@
 
   </form>
 
-  <br>
 
+  <br>
+  
   <div id="fretboardcontainer" class="fretboardcontainer">
     <div class="fretboard">
 
       <!-- e-String -->
       <div class="fret one eString">
-        <a class="note-click">
+        <a onclick="playtone('f2','eString')" class="note-click">
           <div class="note f2">
             <img class="tone f2 root" src="/static/media/yellow_dot.svg" alt="">
             <div class="notename f2">
@@ -211,7 +216,7 @@
         </a>
       </div>
       <div class="fret two eString">
-        <a class="note-click">
+        <a onclick="playtone('gb2','eString')" class="note-click"">
           <div class="note">
             <img class="tone gb2" src="/static/media/yellow_dot.svg" alt="">
             <div class="notename gb2">
@@ -227,7 +232,7 @@
         </a>
       </div>
       <div class="fret three eString">
-        <a class="note-click">
+        <a onclick="playtone('g2','eString')" class="note-click">
           <div class="note">
             <img class="tone g2" src="/static/media/yellow_dot.svg" alt="">
             <div class="notename g2">
@@ -237,7 +242,7 @@
         </a>
       </div>
       <div class="fret four eString">
-        <a class="note-click">
+        <a onclick="playtone('ab2','eString')" class="note-click">
           <div class="note">
             <img class="tone ab2" src="/static/media/yellow_dot.svg" alt="">
             <div class="notename ab2">
@@ -253,7 +258,7 @@
         </a>
       </div>
       <div class="fret five eString">
-        <a class="note-click">
+        <a onclick="playtone('a2','eString')" class="note-click">
           <div class="note">
             <img class="tone a2" src="/static/media/yellow_dot.svg" alt="">
             <div class="notename a2">
@@ -263,7 +268,7 @@
         </a>
       </div>
       <div class="fret six eString">
-        <a class="note-click">
+        <a onclick="playtone('bb2','eString')" class="note-click">
           <div class="note">
             <img class="tone bb2" src="/static/media/yellow_dot.svg" alt="">
             <div class="notename bb2">
@@ -279,9 +284,9 @@
         </a>
       </div>
       <div class="fret seven eString">
-        <a class="note-click">
+        <a onclick="playtone('b2','eString')" class="note-click">
           <div class="note">
-            <img class="tone b2 root" src="/static/media/yellow_dot.svg" alt="">
+            <img class="tone b2" src="/static/media/yellow_dot.svg" alt="">
             <div class="notename b2">
               B2
             </div>
@@ -289,7 +294,7 @@
         </a>
       </div>
       <div class="fret eight eString">
-        <a class="note-click">
+        <a onclick="playtone('c3','eString')" class="note-click">
           <div class="note">
             <img class="tone c3" src="/static/media/yellow_dot.svg" alt="">
             <div class="notename c3">
@@ -299,6 +304,7 @@
         </a>
       </div>
       <div class="fret nine eString"><a class="note-click">
+        <a onclick="playtone('db3','eString')" class="note-click">
         <div class="note">
           <img class="tone db3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename db3">
@@ -314,7 +320,7 @@
       </a>
     </div>
     <div class="fret ten eString">
-      <a class="note-click" target="https://google.com">
+      <a onclick="playtone('d3','eString')" class="note-click">
         <div class="note">
           <img class="tone d3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename d3">
@@ -324,7 +330,7 @@
       </a>
     </div>
     <div class="fret eleven eString">
-      <a class="note-click">
+      <a onclick="playtone('eb3','eString')" class="note-click">
         <div class="note">
           <img class="tone eb3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename eb3">
@@ -340,7 +346,7 @@
       </a>
     </div>
     <div class="fret twelve eString">
-      <a class="note-click">
+      <a onclick="playtone('e3','eString')" class="note-click">
         <div class="note">
           <img class="tone e3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename e3">
@@ -350,7 +356,7 @@
       </a>
     </div>
     <div class="fret thirteen eString">
-      <a class="note-click">
+      <a onclick="playtone('f3','eString')" class="note-click">
         <div class="note">
           <img class="tone f3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename f3">
@@ -360,7 +366,7 @@
       </a>
     </div>
     <div class="fret fourteen eString">
-      <a class="note-click">
+      <a onclick="playtone('gb3','eString')" class="note-click">
         <div class="note">
           <img class="tone gb3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename gb3">
@@ -376,7 +382,7 @@
       </a>
     </div>
     <div class="fret fifteen eString">
-      <a class="note-click">
+      <a onclick="playtone('g3','eString')" class="note-click">
         <div class="note">
           <img class="tone g3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename g3">
@@ -386,7 +392,7 @@
       </a>
     </div>
     <div class="fret sixteen eString">
-      <a class="note-click">
+      <a onclick="playtone('ab3','eString')" class="note-click">
         <div class="note">
           <img class="tone ab3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename ab3">
@@ -402,7 +408,7 @@
       </a>
     </div>
     <div class="fret seventeen eString">
-      <a class="note-click">
+      <a onclick="playtone('a3','eString')" class="note-click">
         <div class="note">
           <img class="tone a3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename a3">
@@ -414,7 +420,7 @@
 
     <!-- b-String -->
     <div class="fret one bString">
-      <a class="note-click">
+      <a onclick="playtone('c2','bString')" class="note-click">
         <div class="note">
           <img class="tone c2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename c2">
@@ -424,7 +430,7 @@
       </a>
     </div>
     <div class="fret two bString">
-      <a class="note-click">
+      <a onclick="playtone('db2','bString')" class="note-click">
         <div class="note">
           <img class="tone db2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename db2">
@@ -440,7 +446,7 @@
       </a>
     </div>
     <div class="fret three bString">
-      <a class="note-click">
+      <a onclick="playtone('d2','bString')" class="note-click">
         <div class="note">
           <img class="tone d2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename d2">
@@ -450,7 +456,7 @@
       </a>
     </div>
     <div class="fret four bString">
-      <a class="note-click">
+      <a onclick="playtone('eb2','bString')" class="note-click">
         <div class="note">
           <img class="tone eb2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename eb2">
@@ -466,7 +472,7 @@
       </a>
     </div>
     <div class="fret five bString">
-      <a class="note-click">
+      <a onclick="playtone('e2','bString')" class="note-click">
         <div class="note">
           <img class="tone e2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename e2">
@@ -476,7 +482,7 @@
       </a>
     </div>
     <div class="fret six bString">
-      <a class="note-click">
+      <a onclick="playtone('f2','bString')" class="note-click">
         <div class="note">
           <img class="tone f2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename f2">
@@ -486,7 +492,7 @@
       </a>
     </div>
     <div class="fret seven bString">
-      <a class="note-click">
+      <a onclick="playtone('gb2','bString')" class="note-click">
         <div class="note">
           <img class="tone gb2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename gb2">
@@ -502,7 +508,7 @@
       </a>
     </div>
     <div class="fret eight bString">
-      <a class="note-click">
+      <a onclick="playtone('g2','bString')" class="note-click">
         <div class="note">
           <img class="tone g2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename g2">
@@ -512,7 +518,7 @@
       </a>
     </div>
     <div class="fret nine bString">
-      <a class="note-click">
+      <a onclick="playtone('ab2','bString')" class="note-click">
         <div class="note">
           <img class="tone ab2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename ab2">
@@ -528,7 +534,7 @@
       </a>
     </div>
     <div class="fret ten bString">
-      <a class="note-click">
+      <a onclick="playtone('a2','bString')" class="note-click">
         <div class="note">
           <img class="tone a2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename a2">
@@ -538,7 +544,7 @@
       </a>
     </div>
     <div class="fret eleven bString">
-      <a class="note-click">
+      <a onclick="playtone('bb2','bString')" class="note-click">
         <div class="note">
           <img class="tone bb2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename bb2">
@@ -554,7 +560,7 @@
       </a>
     </div>
     <div class="fret twelve bString">
-      <a class="note-click">
+      <a onclick="playtone('b2','bString')" class="note-click">
         <div class="note">
           <img class="tone b2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename b2">
@@ -564,7 +570,7 @@
       </a>
     </div>
     <div class="fret thirteen bString">
-      <a class="note-click">
+      <a onclick="playtone('c3','bString')" class="note-click">
         <div class="note">
           <img class="tone c3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename c3">
@@ -574,7 +580,7 @@
       </a>
     </div>
     <div class="fret fourteen bString">
-      <a class="note-click">
+      <a onclick="playtone('db3','bString')" class="note-click">
         <div class="note">
           <img class="tone db3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename db3">
@@ -590,7 +596,7 @@
       </a>
     </div>
     <div class="fret fifteen bString">
-      <a class="note-click">
+      <a onclick="playtone('d3','bString')" class="note-click">
         <div class="note">
           <img class="tone d3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename d3">
@@ -600,7 +606,7 @@
       </a>
     </div>
     <div class="fret sixteen bString">
-      <a class="note-click">
+      <a onclick="playtone('eb3','bString')" class="note-click">
         <div class="note">
           <img class="tone eb3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename eb3">
@@ -616,7 +622,7 @@
       </a>
     </div>
     <div class="fret seventeen bString">
-      <a class="note-click">
+      <a onclick="playtone('e3','bString')" class="note-click">
         <div class="note">
           <img class="tone e3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename e3">
@@ -627,7 +633,7 @@
     </div>
     <!-- g-String -->
     <div class="fret one gString">
-      <a class="note-click">
+      <a onclick="playtone('ab1','gString')" class="note-click">
         <div class="note">
           <img class="tone ab1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename ab1">
@@ -643,7 +649,7 @@
       </a>
     </div>
     <div class="fret two gString">
-      <a class="note-click">
+      <a onclick="playtone('a1','gString')" class="note-click">
         <div class="note">
           <img class="tone a1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename a1">
@@ -653,7 +659,7 @@
       </a>
     </div>
     <div class="fret three gString">
-      <a class="note-click">
+      <a onclick="playtone('bb1','gString')" class="note-click">
         <div class="note">
           <img class="tone bb1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename bb1">
@@ -669,7 +675,7 @@
       </a>
     </div>
     <div class="fret four gString">
-      <a class="note-click">
+      <a onclick="playtone('b1','gString')" class="note-click">
         <div class="note">
           <img class="tone b1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename b1">
@@ -679,7 +685,7 @@
       </a>
     </div>
     <div class="fret five gString">
-      <a class="note-click">
+      <a onclick="playtone('c2','gString')" class="note-click">
         <div class="note">
           <img class="tone c2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename c2">
@@ -689,7 +695,7 @@
       </a>
     </div>
     <div class="fret six gString">
-      <a class="note-click">
+      <a onclick="playtone('db2','gString')" class="note-click">
         <div class="note">
           <img class="tone db2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename db2">
@@ -705,7 +711,7 @@
       </a>
     </div>
     <div class="fret seven gString">
-      <a class="note-click">
+      <a onclick="playtone('d2','gString')" class="note-click">
         <div class="note">
           <img class="tone d2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename d2">
@@ -715,7 +721,7 @@
       </a>
     </div>
     <div class="fret eight gString">
-      <a class="note-click">
+      <a onclick="playtone('eb2','gString')" class="note-click">
         <div class="note">
           <img class="tone eb2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename eb2">
@@ -731,7 +737,7 @@
       </a>
     </div>
     <div class="fret nine gString">
-      <a class="note-click">
+      <a onclick="playtone('e2','gString')" class="note-click">
         <div class="note">
           <img class="tone e2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename e2">
@@ -741,7 +747,7 @@
       </a>
     </div>
     <div class="fret ten gString">
-      <a class="note-click">
+      <a onclick="playtone('f2','gString')" class="note-click">
         <div class="note">
           <img class="tone f2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename f2">
@@ -751,7 +757,7 @@
       </a>
     </div>
     <div class="fret eleven gString">
-      <a class="note-click">
+      <a onclick="playtone('gb2','gString')" class="note-click">
         <div class="note">
           <img class="tone gb2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename gb2">
@@ -767,7 +773,7 @@
       </a>
     </div>
     <div class="fret twelve gString">
-      <a class="note-click">
+      <a onclick="playtone('g2','gString')" class="note-click">
         <div class="note">
           <img class="tone g2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename g2">
@@ -777,7 +783,7 @@
       </a>
     </div>
     <div class="fret thirteen gString">
-      <a class="note-click">
+      <a onclick="playtone('ab2','gString')" class="note-click">
         <div class="note">
           <img class="tone ab2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename ab2">
@@ -793,7 +799,7 @@
       </a>
     </div>
     <div class="fret fourteen gString">
-      <a class="note-click">
+      <a onclick="playtone('a2','gString')" class="note-click">
         <div class="note">
           <img class="tone a2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename a2">
@@ -803,7 +809,7 @@
       </a>
     </div>
     <div class="fret fifteen gString">
-      <a class="note-click">
+      <a onclick="playtone('bb2','gString')" class="note-click">
         <div class="note">
           <img class="tone bb2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename bb2">
@@ -819,7 +825,7 @@
       </a>
     </div>
     <div class="fret sixteen gString">
-      <a class="note-click">
+      <a onclick="playtone('b2','gString')" class="note-click">
         <div class="note">
           <img class="tone b2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename b2">
@@ -829,7 +835,7 @@
       </a>
     </div>
     <div class="fret seventeen gString">
-      <a class="note-click">
+      <a onclick="playtone('c3','gString')" class="note-click">
         <div class="note">
           <img class="tone c3" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename c3">
@@ -840,7 +846,7 @@
     </div>
     <!-- d-String -->
     <div class="fret one dString">
-      <a class="note-click">
+      <a onclick="playtone('eb1','dString')" class="note-click">
         <div class="note">
           <img class="tone eb1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename eb1">
@@ -856,7 +862,7 @@
       </a>
     </div>
     <div class="fret two dString">
-      <a class="note-click">
+      <a onclick="playtone('e1','dString')" class="note-click">
         <div class="note">
           <img class="tone e1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename e1">
@@ -866,7 +872,7 @@
       </a>
     </div>
     <div class="fret three dString">
-      <a class="note-click">
+      <a onclick="playtone('f1','dString')" class="note-click">
         <div class="note">
           <img class="tone f1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename f1">
@@ -876,7 +882,7 @@
       </a>
     </div>
     <div class="fret four dString">
-      <a class="note-click">
+      <a onclick="playtone('gb1','dString')" class="note-click">
         <div class="note">
           <img class="tone gb1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename gb1">
@@ -892,7 +898,7 @@
       </a>
     </div>
     <div class="fret five dString">
-      <a class="note-click">
+      <a onclick="playtone('g1','dString')" class="note-click">
         <div class="note">
           <img class="tone g1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename g1">
@@ -902,7 +908,7 @@
       </a>
     </div>
     <div class="fret six dString">
-      <a class="note-click">
+      <a onclick="playtone('ab1','dString')" class="note-click">
         <div class="note">
           <img class="tone ab1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename ab1">
@@ -918,7 +924,7 @@
       </a>
     </div>
     <div class="fret seven dString">
-      <a class="note-click">
+      <a onclick="playtone('a1','dString')" class="note-click">
         <div class="note">
           <img class="tone a1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename a1">
@@ -928,7 +934,7 @@
       </a>
     </div>
     <div class="fret eight dString">
-      <a class="note-click">
+      <a onclick="playtone('bb1','dString')" class="note-click">
         <div class="note">
           <img class="tone bb1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename bb1">
@@ -944,7 +950,7 @@
       </a>
     </div>
     <div class="fret nine dString">
-      <a class="note-click">
+      <a onclick="playtone('b1','dString')" class="note-click">
         <div class="note">
           <img class="tone b1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename b1">
@@ -954,7 +960,7 @@
       </a>
     </div>
     <div class="fret ten dString">
-      <a class="note-click">
+      <a onclick="playtone('c2','dString')" class="note-click">
         <div class="note">
           <img class="tone c2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename c2">
@@ -964,7 +970,7 @@
       </a>
     </div>
     <div class="fret eleven dString">
-      <a class="note-click">
+      <a onclick="playtone('db2','dString')" class="note-click">
         <div class="note">
           <img class="tone db2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename db2">
@@ -980,7 +986,7 @@
       </a>
     </div>
     <div class="fret twelve dString">
-      <a class="note-click">
+      <a onclick="playtone('d2','dString')" class="note-click">
         <div class="note">
           <img class="tone d2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename d2">
@@ -990,7 +996,7 @@
       </a>
     </div>
     <div class="fret thirteen dString">
-      <a class="note-click">
+      <a onclick="playtone('eb2','dString')" class="note-click">
         <div class="note">
           <img class="tone eb2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename eb2">
@@ -1006,7 +1012,7 @@
       </a>
     </div>
     <div class="fret fourteen dString">
-      <a class="note-click">
+      <a onclick="playtone('e2','dString')" class="note-click">
         <div class="note">
           <img class="tone e2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename e2">
@@ -1016,7 +1022,7 @@
       </a>
     </div>
     <div class="fret fifteen dString">
-      <a class="note-click">
+      <a onclick="playtone('f2','dString')" class="note-click">
         <div class="note">
           <img class="tone f2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename f2">
@@ -1026,7 +1032,7 @@
       </a>
     </div>
     <div class="fret sixteen dString">
-      <a class="note-click">
+      <a onclick="playtone('gb2','dString')" class="note-click">
         <div class="note">
           <img class="tone gb2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename gb2">
@@ -1042,7 +1048,7 @@
       </a>
     </div>
     <div class="fret seventeen dString">
-      <a class="note-click">
+      <a onclick="playtone('g2','dString')" class="note-click">
         <div class="note">
           <img class="tone g2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename g2">
@@ -1054,7 +1060,7 @@
 
     <!-- A-String -->
     <div class="fret one AString">
-      <a class="note-click">
+      <a onclick="playtone('bb0','AString')" class="note-click">
         <div class="note">
           <img class="tone bb0" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename bb0">
@@ -1070,7 +1076,7 @@
       </a>
     </div>
     <div class="fret two AString">
-      <a class="note-click">
+      <a onclick="playtone('b0','AString')" class="note-click">
         <div class="note">
           <img class="tone b0" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename b0">
@@ -1080,7 +1086,7 @@
       </a>
     </div>
     <div class="fret three AString">
-      <a class="note-click">
+      <a onclick="playtone('c1','AString')" class="note-click">
         <div class="note">
           <img class="tone c1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename c1">
@@ -1090,7 +1096,7 @@
       </a>
     </div>
     <div class="fret four AString">
-      <a class="note-click">
+      <a onclick="playtone('db1','AString')" class="note-click">
         <div class="note">
           <img class="tone db1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename db1">
@@ -1098,15 +1104,15 @@
           </div>
         </div>
         <div class="note">
-          <img class="tone cs0" src="/static/media/yellow_dot.svg" alt="">
-          <div class="notename cs0">
+          <img class="tone cs1" src="/static/media/yellow_dot.svg" alt="">
+          <div class="notename cs1">
             C#1
           </div>
         </div>
       </a>
     </div>
     <div class="fret five AString">
-      <a class="note-click">
+      <a onclick="playtone('d1','AString')" class="note-click">
         <div class="note">
           <img class="tone d1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename d1">
@@ -1116,7 +1122,7 @@
       </a>
     </div>
     <div class="fret six AString">
-      <a class="note-click">
+      <a onclick="playtone('eb1','AString')" class="note-click">
         <div class="note">
           <img class="tone eb1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename eb1">
@@ -1132,7 +1138,7 @@
       </a>
     </div>
     <div class="fret seven AString">
-      <a class="note-click">
+      <a onclick="playtone('e1','AString')" class="note-click">
         <div class="note">
           <img class="tone e1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename e1">
@@ -1142,7 +1148,7 @@
       </a>
     </div>
     <div class="fret eight AString">
-      <a class="note-click">
+      <a onclick="playtone('f1','AString')" class="note-click">
         <div class="note">
           <img class="tone f1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename f1">
@@ -1152,7 +1158,7 @@
       </a>
     </div>
     <div class="fret nine AString">
-      <a class="note-click">
+      <a onclick="playtone('gb1','AString')" class="note-click">
         <div class="note">
           <img class="tone gb1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename gb1">
@@ -1168,7 +1174,7 @@
       </a>
     </div>
     <div class="fret ten AString">
-      <a class="note-click">
+      <a onclick="playtone('g1','AString')" class="note-click">
         <div class="note">
           <img class="tone g1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename g1">
@@ -1178,7 +1184,7 @@
       </a>
     </div>
     <div class="fret eleven AString">
-      <a class="note-click">
+      <a onclick="playtone('ab1','AString')" class="note-click">
         <div class="note">
           <img class="tone ab1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename ab1">
@@ -1194,7 +1200,7 @@
       </a>
     </div>
     <div class="fret twelve AString">
-      <a class="note-click">
+      <a onclick="playtone('a1','AString')" class="note-click">
         <div class="note">
           <img class="tone a1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename a1">
@@ -1204,7 +1210,7 @@
       </a>
     </div>
     <div class="fret thirteen AString">
-      <a class="note-click">
+      <a onclick="playtone('bb1','AString')" class="note-click">
         <div class="note">
           <img class="tone bb1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename bb1">
@@ -1220,7 +1226,7 @@
       </a>
     </div>
     <div class="fret fourteen AString">
-      <a class="note-click">
+      <a onclick="playtone('b1','AString')" class="note-click">
         <div class="note">
           <img class="tone b1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename b1">
@@ -1230,7 +1236,7 @@
       </a>
     </div>
     <div class="fret fifteen AString">
-      <a class="note-click">
+      <a onclick="playtone('c2','AString')" class="note-click">
         <div class="note">
           <img class="tone c2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename c2">
@@ -1250,7 +1256,7 @@
       </a>
     </div>
     <div class="fret seventeen AString">
-      <a class="note-click">
+      <a onclick="playtone('d2','AString')" class="note-click">
         <div class="note">
           <img class="tone d2" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename d2">
@@ -1261,7 +1267,7 @@
     </div>
     <!-- E-String -->
     <div class="fret one laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('f0','eLowString')" class="note-click">
         <div class="note">
           <img class="tone f0" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename f0">
@@ -1271,23 +1277,23 @@
       </a>
     </div>
     <div class="fret two laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('gb0','eLowString')" class="note-click">
         <div class="note">
           <img class="tone gb0" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename gb0">
-            Gb
+            Gb0
           </div>
         </div>
         <div class="note">
           <img class="tone fs1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename fs1">
-            F#1
+            F#0
           </div>
         </div>
       </a>
     </div>
     <div class="fret three laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('g0','eLowString')" class="note-click">
         <div class="note">
           <img class="tone g0" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename g0">
@@ -1297,7 +1303,7 @@
       </a>
     </div>
     <div class="fret four laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('ab0','eLowString')" class="note-click">
         <div class="note">
           <img class="tone ab0" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename ab0">
@@ -1313,7 +1319,7 @@
       </a>
     </div>
     <div class="fret five laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('a0','eLowString')" class="note-click">
         <div class="note">
           <img class="tone a0" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename a0">
@@ -1323,7 +1329,7 @@
       </a>
     </div>
     <div class="fret six laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('bb0','eLowString')" class="note-click">
         <div class="note">
           <img class="tone bb0" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename bb0">
@@ -1339,7 +1345,7 @@
       </a>
     </div>
     <div class="fret seven laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('b0','eLowString')" class="note-click">
         <div class="note">
           <img class="tone b0" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename b0">
@@ -1349,7 +1355,7 @@
       </a>
     </div>
     <div class="fret eight laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('c1','eLowString')" class="note-click">
         <div class="note">
           <img class="tone c1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename c1">
@@ -1359,7 +1365,7 @@
       </a>
     </div>
     <div class="fret nine laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('db1','eLowString')" class="note-click">
         <div class="note">
           <img class="tone db1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename db1">
@@ -1375,7 +1381,7 @@
       </a>
     </div>
     <div class="fret ten laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('d1','eLowString')" class="note-click">
         <div class="note">
           <img class="tone d1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename d1">
@@ -1385,7 +1391,7 @@
       </a>
     </div>
     <div class="fret eleven laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('eb1','eLowString')" class="note-click">
         <div class="note">
           <img class="tone eb1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename eb1">
@@ -1401,7 +1407,7 @@
       </a>
     </div>
     <div class="fret twelve laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('e1','eLowString')" class="note-click">
         <div class="note">
           <img class="tone e1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename e1">
@@ -1411,7 +1417,7 @@
       </a>
     </div>
     <div class="fret thirteen laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('f1','eLowString')" class="note-click">
         <div class="note">
           <img class="tone f1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename f1">
@@ -1421,7 +1427,7 @@
       </a>
     </div>
     <div class="fret fourteen laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('gb1','eLowString')" class="note-click">
         <div class="note">
           <img class="tone gb1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename gb1">
@@ -1437,7 +1443,7 @@
       </a>
     </div>
     <div class="fret fifteen laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('g1','eLowString')" class="note-click">
         <div class="note">
           <img class="tone g1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename g1">
@@ -1447,7 +1453,7 @@
       </a>
     </div>
     <div class="fret sixteen laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('ab1','eLowString')" class="note-click">
         <div class="note">
           <img class="tone ab1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename ab1">
@@ -1463,7 +1469,7 @@
       </a>
     </div>
     <div class="fret seventeen laststring eLowString">
-      <a class="note-click">
+      <a onclick="playtone('a1','eLowString')" class="note-click">
         <div class="note">
           <img class="tone a1" src="/static/media/yellow_dot.svg" alt="">
           <div class="notename a1">
@@ -1527,37 +1533,87 @@
   </div>
 
 </div>
+{% block fretboard %}
+{% endblock %}
 
 <script type="text/javascript">
-  function show_tension_notes() {
-    var x = document.getElementById('position_select').value
-    var x = $('#position_select')[0][x].textContent
-    var y = document.getElementById('note_range').value
-    var pitch_range = ['-1','0','1','2','3','4'];
-    var i = 0;
-    for (var key in voicing_data[y][x][0]) {
-      if (voicing_data[y][x][0].hasOwnProperty(key)) {
-        var tone = voicing_data[y][x][0][key][0]
-        var tension_name = voicing_data[y][x][0][key][1]
-        for (i = 0; i < pitch_range.length; i++) {
-          var pitch = pitch_range[i];
-          var QuerySelect = '.' + key + ' img.tone.' + tone + pitch;
-          $(QuerySelect).addClass('active');
-          var QuerySelect = '.' + key + ' .notename.' + tone + pitch;
-          $(QuerySelect).addClass('active');
-          $(QuerySelect).addClass('active').text(tension_name);
+  /* Nots Options Scale Select Field  */
+  var x, i, j, selElmnt, a, b, c;
+  /* Look for any elements with the class "sfbsf": */
+  x = document.getElementsByClassName("sfbsfnos");
+  for (i = 0; i < x.length; i++) {
+    selElmnt = x[i].getElementsByTagName("select")[0];
+    /* For each element, create a new DIV that will act as the selected item: */
+    a = document.createElement("DIV");
+    a.setAttribute("class", "sese");
+    a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+    x[i].appendChild(a);
+    /* For each element, create a new DIV that will contain the option list: */
+    b = document.createElement("DIV");
+    b.setAttribute("class", "slit sehi");
+    for (j = 1; j < selElmnt.length; j++) {
+      /* For each option in the original select element,
+      create a new DIV that will act as an option item: */
+      c = document.createElement("DIV");
+      c.innerHTML = selElmnt.options[j].innerHTML;
+      c.addEventListener("click", function(e) {
+        /* When an item is clicked, update the original select box,
+        and the selected item: */
+        var y, i, k, s, h;
+        s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+        h = this.parentNode.previousSibling;
+        for (i = 0; i < s.length; i++) {
+          if (s.options[i].innerHTML == this.innerHTML) {
+            s.selectedIndex = i;
+            h.innerHTML = this.innerHTML;
+            y = this.parentNode.getElementsByClassName("swasd");
+            for (k = 0; k < y.length; k++) {
+              y[k].removeAttribute("class");
+            }
+            this.setAttribute("class", "swasd");
+            break;
+          }
         }
+        h.click();
+        $('#position_select').val(0);
+        $("#fretboard_form").submit();
+      });
+      b.appendChild(c);
+    }
+    x[i].appendChild(b);
+    a.addEventListener("click", function(e) {
+      /* When the select box is clicked, close any other select boxes,
+      and open/close the current select box: */
+      e.stopPropagation();
+      closeAllSelect(this);
+      this.nextSibling.classList.toggle("sehi");
+      this.classList.toggle("slar-active");
+    });
+  }
+
+  function closeAllSelect(elmnt) {
+    /*  Close all select boxes in the document,
+    except the current select box: */
+    var x, y, i, arrNo = [];
+    x = document.getElementsByClassName("slit");
+    y = document.getElementsByClassName("sese");
+    for (i = 0; i < y.length; i++) {
+      if (elmnt == y[i]) {
+        arrNo.push(i)
+      } else {
+        y[i].classList.remove("slar-active");
       }
     }
-    $("#show_tension_button").attr("onclick","getToneNameFromData()");
-    $("#show_tension_button").text('Tone Names');
-
+    for (i = 0; i < x.length; i++) {
+      if (arrNo.indexOf(i)) {
+        x[i].classList.add("sehi");
+      }
+    }
   }
 
-  function getToneNameFromData() {
-    $("#show_tension_button").attr("onclick","show_tension_notes()");
-    $('#fretboard_form').submit();
-  }
+  /* If the user clicks anywhere outside the select box,
+  then close all select boxes: */
+  document.addEventListener("click", closeAllSelect);
 </script>
 
 <script type="text/javascript">
@@ -1639,170 +1695,10 @@
 </script>
 
 <script type="text/javascript">
-  var x, i, j, selElmnt, a, b, c;
-  /* Look for any elements with the class "sfbsf": */
-  x = document.getElementsByClassName("sfbsfnr");
-  for (i = 0; i < x.length; i++) {
-    selElmnt = x[i].getElementsByTagName("select")[0];
-    /* For each element, create a new DIV that will act as the selected item: */
-    a = document.createElement("DIV");
-    a.setAttribute("class", "sese");
-    a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
-    x[i].appendChild(a);
-    /* For each element, create a new DIV that will contain the option list: */
-    b = document.createElement("DIV");
-    b.setAttribute("class", "slit sehi");
-    for (j = 1; j < selElmnt.length; j++) {
-      /* For each option in the original select element,
-      create a new DIV that will act as an option item: */
-      c = document.createElement("DIV");
-      c.innerHTML = selElmnt.options[j].innerHTML;
-      c.addEventListener("click", function(e) {
-        /* When an item is clicked, update the original select box,
-        and the selected item: */
-        var y, i, k, s, h;
-        s = this.parentNode.parentNode.getElementsByTagName("select")[0];
-        h = this.parentNode.previousSibling;
-        for (i = 0; i < s.length; i++) {
-          if (s.options[i].innerHTML == this.innerHTML) {
-            s.selectedIndex = i;
-            h.innerHTML = this.innerHTML;
-            y = this.parentNode.getElementsByClassName("swasd");
-            for (k = 0; k < y.length; k++) {
-              y[k].removeAttribute("class");
-            }
-            this.setAttribute("class", "swasd");
-            break;
-          }
-        }
-        h.click();
-        var pos_val = document.getElementById('position_select').value
-        var position_text = $('#position_select')[0][pos_val].textContent
-        getTonesFromData(position_text, this.textContent)
-      });
-      b.appendChild(c);
-    }
-    x[i].appendChild(b);
-    a.addEventListener("click", function(e) {
-      /* When the select box is clicked, close any other select boxes,
-      and open/close the current select box: */
-      e.stopPropagation();
-      closeAllSelect(this);
-      this.nextSibling.classList.toggle("sehi");
-      this.classList.toggle("slar-active");
-    });
-  }
-
-  function closeAllSelect(elmnt) {
-    /*  Close all select boxes in the document,
-    except the current select box: */
-    var x, y, i, arrNo = [];
-    x = document.getElementsByClassName("slit");
-    y = document.getElementsByClassName("sese");
-    for (i = 0; i < y.length; i++) {
-      if (elmnt == y[i]) {
-        arrNo.push(i)
-      } else {
-        y[i].classList.remove("slar-active");
-      }
-    }
-    for (i = 0; i < x.length; i++) {
-      if (arrNo.indexOf(i)) {
-        x[i].classList.add("sehi");
-      }
-    }
-  }
-
-  /* If the user clicks anywhere outside the select box,
-  then close all select boxes: */
-  document.addEventListener("click", closeAllSelect);
-</script>
-
-<script type="text/javascript">
-  var x, i, j, selElmnt, a, b, c;
-  /* Look for any elements with the class "sfbsf": */
-  x = document.getElementsByClassName("sfbsfpos");
-  for (i = 0; i < x.length; i++) {
-    selElmnt = x[i].getElementsByTagName("select")[0];
-    /* For each element, create a new DIV that will act as the selected item: */
-    a = document.createElement("DIV");
-    a.setAttribute("class", "sese");
-    a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
-    x[i].appendChild(a);
-    /* For each element, create a new DIV that will contain the option list: */
-    b = document.createElement("DIV");
-    b.setAttribute("class", "slit sehi");
-    for (j = 1; j < selElmnt.length; j++) {
-      /* For each option in the original select element,
-      create a new DIV that will act as an option item: */
-      c = document.createElement("DIV");
-      c.innerHTML = selElmnt.options[j].innerHTML;
-      c.addEventListener("click", function(e) {
-        /* When an item is clicked, update the original select box,
-        and the selected item: */
-        var y, i, k, s, h;
-        s = this.parentNode.parentNode.getElementsByTagName("select")[0];
-        h = this.parentNode.previousSibling;
-        for (i = 0; i < s.length; i++) {
-          if (s.options[i].innerHTML == this.innerHTML) {
-            s.selectedIndex = i;
-            h.innerHTML = this.innerHTML;
-            y = this.parentNode.getElementsByClassName("swasd");
-            for (k = 0; k < y.length; k++) {
-              y[k].removeAttribute("class");
-            }
-            this.setAttribute("class", "swasd");
-            break;
-          }
-        }
-        h.click();
-        var position_select = this.textContent
-        var note_range = document.getElementById('note_range').value
-        getTonesFromData(position_select, note_range)
-      });
-      b.appendChild(c);
-    }
-    x[i].appendChild(b);
-    a.addEventListener("click", function(e) {
-      /* When the select box is clicked, close any other select boxes,
-      and open/close the current select box: */
-      e.stopPropagation();
-      closeAllSelect(this);
-      this.nextSibling.classList.toggle("sehi");
-      this.classList.toggle("slar-active");
-    });
-  }
-
-  function closeAllSelect(elmnt) {
-    /*  Close all select boxes in the document,
-    except the current select box: */
-    var x, y, i, arrNo = [];
-    x = document.getElementsByClassName("slit");
-    y = document.getElementsByClassName("sese");
-    for (i = 0; i < y.length; i++) {
-      if (elmnt == y[i]) {
-        arrNo.push(i)
-      } else {
-        y[i].classList.remove("slar-active");
-      }
-    }
-    for (i = 0; i < x.length; i++) {
-      if (arrNo.indexOf(i)) {
-        x[i].classList.add("sehi");
-      }
-    }
-  }
-
-  /* If the user clicks anywhere outside the select box,
-  then close all select boxes: */
-  document.addEventListener("click", closeAllSelect);
-</script>
-
-<script type="text/javascript">
 
 
-  // getting Tones from Function 0=Template
-  window.onload = getTonesFromData("Basic Position", "e - d")
+
+  window.onload = getTonesFromData()
 
   // scroll Cookie for submitting form
   $(document).ready(function() {
@@ -1816,4 +1712,26 @@
 
   });
 
+  // Jquery submit Form interactive
+  $(document).ready(function(){
+    $("#models_select").on("change", function() {
+      $("#fretboard_form").submit();
+    });
+    $("#root").on("change", function() {
+      //submit Form
+      $("#fretboard_form").submit();
+    });
+    $("#notes_options_select").on("change", function() {
+      $('#position_select').val(0);
+      $("#fretboard_form").submit();
+    });
+    $("#position_select").on("change", function() {
+      $("#fretboard_form").submit();
+    });
+
+
+  });
+
 </script>
+{% block footer %}
+{% endblock %}
