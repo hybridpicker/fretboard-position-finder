@@ -388,22 +388,8 @@ h1 {
   margin-right: 0.5em;
 }
 
-.sfbsfnos select {
+.sfbsfpos select {
   display: none; /*hide original SELECT element: */
-}
-.sfbsfnos-text {
-  display: inline-block;
-}
-/* The container must be positioned relative: */
-.sfbsfnos {
-  position: relative;
-  font-family: 'Dosis', sans-serif;
-  font-size: 18px;
-  font-color: #0F262B;
-  display: inline-block;
-  width: 11rem;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
 }
 
 .sfbsfnos select {

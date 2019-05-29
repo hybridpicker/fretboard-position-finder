@@ -26,6 +26,7 @@ def fretboard_chords_view (request):
     position_id = 0
     root_id = 1
     notes_options_id = 1
+    tonal_root = 0
 
     '''
     Requesting GET form
@@ -97,4 +98,4 @@ def fretboard_chords_view (request):
         'range_options': range_options,
         'type_options': type_options,
         }
-    return render(request, 'fretboard/fretboard_chords.html', context)
+    return render(request, 'fretboard_chords.html', context)
