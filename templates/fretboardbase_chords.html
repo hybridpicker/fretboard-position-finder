@@ -1,5 +1,8 @@
 {% load static %}
 
+<!-- Dosis Font -->
+<link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
+
 <!-- JQuery -->
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
@@ -98,7 +101,6 @@
     $('img.tone').removeClass('active')
     $('.notename').removeClass('active')
     $('.tone').attr('src', '/static/media/yellow_dot.svg')
-
     /* x sets the id of inversions */
     var pitch_range = ['-1','0','1','2','3','4'];
     var i = 0;
@@ -108,15 +110,17 @@
         var tone_name = voicing_data[y][x][0][key][2]
         for (i = 0; i < pitch_range.length; i++) {
           var pitch = pitch_range[i];
-          var QuerySelect = '.' + key + ' img.tone.' + tone + pitch;
-          $(QuerySelect).addClass('active');
-          var QuerySelect = '.' + key + ' .notename.' + tone + pitch;
-          $(QuerySelect).addClass('active');
+          console.log(pitch)
+          var length_pitch = $(".active:contains(E)")
+          console.log(length_pitch)
+          if (length_pitch.length > 1) {
+            var QuerySelect = '.' + key + ' img.tone.' + tone + pitch;
+            $(QuerySelect).addClass('active');
+          }
         }
       }
     }
 
-    /* Checking all Tones in Scale */
 
     /* Change for RootNote Color */
     var string_array = ['eString', 'bString', 'gString', 'dString', 'AString', 'eLowString']
@@ -130,6 +134,7 @@
         }
       }
     }
+    /* Checking all Tones in Scale */
 
   }
 
@@ -200,7 +205,7 @@
 
 
   <br>
-  
+
   <div id="fretboardcontainer" class="fretboardcontainer">
     <div class="fretboard">
 

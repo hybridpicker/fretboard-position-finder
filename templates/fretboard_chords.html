@@ -6,6 +6,8 @@
 <!-- CSS fretboard -->
 <link rel="stylesheet" href="{% static "css/fretboard.css" %}" type="text/css" media="screen">
 
+<!-- Dosis Font -->
+<link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
 <script type="text/javascript">
   var voicing_data = {
@@ -108,15 +110,23 @@
         var tone_name = voicing_data[y][x][0][key][2]
         for (i = 0; i < pitch_range.length; i++) {
           var pitch = pitch_range[i];
-          var QuerySelect = '.' + key + ' img.tone.' + tone + pitch;
-          $(QuerySelect).addClass('active');
-          var QuerySelect = '.' + key + ' .notename.' + tone + pitch;
-          $(QuerySelect).addClass('active');
+          /* Upper Case Tone to use it in .length */
+          var json_tone = tone.charAt(0).toUpperCase()
+          var length_pitch = $(".active:contains(" + json_tone + ")")
+          /* Check if no tone is used doubled */
+          if (length_pitch.length < 1) {
+            var QuerySelect = '.' + key + ' img.tone.' + tone + pitch;
+            $(QuerySelect).addClass('active');
+            var QuerySelect = '.' + key + ' .notename.' + tone + pitch;
+            $(QuerySelect).addClass('active');
+          }
         }
       }
     }
 
-    /* Checking all Tones in Scale */
+
+    /* Checking all Tones in Chords if Duplicates are in it */
+
 
     /* Change for RootNote Color */
     var string_array = ['eString', 'bString', 'gString', 'dString', 'AString', 'eLowString']
