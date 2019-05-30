@@ -143,6 +143,7 @@
   }
 
 </script>
+<!-- Play function -->
 <script type="text/javascript">
   function playtone(x, y){
     var audio = new Audio('static/media/tone_sounds/' + x + '.wav');
@@ -1569,11 +1570,8 @@
         var tension_name = voicing_data[y][x][0][key][1]
         for (i = 0; i < pitch_range.length; i++) {
           var pitch = pitch_range[i];
-          var QuerySelect = '.' + key + ' img.tone.' + tone + pitch;
-          $(QuerySelect).addClass('active');
-          var QuerySelect = '.' + key + ' .notename.' + tone + pitch;
-          $(QuerySelect).addClass('active');
-          $(QuerySelect).addClass('active').text(tension_name);
+          var QuerySelect = '.' + key + ' .notename.' + tone + pitch + '.active';
+          $(QuerySelect).text(tension_name);
         }
       }
     }
