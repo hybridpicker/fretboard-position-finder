@@ -88,6 +88,7 @@ def fretboard_chords_view (request):
     # Creating for every String Range available Inversions #
     for option in range_options:
         chord_json_data[option.range] = {position.inversion_order for position in position_options}
+    print(chord_json_data)
     # notes data
     context = {
         'root_options': root_options,

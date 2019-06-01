@@ -65,7 +65,6 @@
         "dString": ["e","3"],
         "AString": ["b","7"]
       }]
-
     },
     "g - E": {
       "Basic Position": [{
@@ -123,8 +122,6 @@
         }
       }
     }
-    /* Checking all Tones in Chords if Duplicates are in it */
-
 
     /* Change for RootNote Color */
     var string_array = ['eString', 'bString', 'gString', 'dString', 'AString', 'eLowString']
@@ -139,10 +136,9 @@
         }
       }
     }
-
   }
-
 </script>
+
 <!-- Play function -->
 <script type="text/javascript">
   function playtone(x, y){
@@ -223,7 +219,7 @@
   </form>
 
   <br>
-
+<button onclick="playNoteNames()" type="button" name="button">PLAY</button>
   <div id="fretboardcontainer" class="fretboardcontainer">
     <div class="fretboard">
 
@@ -1582,7 +1578,17 @@
 
   function getToneNameFromData() {
     $("#show_tension_button").attr("onclick","show_tension_notes()");
-    $('#fretboard_form').submit();
+    var pos_val = document.getElementById('position_select').value
+    var position_text = $('#position_select')[0][pos_val].textContent
+    var note_range = document.getElementById('note_range').value
+    getTonesFromData(position_text, note_range)
+  }
+
+  function playNoteNames() {
+    playtone('c2','dString');
+    setTimeout(function(){ playtone('g2','gString'); }, 1000)
+    setTimeout(function(){ playtone('b2','bString'); }, 2000)
+    setTimeout(function(){ playtone('e3','eString'); }, 3000)
   }
 </script>
 

@@ -78,6 +78,9 @@ body {
 .active {
   visibility: unset !important;
 }
+a .active {
+  cursor: pointer;
+}
 #fretboardcontainer{
   margin-top: 4em;
 }
