@@ -98,6 +98,8 @@
     /* Resetting Fretboard */
     $('img.tone').removeClass('active')
     $('.notename').removeClass('active')
+    $('.note').removeClass('active')
+    $('.tensionname').remove()
     $('.tone').attr('src', '/static/media/yellow_dot.svg')
 
     /* x sets the id of inversions */
@@ -1587,9 +1589,9 @@
       /* add class active for showing up */
       QuerySelect = '.tensionname'
       $(QuerySelect).addClass('active');
+      $("#show_tension_button").attr("onclick","getToneNameFromData()");
+      $("#show_tension_button").text('Tone Names');
     }
-    $("#show_tension_button").attr("onclick","getToneNameFromData()");
-    $("#show_tension_button").text('Tone Names');
 
   }
 
