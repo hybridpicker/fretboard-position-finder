@@ -61,7 +61,7 @@ body {
   left: -15px;
   top: 0;
 }
-.notename {
+.notename, .tensionname {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -69,6 +69,7 @@ body {
   visibility: hidden;
   opacity: 0.85;
 }
+
 .note > .tone {
   visibility: hidden;
   vertical-align: middle;
@@ -124,7 +125,7 @@ h1 {
   position: absolute;
   top: -17px;
 }
-.notename{
+.notename, .tensionname{
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
   -khtml-user-select: none; /* Konqueror HTML */
@@ -185,7 +186,7 @@ h1 {
   position: absolute;
   top: -17px;
 }
-.notename{
+.notename, .tensionname {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
   -khtml-user-select: none; /* Konqueror HTML */
