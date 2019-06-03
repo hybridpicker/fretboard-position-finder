@@ -1,35 +1,16 @@
-{% extends 'fretboardbase.html' %}
+{% extends 'fretboardbase_chords.html' %}
 {% load static %}
 
 {% block header %}
-<!-- Play function -->
-<script type="text/javascript">
-  function playtone(x, y){
-    var audio = new Audio('static/media/tone_sounds/' + x + '.wav');
-    var string = '.' + y
-    audio.play();
-    if ( $(string + ' img.tone.' + x + '.active').hasClass( 'root') ) {
-    $(string + ' img.tone.' + x + '.active').attr('src', '/static/media/red_dot_active.svg');
-    setTimeout(function () {
-      $(string + ' img.tone.' + x + '.active').attr('src', '/static/media/red_dot.svg');
-    }, 300)
-    }
-    else {
-    $(string + ' img.tone.' + x + '.active').attr('src', '/static/media/yellow_dot_active.svg');
-    setTimeout(function () {
-      $(string + ' img.tone.' + x + '.active').attr('src', '/static/media/yellow_dot.svg');
-    }, 300)
-    }
-  }
-</script>
 {% endblock %}
 
 {% block heading %}
-<h1>The Fretboard Project</h1>
+<h1>Position Finder</h1>
 {% endblock %}
 
-{% block fretboardform %}
+{% block form %}
 {% endblock %}
+
 
 {% block fretboard %}
 {% endblock %}
