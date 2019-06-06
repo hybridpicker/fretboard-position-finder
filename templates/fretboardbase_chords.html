@@ -30,89 +30,7 @@
   }
 </script>
 <script type="text/javascript">
-  var voicing_data = {
-    "chord": "Major7",
-    "type": "V2",
-    "root": ["c0", "c1", "c2", "c3", "c4"],
-    "e - d": {
-      "Basic Position": [{
-        "eString": ["e", "3"],
-        "bString": ["b", "7"],
-        "gString": ["g", "5"],
-        "dString": ["c", "R"]
-      }],
-      "First Inversion": [{
-        "eString": ["g", "5"],
-        "bString": ["c", "R"],
-        "gString": ["b", "7"],
-        "dString": ["e", "3"]
-      }],
-      "Second Inversion": [{
-        "eString": ["b", "7"],
-        "bString": ["e", "3"],
-        "gString": ["c", "R"],
-        "dString": ["g", "5"]
-      }],
-      "Third Inversion": [{
-        "eString":["c", "R"],
-        "bString": ["g", "5"],
-        "gString": ["e", "3"],
-        "dString": ["b", "7"]
-      }]
-    },
-    "b - A": {
-      "Basic Position": [{
-        "bString": ["e","3"],
-        "gString": ["b","7"],
-        "dString": ["g","5"],
-        "AString": ["c","R"]
-      }],
-      "First Inversion": [{
-        "bString": ["g","5"],
-        "gString": ["c","R"],
-        "dString": ["b","7"],
-        "AString": ["e","3"]
-      }],
-      "Second Inversion": [{
-        "bString": ["b","7"],
-        "gString": ["e","3"],
-        "dString": ["c","R"],
-        "AString": ["g","5"]
-      }],
-      "Third Inversion": [{
-        "bString": ["c","R"],
-        "gString": ["g","5"],
-        "dString": ["e","3"],
-        "AString": ["b","7"]
-      }]
-    },
-    "g - E": {
-      "Basic Position": [{
-        "gString": ["e","3"],
-        "dString": ["b","7"],
-        "AString": ["g","5"],
-        "eLowString": ["c","R"]
-      }],
-      "First Inversion": [{
-        "gString": ["g","5"],
-        "dString": ["c","R"],
-        "AString": ["b","7"],
-        "eLowString": ["e","3"]
-      }],
-      "Second Inversion": [{
-        "gString": ["b","7"],
-        "dString": ["e","3"],
-        "AString": ["c","7"],
-        "eLowString": ["g","5"]
-      }],
-      "Third Inversion": [{
-        "gString": ["c","R"],
-        "dString": ["g","5"],
-        "AString": ["e","3"],
-        "eLowString": ["b","7"]
-      }]
-    }
-  }
+  var voicing_data = {{ chord_json_data|safe }}
 
   function getTonesFromData(x, y){
     /* Resetting Fretboard */
@@ -218,6 +136,7 @@
   </div>
   <div class="sfbsfpos">
     <select name="position_select" id="position_select">
+      <option value="0">Basic Position</option>
       <option value="0">Basic Position</option>
       <option value="1">First Inversion</option>
       <option value="2">Second Inversion</option>

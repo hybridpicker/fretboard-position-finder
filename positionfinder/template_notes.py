@@ -44,7 +44,7 @@ NOTE_NAMES = [
     'Gb', 'G', 'Ab',
     'A', 'Bb', 'B'
     ]
-    
+
 ''' adding sharp notes '''
 NOTE_NAMES_SHARP = [
     'C', 'C#', 'D',
@@ -52,3 +52,13 @@ NOTE_NAMES_SHARP = [
     'F#', 'G', 'G#',
     'A', 'A#', 'B'
     ]
+    
+INVERSIONS = [
+              'Basic Position',
+              'First Inversion',
+              'Second Inversion',
+              'Third Inversion',
+              'Fourth Inversion',
+              'Fifth Inversion',
+              'Sixth Inversion',
+              ]
