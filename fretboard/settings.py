@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'positionfinder.apps.PositionfinderConfig',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

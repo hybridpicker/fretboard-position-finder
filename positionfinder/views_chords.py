@@ -11,6 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .root_chord_note_setup import get_root_note
 from .functionalty_chord_tones_setup import get_functionalty_note_names
 
+from .get_position_dict_chords import get_position_dict
 
 '''
 Main View
@@ -86,8 +87,14 @@ def fretboard_chords_view (request):
                        "type": selected_note_option.type_name,
                        "root": root}
     # Creating for every String Range available Inversions #
+    position_json_data = {}
     for option in range_options:
-        chord_json_data[option.range] = {position.inversion_order for position in position_options}
+        for position in position_options:
+            position_json_data[position.inversion_order] = [get_position_dict(position.inversion_order,
+                                                                            notes_options_id)]
+        chord_json_data[option.range] = position_json_data
+
+    chord_json_data = json.dumps(chord_json_data)
     print(chord_json_data)
     # notes data
     context = {
@@ -98,5 +105,6 @@ def fretboard_chords_view (request):
         'position_options': position_options,
         'range_options': range_options,
         'type_options': type_options,
+        'chord_json_data': chord_json_data,
         }
     return render(request, 'fretboard_chords.html', context)
