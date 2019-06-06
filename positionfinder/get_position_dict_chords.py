@@ -1,7 +1,7 @@
 from positionfinder.models_chords import ChordNotes, ChordPosition
-from positionfinder.template_notes import NOTES, NOTES_SHARP, TENSIONS, INVERSIONS
+from positionfinder.template_notes import NOTES, NOTES_SHARP, TENSIONS, INVERSIONS, SHARP_NOTES
 
-def get_position_dict(chord_inversion, chord_note_id):
+def get_position_dict(chord_inversion, chord_note_id, root_pitch, tonal_root, selected_root_name):
     x = INVERSIONS.index(chord_inversion)
 
     chord_note = ChordNotes.objects.get(id=chord_note_id)
@@ -23,12 +23,18 @@ def get_position_dict(chord_inversion, chord_note_id):
                            chord_notes_position[x].fifth_note, chord_notes_position[x].sixth_note]
 
     index = 0
+
+    tonal_root = tonal_root + root_pitch
+
     for y in CHORD_NOTES:
         if y is not None:
-            chord_note_index = y + CHORD_NOTES_POSITION[index]
+            chord_note_index = y + root_pitch + CHORD_NOTES_POSITION[index]
             if chord_note_index >= 12:
                 chord_note_index = chord_note_index - 12
-            chord_note_name = NOTES[chord_note_index]
+            if tonal_root in SHARP_NOTES or '#' in selected_root_name:
+                chord_note_name = NOTES_SHARP[chord_note_index]
+            else:
+                chord_note_name = NOTES[chord_note_index]
             chord_note_string = CHORD_NOTES_STRING[index]
             chord_note_tension_index = y + CHORD_NOTES_POSITION[index]
             if chord_note_tension_index >= 12:
