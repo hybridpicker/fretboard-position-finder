@@ -66,8 +66,8 @@ def fretboard_chords_view (request):
 
     notes_options = ChordNotes.objects.filter(category=category_id)
     root_options = Root.objects.all()
-    root_pitch = Root.objects.get(pk=root_id).pitch
-
+    root_pitch = Root.objects.get(id=root_id).pitch
+    selected_root_name = Root.objects.get(id=root_id).name
     selected_note_option = ChordNotes.objects.get(id=chord_select_id)
     type_name = selected_note_option.type_name
     chord_name = selected_note_option.chord_name
@@ -91,7 +91,10 @@ def fretboard_chords_view (request):
     for option in range_options:
         for position in position_options:
             position_json_data[position.inversion_order] = [get_position_dict(position.inversion_order,
-                                                                            notes_options_id)]
+                                                                              notes_options_id,
+                                                                              root_pitch,
+                                                                              tonal_root,
+                                                                              selected_root_name)]
         chord_json_data[option.range] = position_json_data
 
     chord_json_data = json.dumps(chord_json_data)
