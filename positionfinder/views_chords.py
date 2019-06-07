@@ -26,7 +26,7 @@ def fretboard_chords_view (request):
     category_id = 3
     position_id = 0
     root_id = 1
-    notes_options_id = 1
+    notes_options_id = ChordNotes.objects.all().first().id
     tonal_root = 0
 
     '''
@@ -47,11 +47,11 @@ def fretboard_chords_view (request):
         try:
             type_id = request.GET['type_options_select']
         except MultiValueDictKeyError:
-            type_id = 1
+            type_id = 'V2'
         try:
-            chord_select_id = request.GET['chords_options_select']
+            chord_select_name = request.GET['chords_options_select']
         except MultiValueDictKeyError:
-            chord_select_id = '1'
+            chord_select_name = 'Major 7'
 
     '''
     Redirecting to other views if category is clicked
@@ -62,13 +62,13 @@ def fretboard_chords_view (request):
         return redirect('show_scale_fretboard')
 
     # Getting Tonal Root from selected Chord Object
-    tonal_root = ChordNotes.objects.get(id=chord_select_id).tonal_root
+    tonal_root = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id).tonal_root
 
     notes_options = ChordNotes.objects.filter(category=category_id)
     root_options = Root.objects.all()
     root_pitch = Root.objects.get(id=root_id).pitch
     selected_root_name = Root.objects.get(id=root_id).name
-    selected_note_option = ChordNotes.objects.get(id=chord_select_id)
+    selected_note_option = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id)
     type_name = selected_note_option.type_name
     chord_name = selected_note_option.chord_name
     range_options = ChordNotes.objects.filter(type_name=type_name,
@@ -77,8 +77,12 @@ def fretboard_chords_view (request):
                                               chord_name__in=[chord_name])
     type_options = ChordNotes.objects.all().values_list('type_name', flat=True).distinct()
     selected_category = int(category_id)
+    notes_options_id = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id).id
+    print(notes_options_id)
+    position_options = ChordPosition.objects.filter(notes_name_id=notes_options_id)
+    print(position_options)
+    chord_options = ChordNotes.objects.all().values_list('chord_name', flat=True).distinct()
 
-    position_options = ChordPosition.objects.filter(notes_name=notes_options_id)
     ## Creating List of available Root Pitches ##
     root = get_root_note(root_pitch, tonal_root, root_id)
     ## Getting Chord Notes in chronological Order as a [list] ##
@@ -109,5 +113,6 @@ def fretboard_chords_view (request):
         'range_options': range_options,
         'type_options': type_options,
         'chord_json_data': chord_json_data,
+        'chord_options': chord_options,
         }
     return render(request, 'fretboard_chords.html', context)
