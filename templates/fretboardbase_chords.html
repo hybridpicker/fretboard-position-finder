@@ -125,7 +125,11 @@
     <select name="chords_options_select" id="chords_options_select">
       <option value="{{ chord_options|first }}">{{ chord_options|first }}</option>
       {% for option in chord_options %}
+      {% if selected_chord == option %}
+      <option value="{{ option }}" selected>{{ option }}</option>
+      {% else %}
       <option value="{{ option }}">{{ option }}</option>
+      {% endif %}
       {% endfor %}
     </select>
   </div>
