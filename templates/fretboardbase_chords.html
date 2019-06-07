@@ -123,7 +123,9 @@
   </div>
   <div class="sfbsf">
     <select name="chords_options_select" id="chords_options_select">
-      <option value="1">Major 7</option>
+      {% for option in chord_options %}
+      <option value="{{ option }}">{{ option }}</option>
+      {% endfor %}
     </select>
   </div>
   <div class="sfbsfnr">
