@@ -123,6 +123,7 @@
   </div>
   <div class="sfbsf">
     <select name="chords_options_select" id="chords_options_select">
+      <option value="{{ chord_options|first }}">{{ chord_options|first }}</option>
       {% for option in chord_options %}
       <option value="{{ option }}">{{ option }}</option>
       {% endfor %}
@@ -130,7 +131,7 @@
   </div>
   <div class="sfbsfnr">
     <select name="note_range" id="note_range">
-      <option value="e - d"> e - d </option>
+      <option value="e - d">e - d</option>
       {% for option in range_options %}
       <option value="{{ option.range }}">{{ option.range }}</option>
       {% endfor %}
@@ -138,11 +139,11 @@
   </div>
   <div class="sfbsfpos">
     <select name="position_select" id="position_select">
-      <option value="0">Basic Position</option>
-      <option value="0">Basic Position</option>
-      <option value="1">First Inversion</option>
-      <option value="2">Second Inversion</option>
-      <option value="3">Third Inversion</option>
+      <option value="">Basic Position</option>
+      {% for option in position_options %}
+      <option value="">{{ option.inversion_order }}</option>
+      {% endfor %}
+
     </select>
   </div>
   <button id="show_tension_button" type="button" onclick=show_tension_notes() style="width: 8em;">Show Tensions</button>
