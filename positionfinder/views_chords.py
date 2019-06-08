@@ -108,6 +108,7 @@ def fretboard_chords_view (request):
     context = {
         'selected_chord': selected_note_option.chord_name,
         'root_id': root_id,
+        'root_name': selected_root_name,
         'root_options': root_options,
         'notes_options': notes_options,
         'selected_category': selected_category,

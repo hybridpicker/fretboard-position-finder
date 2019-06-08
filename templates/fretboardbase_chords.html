@@ -104,12 +104,9 @@
   </div>
   <div class="sfbsf">
     <select name="root" id="root">
-      {% for root_option in root_options %}
-      {% if root_id == root_option.id %}
-      <option value="{{ root_option.id }}" selected>{{ root_option.name }}</option>
-      {% else %}
-      <option value="{{ root_option.id }}">{{ root_option.name }}</option>
-      {% endif %}
+      <option value="{{ root_id }}" selected>{{ root_name }}</option>
+      {% for option in root_options %}
+      <option value="{{ option.id }}">{{ option.name }}</option>
       {% endfor %}
     </select>
   </div>
@@ -143,9 +140,9 @@
   </div>
   <div class="sfbsfpos">
     <select name="position_select" id="position_select">
-      <option value="">Basic Position</option>
+      <option value="Basic Position">Basic Position</option>
       {% for option in position_options %}
-      <option value="">{{ option.inversion_order }}</option>
+      <option value="option.inversion_order">{{ option.inversion_order }}</option>
       {% endfor %}
 
     </select>
@@ -1495,7 +1492,6 @@
 
 function show_tension_notes() {
   var x = document.getElementById('position_select').value
-  var x = $('#position_select')[0][x].textContent
   var y = document.getElementById('note_range').value
   var pitch_range = ['-1','0','1','2','3','4'];
   var i = 0;
@@ -1533,16 +1529,15 @@ function getToneNameFromData() {
   $("#show_tension_button").attr("onclick","show_tension_notes()");
   $("#show_tension_button").text('Show Tensions');
   var pos_val = document.getElementById('position_select').value
-  var position_text = $('#position_select')[0][pos_val].textContent
   var note_range = document.getElementById('note_range').value
-  getTonesFromData(position_text, note_range)
+  getTonesFromData(pos_val, note_range)
 }
 
 function playNoteNames() {
-  var range = $('.note.active').length
-  for (let i = 0; i <= range; i++) {
+  var range_length = $('.note.active').length
+  for (let i = 0; i <= range_length; i++) {
     setTimeout(function() {
-      var order = parseInt(range - i)
+      var order = parseInt(range_length - i)
       $('.notename.active')[order].click(); }, i * 1000
       );
   }
