@@ -105,7 +105,7 @@
   <div class="sfbsf">
     <select name="root" id="root">
       {% for root_option in root_options %}
-      {% if selected_root_id == root_option.id %}
+      {% if root_id == root_option.id %}
       <option value="{{ root_option.id }}" selected>{{ root_option.name }}</option>
       {% else %}
       <option value="{{ root_option.id }}">{{ root_option.name }}</option>

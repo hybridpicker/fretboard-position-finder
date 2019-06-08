@@ -103,9 +103,11 @@ def fretboard_chords_view (request):
 
     chord_json_data = json.dumps(chord_json_data)
     print(chord_json_data)
+    print(root_id)
     # notes data
     context = {
         'selected_chord': selected_note_option.chord_name,
+        'root_id': root_id,
         'root_options': root_options,
         'notes_options': notes_options,
         'selected_category': selected_category,

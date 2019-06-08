@@ -66,6 +66,32 @@ def create_chord(id):
         base_position = create_base_position(minor_7_b5.id)
         base_position = create_base_position(dominant_7.id)
 
+## TODO find pattern for saving automatically other inversions ###
+def create_four_note_inversions(id):
+    chord = ChordPosition.objects.get(id=id)
+    if chord.notes_name.chord_name == 'Major 7' and chord.inversion_order != 'Basic Position':
+        major_7 = chord
+        minor_7 = ChordPosition.objects.create(notes_name_id=major_7.notes_name.id + 1,
+                                            inversion_order=major_7.inversion_order,
+                                            first_note=major_7.first_note,
+                                            second_note=major_7.second_note,
+                                            third_note=major_7.third_note,
+                                            fourth_note=major_7.fourth_note,)
+        minor_7_b5 = ChordPosition.objects.create(notes_name_id=major_7.notes_name.id + 2,
+                                            inversion_order=major_7.inversion_order,
+                                            first_note=major_7.first_note,
+                                            second_note=major_7.second_note,
+                                            third_note=major_7.third_note,
+                                            fourth_note=major_7.fourth_note,)
+        dominant_7 = ChordPosition.objects.create(notes_name_id=major_7.notes_name.id + 3,
+                                            inversion_order=major_7.inversion_order,
+                                            first_note=major_7.first_note,
+                                            second_note=major_7.second_note,
+                                            third_note=major_7.third_note,
+                                            fourth_note=major_7.fourth_note,)
+    else:
+        pass
+
 class ChordNotes(models.Model):
     category = models.ForeignKey(
         NotesCategory,
@@ -123,6 +149,9 @@ class ChordPosition(models.Model):
     fourth_note = models.IntegerField(null=True, blank=True)
     fifth_note = models.IntegerField(null=True, blank=True)
     sixth_note = models.IntegerField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        super(ChordPosition, self).save(*args, **kwargs)
 
     def __str__(self):
         return '%s : %s %s' % (self.inversion_order,
