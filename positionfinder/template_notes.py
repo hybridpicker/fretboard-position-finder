@@ -52,13 +52,356 @@ NOTE_NAMES_SHARP = [
     'F#', 'G', 'G#',
     'A', 'A#', 'B'
     ]
-    
+
 INVERSIONS = [
-              'Basic Position',
-              'First Inversion',
-              'Second Inversion',
-              'Third Inversion',
-              'Fourth Inversion',
-              'Fifth Inversion',
-              'Sixth Inversion',
-              ]
+     'Basic Position',
+     'First Inversion',
+     'Second Inversion',
+     'Third Inversion',
+     'Fourth Inversion',
+     'Fifth Inversion',
+     'Sixth Inversion',
+     ]
+     
+STRING_NOTE_OPTIONS = {
+	"eString": [{
+		"c": [{
+			"tone": ["c3"],
+			"fret": [8]
+		}],
+		"cs": [{
+			"tone": ["cs3"],
+			"fret": [9]
+		}],
+		"db": [{
+			"tone": ["db3"],
+			"fret": [9]
+		}],
+		"d": [{
+			"tone": ["d3"],
+			"fret": [10]
+		}],
+		"ds": [{
+			"tone": ["ds3"],
+			"fret": [11]
+		}],
+		"eb": [{
+			"tone": ["eb3"],
+			"fret": [11]
+		}],
+		"e": [{
+			"tone": ["e3"],
+			"fret": [12]
+		}],
+		"f": [{
+			"tone": ["f2", "f3"],
+			"fret": [1, 13]
+		}],
+		"fs": [{
+			"tone": ["fs2",
+				"fs3"
+			],
+			"fret": [2,
+				14
+			]
+		}],
+		"gb": [{
+			"tone": ["gb2",
+				"gb3"
+			],
+			"fret": [2,
+				14
+			]
+		}],
+		"g": [{
+			"tone": ["g2",
+				"g3"
+			],
+			"fret": [3,
+				15
+			]
+		}],
+		"gs": [{
+			"tone": ["gs2",
+				"gs3"
+			],
+			"fret": [4,
+				16
+			]
+		}],
+		"ab": [{
+			"tone": ["ab2",
+				"ab3"
+			],
+			"fret": [4,
+				16
+			]
+		}],
+		"a": [{
+			"tone": ["a2",
+				"a3"
+			],
+			"fret": [5,
+				17
+			]
+		}],
+		"as": [{
+			"tone": ["as2"],
+			"fret": [6]
+		}],
+		"bb": [{
+			"tone": ["bb2"],
+			"fret": [6]
+		}],
+		"b": [{
+			"tone": ["b2"],
+			"fret": [7]
+		}]
+	}],
+	"bString": [{
+		"c": [{
+			"tone": ["c2", "c3"],
+			"fret": [1, 13]
+		}],
+		"cs": [{
+			"tone": ["cs2", "cs3"],
+			"fret": [2, 14]
+		}],
+		"db": [{
+			"tone": ["db2", "db3"],
+			"fret": [2, 14]
+		}],
+		"d": [{
+			"tone": ["d2", "d3"],
+			"fret": [3, 15]
+		}],
+		"ds": [{
+			"tone": ["ds2", "ds3"],
+			"fret": [4, 16]
+		}],
+		"eb": [{
+			"tone": ["eb2", "eb3"],
+			"fret": [4, 16]
+		}],
+		"e": [{
+			"tone": ["e2", "e3"],
+			"fret": [5, 17]
+		}],
+		"f": [{
+			"tone": ["f2"],
+			"fret": [6]
+		}],
+		"fs": [{
+			"tone": ["fs2"],
+			"fret": [7]
+		}],
+		"gb": [{
+			"tone": ["gb2"],
+			"fret": [7]
+		}],
+		"g": [{
+			"tone": ["g2"],
+			"fret": [8]
+		}],
+		"gs": [{
+			"tone": ["gs2"],
+			"fret": [9]
+		}],
+		"ab": [{
+			"tone": ["ab2"],
+			"fret": [9]
+		}],
+		"a": [{
+			"tone": ["a2"],
+			"fret": [10]
+		}],
+		"as": [{
+			"tone": ["as2"],
+			"fret": [11]
+		}],
+		"bb": [{
+			"tone": ["bb2"],
+			"fret": [11]
+		}],
+		"b": [{
+			"tone": ["b2"],
+			"fret": [12]
+		}]
+	}],
+	"gString": [{
+		"c": [{
+			"tone": ["c2", "c3"],
+			"fret": [5, 17]
+		}],
+		"cs": [{
+			"tone": ["cs2"],
+			"fret": [6]
+		}],
+		"db": [{
+			"tone": ["db2"],
+			"fret": [6]
+		}],
+		"d": [{
+			"tone": ["d2"],
+			"fret": [7]
+		}],
+		"ds": [{
+			"tone": ["ds2"],
+			"fret": [8]
+		}],
+		"eb": [{
+			"tone": ["eb2"],
+			"fret": [8]
+		}],
+		"e": [{
+			"tone": ["e2"],
+			"fret": [9]
+		}],
+		"f": [{
+			"tone": ["f2"],
+			"fret": [10]
+		}],
+		"fs": [{
+			"tone": ["fs2"],
+			"fret": [11]
+		}],
+		"gb": [{
+			"tone": ["gb2"],
+			"fret": [11]
+		}],
+		"g": [{
+			"tone": ["g2"],
+			"fret": [12]
+		}],
+		"gs": [{
+			"tone": ["gs1", "gs2"],
+			"fret": [1, 13]
+		}],
+		"ab": [{
+			"tone": ["ab1", "ab2"],
+			"fret": [1, 13]
+		}],
+		"a": [{
+			"tone": ["a1", "a2"],
+			"fret": [2, 14]
+		}],
+		"as": [{
+			"tone": ["as1", "as2"],
+			"fret": [3, 15]
+		}],
+		"bb": [{
+			"tone": ["bb1", "bb2"],
+			"fret": [3, 15]
+		}],
+		"b": [{
+			"tone": ["b1", "b2"],
+			"fret": [4, 16]
+		}]
+	}],
+	"dString": [{
+		"c": [{
+			"tone": ["c2"],
+			"fret": [10]
+		}],
+		"cs": [{
+			"tone": ["cs2"],
+			"fret": [11]
+		}],
+		"db": [{
+			"tone": ["db2"],
+			"fret": [11]
+		}],
+		"d": [{
+			"tone": ["d2"],
+			"fret": [12]
+		}],
+		"ds": [{
+			"tone": ["ds1", "ds2"],
+			"fret": [1, 13]
+		}],
+		"eb": [{
+			"tone": ["eb1", "eb2"],
+			"fret": [1, 13]
+		}],
+		"e": [{
+			"tone": ["e1", "e2"],
+			"fret": [2, 14]
+		}],
+		"f": [{
+			"tone": ["f1", "f2"],
+			"fret": [3, 15]
+		}],
+		"fs": [{
+			"tone": ["fs1", "fs2"],
+			"fret": [4, 16]
+		}],
+		"gb": [{
+			"tone": ["gb1", "gb2"],
+			"fret": [4, 16]
+		}],
+		"g": [{
+			"tone": ["g1", "g2"],
+			"fret": [5, 17]
+		}],
+		"gs": [{
+			"tone": ["gs1"],
+			"fret": [6]
+		}],
+		"ab": [{
+			"tone": ["ab1"],
+			"fret": [6]
+		}],
+		"a": [{
+			"tone": ["a1"],
+			"fret": [7]
+		}],
+		"as": [{
+			"tone": ["as1"],
+			"fret": [8]
+		}],
+		"bb": [{
+			"tone": ["bb1"],
+			"fret": [8]
+		}],
+		"b": [{
+			"tone": ["b1"],
+			"fret": [9]
+		}]
+	}],
+	"AString": [{
+		"c": ["c1", "c2"],
+		"cs": ["cs1", "cs2"],
+		"db": ["db1", "db2"],
+		"d": ["d1", "d2"],
+		"ds": ["ds1"],
+		"e": ["e1"],
+		"f": ["f1"],
+		"fs": ["fs1"],
+		"gb": ["gb1"],
+		"g": ["g1"],
+		"gs": ["gs1"],
+		"ab": ["ab1"],
+		"a": ["a1"],
+		"as": ["as1", "as2"],
+		"bb": ["bb0", "bb1"],
+		"b": ["b0", "b1"]
+	}],
+	"eLowString": [{
+		"c": ["c0"],
+		"cs": ["cs0"],
+		"db": ["db0"],
+		"d": ["d0"],
+		"ds": ["ds0"],
+		"e": ["e0"],
+		"f": ["f0", "f1"],
+		"fs": ["fs0", "fs1"],
+		"gb": ["gb0", "gb1"],
+		"g": ["g0", "g1"],
+		"gs": ["gs0", "gs1"],
+		"ab": ["ab0", "ab1"],
+		"a": ["a0", "a1"],
+		"as": ["as1"],
+		"bb": ["bb1"],
+		"b": ["b0"]
+	}]
+}
