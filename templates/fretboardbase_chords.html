@@ -1484,27 +1484,26 @@
 function show_tension_notes() {
   var x = document.getElementById('position_select').value
   var y = document.getElementById('note_range').value
-  var pitch_range = ['-1','0','1','2','3','4'];
+
   var i = 0;
   for (var key in voicing_data[y][x][0]) {
     if (voicing_data[y][x][0].hasOwnProperty(key)) {
       var tone = voicing_data[y][x][0][key][0]
       var tension_name = voicing_data[y][x][0][key][1]
-      for (i = 0; i < pitch_range.length; i++) {
-        var pitch = pitch_range[i];
-        var QuerySelect = '.' + key + ' .notename.' + tone + pitch + '.active';
-        var selection = document.getElementsByClassName("note active " + tone + pitch)[0];
-        if (typeof selection !== "undefined") {
+
+      var QuerySelect = '.' + key + ' .notename.' + tone + '.active';
+      var selection = document.getElementsByClassName("note active " + tone)[0];
+      if (typeof selection !== "undefined") {
           /* creating a div for tension notes */
           var node = document.createElement("DIV");
           node.className = "tensionname";
-          document.getElementsByClassName("active note " + tone + pitch)[0].appendChild(node);
+          document.getElementsByClassName("active note " + tone)[0].appendChild(node);
           var textnode = document.createTextNode(tension_name);
           node.appendChild(textnode);
           /* Remove class for not showing Notename */
-          var QuerySelect = '.' + key + ' .notename.' + tone + pitch + '.active';
+          var QuerySelect = '.' + key + ' .notename.' + tone + '.active';
           $(QuerySelect).removeClass('active');
-        }
+
       }
     }
     /* add class active for showing up */
