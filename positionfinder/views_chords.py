@@ -78,9 +78,7 @@ def fretboard_chords_view (request):
     type_options = ChordNotes.objects.all().values_list('type_name', flat=True).distinct()
     selected_category = int(category_id)
     notes_options_id = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id).id
-    print(notes_options_id)
     position_options = ChordPosition.objects.filter(notes_name_id=notes_options_id)
-    print(position_options)
     chord_options = ChordNotes.objects.all().values_list('chord_name', flat=True).distinct()
 
     ## Creating List of available Root Pitches ##
@@ -102,8 +100,6 @@ def fretboard_chords_view (request):
         chord_json_data[option.range] = position_json_data
 
     chord_json_data = json.dumps(chord_json_data)
-    print(chord_json_data)
-    print(root_id)
     # notes data
     context = {
         'selected_chord': selected_note_option.chord_name,
