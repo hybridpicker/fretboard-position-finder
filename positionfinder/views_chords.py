@@ -93,8 +93,13 @@ def fretboard_chords_view (request):
     position_json_data = {}
     for option in range_options:
         for position in position_options:
+            print(chord_name)
+            print(option.range)
+            print(position.inversion_order)
             position_json_data[position.inversion_order] = [get_position_dict(position.inversion_order,
-                                                                              notes_options_id,
+                                                                              chord_name,
+                                                                              option.range,
+                                                                              type_name,
                                                                               root_pitch,
                                                                               tonal_root,
                                                                               selected_root_name)]
