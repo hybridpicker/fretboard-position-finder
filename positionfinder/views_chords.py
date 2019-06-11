@@ -29,6 +29,8 @@ def fretboard_chords_view (request):
     notes_options_id = ChordNotes.objects.all().first().id
     tonal_root = 0
     range = 'e - d'
+    chord_select_name = 'Major 7'
+    type_id = 'V2'
 
     '''
     Requesting GET form
@@ -63,22 +65,32 @@ def fretboard_chords_view (request):
         return redirect('show_scale_fretboard')
 
     # Getting Tonal Root from selected Chord Object
-    tonal_root = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range).tonal_root
+    try:
+        tonal_root = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range).tonal_root
+    except ObjectDoesNotExist:
+        tonal_root = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id).tonal_root
 
     notes_options = ChordNotes.objects.filter(category=category_id)
     root_options = Root.objects.all()
     root_pitch = Root.objects.get(id=root_id).pitch
     selected_root_name = Root.objects.get(id=root_id).name
-    selected_note_option = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range)
+    try:
+        selected_note_option = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range)
+    except ObjectDoesNotExist:
+        selected_note_option = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id)
     type_name = selected_note_option.type_name
     chord_name = selected_note_option.chord_name
     range_options = ChordNotes.objects.filter(type_name=type_name,
                     chord_name=chord_name).values_list('range', flat=True).order_by('id')
     range_options = ChordNotes.objects.filter(type_name__in=[type_name],
                                               chord_name__in=[chord_name])
+    first_range_option = range_options.first().range
     type_options = ChordNotes.objects.all().values_list('type_name', flat=True).distinct()
     selected_category = int(category_id)
-    notes_options_id = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range).id
+    try:
+        notes_options_id = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range).id
+    except ObjectDoesNotExist:
+        notes_options_id = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id).id
     position_options = ChordPosition.objects.filter(notes_name_id=notes_options_id)
     chord_options = ChordNotes.objects.all().values_list('chord_name', flat=True).distinct()
 
@@ -91,9 +103,16 @@ def fretboard_chords_view (request):
                        "root": root}
 
     # Creating for every String Range available Inversions #
-    range_json_data = {}
+    position_json_data = {}
+    position_data = {}
+    temp_data = {}
+    range_data = {}
+
+
     for option in range_options:
-        position_json_data = {}
+        temp_data = {}
+        range_data = {}
+
         for position in position_options:
             position_json_data = {position.inversion_order : [get_position_dict(position.inversion_order,
                                                                               chord_name,
@@ -102,10 +121,12 @@ def fretboard_chords_view (request):
                                                                               root_pitch,
                                                                               tonal_root,
                                                                               selected_root_name)]}
-        range_data[position.inversion_order] = position_json_data
+            range_data[position.inversion_order] = position_json_data[position.inversion_order]
 
+            temp_data[option.range] = range_data
+        chord_json_data[option.range] = range_data
+        position_json_data = {}
 
-        temp_data[option.range] = range_data
 
     chord_json_data = json.dumps(chord_json_data)
 
@@ -124,5 +145,7 @@ def fretboard_chords_view (request):
         'type_options': type_options,
         'chord_json_data': chord_json_data,
         'chord_options': chord_options,
+        'selected_type': type_id,
+        'first_range_option': first_range_option,
         }
     return render(request, 'fretboard_chords.html', context)

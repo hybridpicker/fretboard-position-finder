@@ -105,7 +105,11 @@
     <select name="type_options_select" id="type_options_select">
       <option value="{{ type_options|first }}">{{ type_options|first }}</option>
       {% for option in type_options %}
+      {% if selected_type == option %}
+      <option value="{{ option }}" selected>{{ option }}</option>
+      {% else %}
       <option value="{{ option }}">{{ option }}</option>
+      {% endif %}
       {% endfor %}
     </select>
   </div>
@@ -123,7 +127,7 @@
   </div>
   <div class="sfbsfnr">
     <select name="note_range" id="note_range">
-      <option value="e - d">e - d</option>
+      <option value="{{ first_range_option }}">{{ first_range_option }}</option>
       {% for option in range_options %}
       <option value="{{ option.range }}">{{ option.range }}</option>
       {% endfor %}
@@ -133,7 +137,7 @@
     <select name="position_select" id="position_select">
       <option value="Basic Position">Basic Position</option>
       {% for option in position_options %}
-      <option value="option.inversion_order">{{ option.inversion_order }}</option>
+      <option value="{{ option.inversion_order }}">{{ option.inversion_order }}</option>
       {% endfor %}
 
     </select>
@@ -255,10 +259,10 @@
           Db3
         </div>
       </div>
-      <div class="note cs2">
-        <img class="tone cs2" src="/static/media/yellow_dot.svg" alt="">
-        <div class="notename cs2">
-          C#2
+      <div class="note cs3">
+        <img class="tone cs3" src="/static/media/yellow_dot.svg" alt="">
+        <div class="notename cs3">
+          C#3
         </div>
       </div>
     </a>
@@ -1850,7 +1854,9 @@ function playNoteNames() {
 
 
   // getting Tones from Function 0=Template
-  window.onload = getTonesFromData("Basic Position", "e - d")
+  var pos_val = document.getElementById('position_select').value
+  var note_range = document.getElementById('note_range').value
+  window.onload = getTonesFromData(pos_val, note_range)
 
   // scroll Cookie for submitting form
   $(document).ready(function() {
