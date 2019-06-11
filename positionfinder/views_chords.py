@@ -100,6 +100,7 @@ def fretboard_chords_view (request):
         chord_json_data[option.range] = position_json_data
 
     chord_json_data = json.dumps(chord_json_data)
+    print(chord_json_data)
     # notes data
     context = {
         'selected_chord': selected_note_option.chord_name,

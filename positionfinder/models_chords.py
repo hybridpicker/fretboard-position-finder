@@ -7,6 +7,30 @@ from .chord_position_choices import ChordInversionChoicesField
 from .string_range_choices import StringRangeChoicesField
 from .notes_choices import NotesChoicesField, ChordChoicesField
 
+def create_fourthnote_positions(w,x,y,z,chord_id):
+    chord = ChordNotes.objects.get(id=chord_id)
+    #First Inversion
+    ChordPosition.objects.create(notes_name_id=chord.id,
+                                            inversion_order='First Inversion',
+                                            first_note=w,
+                                            second_note=x,
+                                            third_note=y,
+                                            fourth_note=z,)
+    #Second Inversion
+    ChordPosition.objects.create(notes_name_id=chord.id,
+                                            inversion_order='Second Inversion',
+                                            first_note=w+x,
+                                            second_note=x+y,
+                                            third_note=y+z,
+                                            fourth_note=z+w,)
+    #Third Inversion
+    ChordPosition.objects.create(notes_name_id=chord.id,
+                                            inversion_order='Third Inversion',
+                                            first_note=w+x+y,
+                                            second_note=x+y+z,
+                                            third_note=y+z+w,
+                                            fourth_note=z+w+x,)
+
 def create_base_position(id):
     chord = ChordNotes.objects.get(id=id)
     base_position = ChordPosition.objects.create(notes_name_id=chord.id,
@@ -15,6 +39,22 @@ def create_base_position(id):
                                                  second_note=0,
                                                  third_note=0,
                                                  fourth_note=0,)
+
+    if not None in (chord.first_note, chord.second_note, chord.third_note, chord.fourth_note) and chord.fifth_note is None:
+        id = chord.id
+        w = chord.second_note - chord.first_note
+        while w < 0:
+            w += 12
+        x = chord.third_note - chord.second_note
+        while x < 0:
+            x += 12
+        y = chord.fourth_note - chord.third_note
+        while y < 0:
+            y += 12
+        z = chord.first_note - chord.fourth_note
+        while z < 0:
+            z += 12
+        create_fourthnote_positions(w,x,y,z,id)
 
 
 def create_chord(id):
@@ -66,31 +106,7 @@ def create_chord(id):
         base_position = create_base_position(minor_7_b5.id)
         base_position = create_base_position(dominant_7.id)
 
-## TODO find pattern for saving automatically other inversions ###
-def create_four_note_inversions(id):
-    chord = ChordPosition.objects.get(id=id)
-    if chord.notes_name.chord_name == 'Major 7' and chord.inversion_order != 'Basic Position':
-        major_7 = chord
-        minor_7 = ChordPosition.objects.create(notes_name_id=major_7.notes_name.id + 1,
-                                            inversion_order=major_7.inversion_order,
-                                            first_note=major_7.first_note,
-                                            second_note=major_7.second_note,
-                                            third_note=major_7.third_note,
-                                            fourth_note=major_7.fourth_note,)
-        minor_7_b5 = ChordPosition.objects.create(notes_name_id=major_7.notes_name.id + 2,
-                                            inversion_order=major_7.inversion_order,
-                                            first_note=major_7.first_note,
-                                            second_note=major_7.second_note,
-                                            third_note=major_7.third_note,
-                                            fourth_note=major_7.fourth_note,)
-        dominant_7 = ChordPosition.objects.create(notes_name_id=major_7.notes_name.id + 3,
-                                            inversion_order=major_7.inversion_order,
-                                            first_note=major_7.first_note,
-                                            second_note=major_7.second_note,
-                                            third_note=major_7.third_note,
-                                            fourth_note=major_7.fourth_note,)
-    else:
-        pass
+
 
 class ChordNotes(models.Model):
     category = models.ForeignKey(
@@ -127,7 +143,6 @@ class ChordNotes(models.Model):
         super(ChordNotes, self).save(*args, **kwargs)
         create_chords = create_chord(self.id)
 
-
     def __str__(self):
         return '%s : %s (%s)' % (self.type_name, self.chord_name,
                                  self.range)
@@ -152,6 +167,7 @@ class ChordPosition(models.Model):
 
     def save(self, *args, **kwargs):
         super(ChordPosition, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return '%s : %s %s' % (self.inversion_order,
