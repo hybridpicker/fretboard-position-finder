@@ -1574,8 +1574,8 @@ function playNoteNames() {
         }
         h.click();
         var pos_val = document.getElementById('position_select').value
-        var position_text = $('#position_select')[0][pos_val].textContent
-        getTonesFromData(position_text, this.textContent)
+        var note_range = document.getElementById('note_range').value
+        getTonesFromData(pos_val, note_range)
       });
       b.appendChild(c);
     }
@@ -1726,8 +1726,8 @@ function playNoteNames() {
         }
         h.click();
         var pos_val = document.getElementById('position_select').value
-        var position_text = $('#position_select')[0][pos_val].textContent
-        getTonesFromData(position_text, this.textContent)
+        var note_range = document.getElementById('note_range').value
+        getTonesFromData(pos_val, note_range)
       });
       b.appendChild(c);
     }
@@ -1804,9 +1804,9 @@ function playNoteNames() {
           }
         }
         h.click();
-        var position_select = this.textContent
+        var pos_val = document.getElementById('position_select').value
         var note_range = document.getElementById('note_range').value
-        getTonesFromData(position_select, note_range)
+        getTonesFromData(pos_val, note_range)
       });
       b.appendChild(c);
     }

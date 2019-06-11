@@ -7,6 +7,34 @@ from .chord_position_choices import ChordInversionChoicesField
 from .string_range_choices import StringRangeChoicesField
 from .notes_choices import NotesChoicesField, ChordChoicesField
 
+def create_other_ranges(chord_id):
+    chord = ChordNotes.objects.get(id=chord_id)
+    if chord.range == 'e - d' and not None in (chord.first_note, chord.second_note, chord.third_note, chord.fourth_note):
+        b_A = ChordNotes.objects.create(category_id=chord.category.id,
+                                        type_name=chord.type_name,
+                                        chord_name=chord.chord_name, range='b - A',
+                                        tonal_root=chord.tonal_root,
+                                        first_note=chord.first_note,
+                                        first_note_string='bString',
+                                        second_note=chord.second_note ,
+                                        second_note_string='gString',
+                                        third_note=chord.third_note,
+                                        third_note_string='dString',
+                                        fourth_note=chord.fourth_note,
+                                        fourth_note_string='AString')
+        g_E = ChordNotes.objects.create(category_id=chord.category.id,
+                                        type_name=chord.type_name,
+                                        chord_name=chord.chord_name, range='g - E',
+                                        tonal_root=chord.tonal_root,
+                                        first_note=chord.first_note,
+                                        first_note_string='gString',
+                                        second_note=chord.second_note ,
+                                        second_note_string='dString',
+                                        third_note=chord.third_note,
+                                        third_note_string='AString',
+                                        fourth_note=chord.fourth_note,
+                                        fourth_note_string='ELowString')
+
 def create_fourthnote_positions(w,x,y,z,chord_id):
     chord = ChordNotes.objects.get(id=chord_id)
     #First Inversion
@@ -62,6 +90,7 @@ def create_chord(id):
 
     if chord.chord_name == 'Major 7':
         major_7 = ChordNotes.objects.get(id=id)
+
         minor_7 = ChordNotes.objects.create(category_id=major_7.category.id,
                                             type_name=major_7.type_name,
                                             chord_name='Minor 7', range=major_7.range,
