@@ -28,6 +28,7 @@ def fretboard_chords_view (request):
     root_id = 1
     notes_options_id = ChordNotes.objects.all().first().id
     tonal_root = 0
+    range = 'e - d'
 
     '''
     Requesting GET form
@@ -62,13 +63,13 @@ def fretboard_chords_view (request):
         return redirect('show_scale_fretboard')
 
     # Getting Tonal Root from selected Chord Object
-    tonal_root = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id).tonal_root
+    tonal_root = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range).tonal_root
 
     notes_options = ChordNotes.objects.filter(category=category_id)
     root_options = Root.objects.all()
     root_pitch = Root.objects.get(id=root_id).pitch
     selected_root_name = Root.objects.get(id=root_id).name
-    selected_note_option = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id)
+    selected_note_option = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range)
     type_name = selected_note_option.type_name
     chord_name = selected_note_option.chord_name
     range_options = ChordNotes.objects.filter(type_name=type_name,
@@ -77,7 +78,7 @@ def fretboard_chords_view (request):
                                               chord_name__in=[chord_name])
     type_options = ChordNotes.objects.all().values_list('type_name', flat=True).distinct()
     selected_category = int(category_id)
-    notes_options_id = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id).id
+    notes_options_id = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range).id
     position_options = ChordPosition.objects.filter(notes_name_id=notes_options_id)
     chord_options = ChordNotes.objects.all().values_list('chord_name', flat=True).distinct()
 
