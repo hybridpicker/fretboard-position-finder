@@ -33,12 +33,13 @@ def get_position_dict(chord_inversion, chord_note_id, root_pitch, tonal_root, se
     for y in CHORD_NOTES:
         if y is not None:
             chord_note_index = y + root_pitch + CHORD_NOTES_POSITION[index]
-            if chord_note_index >= 12:
-                chord_note_index = chord_note_index - 12
+            while chord_note_index >= 12:
+                chord_note_index -= 12
             if tonal_root in SHARP_NOTES or '#' in selected_root_name:
                 chord_note_name = NOTES_SHARP[chord_note_index]
             else:
                 chord_note_name = NOTES[chord_note_index]
+
             chord_note_string = CHORD_NOTES_STRING[index]
             chord_note_fret = STRING_NOTE_OPTIONS[chord_note_string][0][chord_note_name][0]["fret"][0]
             fret_distance.append(chord_note_fret)
@@ -52,11 +53,10 @@ def get_position_dict(chord_inversion, chord_note_id, root_pitch, tonal_root, se
         for y in CHORD_NOTES:
             if y is not None:
                 chord_note_index = y + root_pitch + CHORD_NOTES_POSITION[index]
-                if chord_note_index >= 12:
-                    chord_note_index = chord_note_index - 12
+                while chord_note_index >= 12:
+                    chord_note_index -= 12
                 if tonal_root in SHARP_NOTES or '#' in selected_root_name:
                     chord_note_name = NOTES_SHARP[chord_note_index]
-                    print(chord_note_name)
                 else:
                     chord_note_name = NOTES[chord_note_index]
                 chord_note_string = CHORD_NOTES_STRING[index]
@@ -65,7 +65,7 @@ def get_position_dict(chord_inversion, chord_note_id, root_pitch, tonal_root, se
                 except IndexError:
                     chord_note_name = STRING_NOTE_OPTIONS[chord_note_string][0][chord_note_name][0]["tone"][0]
                 chord_note_tension_index = y + CHORD_NOTES_POSITION[index]
-                if chord_note_tension_index >= 12:
+                while chord_note_tension_index >= 12:
                     chord_note_tension_index = chord_note_tension_index - 12
                 chord_note_tension = TENSIONS[chord_note_tension_index]
                 POSITION_DICT[chord_note_string] = [chord_note_name, chord_note_tension]
@@ -77,18 +77,17 @@ def get_position_dict(chord_inversion, chord_note_id, root_pitch, tonal_root, se
         for y in CHORD_NOTES:
             if y is not None:
                 chord_note_index = y + root_pitch + CHORD_NOTES_POSITION[index]
-                if chord_note_index >= 12:
+                while chord_note_index >= 12:
                     chord_note_index = chord_note_index - 12
                 if tonal_root in SHARP_NOTES or '#' in selected_root_name:
                     chord_note_name = NOTES_SHARP[chord_note_index]
-                    print(chord_note_name)
                 else:
                     chord_note_name = NOTES[chord_note_index]
                 chord_note_string = CHORD_NOTES_STRING[index]
                 chord_note_name = STRING_NOTE_OPTIONS[chord_note_string][0][chord_note_name][0]["tone"][0]
                 chord_note_tension_index = y + CHORD_NOTES_POSITION[index]
-                if chord_note_tension_index >= 12:
-                    chord_note_tension_index = chord_note_tension_index - 12
+                while chord_note_tension_index >= 12:
+                    chord_note_tension_index -= 12
                 chord_note_tension = TENSIONS[chord_note_tension_index]
                 POSITION_DICT[chord_note_string] = [chord_note_name, chord_note_tension]
                 index += 1
