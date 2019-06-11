@@ -434,7 +434,7 @@ STRING_NOTE_OPTIONS =  {
  			"fret": [2, 14]
  		}]
  	}],
- 	"eLowString": [{
+ 	"ELowString": [{
  		"c": [{
  			"tone": ["c1"],
  			"fret": [8]
