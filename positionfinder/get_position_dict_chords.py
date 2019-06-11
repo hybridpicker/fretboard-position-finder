@@ -3,11 +3,11 @@ from positionfinder.template_notes import NOTES, NOTES_SHARP, TENSIONS, INVERSIO
 from positionfinder.template_notes import STRING_NOTE_OPTIONS
 import numpy
 
-def get_position_dict(chord_inversion, chord_note_id, root_pitch, tonal_root, selected_root_name):
+def get_position_dict(chord_inversion, chord_name, range, type_name, root_pitch, tonal_root, selected_root_name):
     x = INVERSIONS.index(chord_inversion)
 
-    chord_note = ChordNotes.objects.get(id=chord_note_id)
-    chord_notes_position = ChordPosition.objects.filter(notes_name_id=chord_note_id)
+    chord_note = ChordNotes.objects.get(chord_name=chord_name, range=range, type_name=type_name)
+    chord_notes_position = ChordPosition.objects.filter(notes_name_id=chord_note.id)
 
     INVERSION_DICT = {}
     POSITION_DICT = {}
