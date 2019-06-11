@@ -89,11 +89,11 @@ def fretboard_chords_view (request):
     chord_json_data = {"chord": selected_note_option.chord_name,
                        "type": selected_note_option.type_name,
                        "root": root}
-    # Creating for every String Range available Inversions #
-    position_json_data = {}
-    range_json_data = {}
 
+    # Creating for every String Range available Inversions #
+    range_json_data = {}
     for option in range_options:
+        position_json_data = {}
         for position in position_options:
             position_json_data = {position.inversion_order : [get_position_dict(position.inversion_order,
                                                                               chord_name,
@@ -102,7 +102,7 @@ def fretboard_chords_view (request):
                                                                               root_pitch,
                                                                               tonal_root,
                                                                               selected_root_name)]}
-            range_data[position.inversion_order] = position_json_data
+        range_data[position.inversion_order] = position_json_data
 
 
         temp_data[option.range] = range_data
