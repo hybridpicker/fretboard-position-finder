@@ -61,7 +61,7 @@ body {
   left: -15px;
   top: 0;
 }
-.notename {
+.notename, .tensionname {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -69,6 +69,7 @@ body {
   visibility: hidden;
   opacity: 0.85;
 }
+
 .note > .tone {
   visibility: hidden;
   vertical-align: middle;
@@ -77,6 +78,9 @@ body {
 }
 .active {
   visibility: unset !important;
+}
+a .active {
+  cursor: pointer;
 }
 #fretboardcontainer{
   margin-top: 4em;
@@ -121,7 +125,7 @@ h1 {
   position: absolute;
   top: -17px;
 }
-.notename{
+.notename, .tensionname{
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
   -khtml-user-select: none; /* Konqueror HTML */
@@ -182,7 +186,7 @@ h1 {
   position: absolute;
   top: -17px;
 }
-.notename{
+.notename, .tensionname {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none; /* Safari */
   -khtml-user-select: none; /* Konqueror HTML */
@@ -388,9 +392,17 @@ h1 {
   margin-right: 0.5em;
 }
 
-.sfbsfnos select {
+.sfbsfpos select {
   display: none; /*hide original SELECT element: */
 }
+
+.sfbsfpos > .slit {
+  height: auto;
+}
+.sfbsfnr > .slit {
+  height: auto;
+}
+
 .sfbsfnos-text {
   display: inline-block;
 }

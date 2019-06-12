@@ -21,20 +21,16 @@
 </style>
 
 <script type="text/javascript">
-
   function getTonesFromData(){
-
     /* creating Array for Fretboard */
     var cssNumbers = ["one", "two", "three", "four", "five",
     "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
     "thirteen", "fourteen", "fifteen","sixteen", "seventeen"];
     var i = 1;
     var range = {{ position }}
-
     /* Reset Tones */
     $('.active').removeClass('active');
     $('.root').removeClass('root')
-
     /* Checking all Tones in Scale */
     {% for tone in tones %}
     var tones = "{{ tone }}"
@@ -56,7 +52,6 @@
       }
     }
     {% endfor %}
-
     /* Change for RootNote Color */
     {% for rootnote in root %}
     var root = "{{ rootnote }}";
@@ -67,17 +62,13 @@
     $("#show_note_name_button").attr("onclick","getNoteNameFromData()");
     $("#show_note_name_button").text('Note Names');
   }
-
   function getNoteNameFromData(){
-
     /* creating Array for Fretboard */
     var cssNumbers = ["one", "two", "three", "four", "five",
     "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
     "thirteen", "fourteen", "fifteen","sixteen", "seventeen"];
     var i = 1;
     var range = {{ position }}
-
-
     /* Checking all Tones in Scale */
     {% for tone in tones %}
     var tones = "{{ tone }}"
@@ -101,9 +92,7 @@
     {% endfor %}
     $("#show_note_name_button").attr("onclick","getTonesFromData()");
     $("#show_note_name_button").text('Only Dots');
-
   }
-
 </script>
 
 <script type="text/javascript">
@@ -422,7 +411,6 @@
         </div>
       </a>
     </div>
-
     <!-- b-String -->
     <div class="fret one bString">
       <a onclick="playtone('c2','bString')" class="note-click">
@@ -1062,7 +1050,6 @@
         </div>
       </a>
     </div>
-
     <!-- A-String -->
     <div class="fret one AString">
       <a onclick="playtone('bb0','AString')" class="note-click">
@@ -1536,11 +1523,9 @@
       XVII
     </div>
   </div>
-
 </div>
 {% block fretboard %}
 {% endblock %}
-
 <script type="text/javascript">
   /* Nots Options Scale Select Field  */
   var x, i, j, selElmnt, a, b, c;
@@ -1595,7 +1580,6 @@
       this.classList.toggle("slar-active");
     });
   }
-
   function closeAllSelect(elmnt) {
     /*  Close all select boxes in the document,
     except the current select box: */
@@ -1615,12 +1599,10 @@
       }
     }
   }
-
   /* If the user clicks anywhere outside the select box,
   then close all select boxes: */
   document.addEventListener("click", closeAllSelect);
 </script>
-
 <script type="text/javascript">
   var x, i, j, selElmnt, a, b, c;
   /* Look for any elements with the class "sfbsf": */
@@ -1673,7 +1655,6 @@
       this.classList.toggle("slar-active");
     });
   }
-
   function closeAllSelect(elmnt) {
     /*  Close all select boxes in the document,
     except the current select box: */
@@ -1693,30 +1674,21 @@
       }
     }
   }
-
   /* If the user clicks anywhere outside the select box,
   then close all select boxes: */
   document.addEventListener("click", closeAllSelect);
 </script>
-
 <script type="text/javascript">
-
-
-
   window.onload = getTonesFromData()
-
   // scroll Cookie for submitting form
   $(document).ready(function() {
     if (localStorage.getItem("scroll") != null) {
       $(window).scrollTop(localStorage.getItem("scroll"));
     }
-
     $(window).on("scroll", function() {
       localStorage.setItem("scroll", $(window).scrollTop());
     });
-
   });
-
   // Jquery submit Form interactive
   $(document).ready(function(){
     $("#models_select").on("change", function() {
@@ -1733,10 +1705,7 @@
     $("#position_select").on("change", function() {
       $("#fretboard_form").submit();
     });
-
-
   });
-
 </script>
 {% block footer %}
 {% endblock %}
