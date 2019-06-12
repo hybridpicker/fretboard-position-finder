@@ -6,6 +6,7 @@ from .models import Root, NotesCategory
 from .models_chords import ChordNotes, ChordPosition
 
 from django.utils.datastructures import MultiValueDictKeyError
+from django.core.exceptions import MultipleObjectsReturned
 from django.core.exceptions import ObjectDoesNotExist
 
 from .root_chord_note_setup import get_root_note
@@ -66,18 +67,21 @@ def fretboard_chords_view (request):
 
     # Getting Tonal Root from selected Chord Object
     try:
-        tonal_root = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range).tonal_root
+        chord_object = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range)
     except ObjectDoesNotExist:
-        tonal_root = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id).tonal_root
+        try:
+            chord_object = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id)
+        except MultipleObjectsReturned:
+            chord_object = ChordNotes.objects.filter(chord_name=chord_select_name, type_name=type_id).first()
 
+    tonal_root = chord_object.tonal_root
     notes_options = ChordNotes.objects.filter(category=category_id)
     root_options = Root.objects.all()
     root_pitch = Root.objects.get(id=root_id).pitch
     selected_root_name = Root.objects.get(id=root_id).name
-    try:
-        selected_note_option = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range)
-    except ObjectDoesNotExist:
-        selected_note_option = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id)
+
+    selected_note_option = chord_object
+
     type_name = selected_note_option.type_name
     chord_name = selected_note_option.chord_name
     range_options = ChordNotes.objects.filter(type_name=type_name,
@@ -86,11 +90,9 @@ def fretboard_chords_view (request):
                                               chord_name__in=[chord_name])
     first_range_option = range_options.first().range
     type_options = ChordNotes.objects.all().values_list('type_name', flat=True).distinct()
-    selected_category = int(category_id)
-    try:
-        notes_options_id = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range).id
-    except ObjectDoesNotExist:
-        notes_options_id = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id).id
+
+    notes_options_id = chord_object.id
+
     position_options = ChordPosition.objects.filter(notes_name_id=notes_options_id)
     chord_options = ChordNotes.objects.all().values_list('chord_name', flat=True).distinct()
 
@@ -130,7 +132,6 @@ def fretboard_chords_view (request):
 
     chord_json_data = json.dumps(chord_json_data)
 
-    print(chord_json_data)
     # notes data
     context = {
         'selected_chord': selected_note_option.chord_name,

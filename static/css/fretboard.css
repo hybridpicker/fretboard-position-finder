@@ -475,6 +475,7 @@ h1 {
   border-radius: 0px 0px 18px 18px;
   overflow-y: scroll;
   height: 600%;
+  background: #fffffff2;
 }
 
 /* Hide the items when the select box is closed: */
@@ -505,6 +506,19 @@ h1 {
   border-color: #0F262B4D;
   border-radius: 0 0 18px 18px;
 }
+.sfbsfnr > .slit div:last-of-type {
+  border-bottom: 1px solid;
+  border-bottom-color: currentcolor;
+  border-color: #0F262B4D;
+  border-radius: 0 0 18px 18px;
+}
+.sfbsfpos > .slit div:last-of-type {
+  border-bottom: 1px solid;
+  border-bottom-color: currentcolor;
+  border-color: #0F262B4D;
+  border-radius: 0 0 18px 18px;
+}
+
 .slit div:hover, .swasd {
   background-color: #C7B22E20;
 }

@@ -84,6 +84,7 @@
 <form id="fretboard_form" action="" method="get" style="text-align: center;">
   <div class="sfbsf" id="catsfbsf">
     <select name="models_select" id="models_select">
+      <option value="1" id="cat1">{{ category|first }}</option>
       {% for category_option in category %}
       {% if selected_category == category_option.id %}
       <option value="{{ category_option.id }}" id="cat{{ category_option.id }}" selected>{{ category_option.category_name }}</option>
