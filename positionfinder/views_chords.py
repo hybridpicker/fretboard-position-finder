@@ -71,6 +71,8 @@ def fretboard_chords_view (request):
     except ObjectDoesNotExist:
         try:
             chord_object = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id)
+        except ObjectDoesNotExist:
+            chord_object = ChordNotes.objects.filter(type_name=type_id).first()
         except MultipleObjectsReturned:
             chord_object = ChordNotes.objects.filter(chord_name=chord_select_name, type_name=type_id).first()
 
@@ -89,13 +91,12 @@ def fretboard_chords_view (request):
     range_options = ChordNotes.objects.filter(type_name__in=[type_name],
                                               chord_name__in=[chord_name])
     first_range_option = range_options.first().range
-    type_options = ChordNotes.objects.all().values_list('type_name', flat=True).distinct()
+    type_options = ChordNotes.objects.all().values_list('type_name', flat=True).order_by('type_name').distinct()
 
     notes_options_id = chord_object.id
 
     position_options = ChordPosition.objects.filter(notes_name_id=notes_options_id)
-    chord_options = ChordNotes.objects.all().values_list('chord_name', flat=True).distinct()
-
+    chord_options = ChordNotes.objects.filter(type_name=type_id).values_list('chord_name', flat=True).order_by('type_name').distinct()
     ## Creating List of available Root Pitches ##
     root = get_root_note(root_pitch, tonal_root, root_id)
     ## Getting Chord Notes in chronological Order as a [list] ##
