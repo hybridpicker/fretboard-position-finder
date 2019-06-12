@@ -1536,6 +1536,7 @@ function playNoteNames() {
       $('.notename.active')[order].click(); }, i * 1000
       );
   }
+  setTimeout(function(){ $('.notename.active').click(); }, (range_length + 1) * 1000);
 }
 
 </script>

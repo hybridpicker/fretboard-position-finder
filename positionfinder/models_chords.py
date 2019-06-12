@@ -58,17 +58,31 @@ def create_fourthnote_positions(w,x,y,z,chord_id):
                                             second_note=x+y+z,
                                             third_note=y+z+w,
                                             fourth_note=z+w+x,)
+def create_triad_positions(w,x,y,chord_id):
+    chord = ChordNotes.objects.get(id=chord_id)
+    #First Inversion
+    ChordPosition.objects.create(notes_name_id=chord.id,
+                                            inversion_order='First Inversion',
+                                            first_note=w,
+                                            second_note=x,
+                                            third_note=y,)
+    #Second Inversion
+    ChordPosition.objects.create(notes_name_id=chord.id,
+                                            inversion_order='Second Inversion',
+                                            first_note=w+x,
+                                            second_note=x+y,
+                                            third_note=y+w,)
 
 def create_base_position(id):
     chord = ChordNotes.objects.get(id=id)
-    base_position = ChordPosition.objects.create(notes_name_id=chord.id,
-                                                 inversion_order='Basic Position',
-                                                 first_note=0,
-                                                 second_note=0,
-                                                 third_note=0,
-                                                 fourth_note=0,)
 
     if not None in (chord.first_note, chord.second_note, chord.third_note, chord.fourth_note) and chord.fifth_note is None:
+        base_position = ChordPosition.objects.create(notes_name_id=chord.id,
+                                                     inversion_order='Basic Position',
+                                                     first_note=0,
+                                                     second_note=0,
+                                                     third_note=0,
+                                                     fourth_note=0,)
         id = chord.id
         w = chord.second_note - chord.first_note
         while w < 0:
@@ -83,6 +97,23 @@ def create_base_position(id):
         while z < 0:
             z += 12
         create_fourthnote_positions(w,x,y,z,id)
+    if not None in (chord.first_note, chord.second_note, chord.third_note) and chord.fourth_note is None:
+        base_position = ChordPosition.objects.create(notes_name_id=chord.id,
+                                                     inversion_order='Basic Position',
+                                                     first_note=0,
+                                                     second_note=0,
+                                                     third_note=0)
+        id = chord.id
+        w = chord.second_note - chord.first_note
+        while w < 0:
+            w += 12
+        x = chord.third_note - chord.second_note
+        while x < 0:
+            x += 12
+        y = chord.first_note - chord.third_note
+        while y < 0:
+            y += 12
+        create_triad_positions(w,x,y,id)
 
 
 def create_chord(id):
@@ -134,6 +165,47 @@ def create_chord(id):
         base_position = create_base_position(minor_7.id)
         base_position = create_base_position(minor_7_b5.id)
         base_position = create_base_position(dominant_7.id)
+
+    elif chord.chord_name == 'Major':
+        major = ChordNotes.objects.get(id=id)
+
+        minor = ChordNotes.objects.create(category_id=major.category.id,
+                                            type_name=major.type_name,
+                                            chord_name='Minor', range=major.range,
+                                            tonal_root=major.tonal_root,
+                                            first_note=major.first_note,
+                                            first_note_string=major.first_note_string,
+                                            second_note=major.second_note - 1,
+                                            second_note_string=major.second_note_string,
+                                            third_note=major.third_note,
+                                            third_note_string=major.third_note_string,)
+
+        dim = ChordNotes.objects.create(category_id=minor.category.id,
+                                            type_name=minor.type_name,
+                                            chord_name='Diminished', range=minor.range,
+                                            tonal_root=minor.tonal_root,
+                                            first_note=minor.first_note,
+                                            first_note_string=minor.first_note_string,
+                                            second_note=minor.second_note,
+                                            second_note_string=minor.second_note_string,
+                                            third_note=minor.third_note - 1,
+                                            third_note_string=minor.third_note_string,)
+
+        augmented = ChordNotes.objects.create(category_id=major.category.id,
+                                            type_name=major.type_name,
+                                            chord_name='Augmented', range=major.range,
+                                            tonal_root=major.tonal_root,
+                                            first_note=major.first_note,
+                                            first_note_string=major.first_note_string,
+                                            second_note=major.second_note + 1,
+                                            second_note_string=major.second_note_string,
+                                            third_note=major.third_note + 1,
+                                            third_note_string=major.third_note_string,)
+
+        base_position = create_base_position(id)
+        base_position = create_base_position(minor.id)
+        base_position = create_base_position(dim.id)
+        base_position = create_base_position(augmented.id)
 
 
 

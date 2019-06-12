@@ -389,6 +389,10 @@ STRING_NOTE_OPTIONS =  {
  			"tone": ["ds1"],
  			"fret": [6]
  		}],
+        "eb": [{
+ 			"tone": ["eb1"],
+ 			"fret": [6]
+ 		}],
  		"e": [{
  			"tone": ["e1"],
  			"fret": [7]
