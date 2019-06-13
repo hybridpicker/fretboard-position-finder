@@ -1,5 +1,8 @@
-# fretboard-position-finder
+# Fretboard-Position-Finder
 Position Generator on  Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys
+
+### Example Site:
+https://blessond.com/fretboard
 
 ## Scale Model:
 ![screenshot Scales](https://user-images.githubusercontent.com/40589021/59408897-52d81280-8db5-11e9-9e69-4e9bed6554ca.png)
