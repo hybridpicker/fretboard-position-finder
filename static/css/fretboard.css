@@ -21,26 +21,12 @@ body {
   width: 1400px;
   margin:auto;
 }
-
-.eString{
+.eString, .bString, .gString {
   border-top: 2px solid rgb(136,138,154);
 }
-.bString{
-  border-top: 2px solid rgb(136,138,154);
-}
-.gString{
-  border-top: 2px solid rgb(136,138,154);
-}
-.dString{
+.dString, .AString, .eLowString {
   border-top: 2.5px solid rgb(171,173,193);
 }
-.AString{
-  border-top: 3px solid rgb(171,173,193);
-}
-.eLowString{
-  border-top: 3px solid rgb(171,173,193);
-}
-
 .fret .note {
   color: white;
 }
@@ -55,7 +41,6 @@ body {
 .laststring {
  border-right: 0px;
 }
-
 .note {
   position: absolute;
   left: -15px;
@@ -69,7 +54,6 @@ body {
   visibility: hidden;
   opacity: 0.85;
 }
-
 .note > .tone {
   visibility: hidden;
   vertical-align: middle;
@@ -91,14 +75,12 @@ a .active {
 h1 {
   text-align: center;
 }
-
 .note_name{
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
 .fret {
   position: relative;
   text-align: center;
@@ -134,9 +116,7 @@ h1 {
   user-select: none; /* Non-prefixed version, currently
   supported by Chrome and Opera */
 }
-
 @media only screen and (max-width: 1430px) {
-
   .fretboard {
     background-image: url(/static/media/fretboard_1000.png);
     width: 1010px;
@@ -144,30 +124,17 @@ h1 {
     margin:auto;
     background-position-y: top;
   }
-  .eString{
+  .eString, .bString, .gString {
     border-top: 1.5px solid rgb(136,138,154)!important;
   }
-  .bString{
-    border-top: 1.5px solid rgb(136,138,154)!important;
-  }
-  .gString{
-    border-top: 1.5px solid rgb(136,138,154)!important;
-  }
-  .dString{
+  .dString, .AString, .eLowString {
     border-top: 2px solid rgb(171,173,193)!important;
-  }
-  .AString{
-    border-top: 2.5px solid rgb(171,173,193)!important;
-  }
-  .eLowString{
-    border-top: 2.5px solid rgb(171,173,193)!important;
   }
   #fretboardcontainer{
     width: 1000px;
     margin:auto;
   }
 }
-
 .fret {
   position: relative;
   text-align: center;
@@ -185,15 +152,6 @@ h1 {
 .note-click {
   position: absolute;
   top: -17px;
-}
-.notename, .tensionname {
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none; /* Safari */
-  -khtml-user-select: none; /* Konqueror HTML */
-  -moz-user-select: none; /* Firefox */
-  -ms-user-select: none; /* Internet Explorer/Edge */
-  user-select: none; /* Non-prefixed version, currently
-  supported by Chrome and Opera */
 }
 @media only screen and (max-width: 1430px) {
   .fret {
@@ -338,13 +296,12 @@ h1 {
     height: 34px
   }
 }
-
 /* Navbar  */
 .sfbsf-text {
   display: inline-block;
 }
 /* The container must be positioned relative: */
-.sfbsf {
+.sfbsf, .sfbsfnr, .sfbsfpos, .sfbsfnos {
   position: relative;
   font-family: 'Dosis', sans-serif;
   font-size: 18px;
@@ -354,80 +311,29 @@ h1 {
   margin-left: 0.5em;
   margin-right: 0.5em;
 }
-
-.sfbsf select {
-  display: none; /*hide original SELECT element: */
+select {
+  display: none;
 }
-.sfbsfnr-text {
+.sfbsfnr-text, .sfbsfpos-text, {
   display: inline-block;
 }
-/* The container must be positioned relative: */
-.sfbsfnr {
-  position: relative;
-  font-family: 'Dosis', sans-serif;
-  font-size: 18px;
-  font-color: #0F262B;
-  display: inline-block;
-  width: 11rem;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
-}
 
-.sfbsfnr select {
-  display: none; /*hide original SELECT element: */
-}
-
-.sfbsfpos-text {
-  display: inline-block;
-}
-/* The container must be positioned relative: */
-.sfbsfpos {
-  position: relative;
-  font-family: 'Dosis', sans-serif;
-  font-size: 18px;
-  font-color: #0F262B;
-  display: inline-block;
-  width: 11rem;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
-}
-
-.sfbsfpos select {
-  display: none; /*hide original SELECT element: */
-}
-
-.sfbsfpos > .slit {
+.sfbsfpos > .slit, .sfbsfnr > .slit, .sfbsfnos-text {
   height: auto;
 }
-.sfbsfnr > .slit {
-  height: auto;
-}
-
-.sfbsfnos-text {
-  display: inline-block;
-}
-/* The container must be positioned relative: */
-.sfbsfnos {
-  position: relative;
-  font-family: 'Dosis', sans-serif;
-  font-size: 18px;
-  font-color: #0F262B;
-  display: inline-block;
-  width: 11rem;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
-}
-
-.sfbsfnos select {
-  display: none; /*hide original SELECT element: */
-}
-
 .sese {
   background-color: #fff;
   border-radius: 18px 0 18px 18px;
   box-shadow: 0px 2px 2px 1px #00000005;
+  padding: 6px 10px;
+  border: 1px solid;
+  border-top-color: currentcolor;
+  border-right-color: currentcolor;
+  border-bottom-color: currentcolor;
+  border-left-color: currentcolor;
+  border-color: #BABABAAD;
+  cursor: pointer;
 }
-
 /* Style the arrow inside the select element: */
 .sese:after {
   position: absolute;
@@ -450,20 +356,6 @@ h1 {
 .sese.slar-active:after {
   content: '';
 }
-
-/* style the items (options), including the selected item: */
-.sese {
-  padding: 6px 10px;
-  border: 1px solid;
-  border-top-color: currentcolor;
-  border-right-color: currentcolor;
-  border-bottom-color: currentcolor;
-  border-left-color: currentcolor;
-  border-color: #BABABAAD;
-  cursor: pointer;
-
-}
-
 /* Style items (options): */
 .slit {
   position: absolute;
@@ -477,7 +369,6 @@ h1 {
   height: 600%;
   background: #fffffff2;
 }
-
 /* Hide the items when the select box is closed: */
 .sehi {
   display: none;
@@ -500,29 +391,16 @@ h1 {
   border-color: #0F262B4D;
   cursor: pointer;
 }
-#catsfbsf > .slit div:last-of-type {
-  border-bottom: 1px solid;
-  border-bottom-color: currentcolor;
-  border-color: #0F262B4D;
-  border-radius: 0 0 18px 18px;
-}
-.sfbsfnr > .slit div:last-of-type {
-  border-bottom: 1px solid;
-  border-bottom-color: currentcolor;
-  border-color: #0F262B4D;
-  border-radius: 0 0 18px 18px;
-}
+#catsfbsf > .slit div:last-of-type, .sfbsfnr > .slit div:last-of-type,
 .sfbsfpos > .slit div:last-of-type {
   border-bottom: 1px solid;
   border-bottom-color: currentcolor;
   border-color: #0F262B4D;
   border-radius: 0 0 18px 18px;
 }
-
 .slit div:hover, .swasd {
   background-color: #C7B22E20;
 }
-
 /* Form Styling */
 @media only screen and (max-width: 936px) {
   #catsfbsf {
@@ -530,22 +408,7 @@ h1 {
     margin-top: 0.8em;
     margin-bottom: 0.8em;
   }
-  .sfbsf {
-    width: 90%;
-    margin-top: 0.8em;
-    margin-bottom: 0.8em;
-  }
-  .sfbsfnr {
-    width: 90%;
-    margin-top: 0.8em;
-    margin-bottom: 0.8em;
-  }
-  .sfbsfpos {
-    width: 90%;
-    margin-top: 0.8em;
-    margin-bottom: 0.8em;
-  }
-  .sfbsfnos {
+  .sfbsf, .sfbsfnr, .sfbsfpos, .sfbsfnos {
     width: 90%;
     margin-top: 0.8em;
     margin-bottom: 0.8em;
