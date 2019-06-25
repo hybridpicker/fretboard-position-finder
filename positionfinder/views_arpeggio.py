@@ -13,6 +13,8 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from .template_notes import ALL_NOTES_POSITION
 
+from .get_position_dict_scales import get_scale_position_dict
+
 def fretboard_arpeggio_view (request):
     ''' Select which notes '''
     all_notes_position = ALL_NOTES_POSITION
@@ -109,6 +111,15 @@ def fretboard_arpeggio_view (request):
     note_name_json_data = {"tones": note_names}
     note_name_json_data = json.dumps(note_name_json_data)
 
+    position_json_data = {}
+    position_json_data = get_scale_position_dict(selected_notes_name, selected_root_id, root_pitch, tonal_root, selected_root_name)
+
+    selected_root_options = get_root_note(root_pitch, tonal_root, root_id)
+    position_json_data["name"] = selected_notes_name
+    position_json_data["root"] = selected_root_options
+
+    scale_json_data = json.dumps(position_json_data)
+    print(scale_json_data)
     # notes data
     context = {
         'tension_json_data': tension_json_data,
