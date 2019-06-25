@@ -21,7 +21,8 @@
 </style>
 
 <script type="text/javascript">
-  function getTonesFromData(){
+  var scale_data = {{ scale_json_data|safe }}
+  function getTonesFromData(x, y){
     /* creating Array for Fretboard */
     var cssNumbers = ["one", "two", "three", "four", "five",
     "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
