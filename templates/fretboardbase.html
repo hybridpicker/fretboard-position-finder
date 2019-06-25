@@ -22,77 +22,44 @@
 
 <script type="text/javascript">
   var scale_data = {{ scale_json_data|safe }}
-  function getTonesFromData(x, y){
-    /* creating Array for Fretboard */
-    var cssNumbers = ["one", "two", "three", "four", "five",
-    "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
-    "thirteen", "fourteen", "fifteen","sixteen", "seventeen"];
-    var i = 1;
-    var range = {{ position }}
-    /* Reset Tones */
-    $('.active').removeClass('active');
-    $('.root').removeClass('root')
-    /* Checking all Tones in Scale */
-    {% for tone in tones %}
-    var tones = "{{ tone }}"
-    var tone = tones;
-    var pos_val = $("#position_select").val();
-    var QuerySelect = 'img.tone' + '.' + tone;
-    for (i = 0; i < range.length; i++) {
-      active_fret = range[i];
-      fret_position = cssNumbers[active_fret - 1]
-      if ( pos_val != "0" ){
-        if ($('.' + tone + '.active').length < 1) {
-          var NoteName = '.' + fret_position + ' .tone' + '.' + tone;
-          $(NoteName).addClass('active');
+  function getTonesFromData(y){
+    /* Resetting Fretboard */
+    $('img.tone').removeClass('active')
+    $('.notename').removeClass('active')
+    $('.note').removeClass('active')
+    $('.tensionname').remove()
+    $('.tone').attr('src', '/static/media/yellow_dot.svg')
+
+    /* x sets the id of inversions */
+    var i = 0;
+    for (var key in scale_data[y]) {
+      if (scale_data[y].hasOwnProperty(key)) {
+        for (var z in scale_data[y][key][0]["tones"]) {
+          var tone_name = scale_data[y][key][0]["tones"][z]
+          var QuerySelect = '.' + key + ' img.tone.' + tone_name;
+          $(QuerySelect).addClass('active');
+          var QuerySelect = '.' + key + ' .notename.' + tone_name;
+          $(QuerySelect).addClass('active');
+          /* Check every note that has a defined Query for not activating all chord tones */
+          var QuerySelect = '.' + key + ' .note.' + tone_name;
+          $(QuerySelect).addClass('active');
         }
       }
-      else {
-        var NoteName = '.' + fret_position + ' .tone' + '.' + tone;
-       $(NoteName).addClass('active');
-      }
     }
-    {% endfor %}
+
     /* Change for RootNote Color */
-    {% for rootnote in root %}
-    var root = "{{ rootnote }}";
-    var QuerySelect = '.tone' + '.' + root;
-    $(QuerySelect).attr('src', '/static/media/red_dot.svg');
-    $(QuerySelect).addClass('root')
-    {% endfor %}
-    $("#show_note_name_button").attr("onclick","getNoteNameFromData()");
-    $("#show_note_name_button").text('Note Names');
-  }
-  function getNoteNameFromData(){
-    /* creating Array for Fretboard */
-    var cssNumbers = ["one", "two", "three", "four", "five",
-    "six", "seven", "eight", "nine", "ten", "eleven", "twelve",
-    "thirteen", "fourteen", "fifteen","sixteen", "seventeen"];
-    var i = 1;
-    var range = {{ position }}
-    /* Checking all Tones in Scale */
-    {% for tone in tones %}
-    var tones = "{{ tone }}"
-    var tone = tones;
-    var pos_val = $("#position_select").val();
-    var QuerySelect = 'img.tone' + '.' + tone;
-    for (i = 0; i < range.length; i++) {
-      active_fret = range[i];
-      fret_position = cssNumbers[active_fret - 1]
-      if ( pos_val != "0" ){
-        if ($('.' + tone + '.active').length < 2) {
-          var NoteName = '.' + fret_position + ' .notename' + '.' + tone;
-          $(NoteName).addClass('active');
+    var string_array = ['eString', 'bString', 'gString', 'dString', 'AString', 'eLowString']
+    for (var key in scale_data.root) {
+      if (scale_data.root.hasOwnProperty(key)) {
+        var root = scale_data.root[key]
+        for (i = 0; i < string_array.length; i++) {
+          string = string_array[i];
+          QuerySelect = '.' + string + ' img.tone.active.' + root
+          $(QuerySelect).attr('src', '/static/media/red_dot.svg');
+          $(QuerySelect).addClass('root');
         }
       }
-      else {
-        var NoteName = '.' + fret_position + ' .notename' + '.' + tone;
-       $(NoteName).addClass('active');
-      }
     }
-    {% endfor %}
-    $("#show_note_name_button").attr("onclick","getTonesFromData()");
-    $("#show_note_name_button").text('Only Dots');
   }
 </script>
 
@@ -168,12 +135,12 @@
         <option value="0">All Notes</option>
         {% endif %}
         {% for position in position_options %}
-        {% if selected_position == position.id %}
-        <option value="{{ position.id }}" selected>
+        {% if selected_position == position.position_order %}
+        <option value="{{ position.position_order }}" selected>
           Position: {{ position.position_order }}
         </option>
         {% else %}
-        <option value="{{ position.id }}">
+        <option value="{{ position.position_order }}">
           Position: {{ position.position_order }}
         </option>
         {% endif %}
@@ -354,7 +321,8 @@
   document.addEventListener("click", closeAllSelect);
 </script>
 <script type="text/javascript">
-  window.onload = getTonesFromData()
+  var pos_val = document.getElementById('position_select').value
+  window.onload = getTonesFromData(pos_val)
   // scroll Cookie for submitting form
   $(document).ready(function() {
     if (localStorage.getItem("scroll") != null) {
