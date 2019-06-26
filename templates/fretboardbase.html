@@ -9,17 +9,6 @@
 <!-- Google Font -->
 <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
-<style media="screen">
-  @media only screen and (max-width: 772px) {
-    .mbs {
-      margin-top: 4rem;
-    }
-  }
-  .note-click:hover {
-    cursor: pointer;
-  }
-</style>
-
 <script type="text/javascript">
   var scale_data = {{ scale_json_data|safe }}
   function getTonesFromData(y){
@@ -42,10 +31,6 @@
           var tone_name = scale_data[y][key][0]["tones"][z]
           var QuerySelect = '.' + key + ' img.tone.' + tone_name;
           $(QuerySelect).addClass('active');
-          /*
-          var QuerySelect = '.' + key + ' .notename.' + tone_name;
-          $(QuerySelect).addClass('active');
-          */
           /* Check every note that has a defined Query for not activating all chord tones */
           var QuerySelect = '.' + key + ' .note.' + tone_name;
           $(QuerySelect).addClass('active');
@@ -434,20 +419,6 @@
     }
     $(window).on("scroll", function() {
       localStorage.setItem("scroll", $(window).scrollTop());
-    });
-  });
-  // Jquery submit Form interactive
-  $(document).ready(function(){
-    $("#models_select").on("change", function() {
-      $("#fretboard_form").submit();
-    });
-    $("#root").on("change", function() {
-      //submit Form
-      $("#fretboard_form").submit();
-    });
-    $("#notes_options_select").on("change", function() {
-      $('#position_select').val(0);
-      $("#fretboard_form").submit();
     });
   });
 </script>
