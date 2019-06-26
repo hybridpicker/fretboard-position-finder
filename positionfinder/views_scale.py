@@ -13,6 +13,8 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.core.exceptions import ObjectDoesNotExist
 from .template_notes import ALL_NOTES_POSITION
 
+from .get_position_dict_scales import get_scale_position_dict
+
 '''
 Main View
 '''
@@ -28,7 +30,6 @@ def fretboard_scale_view (request):
     root_pitch = 0
     tonal_root = 0
     category_id = 0
-    position_id = 0
     notes_options_id = 0
 
     if request.method == 'GET':
@@ -45,13 +46,13 @@ def fretboard_scale_view (request):
         except MultiValueDictKeyError:
             category_id = 1
         try:
-            position_id = request.GET['position_select']
-        except MultiValueDictKeyError:
-            position_id = '0'
-        try:
             notes_options_id = request.GET['notes_options_select']
         except MultiValueDictKeyError:
             notes_options_id = '1'
+        try:
+            position_id = request.GET['position_select']
+        except MultiValueDictKeyError:
+            position_id = '0'
 
     if category_id == '2':
         return redirect('show_arpeggio_fretboard')
@@ -62,13 +63,6 @@ def fretboard_scale_view (request):
 
     root_pitch = Root.objects.get(pk=root_id).pitch
     notes_options = Notes.objects.filter(category=category_id)
-    if position_id != '0':
-        try:
-            position = get_notes_position(position_id, root_pitch)
-        except ObjectDoesNotExist:
-            position = all_notes_position
-    else:
-        position = all_notes_position
     position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
     tones = get_notes_tones(notes_options_id, root_pitch, tonal_root, root_id)
     tensions = get_functionalty_tones(notes_options_id, root_pitch)
@@ -79,10 +73,6 @@ def fretboard_scale_view (request):
 
     selected_category = int(category_id)
     selected_notes = int(notes_options_id)
-    if position_id is not None:
-        selected_position = int(position_id)
-    else:
-        selected_position = 0
 
     '''
     Controlling Lines
@@ -93,14 +83,6 @@ def fretboard_scale_view (request):
         selected_category_name = NotesCategory.objects.first().category_name
     selected_root_name = Root.objects.get(pk=root_id).name
     selected_root_id = Root.objects.get(pk=root_id).id
-    if position_id != '0':
-        try:
-            selected_position_name = NotesPosition.objects.get(pk=position_id).position_order
-            selected_position_name = 'Position: ' + str(selected_position_name)
-        except NotesPosition.DoesNotExist:
-            selected_position_name = 'All Notes'
-    else:
-        selected_position_name = 'All Notes'
 
     selected_notes_name = Notes.objects.get(pk=notes_options_id).note_name
 
@@ -111,9 +93,22 @@ def fretboard_scale_view (request):
     tension_json_data = json.dumps(tensions_json_data)
     note_name_json_data = {"tones": note_names}
     note_name_json_data = json.dumps(note_name_json_data)
+
+    position_json_data = {}
+    position_json_data = get_scale_position_dict(selected_notes_name, selected_root_id, root_pitch, tonal_root, selected_root_name)
+
+    selected_root_options = get_root_note(root_pitch, tonal_root, root_id)
+    position_json_data["name"] = selected_notes_name
+    position_json_data["root"] = selected_root_options
+
+    scale_json_data = json.dumps(position_json_data)
+
     # notes data
+    selected_position = position_id
 
     context = {
+        'scale_json_data': scale_json_data,
+
         'tension_json_data': tension_json_data,
         'note_name_json_data': note_name_json_data,
         'tones': tones,
@@ -135,7 +130,6 @@ def fretboard_scale_view (request):
         'selected_root_name': selected_root_name,
         'selected_root_id': selected_root_id,
         'selected_category_name': selected_category_name,
-        'selected_position_name': selected_position_name,
         'selected_notes_name': selected_notes_name,
         }
     return render(request, 'fretboard.html', context)
