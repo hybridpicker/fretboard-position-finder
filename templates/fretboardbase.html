@@ -30,6 +30,10 @@
     $('.tensionname').remove()
     $('.tone').attr('src', '/static/media/yellow_dot.svg')
 
+    /* Resetting Notename-Button */
+    $("#show_note_name_button").attr("onclick","getNoteNameFromData()");
+    $("#show_note_name_button").text('Note Name');
+
     /* x sets the id of inversions */
     var i = 0;
     for (var key in scale_data[y]) {
@@ -38,8 +42,10 @@
           var tone_name = scale_data[y][key][0]["tones"][z]
           var QuerySelect = '.' + key + ' img.tone.' + tone_name;
           $(QuerySelect).addClass('active');
+          /*
           var QuerySelect = '.' + key + ' .notename.' + tone_name;
           $(QuerySelect).addClass('active');
+          */
           /* Check every note that has a defined Query for not activating all chord tones */
           var QuerySelect = '.' + key + ' .note.' + tone_name;
           $(QuerySelect).addClass('active');
@@ -60,6 +66,28 @@
         }
       }
     }
+  }
+  function getNoteNameFromData(){
+    /* x sets the id of inversions */
+    y = document.getElementById('position_select').value
+    var i = 0;
+    for (var key in scale_data[y]) {
+      if (scale_data[y].hasOwnProperty(key)) {
+        for (var z in scale_data[y][key][0]["tones"]) {
+          var tone_name = scale_data[y][key][0]["tones"][z]
+          var QuerySelect = '.' + key + ' .notename.' + tone_name;
+          $(QuerySelect).addClass('active');
+        }
+      }
+    }
+    $("#show_note_name_button").attr("onclick","getNotePicFromData()");
+    $("#show_note_name_button").text('Only Tones');
+  }
+  function getNotePicFromData(){
+    /* x sets the id of inversions */
+    $('.notename').removeClass('active')
+    $("#show_note_name_button").attr("onclick","getNoteNameFromData()");
+    $("#show_note_name_button").text('Note Name');
   }
 </script>
 
@@ -285,7 +313,6 @@
         }
         h.click();
         pos_val = document.getElementById('position_select').value
-        console.log(pos_val)
         getTonesFromData(pos_val)
       });
       b.appendChild(c);

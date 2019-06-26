@@ -23,7 +23,13 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
     NOTES_LIST = []
     for x in SCALE_NOTES:
         if x is not None:
-            NOTES_LIST.append(NOTES[x])
+            y = x + root_pitch
+            if y >= 12:
+                y -= 12
+            if root_pitch in SHARP_NOTES or '#' in selected_root_name:
+                NOTES_LIST.append(NOTES_SHARP[y])
+            else:
+                NOTES_LIST.append(NOTES[y])
 
     available_positions = NotesPosition.objects.filter(notes_name_id=scale_note.id)
     # First Create All_Notes_Position
@@ -62,7 +68,7 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
             y = 0
             for x in NOTES_LIST:
                 index = SCALE_NOTES[y]
-                position_loop_dict = get_notes_position(position.id, root_note_id)
+                position_loop_dict = get_notes_position(position.id, root_pitch)
                 check_position_one = STRING_NOTE_OPTIONS[key][0][x][0]['fret'][0]
                 try:
                     check_position_two = STRING_NOTE_OPTIONS[key][0][x][0]['fret'][1]

@@ -102,10 +102,10 @@ def fretboard_scale_view (request):
     position_json_data["root"] = selected_root_options
 
     scale_json_data = json.dumps(position_json_data)
-    print(scale_json_data)
+
     # notes data
     selected_position = position_id
-    print(selected_position)
+
     context = {
         'scale_json_data': scale_json_data,
 

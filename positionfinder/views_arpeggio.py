@@ -119,9 +119,13 @@ def fretboard_arpeggio_view (request):
     position_json_data["root"] = selected_root_options
 
     scale_json_data = json.dumps(position_json_data)
-    print(scale_json_data)
+
     # notes data
+    selected_position = position_id
+
     context = {
+        'scale_json_data': scale_json_data,
+
         'tension_json_data': tension_json_data,
         'note_name_json_data': note_name_json_data,
         'tones': tones,
@@ -143,7 +147,6 @@ def fretboard_arpeggio_view (request):
         'selected_root_name': selected_root_name,
         'selected_root_id': selected_root_id,
         'selected_category_name': selected_category_name,
-        'selected_position_name': selected_position_name,
         'selected_notes_name': selected_notes_name,
         }
     return render(request, 'fretboard.html', context)
