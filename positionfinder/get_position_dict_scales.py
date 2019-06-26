@@ -5,6 +5,7 @@ from positionfinder.template_notes import STRING_NOTE_OPTIONS
 from positionfinder.get_position import get_notes_position
 import numpy
 import json
+import pprint
 
 def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, selected_root_name):
 
@@ -38,9 +39,13 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
         for x in NOTES_LIST:
             index = SCALE_NOTES[y]
             TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0])
-            TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
             TENSION_DICT.append(TENSIONS[index])
             TENSION_OPTION_DICT['tensions'] = TENSION_DICT
+            try:
+                TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1])
+                TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
+            except IndexError:
+                k = False
             MULTIPLE_DICT = [ TONE_NOTE_OPTION_DICT, TENSION_OPTION_DICT ]
             y += 1
         STRING_NOTE_OPTION_STRING[key] = MULTIPLE_DICT
