@@ -421,14 +421,14 @@ select {
 form button {
   font-family: 'Dosis', sans-serif;
   font-size: 18px;
-  box-shadow: 0 4px #7E1444;
+  box-shadow: 0 4px #791006;
   width: 20%;
   height: 50px;
   border-radius: 10px;
-  background: #BA1A63;
+  background: #AA1A0D;
   border-width: 0.5px;
   color: #fff;
-  border-color: #81124557;
+  border-color: #aa1a0d;
 }
 form button:hover {
   transform: translate(0, 1.5px);
