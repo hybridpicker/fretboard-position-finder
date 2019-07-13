@@ -67,14 +67,17 @@ def fretboard_chords_view (request):
 
     # Getting Tonal Root from selected Chord Object
     try:
-        chord_object = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id, range=range)
+        chord_object = ChordNotes.objects.get(chord_name=chord_select_name,
+                                              type_name=type_id, range=range)
     except ObjectDoesNotExist:
         try:
-            chord_object = ChordNotes.objects.get(chord_name=chord_select_name, type_name=type_id)
+            chord_object = ChordNotes.objects.get(chord_name=chord_select_name,
+                                                  type_name=type_id)
         except ObjectDoesNotExist:
             chord_object = ChordNotes.objects.filter(type_name=type_id).first()
         except MultipleObjectsReturned:
-            chord_object = ChordNotes.objects.filter(chord_name=chord_select_name, type_name=type_id).first()
+            chord_object = ChordNotes.objects.filter(chord_name=chord_select_name,
+                                                     type_name=type_id).first()
 
     tonal_root = chord_object.tonal_root
     notes_options = ChordNotes.objects.filter(category=category_id)
@@ -87,27 +90,28 @@ def fretboard_chords_view (request):
     type_name = selected_note_option.type_name
     chord_name = selected_note_option.chord_name
     range_options = ChordNotes.objects.filter(type_name=type_name,
-                    chord_name=chord_name).values_list('range', flat=True).order_by('id')
+                                              chord_name=chord_name).values_list('range',
+                                                                                 flat=True).order_by('id')
     range_options = ChordNotes.objects.filter(type_name__in=[type_name],
                                               chord_name__in=[chord_name])
     first_range_option = range_options.first().range
-    type_options = ChordNotes.objects.all().values_list('type_name', flat=True).order_by('type_name').distinct()
+    type_options = ChordNotes.objects.all().values_list('type_name',
+                                                        flat=True).order_by('type_name').distinct()
 
     notes_options_id = chord_object.id
 
     position_options = ChordPosition.objects.filter(notes_name_id=notes_options_id)
-    chord_options = ChordNotes.objects.filter(type_name=type_id).values_list('chord_name', flat=True).order_by('type_name').distinct()
+    chord_options = ChordNotes.objects.filter(type_name=type_id).values_list('chord_name',
+                                                                             flat=True).order_by('type_name').distinct()
     ## Creating List of available Root Pitches ##
     root = get_root_note(root_pitch, tonal_root, root_id)
     ## Getting Chord Notes in chronological Order as a [list] ##
-    note_names = get_functionalty_note_names(notes_options_id, root_pitch, tonal_root, root_id)
     chord_json_data = {"chord": selected_note_option.chord_name,
                        "type": selected_note_option.type_name,
                        "root": root}
 
     # Creating for every String Range available Inversions #
     position_json_data = {}
-    position_data = {}
     temp_data = {}
     range_data = {}
 
@@ -118,12 +122,12 @@ def fretboard_chords_view (request):
 
         for position in position_options:
             position_json_data = {position.inversion_order : [get_position_dict(position.inversion_order,
-                                                                              chord_name,
-                                                                              option.range,
-                                                                              type_name,
-                                                                              root_pitch,
-                                                                              tonal_root,
-                                                                              selected_root_name)]}
+                                                                                chord_name,
+                                                                                option.range,
+                                                                                type_name,
+                                                                                root_pitch,
+                                                                                tonal_root,
+                                                                                selected_root_name)]}
             range_data[position.inversion_order] = position_json_data[position.inversion_order]
 
             temp_data[option.range] = range_data

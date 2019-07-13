@@ -54,7 +54,7 @@ def fretboard_arpeggio_view (request):
 
     if category_id == '1':
         return redirect('show_scale_fretboard')
-    elif category_id == '3':
+    if category_id == '3':
         return redirect('show_chords_fretboard')
 
     notes_options = Notes.objects.filter(category_id=category_id).first().pk
@@ -112,7 +112,11 @@ def fretboard_arpeggio_view (request):
     note_name_json_data = json.dumps(note_name_json_data)
 
     position_json_data = {}
-    position_json_data = get_scale_position_dict(selected_notes_name, selected_root_id, root_pitch, tonal_root, selected_root_name)
+    position_json_data = get_scale_position_dict(selected_notes_name,
+                                                 selected_root_id,
+                                                 root_pitch,
+                                                 tonal_root,
+                                                 selected_root_name)
 
     selected_root_options = get_root_note(root_pitch, tonal_root, root_id)
     position_json_data["name"] = selected_notes_name

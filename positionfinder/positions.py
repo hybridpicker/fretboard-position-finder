@@ -13,7 +13,7 @@ class NotesPosition(models.Model):
                                 help_text='2,3,4,5')
     def __str__(self):
         return '%s - %s' % (self.position_order, self.notes_name)
-
+        
     class Meta:
         ordering = ('notes_name', 'position_order')
         verbose_name = u'notes position'

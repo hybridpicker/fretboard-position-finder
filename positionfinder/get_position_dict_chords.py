@@ -9,7 +9,6 @@ def get_position_dict(chord_inversion, chord_name, range, type_name, root_pitch,
     chord_note = ChordNotes.objects.get(chord_name=chord_name, range=range, type_name=type_name)
     chord_notes_position = ChordPosition.objects.filter(notes_name_id=chord_note.id)
 
-    INVERSION_DICT = {}
     POSITION_DICT = {}
 
     CHORD_NOTES = [chord_note.first_note, chord_note.second_note,

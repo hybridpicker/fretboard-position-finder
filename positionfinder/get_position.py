@@ -10,5 +10,5 @@ def get_notes_position(position_id, root):
         return position_list
     else:
         # minus octave
-        position_list = [ x - 12 for x in position_list]
+        position_list = [x - 12 for x in position_list]
         return position_list

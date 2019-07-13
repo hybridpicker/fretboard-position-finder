@@ -14,6 +14,6 @@ INVERSION_CHOICES = {
 
 class ChordInversionChoicesField(models.CharField):
     def __init__(self, *args, **kwargs):
-        kwargs['choices']=tuple(sorted(INVERSION_CHOICES.items()))
-        kwargs['max_length']=20
-        super(ChordInversionChoicesField,self).__init__(*args, **kwargs)
+        kwargs['choices'] = tuple(sorted(INVERSION_CHOICES.items()))
+        kwargs['max_length'] = 20
+        super(ChordInversionChoicesField, self).__init__(*args, **kwargs)
