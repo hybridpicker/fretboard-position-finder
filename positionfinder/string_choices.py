@@ -13,6 +13,6 @@ STRING_CHOICES = {
 
 class StringChoicesField(models.CharField):
     def __init__(self, *args, **kwargs):
-        kwargs['choices']=tuple(sorted(STRING_CHOICES.items()))
-        kwargs['max_length']=20
-        super(StringChoicesField,self).__init__(*args, **kwargs)
+        kwargs['choices'] = tuple(sorted(STRING_CHOICES.items()))
+        kwargs['max_length'] = 20
+        super(StringChoicesField, self).__init__(*args, **kwargs)

@@ -10,9 +10,7 @@ import pprint
 def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, selected_root_name):
 
     scale_note = Notes.objects.get(note_name=scale_name)
-    scale_notes_position = NotesPosition.objects.filter(notes_name_id=scale_note.id)
 
-    INVERSION_DICT = {}
     POSITION_DICT = {}
 
     SCALE_NOTES = [scale_note.first_note, scale_note.second_note,
