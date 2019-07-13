@@ -17,6 +17,6 @@ STRING_RANGE_CHOICES = {
 
 class StringRangeChoicesField(models.CharField):
     def __init__(self, *args, **kwargs):
-        kwargs['choices']=tuple(sorted(STRING_RANGE_CHOICES.items()))
-        kwargs['max_length']=8
-        super(StringRangeChoicesField,self).__init__(*args, **kwargs)
+        kwargs['choices'] = tuple(sorted(STRING_RANGE_CHOICES.items()))
+        kwargs['max_length'] = 8
+        super(StringRangeChoicesField, self).__init__(*args, **kwargs)

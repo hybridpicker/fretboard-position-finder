@@ -19,8 +19,8 @@ NOTES_CHOICES = {
 
 class NotesChoicesField(models.IntegerField):
     def __init__(self, *args, **kwargs):
-        kwargs['choices']=tuple(sorted(NOTES_CHOICES.items()))
-        super(NotesChoicesField,self).__init__(*args, **kwargs)
+        kwargs['choices'] = tuple(sorted(NOTES_CHOICES.items()))
+        super(NotesChoicesField, self).__init__(*args, **kwargs)
 
 CHORD_CHOICES = {
     'Major 7' : _(u'Major 7'),
@@ -35,6 +35,6 @@ CHORD_CHOICES = {
 
 class ChordChoicesField(models.CharField):
     def __init__(self, *args, **kwargs):
-        kwargs['choices']=tuple(sorted(CHORD_CHOICES.items()))
-        kwargs['max_length']=20
-        super(ChordChoicesField,self).__init__(*args, **kwargs)
+        kwargs['choices'] = tuple(sorted(CHORD_CHOICES.items()))
+        kwargs['max_length'] = 20
+        super(ChordChoicesField, self).__init__(*args, **kwargs)
