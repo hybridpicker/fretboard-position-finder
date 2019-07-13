@@ -12,7 +12,7 @@ It is based on the Framework Django. After writing the scale notes into the data
    - JSON
 
 ## Fretboard-Position-Finder in Action:
-![po-fr-fi](https://user-images.githubusercontent.com/40589021/61169833-06255a00-a562-11e9-9c32-d0e96f63f892.gif)
+![positionfinder_vid](https://user-images.githubusercontent.com/40589021/61173835-0260fa00-a599-11e9-8fa9-091abc432519.gif)
 
 ## Idea:
 Design, Frontend and Backup-Code is made by Lukas Schönsgibl (aka hybridpicker)
