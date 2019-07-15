@@ -19,3 +19,39 @@ Design, Frontend and Backup-Code is made by Lukas Schönsgibl (aka hybridpicker)
 
 ## Example Site:
 https://blessond.com/fretboard
+
+## Instructions:
+
+Need some little additions in **settings.py**:
+
+For finding templates add this line into TEMPLATES:
+
+```python
+os.path.join(BASE_DIR, 'templates')
+```
+
+Then insert this block into **settings.py**:
+
+```python
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'fretboard/static_cdn')
+
+FIXTURE_DIRS = [
+    os.path.join(BASE_DIR, 'fixtures'),
+]
+```
+
+Fretboard-Position-Finder loads all fingerings, that are stored as **fixtures** with the migrate-command:
+```python
+python manage.py migrate
+```
