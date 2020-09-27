@@ -31,7 +31,11 @@ function reset_fretboard(){
 function getTonesFromDataScales(y){
 
   reset_fretboard()
-
+  var frets = ['one','two','three','four','five','six',
+              'seven','eight','nine','ten','eleven', 'twelve',
+              'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen']
+  var strings = ['ELowString', 'AString', 'dString',
+                'gString', 'bString', 'eString']
   /* x sets the id of inversions */
   var i = 0;
   for (var key in scale_data[y]) {
@@ -47,58 +51,57 @@ function getTonesFromDataScales(y){
         if (QuerySelect != null){
           QuerySelect.classList.add('active');
         }
-      }
-    }
-  }
-
-  /* Change for RootNote Color */
-  var string_array = ['eString', 'bString', 'gString', 'dString', 'AString', 'eLowString']
-  for (var key in scale_data.root) {
-    if (scale_data.root.hasOwnProperty(key)) {
-      var root = scale_data.root[key]
-      for (i = 0; i < string_array.length; i++) {
-        string = string_array[i];
-        var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
-        if (root_note_image != null){
-          root_note_image.setAttribute('src', '/static/media/red_dot.svg');
-          root_note_image.classList.add('active');
-        }
-      }
-    }
-  }
-}
-
-function getTonesFromDataChords(x, y){
-  reset_fretboard()
-
-  /* x sets the id of inversions */
-  var i = 0;
-  for (var key in voicing_data[y][x][0]) {
-    if (voicing_data[y][x][0].hasOwnProperty(key)) {
-      var tone = voicing_data[y][x][0][key][0]
-      var tone_name = voicing_data[y][x][0][key][2]
-
-      var QuerySelect = document.querySelector('.' + key + ' img.tone.' + tone);
-      QuerySelect.classList.add('active');
-      var QuerySelect = document.querySelector('.' + key + ' .notename.' + tone);
-      QuerySelect.classList.add('active');
-      /* Check every note that has a defined Query for not activating all chord tones */
-      var QuerySelect = document.querySelector('.' + key + ' .note.' + tone);
-      QuerySelect.classList.add('active');
-    }
-  }
-
-  /* Change for RootNote Color */
-  var string_array = ['eString', 'bString', 'gString', 'dString', 'AString', 'eLowString']
-  for (var key in voicing_data.root) {
-    if (voicing_data.root.hasOwnProperty(key)) {
-      var root = voicing_data.root[key]
-      for (i = 0; i < string_array.length; i++) {
-        string = string_array[i];
-        var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
-        if (root_note_image != null){
-          root_note_image.setAttribute('src', '/static/media/red_dot.svg');
-          root_note_image.classList.add('active');
+        element = document.querySelectorAll('.' + tone_name + '.active');
+        if (element.length > 2) {
+          var pos_val = document.getElementById('position_select').value
+          if (pos_val != 0){
+            /* Count String Range of String X and String Y -> Deactivate Tone with wider range on */
+            /* 1. Find String Name of Active Notes */
+            var multiple_tone = tone_name;
+            var list_of_strings = []
+            for (variable in frets) {
+              for (string in strings){
+                if (document.querySelectorAll('.' + frets[variable] + '.' + strings[string] + ' .' + tone_name + '.active').length != 0 ){
+                  /* push string into list */
+                  list_of_strings.push(strings[string])
+                }
+              }
+            }
+            /* 2. Find Range lowest to highest Note on Strings */
+            var first_string = []
+            var second_string = []
+            var available_strings = []
+            for (string in strings){
+              for (fret in frets){
+                if (document.querySelectorAll('.' + list_of_strings[string] + '.' + frets[fret] + ' .active').length > 0){
+                  if (string > 0){
+                    second_string.push(fret)
+                  }
+                  else {
+                    first_string.push(fret)
+                  }
+                  available_strings.push(list_of_strings[string])
+                }
+              }
+            }
+            var first_string_range = (first_string[first_string.length - 1]) - first_string[0]
+            var second_string_range = (second_string[second_string.length - 1]) - second_string[0]
+            var first_string = available_strings[1]
+            var second_string = available_strings[available_strings.length - 1]
+            /* 3. Deactivate Note with longest Range */
+            console.log(first_string_range)
+            console.log(second_string_range)
+            if (first_string_range > second_string_range){
+              element = document.querySelectorAll('.' + first_string + ' .' + tone_name);
+              element[0].classList.remove("active")
+              element[1].classList.remove("active")
+            }
+            else {
+              element = document.querySelectorAll('.' + second_string + ' .' + tone_name);
+              element[0].classList.remove("active")
+              element[1].classList.remove("active")
+            }
+          }
         }
       }
     }

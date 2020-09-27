@@ -16,7 +16,7 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
     SCALE_NOTES = [scale_note.first_note, scale_note.second_note,
                    scale_note.third_note, scale_note.fourth_note,
                    scale_note.fifth_note, scale_note.sixth_note,
-                   scale_note.seventh_note]
+                   scale_note.seventh_note, scale_note.eigth_note,]
 
     NOTES_LIST = []
     for x in SCALE_NOTES:
