@@ -182,8 +182,11 @@ function getNoteNameFromData(){
       for (var z in scale_data[y][key][0]["tones"]) {
         var tone_name = scale_data[y][key][0]["tones"][z]
         var QuerySelect = document.querySelector('.' + key + ' .notename.' + tone_name);
-        if (QuerySelect != null){
-          QuerySelect.classList.add("active")
+        var image = document.querySelector('.' + key + ' .' + tone_name + ' img.active');
+        if (image){
+          if (QuerySelect != null){
+            QuerySelect.classList.add("active")
+          }
         }
       }
     }
@@ -192,6 +195,7 @@ function getNoteNameFromData(){
   button.setAttribute("onclick","getNotePicFromData()")
   button.innerHTML = 'Only Tones';
 }
+
 function getNotePicFromData(){
   /* x sets the id of inversions */
   var notename_elements = document.querySelectorAll('.notename');
