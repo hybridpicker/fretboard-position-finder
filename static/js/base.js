@@ -1,3 +1,9 @@
+var string_array = ['eString', 'bString', 'gString', 'dString', 'AString', 'ELowString']
+
+var frets = ['one','two','three','four','five','six',
+            'seven','eight','nine','ten','eleven', 'twelve',
+            'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen']
+
 function playtone(x, y){
   var audio = new Audio('static/media/tone_sounds/' + x + '.wav');
   var string = '.' + y
