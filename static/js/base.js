@@ -155,7 +155,7 @@ function getTonesFromDataScales(y){
         string = string_array[i];
         var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
         if (root_note_image != null){
-          root_note_image.setAttribute('src', '/static/fretboardmedia/red_dot.svg');
+          root_note_image.setAttribute('src', '/static/media/red_dot.svg');
           root_note_image.classList.add('active');
         }
       }
