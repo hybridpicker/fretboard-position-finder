@@ -98,6 +98,7 @@ def create_base_position(id):
         while z < 0:
             z += 12
         create_fourthnote_positions(w,x,y,z,id)
+        
     if not None in (chord.first_note, chord.second_note, chord.third_note) and chord.fourth_note is None:
         base_position = ChordPosition.objects.create(notes_name_id=chord.id,
                                                      inversion_order='Basic Position',
