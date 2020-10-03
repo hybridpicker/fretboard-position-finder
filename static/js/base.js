@@ -196,6 +196,42 @@ function getNoteNameFromData(){
   button.innerHTML = 'Only Tones';
 }
 
+function getTonesFromDataChords(x, y){
+  reset_fretboard()
+  /* x sets the id of inversions */
+  var i = 0;
+  for (var key in voicing_data[y][x][0]) {
+    if (voicing_data[y][x][0].hasOwnProperty(key)) {
+      var tone = voicing_data[y][x][0][key][0]
+      var tone_name = voicing_data[y][x][0][key][2]
+
+      var QuerySelect = document.querySelector('.' + key + ' img.tone.' + tone);
+      QuerySelect.classList.add('active');
+      var QuerySelect = document.querySelector('.' + key + ' .notename.' + tone);
+      QuerySelect.classList.add('active');
+      /* Check every note that has a defined Query for not activating all chord tones */
+      var QuerySelect = document.querySelector('.' + key + ' .note.' + tone);
+      QuerySelect.classList.add('active');
+    }
+  }
+
+  /* Change for RootNote Color */
+  for (var key in voicing_data.root) {
+    if (voicing_data.root.hasOwnProperty(key)) {
+      var root = voicing_data.root[key]
+      for (i = 0; i < string_array.length; i++) {
+        string = string_array[i];
+        var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
+        if (root_note_image != null){
+          root_note_image.setAttribute('src', '/static/media/red_dot.svg');
+          root_note_image.classList.add('active');
+        }
+      }
+    }
+  }
+}
+
+
 function getNotePicFromData(){
   /* x sets the id of inversions */
   var notename_elements = document.querySelectorAll('.notename');
