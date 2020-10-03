@@ -58,6 +58,7 @@ def create_fourthnote_positions(w,x,y,z,chord_id):
                                             second_note=x+y+z,
                                             third_note=y+z+w,
                                             fourth_note=z+w+x,)
+
 def create_triad_positions(w,x,y,chord_id):
     chord = ChordNotes.objects.get(id=chord_id)
     #First Inversion
@@ -115,12 +116,37 @@ def create_base_position(id):
             y += 12
         create_triad_positions(w,x,y,id)
 
-
 def create_chord(id):
     chord = ChordNotes.objects.get(id=id)
 
     if chord.chord_name == 'Major 7':
         major_7 = ChordNotes.objects.get(id=id)
+
+        major_7sharp5 = ChordNotes.objects.create(category_id=major_7.category.id,
+                                            type_name=major_7.type_name,
+                                            chord_name='Major 7(#5)', range=major_7.range,
+                                            tonal_root=major_7.tonal_root,
+                                            first_note=major_7.first_note,
+                                            first_note_string=major_7.first_note_string,
+                                            second_note=major_7.second_note - 1,
+                                            second_note_string=major_7.second_note_string,
+                                            third_note=major_7.third_note + 1,
+                                            third_note_string=major_7.third_note_string,
+                                            fourth_note=major_7.fourth_note - 1,
+                                            fourth_note_string=major_7.fourth_note_string)
+
+        major_7flat5 = ChordNotes.objects.create(category_id=major_7.category.id,
+                                            type_name=major_7.type_name,
+                                            chord_name='Major 7(b5)', range=major_7.range,
+                                            tonal_root=major_7.tonal_root,
+                                            first_note=major_7.first_note,
+                                            first_note_string=major_7.first_note_string,
+                                            second_note=major_7.second_note - 1,
+                                            second_note_string=major_7.second_note_string,
+                                            third_note=major_7.third_note - 1,
+                                            third_note_string=major_7.third_note_string,
+                                            fourth_note=major_7.fourth_note - 1,
+                                            fourth_note_string=major_7.fourth_note_string)
 
         minor_7 = ChordNotes.objects.create(category_id=major_7.category.id,
                                             type_name=major_7.type_name,
@@ -133,6 +159,19 @@ def create_chord(id):
                                             third_note=major_7.third_note,
                                             third_note_string=major_7.third_note_string,
                                             fourth_note=major_7.fourth_note - 1,
+                                            fourth_note_string=major_7.fourth_note_string)
+
+        minor_maj7 = ChordNotes.objects.create(category_id=major_7.category.id,
+                                            type_name=major_7.type_name,
+                                            chord_name='MinMaj 7', range=major_7.range,
+                                            tonal_root=major_7.tonal_root,
+                                            first_note=major_7.first_note,
+                                            first_note_string=major_7.first_note_string,
+                                            second_note=major_7.second_note - 1,
+                                            second_note_string=major_7.second_note_string,
+                                            third_note=major_7.third_note,
+                                            third_note_string=major_7.third_note_string,
+                                            fourth_note=major_7.fourth_note,
                                             fourth_note_string=major_7.fourth_note_string)
 
         minor_7_b5 = ChordNotes.objects.create(category_id=minor_7.category.id,
@@ -161,10 +200,41 @@ def create_chord(id):
                                             fourth_note=major_7.fourth_note - 1,
                                             fourth_note_string=major_7.fourth_note_string)
 
+        dominant_7sharp5 = ChordNotes.objects.create(category_id=major_7.category.id,
+                                            type_name=major_7.type_name,
+                                            chord_name='Dominant 7(#5)', range=major_7.range,
+                                            tonal_root=major_7.tonal_root,
+                                            first_note=major_7.first_note,
+                                            first_note_string=major_7.first_note_string,
+                                            second_note=major_7.second_note,
+                                            second_note_string=major_7.second_note_string,
+                                            third_note=major_7.third_note + 1,
+                                            third_note_string=major_7.third_note_string,
+                                            fourth_note=major_7.fourth_note - 1,
+                                            fourth_note_string=major_7.fourth_note_string)
+
+        dominant_7flat5 = ChordNotes.objects.create(category_id=major_7.category.id,
+                                            type_name=major_7.type_name,
+                                            chord_name='Dominant 7(b5)', range=major_7.range,
+                                            tonal_root=major_7.tonal_root,
+                                            first_note=major_7.first_note,
+                                            first_note_string=major_7.first_note_string,
+                                            second_note=major_7.second_note,
+                                            second_note_string=major_7.second_note_string,
+                                            third_note=major_7.third_note - 1,
+                                            third_note_string=major_7.third_note_string,
+                                            fourth_note=major_7.fourth_note - 1,
+                                            fourth_note_string=major_7.fourth_note_string)
+
         base_position = create_base_position(id)
+        base_position = create_base_position(major_7sharp5.id)
+        base_position = create_base_position(major_7flat5.id)
         base_position = create_base_position(minor_7.id)
+        base_position = create_base_position(minor_maj7.id)
         base_position = create_base_position(minor_7_b5.id)
         base_position = create_base_position(dominant_7.id)
+        base_position = create_base_position(dominant_7sharp5.id)
+        base_position = create_base_position(dominant_7flat5.id)
 
     elif chord.chord_name == 'Major':
         major = ChordNotes.objects.get(id=id)
@@ -206,8 +276,6 @@ def create_chord(id):
         base_position = create_base_position(minor.id)
         base_position = create_base_position(dim.id)
         base_position = create_base_position(augmented.id)
-
-
 
 class ChordNotes(models.Model):
     category = models.ForeignKey(
@@ -251,7 +319,6 @@ class ChordNotes(models.Model):
     class Meta:
         verbose_name = u'Tones for Chord'
         verbose_name_plural = u'Tones for Chords'
-
 
 class ChordPosition(models.Model):
     notes_name = models.ForeignKey(

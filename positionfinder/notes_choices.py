@@ -24,6 +24,7 @@ class NotesChoicesField(models.IntegerField):
 
 CHORD_CHOICES = {
     'Major 7' : _(u'Major 7'),
+    'Major7(#5)': _(u'Major7(#5)'),
     'Minor 7' : _(u'Minor 7'),
     'Dominant 7' : _(u'Dominant 7'),
     'Minor7b5' : _(u'Minor 7b5'),
