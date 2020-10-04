@@ -10,30 +10,87 @@ from .notes_choices import NotesChoicesField, ChordChoicesField
 def create_other_ranges(chord_id):
     chord = ChordNotes.objects.get(id=chord_id)
     if chord.range == 'e - d' and not None in (chord.first_note, chord.second_note, chord.third_note, chord.fourth_note):
-        b_A = ChordNotes.objects.create(category_id=chord.category.id,
-                                        type_name=chord.type_name,
-                                        chord_name=chord.chord_name, range='b - A',
-                                        tonal_root=chord.tonal_root,
-                                        first_note=chord.first_note,
-                                        first_note_string='bString',
-                                        second_note=chord.second_note ,
-                                        second_note_string='gString',
-                                        third_note=chord.third_note,
-                                        third_note_string='dString',
-                                        fourth_note=chord.fourth_note,
-                                        fourth_note_string='AString')
-        g_E = ChordNotes.objects.create(category_id=chord.category.id,
-                                        type_name=chord.type_name,
-                                        chord_name=chord.chord_name, range='g - E',
-                                        tonal_root=chord.tonal_root,
-                                        first_note=chord.first_note,
-                                        first_note_string='gString',
-                                        second_note=chord.second_note ,
-                                        second_note_string='dString',
-                                        third_note=chord.third_note,
-                                        third_note_string='AString',
-                                        fourth_note=chord.fourth_note,
-                                        fourth_note_string='ELowString')
+        if chord.type_name == 'V2':
+            b_A = ChordNotes.objects.create(category_id=chord.category.id,
+                                            type_name=chord.type_name,
+                                            chord_name=chord.chord_name, range='b - A',
+                                            tonal_root=chord.tonal_root,
+                                            first_note=chord.first_note,
+                                            first_note_string='AString',
+                                            second_note=chord.second_note ,
+                                            second_note_string='bString',
+                                            third_note=chord.third_note,
+                                            third_note_string='dString',
+                                            fourth_note=chord.fourth_note,
+                                            fourth_note_string='gString')
+
+            g_E = ChordNotes.objects.create(category_id=chord.category.id,
+                                            type_name=chord.type_name,
+                                            chord_name=chord.chord_name, range='g - E',
+                                            tonal_root=chord.tonal_root,
+                                            first_note=chord.first_note,
+                                            first_note_string='ELowString',
+                                            second_note=chord.second_note ,
+                                            second_note_string='gString',
+                                            third_note=chord.third_note,
+                                            third_note_string='AString',
+                                            fourth_note=chord.fourth_note,
+                                            fourth_note_string='dString')
+    if chord.range == 'e - A' and not None in (chord.first_note, chord.second_note, chord.third_note, chord.fourth_note):
+        if chord.type_name == 'V3':
+            b_E = ChordNotes.objects.create(category_id=chord.category.id,
+                                            type_name=chord.type_name,
+                                            chord_name=chord.chord_name, range='b - E',
+                                            tonal_root=chord.tonal_root,
+                                            first_note=chord.first_note,
+                                            first_note_string='ELowString',
+                                            second_note=chord.second_note ,
+                                            second_note_string='AString',
+                                            third_note=chord.third_note,
+                                            third_note_string='bString',
+                                            fourth_note=chord.fourth_note,
+                                            fourth_note_string='dString')
+        elif chord.type_name == 'V4':
+            b_E = ChordNotes.objects.create(category_id=chord.category.id,
+                                            type_name=chord.type_name,
+                                            chord_name=chord.chord_name, range='b - E',
+                                            tonal_root=chord.tonal_root,
+                                            first_note=chord.first_note,
+                                            first_note_string='bString',
+                                            second_note=chord.second_note ,
+                                            second_note_string='dString',
+                                            third_note=chord.third_note,
+                                            third_note_string='ELowString',
+                                            fourth_note=chord.fourth_note,
+                                            fourth_note_string='gString')
+        elif chord.type_name == 'V5':
+            b_E = ChordNotes.objects.create(category_id=chord.category.id,
+                                            type_name=chord.type_name,
+                                            chord_name=chord.chord_name, range='b - E',
+                                            tonal_root=chord.tonal_root,
+                                            first_note=chord.first_note,
+                                            first_note_string='ELowString',
+                                            second_note=chord.second_note ,
+                                            second_note_string='gString',
+                                            third_note=chord.third_note,
+                                            third_note_string='dString',
+                                            fourth_note=chord.fourth_note,
+                                            fourth_note_string='bString')
+        elif chord.type_name == 'V5':
+            b_E = ChordNotes.objects.create(category_id=chord.category.id,
+                                            type_name=chord.type_name,
+                                            chord_name=chord.chord_name, range='b - E',
+                                            tonal_root=chord.tonal_root,
+                                            first_note=chord.first_note,
+                                            first_note_string='ELowString',
+                                            second_note=chord.second_note ,
+                                            second_note_string='gString',
+                                            third_note=chord.third_note,
+                                            third_note_string='dString',
+                                            fourth_note=chord.fourth_note,
+                                            fourth_note_string='bString')
+        else:
+            pass
 
 def create_fourthnote_positions(w,x,y,z,chord_id):
     chord = ChordNotes.objects.get(id=chord_id)
@@ -98,7 +155,7 @@ def create_base_position(id):
         while z < 0:
             z += 12
         create_fourthnote_positions(w,x,y,z,id)
-        
+
     if not None in (chord.first_note, chord.second_note, chord.third_note) and chord.fourth_note is None:
         base_position = ChordPosition.objects.create(notes_name_id=chord.id,
                                                      inversion_order='Basic Position',
@@ -133,7 +190,7 @@ def create_chord(id):
                                             second_note_string=major_7.second_note_string,
                                             third_note=major_7.third_note + 1,
                                             third_note_string=major_7.third_note_string,
-                                            fourth_note=major_7.fourth_note - 1,
+                                            fourth_note=major_7.fourth_note,
                                             fourth_note_string=major_7.fourth_note_string)
 
         major_7flat5 = ChordNotes.objects.create(category_id=major_7.category.id,
