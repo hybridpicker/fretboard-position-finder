@@ -305,7 +305,16 @@
   document.addEventListener("click", closeAllSelect);
 </script>
 <script type="text/javascript">
-  window.onload = getTonesFromDataScales('0')
+  pos_val = document.getElementById('position_select').value
+  var url_string = window.location.href
+  var url = new URL(url_string);
+  var pos_val = url.searchParams.get("position_select");
+  if (pos_val){
+    window.onload = getTonesFromDataScales(pos_val)
+  }
+  else {
+    window.onload = getTonesFromDataScales('0')
+  }
 
 </script>
 {% block footer %}
