@@ -1,16 +1,34 @@
 {% load static %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Fretboard-Position-Finder</title>
+  <!-- CSS fretboard -->
+  <link rel="stylesheet" href="{% static "css/fretboard.css" %}" type="text/css" media="screen">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
-<!-- CSS fretboard -->
-<link rel="stylesheet" href="{% static "css/fretboard.css" %}" type="text/css" media="screen">
-<!-- Google Font -->
-<link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
+  <script type="text/javascript">
+    var scale_data = {{ scale_json_data|safe }}
+  </script>
 
-<script type="text/javascript">
-  var scale_data = {{ scale_json_data|safe }}
-</script>
+  <script src="{% static '/js/base.js' %}"></script>
 
-<script src="{% static '/js/base.js' %}"></script>
+  <meta name="title" content="Fretboard-Position-Finder">
+  <meta name="description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
 
+  <!-- Social Media Meta --->
+  <meta property="og:title" content="Fretboard-Position-Finder">
+  <meta property="og:description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
+  <meta property="og:image" content="static/thumbnail/facebook/home.jpg">
+  <meta property="og:url" content="http://positionfinder.schoensgibl.com/">
+
+  <meta name="twitter:title" content="Fretboard-Position-Finder">
+  <meta name="twitter:description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
+  <meta name="twitter:image" content="static/thumbnail/twitter/home.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+</head>
 {% block head %}
 {% endblock %}
 
