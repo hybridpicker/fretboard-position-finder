@@ -438,3 +438,13 @@ form button:hover {
 .form-actions {
   padding-top: 1em;
 }
+footer a{
+  margin-left: 1rem;
+}
+footer div{
+  text-align: center;
+  margin: auto;
+}
+#github:hover .st0{
+  fill:rgb(171,173,193);
+}
