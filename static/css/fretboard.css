@@ -24,7 +24,7 @@ body {
 .eString, .bString, .gString {
   border-top: 2px solid rgb(136,138,154);
 }
-.dString, .AString, .eLowString {
+.dString, .AString, .ELowString {
   border-top: 2.5px solid rgb(171,173,193);
 }
 .fret .note {
@@ -127,7 +127,7 @@ h1 {
   .eString, .bString, .gString {
     border-top: 1.5px solid rgb(136,138,154)!important;
   }
-  .dString, .AString, .eLowString {
+  .dString, .AString, .ELowString {
     border-top: 2px solid rgb(171,173,193)!important;
   }
   #fretboardcontainer{
