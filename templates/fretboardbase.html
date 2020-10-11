@@ -31,12 +31,21 @@
   <meta name="twitter:description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
   <meta name="twitter:image" content="static/thumbnail/twitter/home.jpg">
   <meta name="twitter:card" content="summary_large_image">
+
+  <script type="text/javascript">
+    var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    if (isChrome){
+      if(window.innerHeight > window.innerWidth){
+        console.log('mobile Chrome')
+      }
+    }
+  </script>
 </head>
 {% block head %}
 {% endblock %}
 <div class="mbs-portrait">
   <div class="rotate-container">
-    <h1>Please rotate your phone</h1>
+    <h1>Please rotate your device.</h1>
     <p>Fretboard-Position-Finder just works fine in landscape view.</p>
   </div>
 </div>
