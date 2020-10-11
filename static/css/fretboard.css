@@ -448,3 +448,28 @@ footer div{
 #github:hover .st0{
   fill:rgb(171,173,193);
 }
+.mbs-portrait{
+  display:none;
+  width: 100vw;
+  height: 100vh;
+}
+@media only screen and (orientation:portrait) {
+ .mbs{
+   display:none;
+ }
+ .mbs-portrait{
+   display:block
+ }
+ body{
+   font-size: 38px;
+ }
+}
+.rotate-container{
+  margin:auto;
+}
+.rotate-container{
+  text-align: center;
+  position: fixed;
+  top: 50%;
+  width: 100vw;
+}
