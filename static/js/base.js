@@ -5,7 +5,7 @@ var frets = ['one','two','three','four','five','six',
             'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen']
 
 function playtone(x, y){
-  var audio = new Audio('static/media/tone_sounds/' + x + '.wav');
+  var audio = new Audio('static/media/tone_sounds/' + x + '.mp3');
   var string = '.' + y
   audio.play();
   var root_class = document.querySelector(string + ' img.tone.' + x + '.active').classList.contains('root')
