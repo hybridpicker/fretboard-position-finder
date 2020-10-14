@@ -226,6 +226,7 @@ function getTonesFromDataChords(x, y){
         if (root_note_image != null){
           root_note_image.setAttribute('src', '/static/media/red_dot.svg');
           root_note_image.classList.add('active');
+          root_note_image.classList.add('root')
         }
       }
     }
