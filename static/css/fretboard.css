@@ -422,6 +422,11 @@ select {
   font-size: 19px;
   padding-bottom: 1%;
 }
+@media only screen and (max-width: 1050px) {
+  .analysis_container {
+    display:none;
+  }
+}
 form button {
   font-family: 'Dosis', sans-serif;
   font-size: 18px;
