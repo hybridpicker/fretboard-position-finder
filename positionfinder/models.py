@@ -30,6 +30,7 @@ class Notes(models.Model):
         NotesCategory,
         on_delete=models.CASCADE,)
     note_name = models.CharField(max_length=30)
+    ordering = models.IntegerField(null=True, blank=True)
     tonal_root = models.IntegerField(default=0, help_text='defines the tonal space of the notes')
     first_note = models.IntegerField(default=0)
     second_note = models.IntegerField(null=True, blank=True)
@@ -48,6 +49,6 @@ class Notes(models.Model):
         return '%s : %s' % (self.category, self.note_name)
 
     class Meta:
-        ordering = ['note_name']
+        ordering = ['ordering', 'note_name']
         verbose_name = u'Tones for Scale'
         verbose_name_plural = u'Tones for Scales'
