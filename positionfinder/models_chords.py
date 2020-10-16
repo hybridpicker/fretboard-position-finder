@@ -339,6 +339,7 @@ class ChordNotes(models.Model):
     category = models.ForeignKey(
         NotesCategory,
         on_delete=models.CASCADE,)
+    ordering = models.IntegerField(null=True, blank=True)
     type_name = models.CharField(max_length=30)
     chord_name = ChordChoicesField(_("Chord Name"), default="Major 7")
     range = StringRangeChoicesField(_("String Range"), default="e - g")
@@ -375,6 +376,7 @@ class ChordNotes(models.Model):
                                  self.range)
 
     class Meta:
+        ordering = ['ordering']
         verbose_name = u'Tones for Chord'
         verbose_name_plural = u'Tones for Chords'
 
