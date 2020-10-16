@@ -404,14 +404,18 @@ select {
 /* Form Styling */
 @media only screen and (max-width: 936px) {
   #catsfbsf {
-    width: 90%;
+    width: 9rem;
     margin-top: 0.8em;
     margin-bottom: 0.8em;
   }
   .sfbsf, .sfbsfnr, .sfbsfpos, .sfbsfnos {
-    width: 90%;
+    width: 9rem;
     margin-top: 0.8em;
     margin-bottom: 0.8em;
+  }
+  .sese::after{
+    position: unset;
+    content: none;
   }
 }
 .analysis_container {
