@@ -334,15 +334,6 @@ select {
   border-color: #BABABAAD;
   cursor: pointer;
 }
-/* Style the arrow inside the select element: */
-.sese:after {
-  position: absolute;
-  content: url(/static/media/select_field/arrow/arrow_after.png);
-  top: 10px;
-  right: 25px;
-  width: 0;
-  height: 0;
-}
 .sese.slar-active{
   border-radius: 18px 0 0 0;
   box-shadow: none;
@@ -399,7 +390,7 @@ select {
   border-radius: 0 0 18px 18px;
 }
 .slit div:hover, .swasd {
-  background-color: #C7B22E20;
+  background-color: #fdb22e33;
 }
 /* Form Styling */
 @media only screen and (max-width: 936px) {
@@ -412,10 +403,6 @@ select {
     width: 9rem;
     margin-top: 0.8em;
     margin-bottom: 0.8em;
-  }
-  .sese::after{
-    position: unset;
-    content: none;
   }
 }
 .analysis_container {
