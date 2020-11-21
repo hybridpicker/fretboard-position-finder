@@ -49,6 +49,6 @@ class Notes(models.Model):
         return '%s : %s' % (self.category, self.note_name)
 
     class Meta:
-        ordering = ['ordering', 'note_name']
+        ordering = ['category', 'ordering', 'note_name']
         verbose_name = u'Tones for Scale'
         verbose_name_plural = u'Tones for Scales'

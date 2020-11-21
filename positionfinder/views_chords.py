@@ -51,11 +51,11 @@ def fretboard_chords_view (request):
         try:
             type_id = request.GET['type_options_select']
         except MultiValueDictKeyError:
-            type_id = 'V2'
+            type_id = 'Triads'
         try:
             chord_select_name = request.GET['chords_options_select']
         except MultiValueDictKeyError:
-            chord_select_name = 'Major 7'
+            chord_select_name = 'Major'
 
     '''
     Redirecting to other views if category is clicked
@@ -96,7 +96,7 @@ def fretboard_chords_view (request):
                                               chord_name__in=[chord_name])
     first_range_option = range_options.first().range
     type_options = ChordNotes.objects.all().values_list('type_name',
-                                                        flat=True).order_by('type_name').distinct()
+                                                        flat=True).order_by('ordering').distinct()
 
     notes_options_id = chord_object.id
 
