@@ -62,7 +62,7 @@ def fretboard_scale_view (request):
     notes_options = Notes.objects.filter(category_id=category_id).first().pk
 
     root_pitch = Root.objects.get(pk=root_id).pitch
-    notes_options = Notes.objects.filter(category=category_id)
+    notes_options = Notes.objects.filter(category=category_id).order_by('ordering')
     position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
     tones = get_notes_tones(notes_options_id, root_pitch, tonal_root, root_id)
     tensions = get_functionalty_tones(notes_options_id, root_pitch)

@@ -6,7 +6,7 @@ from .template_notes import NOTES, NOTES_SHARP, OCTAVES, SHARP_NOTES
 def build_notes(notes):
     cleaned = model_to_dict(notes,
                             fields=[field.name for field in Notes._meta.fields if field.name not in
-                                    ["note_name", "category", "id", "tonal_root"]])
+                                    ["note_name", "category", "id", "tonal_root", "ordering"]])
     return [v for f, v in cleaned.items() if v is not None]
 
 def get_tonal_all_notes_append(tonal_root, selected_root_name):
