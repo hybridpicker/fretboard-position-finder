@@ -343,6 +343,7 @@ class ChordNotes(models.Model):
     type_name = models.CharField(max_length=30)
     chord_name = ChordChoicesField(_("Chord Name"), default="Major 7")
     range = StringRangeChoicesField(_("String Range"), default="e - g")
+    range_ordering = models.IntegerField(null=True, blank=True)
     tonal_root = models.IntegerField(default=0, help_text='defines the tonal space')
     first_note = NotesChoicesField(_("First Note"), default=0)
     first_note_string = StringChoicesField(_("String for Note"),
@@ -376,7 +377,7 @@ class ChordNotes(models.Model):
                                  self.range)
 
     class Meta:
-        ordering = ['ordering']
+        ordering = ['category', 'ordering', 'range_ordering']
         verbose_name = u'Tones for Chord'
         verbose_name_plural = u'Tones for Chords'
 
