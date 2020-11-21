@@ -89,11 +89,8 @@ def fretboard_chords_view (request):
 
     type_name = selected_note_option.type_name
     chord_name = selected_note_option.chord_name
-    range_options = ChordNotes.objects.filter(type_name=type_name,
-                                              chord_name=chord_name).values_list('range',
-                                                                                 flat=True).order_by('id')
     range_options = ChordNotes.objects.filter(type_name__in=[type_name],
-                                              chord_name__in=[chord_name])
+                                              chord_name__in=[chord_name]).order_by('ordering', 'range_ordering')
     first_range_option = range_options.first().range
     type_options = ChordNotes.objects.all().values_list('type_name',
                                                         flat=True).order_by('ordering').distinct()
