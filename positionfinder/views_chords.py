@@ -84,7 +84,6 @@ def fretboard_chords_view (request):
     root_options = Root.objects.all()
     root_pitch = Root.objects.get(id=root_id).pitch
     selected_root_name = Root.objects.get(id=root_id).name
-
     selected_note_option = chord_object
 
     type_name = selected_note_option.type_name
@@ -99,7 +98,7 @@ def fretboard_chords_view (request):
 
     position_options = ChordPosition.objects.filter(notes_name_id=notes_options_id)
     chord_options = ChordNotes.objects.filter(type_name=type_id).values_list('chord_name',
-                                                                             flat=True).order_by('type_name').distinct()
+                                                                             flat=True).order_by('chord_ordering').distinct()
     ## Creating List of available Root Pitches ##
     root = get_root_note(root_pitch, tonal_root, root_id)
     ## Getting Chord Notes in chronological Order as a [list] ##
