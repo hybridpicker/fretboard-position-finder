@@ -18,7 +18,7 @@ It is based on the Framework Django. After writing the scale notes into the data
 Design, Frontend and Backup-Code is made by Lukas Schönsgibl (aka hybridpicker)
 
 ## Example Site:
-http://positionfinder.schoensgibl.com
+https://positionfinder.schoensgibl.com
 
 ## Instructions
 
