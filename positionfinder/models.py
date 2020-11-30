@@ -31,6 +31,7 @@ class Notes(models.Model):
         on_delete=models.CASCADE,)
     note_name = models.CharField(max_length=30)
     ordering = models.IntegerField(null=True, blank=True)
+    chords = models.CharField(max_length=24,blank=True) 
     tonal_root = models.IntegerField(default=0, help_text='defines the tonal space of the notes')
     first_note = models.IntegerField(default=0)
     second_note = models.IntegerField(null=True, blank=True)
