@@ -45,12 +45,26 @@ NOTE_NAMES = [
     'A', 'Bb', 'B'
     ]
 
+NOTE_NAMES_OPTION = [
+    'Dbb', 'Db', 'Ebb',
+    'Eb', 'Fb', 'Gbb',
+    'Gb', 'Abb', 'Ab',
+    'Bbb', 'Bb', 'Cb'
+    ]
+
 ''' adding sharp notes '''
 NOTE_NAMES_SHARP = [
     'C', 'C#', 'D',
     'D#', 'E', 'F',
     'F#', 'G', 'G#',
     'A', 'A#', 'B'
+    ]
+
+NOTE_NAMES_SHARP_OPTION = [
+    'B#', 'C#', 'C##',
+    'D#', 'D##', 'E#',
+    'F#', 'F##', 'G#',
+    'G##', 'A#', 'A##'
     ]
 
 INVERSIONS = [
