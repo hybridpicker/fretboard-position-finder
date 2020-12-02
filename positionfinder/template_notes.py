@@ -38,6 +38,13 @@ TENSIONS = [
     '13', 'b7', '7'
     ]
 
+TENSIONS_OPTIONAL = [
+    'R', 'b9', 'bb3',
+    'b3', 'b11', '11',
+    'b5', '5', 'b13',
+    'bb7', 'b7', '7'
+    ]
+
 NOTE_NAMES = [
     'C', 'Db', 'D',
     'Eb', 'E', 'F',
