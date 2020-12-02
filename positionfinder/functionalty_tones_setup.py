@@ -27,8 +27,14 @@ def get_functionalty_pitches(notes_options_id, root):
 def get_tension_final_list(tonal_root, ALL_NOTES_NOTES, ALL_NOTES, NOTES_NOTES):
     TENSION_NOTE_FINAL = [int(x)+tonal_root for x in ALL_NOTES_NOTES]
     TENSION_NOTE_FINAL = [x-12 if x>=12 else x for x in TENSION_NOTE_FINAL]
-    TENSION_NOTE_LIST = [ALL_NOTES[x] for x in TENSION_NOTE_FINAL]
-    return TENSION_NOTE_LIST
+    TENSION_DICT = []
+    '''
+    TODO: For Notes who already are in dictionary get other Notename.
+    If A is the next Tone and Ab is already taken -> choose Bbb
+    '''    
+    for x in TENSION_NOTE_FINAL:
+        TENSION_DICT.append(ALL_NOTES[x])
+    return TENSION_DICT
 
 def get_all_notes_functionality(root, root_id):
     selected_root_name = Root.objects.get(pk=root_id).name
