@@ -10,7 +10,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.core.exceptions import ObjectDoesNotExist
 
 from .root_chord_note_setup import get_root_note
-from .functionalty_chord_tones_setup import get_functionalty_note_names
+from .functionality_chord_tones_setup import get_functionality_note_names
 
 from .get_position_dict_chords import get_position_dict
 
