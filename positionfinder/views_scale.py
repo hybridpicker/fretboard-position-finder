@@ -100,7 +100,7 @@ def fretboard_scale_view (request):
                                                  root_pitch,
                                                  tonal_root,
                                                  selected_root_name)
-
+    
     selected_root_options = get_root_note(root_pitch, tonal_root, root_id)
     position_json_data["name"] = selected_notes_name
     position_json_data["root"] = selected_root_options
@@ -136,4 +136,5 @@ def fretboard_scale_view (request):
         'selected_category_name': selected_category_name,
         'selected_notes_name': selected_notes_name,
         }
+   
     return render(request, 'fretboard.html', context)
