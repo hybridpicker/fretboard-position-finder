@@ -1,7 +1,7 @@
 from positionfinder.models import Notes
 from positionfinder.positions import NotesPosition
 from positionfinder.template_notes import NOTES, NOTES_SHARP, TENSIONS, INVERSIONS, SHARP_NOTES
-from positionfinder.template_notes import STRING_NOTE_OPTIONS
+from positionfinder.template_notes import STRING_NOTE_OPTIONS, STRINGS
 from positionfinder.get_position import get_notes_position
 import numpy
 import json
@@ -13,7 +13,7 @@ def get_transposable_positions(position_options, position):
     for i in range (0, position_options + 1):
         actual_position = position[str(i)]
         transposition = []
-        for string in strings:
+        for string in STRINGS:
             lowest_tone = actual_position[string][0]['tones'][0]
             # Delete Range
             x = lowest_tone[:-1]
@@ -29,7 +29,8 @@ def get_transposable_positions(position_options, position):
                 transposition.append(False)
         i =+ 1
         if not False in transposition:
-            transposition_positions.append(i)
+            if i not in transposition_positions:
+                transposition_positions.append(i)
     return transposition_positions
 
 def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, selected_root_name):

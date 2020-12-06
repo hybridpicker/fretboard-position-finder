@@ -90,6 +90,10 @@ INVERSIONS = [
      'Sixth Inversion',
      ]
 
+STRINGS = ['eString', 'bString',
+    'gString', 'dString',
+    'AString', 'ELowString']
+
 STRING_NOTE_OPTIONS =  {
  	"eString": [{
  		"c": [{
