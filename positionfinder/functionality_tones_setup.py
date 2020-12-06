@@ -39,6 +39,9 @@ def get_functionality_pitches(notes_options_id, root):
     ALL_NOTES_LIST = []
     for x in NOTES_NOTES:
         if find_tone(ALL_NOTES[x], ALL_NOTES_LIST):
+            '''
+            Check if consequent C - B Tones are in a heptatonic Scale
+            '''
             ALL_NOTES_LIST.append(ALL_NOTES_OPTIONAL[x])
         else:
             ALL_NOTES_LIST.append(ALL_NOTES[x])
