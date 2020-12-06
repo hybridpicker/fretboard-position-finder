@@ -4,7 +4,7 @@ from .note_setup import build_notes
 from .template_notes import TENSIONS, NOTE_NAMES
 from .template_notes import NOTE_NAMES_SHARP, SHARP_NOTES
 
-def get_functionalty_tones(notes_options_id, root):
+def get_functionality_tones(notes_options_id, root):
     ALL_NOTES = [x for x in TENSIONS]
     notes = ChordNotes.objects.get(pk=notes_options_id)
     NOTES_NOTES = build_notes(notes)
@@ -15,7 +15,7 @@ def get_functionalty_tones(notes_options_id, root):
     TENSION_NOTE_LIST = [ALL_NOTES[x] for x in ALL_NOTES_NOTES]
     return TENSION_NOTE_LIST
 
-def get_functionalty_pitches(notes_options_id, root):
+def get_functionality_pitches(notes_options_id, root):
     ALL_NOTES = [x for x in TENSIONS]
     notes = ChordNotes.objects.get(pk=notes_options_id)
     NOTES_NOTES = build_notes(notes)
@@ -39,7 +39,7 @@ def get_all_notes_functionality(root, root_id):
         ALL_NOTES = [x for x in NOTE_NAMES]
     return ALL_NOTES
 
-def get_functionalty_note_names(notes_options_id, root, tonal_root, root_id):
+def get_functionality_note_names(notes_options_id, root, tonal_root, root_id):
     ALL_NOTES = get_all_notes_functionality(root, root_id)
     tonal_root =+ root
     selected_root_name = Root.objects.get(pk=root_id).name

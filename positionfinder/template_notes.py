@@ -10,7 +10,13 @@ NOTES_SHARP = [
     'ds', 'e', 'f',
     'fs', 'g', 'gs',
     'a', 'as', 'b'
-    ]
+]
+#Useful for checking Heptatonic Scales Tension
+HEPTATONIC_BASE_NOTES = [
+    'C', 'D', 'E',
+    'F', 'G', 'A',
+    'B'
+]
 # Defines Range of OCTAVES
 OCTAVES = [
     -1, 0, 1,
@@ -83,6 +89,10 @@ INVERSIONS = [
      'Fifth Inversion',
      'Sixth Inversion',
      ]
+
+STRINGS = ['eString', 'bString',
+    'gString', 'dString',
+    'AString', 'ELowString']
 
 STRING_NOTE_OPTIONS =  {
  	"eString": [{
