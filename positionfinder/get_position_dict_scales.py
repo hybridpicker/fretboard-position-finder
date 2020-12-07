@@ -27,7 +27,6 @@ def get_transposable_positions(position_options, position):
                 transposition.append(True)
             except IndexError:
                 transposition.append(False)
-        i =+ 1
         if not False in transposition:
             if i not in transposition_positions:
                 transposition_positions.append(i)
