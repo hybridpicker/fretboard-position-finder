@@ -15,21 +15,23 @@ def get_transposable_positions(position_options, position):
         transposition = []
         for string in STRINGS:
             lowest_tone = actual_position[string][0]['tones'][0]
-            # Delete Range
-            x = lowest_tone[:-1]
-            # Delete Sign
-            if len(x) == 2:
-                x = x[:-1]
-            base_note = x
-            # Check if every base_note is available in a lower position
-            try:
-                STRING_NOTE_OPTIONS[string][0][base_note][0]['tone'][1]
-                transposition.append(True)
-            except IndexError:
-                transposition.append(False)
-        if not False in transposition:
-            if i not in transposition_positions:
-                transposition_positions.append(i)
+            actual_tones = actual_position[string][0]['tones']
+            for tone in actual_tones:
+                # Delete Range
+                x = tone[:-1]
+                # Delete Sign
+                if len(x) == 2:
+                    x = x[:-1]
+                base_note = x
+                # Check if every base_note is available in a lower position
+                try:
+                    STRING_NOTE_OPTIONS[string][0][base_note][0]['tone'][1]
+                    transposition.append(True)
+                except IndexError:
+                    transposition.append(False)
+            if not False in transposition:
+                if i not in transposition_positions:
+                    transposition_positions.append(i)
     return transposition_positions
 
 def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, selected_root_name):
