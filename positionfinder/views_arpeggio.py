@@ -123,7 +123,7 @@ def fretboard_arpeggio_view (request):
     y = len(NotesPosition.objects.all().filter(notes_name__note_name=x))
     transposable_position = get_transposable_positions(y, position_json_data)
     print(transposable_position)
-
+    
     selected_root_options = get_root_note(root_pitch, tonal_root, root_id)
     position_json_data["name"] = selected_notes_name
     position_json_data["root"] = selected_root_options
