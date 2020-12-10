@@ -10,23 +10,26 @@ import pprint
 # Function for getting every transposable Positon
 def get_transposable_positions(position_options, position):
     transposition_positions = []
-    for i in range (0, position_options + 1):
+    for i in range (1, position_options):
         actual_position = position[str(i)]
         transposition = []
         for string in STRINGS:
-            lowest_tone = actual_position[string][0]['tones'][0]
-            actual_tones = actual_position[string][0]['tones']
-            for tone in actual_tones:
-                # Delete Range
-                x = tone[:-1]
-                base_note = x
-                # Check if every base_note is available in a lower position
-                pitch = int(tone[-1]) - 1
-                lower_tone = base_note + str(pitch)
-                if lower_tone in STRING_NOTE_OPTIONS[string][0][base_note][0]['tone']:
-                    transposition.append(True)
-                else:
-                    transposition.append(False)
+            try:
+                lowest_tone = actual_position[string][0]['tones'][0]
+                actual_tones = actual_position[string][0]['tones']
+                for tone in actual_tones:
+                    # Delete Range
+                    x = tone[:-1]
+                    base_note = x
+                    # Check if every base_note is available in a lower position
+                    pitch = int(tone[-1]) - 1
+                    lower_tone = base_note + str(pitch)
+                    if lower_tone in STRING_NOTE_OPTIONS[string][0][base_note][0]['tone']:
+                        transposition.append(True)
+                    else:
+                        transposition.append(False)
+            except KeyError:
+                 pass
         if not False in transposition:
             if i not in transposition_positions:
                 transposition_positions.append(i)
