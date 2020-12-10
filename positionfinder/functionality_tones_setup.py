@@ -4,6 +4,7 @@ from .template_notes import TENSIONS, TENSIONS_OPTIONAL, NOTE_NAMES
 from .template_notes import HEPTATONIC_BASE_NOTES
 from .template_notes import SHARP_NOTES, NOTE_NAMES_OPTION
 from .template_notes import NOTE_NAMES_SHARP,NOTE_NAMES_SHARP_OPTION, SHARP_NOTES
+from .template_notes import NOTES_SCORE
 
 def find_tone(tone, lst):
     return any(tone in x for x in lst)
@@ -66,7 +67,6 @@ def get_all_notes_functionality(root, root_id):
         ALL_NOTES = [x for x in NOTE_NAMES]
     return ALL_NOTES
 
-
 def get_all_notes_functionality_optional(root, root_id):
     selected_root_name = Root.objects.get(pk=root_id).name
     if root in SHARP_NOTES or '#' in selected_root_name:
@@ -74,7 +74,6 @@ def get_all_notes_functionality_optional(root, root_id):
     else:
         ALL_NOTES = [x for x in NOTE_NAMES_OPTION]
     return ALL_NOTES
-
 
 def get_functionality_note_names(notes_options_id, root, tonal_root, root_id):
     ALL_NOTES = get_all_notes_functionality(root, root_id)

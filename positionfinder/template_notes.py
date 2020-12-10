@@ -94,6 +94,13 @@ STRINGS = ['eString', 'bString',
     'gString', 'dString',
     'AString', 'ELowString']
 
+#Balanced ScoreCard
+NOTES_SCORE = {
+    'c': 1,'d': 2,'e': 3,
+    'f':4,'g':5,'a':6,
+    'b':7,
+}
+
 STRING_NOTE_OPTIONS =  {
  	"eString": [{
  		"c": [{
