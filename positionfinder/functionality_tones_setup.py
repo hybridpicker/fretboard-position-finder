@@ -4,7 +4,7 @@ from .template_notes import TENSIONS, TENSIONS_OPTIONAL, NOTE_NAMES
 from .template_notes import HEPTATONIC_BASE_NOTES
 from .template_notes import SHARP_NOTES, NOTE_NAMES_OPTION
 from .template_notes import NOTE_NAMES_SHARP,NOTE_NAMES_SHARP_OPTION, SHARP_NOTES
-
+from .template_notes import NOTES_SCORE
 def find_tone(tone, lst):
     return any(tone in x for x in lst)
 

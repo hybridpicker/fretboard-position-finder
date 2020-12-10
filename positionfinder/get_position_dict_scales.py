@@ -1,7 +1,7 @@
 from positionfinder.models import Notes
 from positionfinder.positions import NotesPosition
 from positionfinder.template_notes import NOTES, NOTES_SHARP, TENSIONS, INVERSIONS, SHARP_NOTES
-from positionfinder.template_notes import STRING_NOTE_OPTIONS, STRINGS
+from positionfinder.template_notes import STRING_NOTE_OPTIONS, STRINGS, NOTES_SCORE
 from positionfinder.get_position import get_notes_position
 import numpy
 import json
@@ -136,3 +136,27 @@ def transpose_actual_position(position, transposable_position):
             position[str(x)][string][0]['tones'] = y
     return position
 
+def ordering_positions(position):
+    from collections import OrderedDict
+    score_board = {}
+    for i in range(1, len(position)):
+        score_list = []
+        for pos in position[str(i)]['eString'][0]['tones']:
+            score = NOTES_SCORE[pos[0]] + (int(pos[-1]) * 12)
+            score_list.append(score)
+        score_board[i] = sum(score_list) / len(score_list)
+        ordered_score = OrderedDict(sorted(score_board.items(), key=lambda t: t[1]))
+    return ordered_score
+
+def re_ordering_positions(position):
+    new_order = ordering_positions(position)
+    re_order_list = []
+    for pos in new_order:
+        re_order_list.append(pos)
+    i = 1
+    new_position = {}
+    for ordering in re_order_list:
+        new_position[str(i)] = position[str(ordering)]
+        i += 1
+    new_position['0'] = position['0']
+    return new_position

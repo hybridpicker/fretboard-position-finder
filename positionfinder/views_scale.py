@@ -14,7 +14,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from .template_notes import ALL_NOTES_POSITION
 
 from .get_position_dict_scales import get_scale_position_dict, get_transposable_positions
-from .get_position_dict_scales import transpose_actual_position
+from .get_position_dict_scales import transpose_actual_position, re_ordering_positions
 '''
 Main View
 '''
@@ -109,6 +109,9 @@ def fretboard_scale_view (request):
     # Transpose position that transposable
     position_json_data = transpose_actual_position(position_json_data, transposable_position)
 
+    # ReOrdering Positions
+    position_json_data = re_ordering_positions(position_json_data)
+    print(position_json_data)
     selected_root_options = get_root_note(root_pitch, tonal_root, root_id)
     position_json_data["name"] = selected_notes_name
     position_json_data["root"] = selected_root_options
