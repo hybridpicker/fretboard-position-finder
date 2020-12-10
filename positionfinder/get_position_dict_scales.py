@@ -1,7 +1,7 @@
 from positionfinder.models import Notes
 from positionfinder.positions import NotesPosition
 from positionfinder.template_notes import NOTES, NOTES_SHARP, TENSIONS, INVERSIONS, SHARP_NOTES
-from positionfinder.template_notes import STRING_NOTE_OPTIONS, STRINGS
+from positionfinder.template_notes import STRING_NOTE_OPTIONS, STRINGS, NOTES_SCORE
 from positionfinder.get_position import get_notes_position
 import numpy
 import json
@@ -10,24 +10,26 @@ import pprint
 # Function for getting every transposable Positon
 def get_transposable_positions(position_options, position):
     transposition_positions = []
-    for i in range (0, position_options + 1):
+    for i in range (1, position_options):
         actual_position = position[str(i)]
         transposition = []
         for string in STRINGS:
-            lowest_tone = actual_position[string][0]['tones'][0]
-            # Delete Range
-            x = lowest_tone[:-1]
-            # Delete Sign
-            if len(x) == 2:
-                x = x[:-1]
-            base_note = x
-            # Check if every base_note is available in a lower position
             try:
-                STRING_NOTE_OPTIONS[string][0][base_note][0]['tone'][1]
-                transposition.append(True)
-            except IndexError:
-                transposition.append(False)
-        i =+ 1
+                lowest_tone = actual_position[string][0]['tones'][0]
+                actual_tones = actual_position[string][0]['tones']
+                for tone in actual_tones:
+                    # Delete Range
+                    x = tone[:-1]
+                    base_note = x
+                    # Check if every base_note is available in a lower position
+                    pitch = int(tone[-1]) - 1
+                    lower_tone = base_note + str(pitch)
+                    if lower_tone in STRING_NOTE_OPTIONS[string][0][base_note][0]['tone']:
+                        transposition.append(True)
+                    else:
+                        transposition.append(False)
+            except KeyError:
+                 pass
         if not False in transposition:
             if i not in transposition_positions:
                 transposition_positions.append(i)
@@ -72,13 +74,13 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
             index = SCALE_NOTES[y]
             TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0])
             TENSION_DICT.append(TENSIONS[index])
-            TENSION_OPTION_DICT['tensions'] = TENSION_DICT
+#            TENSION_OPTION_DICT['tensions'] = TENSION_DICT
             try:
                 TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1])
                 TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
             except IndexError:
                 k = False
-            MULTIPLE_DICT = [ TONE_NOTE_OPTION_DICT, TENSION_OPTION_DICT ]
+            MULTIPLE_DICT = [ TONE_NOTE_OPTION_DICT ]
             y += 1
         STRING_NOTE_OPTION_STRING[key] = MULTIPLE_DICT
     POSITION_DICT['0'] = STRING_NOTE_OPTION_STRING
@@ -104,17 +106,60 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
                     TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0])
                     TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
                     TENSION_DICT.append(TENSIONS[index])
-                    TENSION_OPTION_DICT['tensions'] = TENSION_DICT
-                    MULTIPLE_DICT = [ TONE_NOTE_OPTION_DICT, TENSION_OPTION_DICT ]
+ #                   TENSION_OPTION_DICT['tensions'] = TENSION_DICT
+                    MULTIPLE_DICT = [ TONE_NOTE_OPTION_DICT ]
                     y += 1
                     STRING_NOTE_OPTION_STRING[key] = MULTIPLE_DICT
                 if check_position_two in position_loop_dict:
                     TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1])
                     TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
                     TENSION_DICT.append(TENSIONS[index])
-                    TENSION_OPTION_DICT['tensions'] = TENSION_DICT
-                    MULTIPLE_DICT = [ TONE_NOTE_OPTION_DICT, TENSION_OPTION_DICT ]
+#                  TENSION_OPTION_DICT['tensions'] = TENSION_DICT
+                    MULTIPLE_DICT = [ TONE_NOTE_OPTION_DICT ]
                     y += 1
                     STRING_NOTE_OPTION_STRING[key] = MULTIPLE_DICT
                 POSITION_DICT[str(position.position_order)] = STRING_NOTE_OPTION_STRING
     return POSITION_DICT
+
+def transpose_position(y):
+    y_trans = []
+    for x in y:
+        base = x[:(len(x) -1)]
+        z = x[-1]
+        y_trans.append(str(base) + str((int(z) - 1)))
+
+    y = y_trans
+    return y
+
+def transpose_actual_position(position, transposable_position):
+    for x in transposable_position:
+        for string in STRINGS:
+            y = position[str(x)][string][0]['tones']
+            y = transpose_position(y)
+            position[str(x)][string][0]['tones'] = y
+    return position
+
+def ordering_positions(position):
+    from collections import OrderedDict
+    score_board = {}
+    for i in range(1, len(position)):
+        score_list = []
+        for pos in position[str(i)]['eString'][0]['tones']:
+            score = NOTES_SCORE[pos[0]] + (int(pos[-1]) * 12)
+            score_list.append(score)
+        score_board[i] = sum(score_list) / len(score_list)
+        ordered_score = OrderedDict(sorted(score_board.items(), key=lambda t: t[1]))
+    return ordered_score
+
+def re_ordering_positions(position):
+    new_order = ordering_positions(position)
+    re_order_list = []
+    for pos in new_order:
+        re_order_list.append(pos)
+    i = 1
+    new_position = {}
+    for ordering in re_order_list:
+        new_position[str(i)] = position[str(ordering)]
+        i += 1
+    new_position['0'] = position['0']
+    return new_position
