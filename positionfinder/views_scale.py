@@ -106,7 +106,7 @@ def fretboard_scale_view (request):
         x = Notes.objects.get(id=notes_options_id).note_name
         y = len(NotesPosition.objects.all().filter(notes_name__note_name=x))
         transposable_position = get_transposable_positions(y, position_json_data)
-
+        
         # Transpose position that transposable
         position_json_data = transpose_actual_position(position_json_data, transposable_position)
 
