@@ -119,6 +119,11 @@
     {% for note_name in note_names %}
     <b>{{ note_name }}</b>
     {% endfor %}
+    {% if chord_name %}  
+      <br>
+      Chord:
+      <b>{{ chord_name }}</b>
+    {% endif %}
   </div>
   {% include 'fretboard_fretboard.html' %}
 
