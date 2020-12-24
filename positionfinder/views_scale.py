@@ -86,6 +86,7 @@ def fretboard_scale_view (request):
     selected_root_id = Root.objects.get(pk=root_id).id
 
     selected_notes_name = Notes.objects.get(pk=notes_options_id).note_name
+    chord_name = Notes.objects.get(pk=notes_options_id).chords
 
     note_names = get_functionality_note_names(notes_options_id, root_pitch, tonal_root, root_id)
     tension_pitches = get_functionality_pitches(notes_options_id, root_pitch)
@@ -145,6 +146,7 @@ def fretboard_scale_view (request):
         'tensions': tensions,
         'tension_pitches': tension_pitches,
         'note_names': note_names,
+        'chord_name': chord_name,
 
         'selected_root_name': selected_root_name,
         'selected_root_id': selected_root_id,
