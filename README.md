@@ -17,7 +17,7 @@ It is based on the Framework Django. After writing the scale notes into the data
 ## Idea
 Design, Frontend and Backup-Code is made by Lukas Schönsgibl (aka hybridpicker)
 
-## Website:
+## Website
 https://guitar-positions.org
 
 ## Instructions
