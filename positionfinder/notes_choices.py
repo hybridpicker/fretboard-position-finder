@@ -31,8 +31,12 @@ CHORD_CHOICES = {
     'Major' : _(u'Major'),
     'Minor' : _(u'Minor'),
     'Diminished' : _(u'Diminished'),
+    'Diminished 7' : _(u'Diminished 7'),
     'Augmented' : _(u'Augmented'),
     'Altered 7' : _(u'Altered 7'),
+    'MinMaj7' : _(u'MinMaj7'),
+    '7 #5' : _(u'7 #5'),
+    '6 #5' : _(u'6 #5'),
 }
 
 class ChordChoicesField(models.CharField):
