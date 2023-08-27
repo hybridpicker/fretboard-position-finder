@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext as _
-from django.db.models import SmallIntegerField
 
+# Define choices for chord inversions
 INVERSION_CHOICES = {
     'Basic Position' : _(u'Basic Position'),
     'First Inversion' : _(u'First Inversion'),
@@ -13,7 +13,11 @@ INVERSION_CHOICES = {
 }
 
 class ChordInversionChoicesField(models.CharField):
+    """A custom field for chord inversion selection."""
+    
     def __init__(self, *args, **kwargs):
+        # Sort and set the choices for the field
         kwargs['choices'] = tuple(sorted(INVERSION_CHOICES.items()))
+        # Set the maximum length for the field
         kwargs['max_length'] = 20
         super(ChordInversionChoicesField, self).__init__(*args, **kwargs)

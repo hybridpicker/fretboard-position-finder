@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.translation import gettext as _
-from django.db.models import SmallIntegerField
 
 NOTES_CHOICES = {
     0 : _(u'C'),
@@ -16,11 +15,6 @@ NOTES_CHOICES = {
     10 : _(u'Bb/A#'),
     11 : _(u'B'),
 }
-
-class NotesChoicesField(models.IntegerField):
-    def __init__(self, *args, **kwargs):
-        kwargs['choices'] = tuple(sorted(NOTES_CHOICES.items()))
-        super(NotesChoicesField, self).__init__(*args, **kwargs)
 
 CHORD_CHOICES = {
     'Major 7' : _(u'Major 7'),
@@ -39,7 +33,16 @@ CHORD_CHOICES = {
     '6 #5' : _(u'6 #5'),
 }
 
+class NotesChoicesField(models.IntegerField):
+    """A custom field for note selection."""
+    
+    def __init__(self, *args, **kwargs):
+        kwargs['choices'] = tuple(sorted(NOTES_CHOICES.items()))
+        super(NotesChoicesField, self).__init__(*args, **kwargs)
+
 class ChordChoicesField(models.CharField):
+    """A custom field for chord selection."""
+    
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = tuple(sorted(CHORD_CHOICES.items()))
         kwargs['max_length'] = 20

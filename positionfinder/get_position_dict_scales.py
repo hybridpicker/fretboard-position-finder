@@ -1,39 +1,32 @@
 from positionfinder.models import Notes
 from positionfinder.positions import NotesPosition
-from positionfinder.template_notes import NOTES, NOTES_SHARP, TENSIONS, INVERSIONS, SHARP_NOTES
+from positionfinder.template_notes import NOTES, NOTES_SHARP, TENSIONS, SHARP_NOTES
 from positionfinder.template_notes import STRING_NOTE_OPTIONS, STRINGS, NOTES_SCORE
 from positionfinder.get_position import get_notes_position
-import numpy
-import json
-import pprint
 
 # Function for getting every transposable Positon
 def get_transposable_positions(position_options, position):
     transposition_positions = []
-    for i in range (1, position_options):
+    for i in range(1, position_options):
         actual_position = position[str(i)]
         transposition = []
         for string in STRINGS:
             try:
-                lowest_tone = actual_position[string][0]['tones'][0]
                 actual_tones = actual_position[string][0]['tones']
-                for tone in actual_tones:
-                    # Delete Range
-                    x = tone[:-1]
-                    base_note = x
-                    # Check if every base_note is available in a lower position
-                    pitch = int(tone[-1]) - 1
-                    lower_tone = base_note + str(pitch)
-                    if lower_tone in STRING_NOTE_OPTIONS[string][0][base_note][0]['tone']:
-                        transposition.append(True)
-                    else:
-                        transposition.append(False)
+                transposition.extend([
+                    any(
+                        (base_note + str(int(pitch) - 1)) in STRING_NOTE_OPTIONS[string][0][base_note][0]['tone']
+                        for base_note, pitch in [(tone[:-1], tone[-1])]
+                    )
+                    for tone in actual_tones
+                ])
             except KeyError:
-                 pass
-        if not False in transposition:
-            if i not in transposition_positions:
-                transposition_positions.append(i)
+                pass
+        if all(transposition) and i not in transposition_positions:
+            transposition_positions.append(i)
     return transposition_positions
+
+
 
 def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, selected_root_name):
 
@@ -68,13 +61,11 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
         TONE_DICT = []
         TENSION_DICT = []
         TONE_NOTE_OPTION_DICT = {}
-        TENSION_OPTION_DICT = {}
         y = 0
         for x in NOTES_LIST:
             index = SCALE_NOTES[y]
             TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0])
             TENSION_DICT.append(TENSIONS[index])
-#            TENSION_OPTION_DICT['tensions'] = TENSION_DICT
             try:
                 TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1])
                 TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
@@ -92,7 +83,6 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
             TONE_DICT = []
             TENSION_DICT = []
             TONE_NOTE_OPTION_DICT = {}
-            TENSION_OPTION_DICT = {}
             y = 0
             for x in NOTES_LIST:
                 index = SCALE_NOTES[y]
@@ -106,7 +96,6 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
                     TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0])
                     TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
                     TENSION_DICT.append(TENSIONS[index])
- #                   TENSION_OPTION_DICT['tensions'] = TENSION_DICT
                     MULTIPLE_DICT = [ TONE_NOTE_OPTION_DICT ]
                     y += 1
                     STRING_NOTE_OPTION_STRING[key] = MULTIPLE_DICT
@@ -114,7 +103,6 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
                     TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1])
                     TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
                     TENSION_DICT.append(TENSIONS[index])
-#                  TENSION_OPTION_DICT['tensions'] = TENSION_DICT
                     MULTIPLE_DICT = [ TONE_NOTE_OPTION_DICT ]
                     y += 1
                     STRING_NOTE_OPTION_STRING[key] = MULTIPLE_DICT
