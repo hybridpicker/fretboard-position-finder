@@ -4,67 +4,42 @@ var frets = ['one','two','three','four','five','six',
             'seven','eight','nine','ten','eleven', 'twelve',
             'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen']
 
-/**
- * Play a tone and update the UI based on the 'root' class.
- * @param {string} tone - The name of the tone to play.
- * @param {string} stringName - The name of the string where the tone is played.
- */
-
-function playTone(tone, stringName) {
-  // Determine the element to update
-  const element = document.querySelector(`.${stringName} img.tone.${tone}.active`);
-  
-  // Check if element exists and is active
-  if (element && element.classList.contains('active')) {
-    // Initialize audio and play
-    const audio = new Audio(`static/media/tone_sounds/${tone}.mp3`);
-    audio.play();
-
-    const isRoot = element.classList.contains('root');
-    const newSrc = isRoot ? '/static/media/red_dot_active.svg' : '/static/media/yellow_dot_active.svg';
-    const revertSrc = isRoot ? '/static/media/red_dot.svg' : '/static/media/yellow_dot.svg';
-
-    // Update the UI
-    element.setAttribute('src', newSrc);
-    setTimeout(() => {
-      element.setAttribute('src', revertSrc);
-    }, 300);
-  } else {
-    console.warn(`Element for tone ${tone} on string ${stringName} is not active or not found.`);
+function playtone(x, y){
+  var audio = new Audio('static/media/tone_sounds/' + x + '.mp3');
+  var string = '.' + y
+  audio.play();
+  var root_class = document.querySelector(string + ' img.tone.' + x + '.active').classList.contains('root')
+  if ( root_class == true ) {
+  document.querySelector(string + ' img.tone.' + x + '.active').setAttribute('src', '/static/media/red_dot_active.svg');
+  setTimeout(function () {
+    document.querySelector(string + ' img.tone.' + x + '.active').setAttribute('src', '/static/media/red_dot.svg');
+  }, 300)
+  }
+  else {
+  document.querySelector(string + ' img.tone.' + x + '.active').setAttribute('src', '/static/media/yellow_dot_active.svg');
+  setTimeout(function () {
+    document.querySelector(string + ' img.tone.' + x + '.active').setAttribute('src', '/static/media/yellow_dot.svg');
+  }, 300)
   }
 }
 
-
-
-/**
- * Resets the fretboard by removing 'active' class and setting the tone elements back to default.
- */
-function resetFretboard() {
-  // Remove 'active' class from all active elements
-  const activeElements = document.querySelectorAll('.active');
-  activeElements.forEach(element => element.classList.remove('active'));
-
-  // Reset the 'src' attribute for all tone elements
-  const toneElements = document.querySelectorAll('.tone');
-  toneElements.forEach(element => element.setAttribute('src', '/static/media/yellow_dot.svg'));
+function reset_fretboard(){
+  var elements = document.querySelectorAll('.active');
+  for (var i=0; i<elements.length; i++) {
+    elements[i].classList.remove("active");
+  }
+  var tone_elements = document.querySelectorAll('.tone');
+  for (var i=0; i<tone_elements.length; i++) {
+    tone_elements[i].setAttribute('src', '/static/media/yellow_dot.svg')
+  }
 }
 
-
-/**
- * Deactivate notes that are currently active on a given string.
- * @param {string} string - The name of the string to check.
- * @param {string} toneName - The name of the tone to deactivate.
- */
-function deactivateActiveNotes(string, toneName) {
-  // Query all elements that match the given string and tone name
-  const elements = document.querySelectorAll(`.${string} .${toneName}`);
-  
-  // Iterate through the NodeList
-  for (let x in elements) {
-    // Check if the index is a natural number
-    if (!isNaN(x)) {
-      // Remove the 'active' class from the element
-      elements[x].classList.remove("active");
+function deactivate_active_notes(string, tone_name){
+  element = document.querySelectorAll('.' + string + ' .' + tone_name);
+  for (x in element){
+    /* check if elements in element are natural numbers */
+    if (!(isNaN(x))){
+      element[x].classList.remove("active");
     }
   }
 }
@@ -113,10 +88,10 @@ function multiple_notes(tone_name, y){
                 var second_string = available_strings[available_strings.length - 1]
                 /* 3. Deactivate Note with longest Range */
                 if (first_string_range > second_string_range){
-                  deactivateActiveNotes(first_string, tone_name)
+                  deactivate_active_notes(first_string, tone_name)
                 }
                 else {
-                  deactivateActiveNotes(second_string, tone_name)
+                  deactivate_active_notes(second_string, tone_name)
                 }
               }
             }
@@ -142,7 +117,7 @@ function avoid_four_notes_on_string(){
 
 function getTonesFromDataScales(y){
   /* First find all notes that are active and reset the fretboard*/
-  resetFretboard()
+  reset_fretboard()
   /* x sets the id of inversions */
   var i = 0;
   for (var key in scale_data[y]) {
@@ -223,7 +198,7 @@ function getNoteNameFromData(){
 }
 
 function getTonesFromDataChords(x, y){
-  resetFretboard()
+  reset_fretboard()
   /* x sets the id of inversions */
   var i = 0;
   for (var key in voicing_data[y][x][0]) {
