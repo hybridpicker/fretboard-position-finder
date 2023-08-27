@@ -69,333 +69,241 @@ function deactivateActiveNotes(string, toneName) {
   }
 }
 
-function multiple_notes(tone_name, y){
-  for (var key in scale_data[y]) {
-    if (scale_data[y].hasOwnProperty(key)) {
-        for (var z in scale_data[y][key][0]["tones"]) {
-            var tone_name = scale_data[y][key][0]["tones"][z]
-            element = document.querySelectorAll('.' + tone_name + '.active');
-            if (element.length > 2) {
-              var pos_val = document.getElementById('position_select').value
-              if (pos_val != 0){
-                /* Count String Range of String X and String Y -> Deactivate Tone with wider range on */
-                /* 1. Find String Name of Active Notes */
-                var multiple_tone = tone_name;
-                var list_of_strings = []
-                for (variable in frets) {
-                  for (string in string_array){
-                    if (document.querySelectorAll('.' + frets[variable] + '.' + string_array[string] + ' .' + tone_name + '.active').length != 0 ){
-                      /* push string into list */
-                      list_of_strings.push(string_array[string])
-                    }
-                  }
-                }
-                /* 2. Find Range lowest to highest Note on Strings */
-                var first_string = []
-                var second_string = []
-                var available_strings = []
-                for (string in string_array){
-                  for (fret in frets){
-                    if (document.querySelectorAll('.' + list_of_strings[string] + '.' + frets[fret] + ' .active').length != 0){
-                      if (string > 0){
-                        second_string.push(fret)
-                      }
-                      else {
-                        first_string.push(fret)
-                      }
-                      available_strings.push(list_of_strings[string])
-                    }
-                  }
-                }
-                var first_string_range = (first_string[first_string.length - 1]) - first_string[0]
-                var second_string_range = (second_string[second_string.length - 1]) - second_string[0]
-                var first_string = available_strings[1]
-                var second_string = available_strings[available_strings.length - 1]
-                /* 3. Deactivate Note with longest Range */
-                if (first_string_range > second_string_range){
-                  deactivateActiveNotes(first_string, tone_name)
-                }
-                else {
-                  deactivateActiveNotes(second_string, tone_name)
-                }
-              }
-            }
-          }
-        }
-    }
+function findActiveStringsForTone(tone_name) {
+  return string_array.filter(string => {
+    return frets.some(fret => {
+      return document.querySelector(`.${fret}.${string}.${tone_name}.active`);
+    });
+  });
 }
 
-function avoid_four_notes_on_string(){
-  var avoid_strings = [string_array[0], (string_array[string_array.length - 1])]
-  for (x in avoid_strings){
-    var element = document.querySelectorAll('.' + avoid_strings[x] +' .active > img')
-    if (element.length > 3){
-      if (avoid_strings[x] == avoid_strings[1]){
-        element[0].classList.remove("active")
-      }
-      else{
-        element[3].classList.remove("active")
-      }
-    }
-  }
+function findRangeForStrings(strings, tone_name) {
+  return strings.map(string => {
+    const activeFrets = frets.filter(fret => document.querySelector(`.${fret}.${string}.${tone_name}.active`));
+    return activeFrets.length ? parseInt(activeFrets.slice(-1)) - parseInt(activeFrets[0]) : 0;
+  });
 }
 
-function getTonesFromDataScales(y){
-  /* First find all notes that are active and reset the fretboard*/
-  resetFretboard()
-  /* x sets the id of inversions */
-  var i = 0;
-  for (var key in scale_data[y]) {
-    if (scale_data[y].hasOwnProperty(key)) {
-      for (var z in scale_data[y][key][0]["tones"]) {
-        var tone_name = scale_data[y][key][0]["tones"][z]
-        var QuerySelect = document.querySelector('.' + key + ' img.tone.' + tone_name);
-        if (QuerySelect != null){
-          QuerySelect.classList.add('active');
+function multiple_notes(tone_name, y) {
+  Object.keys(scale_data[y]).forEach(key => {
+    scale_data[y][key][0]["tones"].forEach(tone => {
+      const elements = document.querySelectorAll(`.${tone}.active`);
+      if (elements.length > 2) {
+        const pos_val = document.getElementById('position_select').value;
+        if (pos_val != 0) {
+          const activeStrings = findActiveStringsForTone(tone);
+          const ranges = findRangeForStrings(activeStrings, tone);
+          const maxRangeString = activeStrings[ranges.indexOf(Math.max(...ranges))];
+          deactivateActiveNotes(maxRangeString, tone);
         }
-        /* Check every note that has a defined Query for not activating all chord tones */
-        var QuerySelect = document.querySelector('.' + key + ' .note.' + tone_name);
-        if (QuerySelect != null){
-          QuerySelect.classList.add('active');
-        }
-        element = document.querySelectorAll('.' + tone_name + '.active');
       }
+    });
+  });
+}
+
+
+function activateToneElements(key, tone_name) {
+  const toneElement = document.querySelector(`.${key} img.tone.${tone_name}`);
+  const noteElement = document.querySelector(`.${key} .note.${tone_name}`);
+  
+  if (toneElement) toneElement.classList.add('active');
+  if (noteElement) noteElement.classList.add('active');
+}
+
+function setRootNoteColor(root) {
+  string_array.forEach(string => {
+    const rootElement = document.querySelector(`.${string} img.tone.active.${root}`);
+    if (rootElement) {
+      rootElement.setAttribute('src', '/static/media/red_dot.svg');
+      rootElement.classList.add('active', 'root');
     }
-  }
+  });
+}
 
-  /*Check if multiple tones are in position */
-  multiple_notes(tone_name, y);
+function avoid_four_notes_on_string() {
+  const avoid_strings = [string_array[0], string_array.slice(-1)[0]];
+  
+  avoid_strings.forEach(string => {
+    const elements = document.querySelectorAll(`.${string} .active > img`);
+    if (elements.length > 3) {
+      const indexToRemove = (string === avoid_strings[1]) ? 0 : 3;
+      elements[indexToRemove].classList.remove('active');
+    }
+  });
+}
 
-  /* Check if not 4 notes on highest or lowest string */
-  var pos_val = document.getElementById('position_select').value
-  if (pos_val != 0){
+function getTonesFromDataScales(y) {
+  resetFretboard();
+  
+  Object.keys(scale_data[y]).forEach(key => {
+    scale_data[y][key][0]["tones"].forEach(tone_name => {
+      activateToneElements(key, tone_name);
+    });
+  });
+  
+  if (document.getElementById('position_select').value != 0) {
+    multiple_notes(null, y);
     avoid_four_notes_on_string();
   }
-
-  /* Change for RootNote Color */
-  for (var key in scale_data.root) {
-    if (scale_data.root.hasOwnProperty(key)) {
-      var root = scale_data.root[key]
-      for (i = 0; i < string_array.length; i++) {
-        string = string_array[i];
-        var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
-        if (root_note_image != null){
-          root_note_image.setAttribute('src', '/static/media/red_dot.svg');
-          root_note_image.classList.add('active');
-          root_note_image.classList.add('root')
-        }
-      }
-    }
-  }
+  
+  Object.keys(scale_data.root).forEach(key => {
+    setRootNoteColor(scale_data.root[key]);
+  });
 }
 
+function setButtonAttributes(buttonId, onClickFunction, innerText) {
+  const button = document.getElementById(buttonId);
+  button.setAttribute("onclick", onClickFunction);
+  button.innerHTML = innerText;
+}
+
+function activateElements(key, tone, tone_name) {
+  const toneElement = document.querySelector(`.${key} img.tone.${tone}`);
+  const noteNameElement = document.querySelector(`.${key} .notename.${tone}`);
+  const noteElement = document.querySelector(`.${key} .note.${tone}`);
+
+  if (toneElement) toneElement.classList.add('active');
+  if (noteNameElement) noteNameElement.classList.add('active');
+  if (noteElement) noteElement.classList.add('active');
+}
+
+function setRootNoteColorForChords(root) {
+  string_array.forEach(string => {
+    const rootElement = document.querySelector(`.${string} img.tone.active.${root}`);
+    if (rootElement) {
+      rootElement.setAttribute('src', '/static/media/red_dot.svg');
+      rootElement.classList.add('active', 'root');
+    }
+  });
+}
 
 function getToneNameFromDataChords() {
-  var button = document.getElementById("show_tension_button")
-  button.setAttribute("onclick","show_tension_notes_chords()")
-  button.innerHTML = 'Show Tensions';
-  var pos_val = document.getElementById('position_select').value
-  var note_range = document.getElementById('note_range').value
-  getTonesFromDataChords(pos_val, note_range)
+  setButtonAttributes("show_tension_button", "show_tension_notes_chords()", "Show Tensions");
+  const pos_val = document.getElementById('position_select').value;
+  const note_range = document.getElementById('note_range').value;
+  getTonesFromDataChords(pos_val, note_range);
 }
 
-function getNoteNameFromData(){
-  /* x sets the id of inversions */
-  y = document.getElementById('position_select').value
-  var i = 0;
-  for (var key in scale_data[y]) {
-    if (scale_data[y].hasOwnProperty(key)) {
-      for (var z in scale_data[y][key][0]["tones"]) {
-        var tone_name = scale_data[y][key][0]["tones"][z]
-        var QuerySelect = document.querySelector('.' + key + ' .notename.' + tone_name);
-        var image = document.querySelector('.' + key + ' .' + tone_name + ' img.active');
-        if (image){
-          if (QuerySelect != null){
-            QuerySelect.classList.add("active")
-          }
-        }
+function getNoteNameFromData() {
+  const y = document.getElementById('position_select').value;
+  Object.keys(scale_data[y]).forEach(key => {
+    scale_data[y][key][0]["tones"].forEach(tone_name => {
+      const image = document.querySelector(`.${key} .${tone_name} img.active`);
+      if (image) {
+        activateElements(key, null, tone_name);
       }
-    }
-  }
-  var button = document.getElementById("show_note_name_button")
-  button.setAttribute("onclick","getNotePicFromData()")
-  button.innerHTML = 'Only Tones';
+    });
+  });
+  setButtonAttributes("show_note_name_button", "getNotePicFromData()", "Only Tones");
 }
 
-function getTonesFromDataChords(x, y){
-  resetFretboard()
-  /* x sets the id of inversions */
-  var i = 0;
-  for (var key in voicing_data[y][x][0]) {
-    if (voicing_data[y][x][0].hasOwnProperty(key)) {
-      var tone = voicing_data[y][x][0][key][0]
-      var tone_name = voicing_data[y][x][0][key][2]
+function getTonesFromDataChords(x, y) {
+  resetFretboard();
+  Object.keys(voicing_data[y][x][0]).forEach(key => {
+    const tone = voicing_data[y][x][0][key][0];
+    const tone_name = voicing_data[y][x][0][key][2];
+    activateElements(key, tone, tone_name);
+  });
 
-      var QuerySelect = document.querySelector('.' + key + ' img.tone.' + tone);
-      QuerySelect.classList.add('active');
-      var QuerySelect = document.querySelector('.' + key + ' .notename.' + tone);
-      QuerySelect.classList.add('active');
-      /* Check every note that has a defined Query for not activating all chord tones */
-      var QuerySelect = document.querySelector('.' + key + ' .note.' + tone);
-      QuerySelect.classList.add('active');
-    }
-  }
+  Object.keys(voicing_data.root).forEach(key => {
+    setRootNoteColorForChords(voicing_data.root[key]);
+  });
+}
+function toggleElements(elements, className, action = 'add') {
+  elements.forEach(element => element.classList[action](className));
+}
 
-  /* Change for RootNote Color */
-  for (var key in voicing_data.root) {
-    if (voicing_data.root.hasOwnProperty(key)) {
-      var root = voicing_data.root[key]
-      for (i = 0; i < string_array.length; i++) {
-        string = string_array[i];
-        var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
-        if (root_note_image != null){
-          root_note_image.setAttribute('src', '/static/media/red_dot.svg');
-          root_note_image.classList.add('active');
-          root_note_image.classList.add('root')
-        }
-      }
-    }
-  }
+function setButtonAttributes(buttonId, onClickFunction, innerText) {
+  const button = document.getElementById(buttonId);
+  button.setAttribute("onclick", onClickFunction);
+  button.innerHTML = innerText;
 }
 
 function show_tension_notes_chords() {
-  var x = document.getElementById('position_select').value
-  var y = document.getElementById('note_range').value
+  const position = document.getElementById('position_select').value;
+  const noteRange = document.getElementById('note_range').value;
+  const tensionElements = document.querySelectorAll('.tensionname');
 
-  var tension_elements = document.querySelectorAll('.tensionname');
-  if (tension_elements != undefined){
-    for (var i=0; i<tension_elements.length; i++) {
-      tension_elements[i].remove();
-    }
-  }
+  toggleElements(tensionElements, 'active', 'remove');
 
-  var i = 0;
-  for (var key in voicing_data[y][x][0]) {
-    if (voicing_data[y][x][0].hasOwnProperty(key)) {
-      var tone = voicing_data[y][x][0][key][0]
-      var tension_name = voicing_data[y][x][0][key][1]
+  Object.keys(voicing_data[noteRange][position][0]).forEach(key => {
+    const tone = voicing_data[noteRange][position][0][key][0];
+    const tensionName = voicing_data[noteRange][position][0][key][1];
+    const selection = document.querySelector(`.note.active.${tone}`);
 
-      var QuerySelect = '.' + key + ' .notename.' + tone + '.active';
-      var selection = document.getElementsByClassName("note active " + tone)[0];
-      if (typeof selection !== "undefined") {
-          /* creating a div for tension notes */
-          var node = document.createElement("DIV");
-          node.className = "tensionname";
-          document.getElementsByClassName("active note " + tone)[0].appendChild(node);
-          var textnode = document.createTextNode(tension_name);
-          node.appendChild(textnode);
-          /* Remove class for not showing Notename */
-          var QuerySelect = document.querySelector('.' + key + ' .notename.' + tone + '.active');
-          if (QuerySelect != null){
-            QuerySelect.classList.remove("active")
-          }
-      }
+    if (selection) {
+      const tensionDiv = document.createElement("DIV");
+      tensionDiv.className = "tensionname";
+      selection.appendChild(tensionDiv);
+      const textNode = document.createTextNode(tensionName);
+      tensionDiv.appendChild(textNode);
+
+      const noteNameElement = document.querySelector(`.${key} .notename.${tone}.active`);
+      if (noteNameElement) noteNameElement.classList.remove("active");
     }
-    /* add class active for showing up */
-    var tension_names = document.querySelectorAll('.tensionname')
-    for (var i=0; i<tension_names.length; i++) {
-      tension_names[i].classList.add("active");
-    }
-    var button = document.getElementById("show_tension_button")
-    button.setAttribute("onclick","getToneNameFromDataChords()")
-    button.innerHTML = 'Tone Names';
-  }
+  });
+
+  toggleElements(document.querySelectorAll('.tensionname'), 'active');
+  setButtonAttributes("show_tension_button", "getToneNameFromDataChords()", "Tone Names");
 }
 
-function getNotePicFromData(){
-  /* x sets the id of inversions */
-  var notename_elements = document.querySelectorAll('.notename');
-  if (notename_elements != undefined){
-    for (var i=0; i<notename_elements.length; i++) {
-      notename_elements[i].classList.remove('active');
-    }
-  }
-  var button = document.getElementById("show_note_name_button")
-  button.setAttribute("onclick","getNoteNameFromData()")
-  button.innerHTML = 'Note Name';
+function getNotePicFromData() {
+  const noteNameElements = document.querySelectorAll('.notename');
+  toggleElements(noteNameElements, 'active', 'remove');
+  setButtonAttributes("show_note_name_button", "getNoteNameFromData()", "Note Name");
 }
-function navBarFretboardChords(class_name){
-  var x, i, j, selElmnt, a, b, c;
-  /* Look for any elements with the class "sfbsf": */
-  x = document.getElementsByClassName(class_name);
-  for (i = 0; i < x.length; i++) {
-    selElmnt = x[i].getElementsByTagName("select")[0];
-    /* For each element, create a new DIV that will act as the selected item: */
-    a = document.createElement("DIV");
-    a.setAttribute("class", "sese");
-    a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
-    x[i].appendChild(a);
-    /* For each element, create a new DIV that will contain the option list: */
-    b = document.createElement("DIV");
-    b.setAttribute("class", "slit sehi");
-    for (j = 1; j < selElmnt.length; j++) {
-      /* For each option in the original select element,
-      create a new DIV that will act as an option item: */
-      c = document.createElement("DIV");
-      c.innerHTML = selElmnt.options[j].innerHTML;
-      c.addEventListener("click", function(e) {
-        /* When an item is clicked, update the original select box,
-        and the selected item: */
-        var y, i, k, s, h;
-        s = this.parentNode.parentNode.getElementsByTagName("select")[0];
-        h = this.parentNode.previousSibling;
-        for (i = 0; i < s.length; i++) {
-          if (s.options[i].innerHTML == this.innerHTML) {
-            s.selectedIndex = i;
-            h.innerHTML = this.innerHTML;
-            y = this.parentNode.getElementsByClassName("swasd");
-            for (k = 0; k < y.length; k++) {
-              y[k].removeAttribute("class");
-            }
-            this.setAttribute("class", "swasd");
-            break;
-          }
-        }
-        h.click();
-        var pos_val = document.getElementById('position_select').value
-        var note_range = document.getElementById('note_range').value
-        getTonesFromDataChords(pos_val, note_range)
-      });
-      b.appendChild(c);
-    }
-    x[i].appendChild(b);
-    a.addEventListener("click", function(e) {
-      /* When the select box is clicked, close any other select boxes,
-      and open/close the current select box: */
-      e.stopPropagation();
-      closeAllSelect(this);
-      this.nextSibling.classList.toggle("sehi");
-      this.classList.toggle("slar-active");
+function createOptionDiv(selElmnt, containerDiv) {
+  const optionDiv = document.createElement("DIV");
+  optionDiv.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+  optionDiv.addEventListener("click", function(e) {
+    toggleSelectBoxes(this, containerDiv);
+  });
+  containerDiv.appendChild(optionDiv);
+  return optionDiv;
+}
+
+function populateOptions(selElmnt, optionListDiv) {
+  for (let j = 1; j < selElmnt.length; j++) {
+    const optionDiv = document.createElement("DIV");
+    optionDiv.innerHTML = selElmnt.options[j].innerHTML;
+    optionDiv.addEventListener("click", function() {
+      updateSelection(this, selElmnt, optionListDiv);
     });
+    optionListDiv.appendChild(optionDiv);
   }
 }
 
-function closeAllSelect(elmnt) {
-  /*  Close all select boxes in the document,
-  except the current select box: */
-  var x, y, i, arrNo = [];
-  x = document.getElementsByClassName("slit");
-  y = document.getElementsByClassName("sese");
-  for (i = 0; i < y.length; i++) {
-    if (elmnt == y[i]) {
-      arrNo.push(i)
-    } else {
-      y[i].classList.remove("slar-active");
+function updateSelection(clickedDiv, selElmnt, optionListDiv) {
+  const selectedDiv = optionListDiv.previousSibling;
+  for (let i = 0; i < selElmnt.length; i++) {
+    if (selElmnt.options[i].innerHTML === clickedDiv.innerHTML) {
+      selElmnt.selectedIndex = i;
+      selectedDiv.innerHTML = clickedDiv.innerHTML;
+      break;
     }
   }
-  for (i = 0; i < x.length; i++) {
-    if (arrNo.indexOf(i)) {
-      x[i].classList.add("sehi");
-    }
-  }
+  selectedDiv.click();
+  const posVal = document.getElementById('position_select').value;
+  const noteRange = document.getElementById('note_range').value;
+  getTonesFromDataChords(posVal, noteRange);
 }
 
-/* Save Scroll Position when Refreshing Page */
-document.addEventListener("DOMContentLoaded", function(event) {
-    var scrollpos = localStorage.getItem('scrollpos');
-    if (scrollpos) window.scrollTo(0, scrollpos);
-});
+function toggleSelectBoxes(clickedDiv, containerDiv) {
+  closeAllSelect(clickedDiv);
+  clickedDiv.nextSibling.classList.toggle("sehi");
+  clickedDiv.classList.toggle("slar-active");
+}
 
-window.onbeforeunload = function(e) {
-    localStorage.setItem('scrollpos', window.scrollY);
-};
+function navBarFretboardChords(class_name) {
+  const elements = document.getElementsByClassName(class_name);
+  Array.from(elements).forEach(element => {
+    const selElmnt = element.getElementsByTagName("select")[0];
+    const selectedDiv = createOptionDiv(selElmnt, element);
+    const optionListDiv = document.createElement("DIV");
+    optionListDiv.setAttribute("class", "slit sehi");
+    populateOptions(selElmnt, optionListDiv);
+    element.appendChild(optionListDiv);
+  });
+}
+
+// ... (Rest des Codes bleibt unverändert)
