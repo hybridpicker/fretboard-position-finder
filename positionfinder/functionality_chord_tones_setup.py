@@ -5,33 +5,33 @@ from .template_notes import TENSIONS, NOTE_NAMES
 from .template_notes import NOTE_NAMES_SHARP, SHARP_NOTES
 
 def get_functionality_tones(notes_options_id, root):
-    # Create a list of all available tensions
     ALL_NOTES = [x for x in TENSIONS]
     notes = ChordNotes.objects.get(pk=notes_options_id)
     NOTES_NOTES = build_notes(notes)
-    # Extract every note within the given range
+    '''
+    Picking out every note of range
+    '''
     ALL_NOTES_NOTES = [x for x in NOTES_NOTES]
     TENSION_NOTE_LIST = [ALL_NOTES[x] for x in ALL_NOTES_NOTES]
     return TENSION_NOTE_LIST
 
 def get_functionality_pitches(notes_options_id, root):
-    # Create a list of all available tensions
     ALL_NOTES = [x for x in TENSIONS]
     notes = ChordNotes.objects.get(pk=notes_options_id)
     NOTES_NOTES = build_notes(notes)
-    # Extract every note within the given range
+    '''
+    Picking out every note of range
+    '''
     ALL_NOTES_NOTES = [x for x in NOTES_NOTES]
     return ALL_NOTES_NOTES
 
 def get_tension_final_list(tonal_root, ALL_NOTES_NOTES, ALL_NOTES, NOTES_NOTES):
-    # Calculate the final list of tension notes
-    TENSION_NOTE_FINAL = [int(x) + tonal_root for x in ALL_NOTES_NOTES]
-    TENSION_NOTE_FINAL = [x - 12 if x >= 12 else x for x in TENSION_NOTE_FINAL]
+    TENSION_NOTE_FINAL = [int(x)+tonal_root for x in ALL_NOTES_NOTES]
+    TENSION_NOTE_FINAL = [x-12 if x>=12 else x for x in TENSION_NOTE_FINAL]
     TENSION_NOTE_LIST = [ALL_NOTES[x] for x in TENSION_NOTE_FINAL]
     return TENSION_NOTE_LIST
 
 def get_all_notes_functionality(root, root_id):
-    # Determine the appropriate note naming convention based on the root note
     selected_root_name = Root.objects.get(pk=root_id).name
     if root in SHARP_NOTES or '#' in selected_root_name:
         ALL_NOTES = [x for x in NOTE_NAMES_SHARP]
@@ -40,7 +40,6 @@ def get_all_notes_functionality(root, root_id):
     return ALL_NOTES
 
 def get_functionality_note_names(notes_options_id, root, tonal_root, root_id):
-    # Get the list of all notes based on the functionality
     ALL_NOTES = get_all_notes_functionality(root, root_id)
     tonal_root =+ root
     selected_root_name = Root.objects.get(pk=root_id).name
