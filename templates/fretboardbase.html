@@ -45,68 +45,8 @@
 <div class="mbs">
   {% block heading %}
   {% endblock %}
-  <form id="fretboard_form" action="" method="get" style="text-align: center;">
-    <div class="sfbsf" id="catsfbsf">
-      <select name="models_select" id="models_select">
-        <option value="1">......</option>
-        {% for category_option in category %}
-        {% if selected_category == category_option.id %}
-        <option value="{{ category_option.id }}" id="cat{{ category_option.id }}" selected>{{ category_option.category_name }}</option>
-        {% else %}
-        <option value="{{ category_option.id }}" id="cat{{ category_option.id }}">{{ category_option.category_name }}</option>
-        {% endif %}
-        {% endfor %}
-      </select>
-    </div>
-    <div class="sfbsf">
-      <select name="root" id="root">
-        <option>.....</option>
-        {% for root_option in root_options %}
-        {% if selected_root_id == root_option.id %}
-        <option value="{{ root_option.id }}" selected>{{ root_option.name }}</option>
-        {% else %}
-        <option value="{{ root_option.id }}">{{ root_option.name }}</option>
-        {% endif %}
-        {% endfor %}
-      </select>
-    </div>
-    <div class="sfbsfnos">
-      <select name="notes_options_select" id="notes_options_select">
-        <option value="1">......</option>
-        {% for option in notes_options %}
-        {% if selected_notes == option.id %}
-        <option value="{{ option.id }}" selected>{{ option.note_name}}</option>
-        {% else %}
-        <option value="{{ option.id }}">{{ option.note_name}}</option>
-        {% endif %}
 
-        {% endfor %}
-      </select>
-    </div>
-    <div class="sfbsfpos">
-      <select name="position_select" id="position_select">
-        <option value="0">All Notes</option>
-        {% if selected_position == 0 %}
-        <option value="0" selected>All Notes</option>
-        {% else %}
-        <option value="0">All Notes</option>
-        {% endif %}
-        {% for position in position_options %}
-        {% if selected_position == position.position_order %}
-        <option value="{{ position.position_order }}" selected>
-          Position: {{ position.position_order }}
-        </option>
-        {% else %}
-        <option value="{{ position.position_order }}">
-          Position: {{ position.position_order }}
-        </option>
-        {% endif %}
-        {% endfor %}
-      </select>
-    </div>
-    <button id="show_note_name_button" type="button" onclick="getNoteNameFromData()" style="width: 8em;">Note Name</button>
-
-  </form>
+  {% include "forms/fretboard_form.html" %}
 
   <br>
   <div class="analysis_container" style="text-align: center;">
