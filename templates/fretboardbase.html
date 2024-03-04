@@ -6,6 +6,7 @@
   <title>Guitar Positions</title>
   <!-- CSS fretboard -->
   <link rel="stylesheet" href="{% static "css/fretboard.css" %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static "css/form.css" %}" type="text/css" media="screen">
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
@@ -32,6 +33,9 @@
   <meta name="twitter:image" content="static/thumbnail/twitter/home.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
+  <!-- Script for Opening Menu Overlay -->
+  <script src="{% static '/js/form.js' %}"></script>
+
 </head>
 {% block head %}
 {% endblock %}
@@ -49,7 +53,10 @@
   {% include "forms/fretboard_form.html" %}
 
   <br>
+  <!--- Analysis Container -->
   <div class="analysis_container" style="text-align: center;">
+    <h2>{{ selected_category_name }}</h2>
+    <h3>{{ selected_root_name }} {{ selected_notes_name }}</h3>
     Tensions:
     {% for tension in tensions %}
     <b>{{ tension }}</b>

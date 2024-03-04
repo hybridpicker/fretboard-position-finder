@@ -392,48 +392,6 @@ select {
 .slit div:hover, .swasd {
   background-color: #fdb22e33;
 }
-/* Form Styling */
-@media only screen and (max-width: 936px) {
-  #catsfbsf {
-    width: 9rem;
-    margin-top: 0.8em;
-    margin-bottom: 0.8em;
-  }
-  .sfbsf, .sfbsfnr, .sfbsfpos, .sfbsfnos {
-    width: 9rem;
-    margin-top: 0.8em;
-    margin-bottom: 0.8em;
-  }
-}
-.analysis_container {
-  font-size: 19px;
-  padding-bottom: 1%;
-}
-@media only screen and (max-width: 1050px) {
-  .analysis_container {
-    display:none;
-  }
-}
-form button {
-  font-family: 'Dosis', sans-serif;
-  font-size: 18px;
-  box-shadow: 0 4px #791006;
-  width: 20%;
-  height: 50px;
-  border-radius: 10px;
-  background: #AA1A0D;
-  border-width: 0.5px;
-  color: #fff;
-  border-color: #aa1a0d;
-}
-form button:hover {
-  transform: translate(0, 1.5px);
-  box-shadow: 0 2.5px #7E1444;
-  cursor: pointer;
-}
-.form-actions {
-  padding-top: 1em;
-}
 footer a{
   margin-left: 1rem;
 }

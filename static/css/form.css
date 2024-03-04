@@ -1,0 +1,120 @@
+    /* Hamburger Icon Style */
+    #hamburgerIcon {
+        display: inline-block;
+        cursor: pointer;
+        z-index: 100; 
+        position: fixed; /* Stay in place */
+    }
+
+    .bar1,
+    .bar2,
+    .bar3 {
+        width: 35px; /* Width of the lines */
+        height: 5px; /* Height of the lines */
+        background-color: #333; /* Color of the lines */
+        margin: 6px 0; /* Spacing between the lines */
+        transition: 0.4s; /* Animation */
+    }
+    .change .bar1 {
+        transform: rotate(-45deg) translate(-9px, 6px);
+      }
+      
+      .change .bar2 {
+        opacity: 0;
+      }
+      
+      .change .bar3 {
+        transform: rotate(45deg) translate(-8px, -8px);
+      }
+      
+
+    /* Overlay style */
+    .overlay {
+        display: none; /* Hide the overlay by default */
+        position: fixed; /* Stay in place */
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        top: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.7); /* Black background with opacity */
+        z-index: 99; /* Ensures the overlay is on top of other content */
+        overflow: auto; /* Allows scrolling if content exceeds overlay */
+    }
+
+    /* Style for the close button */
+    .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        font-size: 40px;
+        color: #fff;
+        cursor: pointer;
+    }
+
+    /* Style for the overlay content */
+    .overlay-content {
+        position: relative;
+        top: 10%; /* Distance from the top */
+        width: 100%; /* Full width */
+        text-align: center;
+    }
+
+    /* Form Styling */
+    @media only screen and (max-width: 936px) {
+        #catsfbsf {
+            width: 9rem;
+            margin-top: 0.8em;
+            margin-bottom: 0.8em;
+        }
+        .sfbsf,
+        .sfbsfnr,
+        .sfbsfpos,
+        .sfbsfnos {
+            width: 9rem;
+            margin-top: 0.8em;
+            margin-bottom: 0.8em;
+        }
+    }
+    .analysis_container {
+        font-size: 19px;
+        padding-bottom: 1%;
+    }
+    @media only screen and (max-width: 1050px) {
+        .analysis_container {
+            display: none;
+        }
+    }
+    form button {
+        font-family: 'Dosis', sans-serif;
+        font-size: 18px;
+        box-shadow: 0 4px #791006;
+        width: 20%;
+        height: 50px;
+        border-radius: 10px;
+        background: #AA1A0D;
+        border-width: 0.5px;
+        color: #fff;
+        border-color: #aa1a0d;
+    }
+    form button:hover {
+        transform: translate(0, 1.5px);
+        box-shadow: 0 2.5px #7E1444;
+        cursor: pointer;
+    }
+    .form-actions {
+        padding-top: 1em;
+    }
+
+    .change .bar1 {
+        -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+        transform: rotate(-45deg) translate(-9px, 6px);
+    }
+
+    .change .bar2 {
+        opacity: 0;
+    }
+
+    .change .bar3 {
+        -webkit-transform: rotate(45deg) translate(-8px, -8px);
+        transform: rotate(45deg) translate(-8px, -8px);
+    }
