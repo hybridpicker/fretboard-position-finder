@@ -402,19 +402,6 @@ footer div{
 #github:hover .st0{
   fill:rgb(171,173,193);
 }
-.mbs-portrait{
-  display:none;
-  width: 100vw;
-  height: 100vh;
-}
-@media only screen and (orientation:portrait) {
- .mbs{
-   display:none;
- }
- .mbs-portrait{
-   display:block
- }
-}
 .rotate-container{
   margin:auto;
 }

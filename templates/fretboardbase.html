@@ -39,18 +39,13 @@
 </head>
 {% block head %}
 {% endblock %}
-<div class="mbs-portrait">
-  <div class="rotate-container">
-    <h1>Please rotate your device.</h1>
-    <p>The Position-Finder just works fine in landscape view.</p>
-  </div>
-</div>
 
 <div class="mbs">
   {% block heading %}
   {% endblock %}
 
   {% include "forms/fretboard_form.html" %}
+
 
   <br>
   <!--- Analysis Container -->
@@ -73,6 +68,7 @@
     {% endif %}
   </div>
   {% include 'fretboard_fretboard.html' %}
+
 
 </div>
 {% block fretboard %}
