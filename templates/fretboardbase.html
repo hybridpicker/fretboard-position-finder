@@ -11,10 +11,15 @@
   <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
   {% include "favicon.html" %}
-
+  {% if chord_options %}
+  <script type="text/javascript">
+    var voicing_data = {{ chord_json_data|safe }}
+  </script>
+  {% else %}
   <script type="text/javascript">
     var scale_data = {{ scale_json_data|safe }}
   </script>
+  {% endif %}
 
   <script src="{% static '/js/base.js' %}"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -43,30 +48,20 @@
 <div class="mbs">
   {% block heading %}
   {% endblock %}
-
-  {% include "forms/fretboard_form.html" %}
+  {% if chord_options %}
+    {% include "forms/fretboard_form_chords.html" %}
+  {% else %}
+    {% include "forms/fretboard_form.html" %}
+  {% endif %}
 
 
   <br>
-  <!--- Analysis Container -->
-  <div class="analysis_container" style="text-align: center;">
-    <h2>{{ selected_category_name }}</h2>
-    <h3>{{ selected_root_name }} {{ selected_notes_name }}</h3>
-    Tensions:
-    {% for tension in tensions %}
-    <b>{{ tension }}</b>
-    {% endfor %}
-    <br>
-    Notenames:
-    {% for note_name in note_names %}
-    <b>{{ note_name }}</b>
-    {% endfor %}
-    {% if chord_name %}  
-      <br>
-      Chord:
-      <b>{{ chord_name }}</b>
-    {% endif %}
-  </div>
+  {% if chord_options %}
+    {% include "analysis/container_chords.html" %}
+  {% else %}
+     {% include "analysis/container_scales.html" %}
+  {% endif %}
+
   {% include 'fretboard_fretboard.html' %}
 
 
@@ -97,6 +92,75 @@
   </a>
 </div>
 </footer>
+{% if chord_options %}
+ <!-- Fretboard Form Script -->
+ <script type="text/javascript">
+
+   window.onload = navBarFretboardChords("sfbsfnr")
+   window.onload = navBarFretboardChords("catsfbsf")
+   window.onload = navBarFretboardChords("sfbsfpos")
+
+   /* If the user clicks anywhere outside the select box,
+   then close all select boxes: */
+   document.addEventListener("click", closeAllSelect);
+
+   var x, i, j, selElmnt, a, b, c;
+   /* Look for any elements with the class "sfbsf": */
+   x = document.getElementsByClassName("sfbsf");
+   for (i = 0; i < x.length; i++) {
+     selElmnt = x[i].getElementsByTagName("select")[0];
+     /* For each element, create a new DIV that will act as the selected item: */
+     a = document.createElement("DIV");
+     a.setAttribute("class", "sese");
+     a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+     x[i].appendChild(a);
+     /* For each element, create a new DIV that will contain the option list: */
+     b = document.createElement("DIV");
+     b.setAttribute("class", "slit sehi");
+     for (j = 1; j < selElmnt.length; j++) {
+       /* For each option in the original select element,
+       create a new DIV that will act as an option item: */
+       c = document.createElement("DIV");
+       c.innerHTML = selElmnt.options[j].innerHTML;
+       c.addEventListener("click", function(e) {
+         /* When an item is clicked, update the original select box,
+         and the selected item: */
+         var y, i, k, s, h;
+         s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+         h = this.parentNode.previousSibling;
+         for (i = 0; i < s.length; i++) {
+           if (s.options[i].innerHTML == this.innerHTML) {
+             s.selectedIndex = i;
+             h.innerHTML = this.innerHTML;
+             y = this.parentNode.getElementsByClassName("swasd");
+             for (k = 0; k < y.length; k++) {
+               y[k].removeAttribute("class");
+             }
+             this.setAttribute("class", "swasd");
+             break;
+           }
+         }
+         h.click();
+         document.getElementById("fretboard_form").submit()
+       });
+       b.appendChild(c);
+     }
+     x[i].appendChild(b);
+     a.addEventListener("click", function(e) {
+       /* When the select box is clicked, close any other select boxes,
+       and open/close the current select box: */
+       e.stopPropagation();
+       closeAllSelect(this);
+       this.nextSibling.classList.toggle("sehi");
+       this.classList.toggle("slar-active");
+     });
+   }
+   // getting Tones from Function 0=Template
+   var pos_val = document.getElementById('position_select').value
+   var note_range = document.getElementById('note_range').value
+   window.onload = getTonesFromDataChords(pos_val, note_range)
+ </script>
+{% else %}
 <script type="text/javascript">
   /* Nots Options Scale Select Field  */
   var x, i, j, selElmnt, a, b, c;
@@ -317,5 +381,6 @@
   }
 
 </script>
+{% endif %}
 {% block footer %}
 {% endblock %}
