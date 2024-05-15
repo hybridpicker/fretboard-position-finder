@@ -149,4 +149,4 @@ def fretboard_chords_view (request):
         'selected_type': type_id,
         'first_range_option': first_range_option,
         }
-    return render(request, 'fretboard_chords.html', context)
+    return render(request, 'fretboard.html', context)
