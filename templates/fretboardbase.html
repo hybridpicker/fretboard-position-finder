@@ -38,8 +38,14 @@
   <meta name="twitter:image" content="static/thumbnail/twitter/home.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
-  <!-- Script for Opening Menu Overlay -->
+  <!--- JS Scripts -->
   <script src="{% static '/js/form.js' %}"></script>
+
+  {% if chord_options %}
+    <script src="{% static 'js/base_chords.js' %}"></script>
+  {% else %}
+    <script src="{% static 'js/base_scales.js' %}"></script>
+  {% endif %}
 
 </head>
 {% block head %}
