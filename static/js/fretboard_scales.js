@@ -52,7 +52,6 @@ window.onload = function() {
             }
           }
           h.click();
-          document.getElementById('position_select').value = 0;
           document.getElementById("fretboard_form").submit();
         });
         b.appendChild(c);
