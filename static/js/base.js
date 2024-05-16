@@ -137,6 +137,55 @@ function closeAllSelect(elmnt) {
   }
 }
 
+
+function leftCursorClick() {
+  var url_string = window.location.href;
+  var url = new URL(url_string);
+  var pos_val = parseInt(url.searchParams.get("position_select")); // Convert pos_val to a number
+  console.log(pos_val);
+
+  // Filter the keys to count only numeric keys
+  var max_pos = Object.keys(scale_data).filter(key => !isNaN(key)).length; // Number of numeric positions in the scale_data object
+
+  if (pos_val > 0) { // Ensure the new position is not less than 0
+    var new_pos_val = pos_val - 1;
+    console.log('Decremented position to', new_pos_val);
+    document.getElementById('position_select').value = new_pos_val;
+    document.getElementById("fretboard_form").submit();
+  } else {
+    console.log('Already at the lowest position, cannot decrement further');
+  }
+}
+
+function rightCursorClick() {
+  var url_string = window.location.href;
+  var url = new URL(url_string);
+  var pos_val = parseInt(url.searchParams.get("position_select")); // Convert pos_val to a number
+  console.log(pos_val);
+
+  // Filter the keys to count only numeric keys
+  var max_pos = Object.keys(scale_data).filter(key => !isNaN(key)).length; // Number of numeric positions in the scale_data object
+
+  if (pos_val < max_pos - 1) { // Ensure the new position is not greater than max_pos - 1
+    var new_pos_val = pos_val + 1;
+    console.log('Incremented position to', new_pos_val);
+    document.getElementById('position_select').value = new_pos_val;
+    document.getElementById("fretboard_form").submit();
+  } else {
+    console.log('Already at the highest position, cannot increment further');
+  }
+}
+
+// Event listener for keyboard inputs
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'ArrowLeft') { // Left arrow key
+    leftCursorClick();
+  } else if (event.key === 'ArrowRight') { // Right arrow key
+    rightCursorClick();
+  }
+});
+
+
 /* Save Scroll Position when Refreshing Page */
 document.addEventListener("DOMContentLoaded", function(event) {
     var scrollpos = localStorage.getItem('scrollpos');
