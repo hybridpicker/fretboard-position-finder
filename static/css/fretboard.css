@@ -315,3 +315,64 @@ footer div{
   top: 25%;
   width: 95vw;
 }
+
+.fretboardcontainer {
+  position: relative;
+  /* andere notwendige Stile für den Container */
+}
+
+.left-cursor,
+.right-cursor {
+  position: absolute;
+  width: 11.854px; /* Breite des SVG-Cursors */
+  height: 25.175px; /* Höhe des SVG-Cursors */
+  background-size: contain; /* Stellt sicher, dass das Bild vollständig skaliert wird */
+  background-repeat: no-repeat; /* Keine Wiederholung des Bildes */
+  z-index: 10; /* Sicherstellen, dass der Cursor über dem Fretboard liegt */
+  cursor: pointer; /* Ändert den Cursor beim Hover */
+}
+
+.left-cursor {
+  top: 50%;
+  left: -22px; /* Position des linken Cursors anpassen */
+  transform: translateY(-50%);
+  background-image: url('/static/media/svg/cursor_left.svg'); 
+}
+  
+
+.right-cursor {
+  top: 50%;
+  right: -50px; /* Position des rechten Cursors anpassen */
+  transform: translateY(-50%);
+  background-image: url('/static/media/svg/cursor_right.svg'); 
+}
+
+@media only screen and (max-width: 400px) and (orientation: portrait) {
+.fretboard {
+  width: auto;
+  padding-left: 10px;
+  rotate: 90deg;
+  transform-origin: top;
+  position: absolute;
+  top: 45vh;
+  left: -14vw;
+}
+#fretboardcontainer{
+  margin: 0;
+  height: 90vh;
+  max-height: 730px;
+}
+.left-cursor {
+  top: 50%;
+  left: 0;
+}
+.right-cursor {
+  top: 50%;
+  right: 0;
+}
+.note > .tone {
+  max-height: 22px;
+  max-width: 22px;
+  padding-top: 2px;
+}
+}
