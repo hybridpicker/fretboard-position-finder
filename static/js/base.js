@@ -36,7 +36,6 @@ function playTone(tone, stringName) {
 }
 
 
-
 /**
  * Resets the fretboard by removing 'active' class and setting the tone elements back to default.
  */
@@ -137,6 +136,24 @@ function closeAllSelect(elmnt) {
   }
 }
 
+// Position Cursor Functions
+function updateCursorVisibility(pos_val, max_pos) {
+  var leftCursor = document.querySelector('.left-cursor');
+  var rightCursor = document.querySelector('.right-cursor');
+
+  // Update visibility based on pos_val and max_pos
+  if (pos_val > 0) {
+    leftCursor.style.display = 'block';
+  } else {
+    leftCursor.style.display = 'none';
+  }
+
+  if (pos_val < max_pos - 1) {
+    rightCursor.style.display = 'block';
+  } else {
+    rightCursor.style.display = 'none';
+  }
+}
 
 function leftCursorClick() {
   var url_string = window.location.href;
@@ -152,6 +169,7 @@ function leftCursorClick() {
     console.log('Decremented position to', new_pos_val);
     document.getElementById('position_select').value = new_pos_val;
     document.getElementById("fretboard_form").submit();
+    updateCursorVisibility(new_pos_val, max_pos);
   } else {
     console.log('Already at the lowest position, cannot decrement further');
   }
@@ -160,7 +178,15 @@ function leftCursorClick() {
 function rightCursorClick() {
   var url_string = window.location.href;
   var url = new URL(url_string);
-  var pos_val = parseInt(url.searchParams.get("position_select")); // Convert pos_val to a number
+  var pos_val = url.searchParams.get("position_select"); // Get the position value from the URL
+
+  // Check if the URL is empty and set pos_val to 0 if true
+  if (pos_val === null || pos_val === "") {
+    pos_val = 0;
+  } else {
+    pos_val = parseInt(pos_val); // Convert pos_val to a number
+  }
+
   console.log(pos_val);
 
   // Filter the keys to count only numeric keys
@@ -171,10 +197,30 @@ function rightCursorClick() {
     console.log('Incremented position to', new_pos_val);
     document.getElementById('position_select').value = new_pos_val;
     document.getElementById("fretboard_form").submit();
+    updateCursorVisibility(new_pos_val, max_pos);
   } else {
     console.log('Already at the highest position, cannot increment further');
   }
 }
+
+// Initial setup based on current position value
+document.addEventListener('DOMContentLoaded', function() {
+  var url_string = window.location.href;
+  var url = new URL(url_string);
+  var pos_val = url.searchParams.get("position_select"); // Get the position value from the URL
+
+  // Check if the URL is empty and set pos_val to 0 if true
+  if (pos_val === null || pos_val === "") {
+    pos_val = 0;
+  } else {
+    pos_val = parseInt(pos_val); // Convert pos_val to a number
+  }
+
+  // Filter the keys to count only numeric keys
+  var max_pos = Object.keys(scale_data).filter(key => !isNaN(key)).length; // Number of numeric positions in the scale_data object
+
+  updateCursorVisibility(pos_val, max_pos);
+});
 
 // Event listener for keyboard inputs
 document.addEventListener('keydown', function(event) {
@@ -184,6 +230,7 @@ document.addEventListener('keydown', function(event) {
     rightCursorClick();
   }
 });
+
 
 
 /* Save Scroll Position when Refreshing Page */
