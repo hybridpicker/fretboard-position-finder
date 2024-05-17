@@ -17,14 +17,6 @@ def get_menu_options():
     arpeggios = Notes.objects.filter(category=arpeggios_category).values('id', 'note_name')
     chords = ChordNotes.objects.filter(category=chords_category).values('id', 'chord_name')[:10]  # Limit chords to 10
 
-    # Debugging outputs
-    print("Scales Category:", scales_category)
-    print("Scales:", list(scales))
-    print("Arpeggios Category:", arpeggios_category)
-    print("Arpeggios:", list(arpeggios))
-    print("Chords Category:", chords_category)
-    print("Chords:", list(chords))
-
     # Return the menu options
     return {
         'scales_options': list(scales),
