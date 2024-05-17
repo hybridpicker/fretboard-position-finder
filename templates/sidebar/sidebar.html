@@ -1,5 +1,4 @@
 {% load static %}
-<!-- sidebar/sidebar.html -->
 <div id="menuToggle">
     <input type="checkbox" id="menuCheckbox">
     <img src="{% static 'media/svg/sidebar_icon.svg' %}" alt="Menu Icon" class="menu-icon">
@@ -9,37 +8,47 @@
         <input type="checkbox" id="scalesToggle" class="dropdown-toggle">
         <label for="scalesToggle"><i class="fa fa-music"></i> Scales</label>
         <div class="dropdown-menu">
-          <select>
-            {% for option in scale_options %}
-            <option value="{{ option.id }}">{{ option.note_name }}</option>
+          <ul>
+            {% for option in scales_options %}
+            <li>
+              <a href="?models_select=1&root=1&notes_options_select={{ option.id }}&position_select=0">
+                {{ option.note_name }}
+              </a>
+            </li>
             {% endfor %}
-          </select>
+          </ul>
         </div>
       </div>
       <div class="dropdown">
         <input type="checkbox" id="arpeggiosToggle" class="dropdown-toggle">
-        <label for="arpeggiosToggle"><i class="fa fa-chord"></i> Arpeggios</label>
+        <label for="arpeggiosToggle"><i class="fa fa-music"></i> Arpeggios</label>
         <div class="dropdown-menu">
-          <select>
-            {% for option in arpeggio_options %}
-            <option value="{{ option.id }}">{{ option.note_name }}</option>
+          <ul>
+            {% for option in arpeggios_options %}
+            <li>
+              <a href="?models_select=2&root=1&notes_options_select={{ option.id }}&position_select=0">
+                {{ option.note_name }}
+              </a>
+            </li>
             {% endfor %}
-          </select>
+          </ul>
         </div>
       </div>
       <div class="dropdown">
         <input type="checkbox" id="chordsToggle" class="dropdown-toggle">
-        <label for="chordsToggle"><i class="fa fa-guitar"></i> Chords</label>
+        <label for="chordsToggle"><i class="fa fa-music"></i> Chords</label>
         <div class="dropdown-menu">
-          <select>
-            {% for option in chord_options %}
-            <option value="{{ option.id }}">{{ option.note_name }}</option>
+          <ul>
+            {% for option in chords_options %}
+            <li>
+              <a href="?models_select=3&root=1&notes_options_select={{ option.id }}&position_select=0">
+                {{ option.chord_name }}
+              </a>
+            </li>
             {% endfor %}
-          </select>
+          </ul>
         </div>
       </div>
       <a href="#"><i class="fa fa-info-circle"></i> About</a>
     </nav>
-  </div>
-  
-  
+</div>

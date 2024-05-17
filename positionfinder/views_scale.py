@@ -17,13 +17,7 @@ from .get_position_dict_scales import get_scale_position_dict, get_transposable_
 from .get_position_dict_scales import transpose_actual_position, re_ordering_positions
 
 from django.shortcuts import render
-from .models import Scale
-from .views_helpers import get_menu_options
-
-def scale_list(request):
-    scales = Scale.objects.all()
-    menu_options = get_menu_options()
-    return render(request, 'scale_list.html', {'scales': scales, **menu_options})
+from positionfinder.views_helpers import get_menu_options
 
 
 '''
@@ -33,6 +27,7 @@ def fretboard_scale_view (request):
     ''' Select which notes '''
     all_notes_position = ALL_NOTES_POSITION
     category = NotesCategory.objects.all()
+    menu_options = get_menu_options() 
     '''
     Template Variables
     '''
@@ -163,5 +158,7 @@ def fretboard_scale_view (request):
         'selected_category_name': selected_category_name,
         'selected_notes_name': selected_notes_name,
         }
+    
+    context.update(menu_options)
    
     return render(request, 'fretboard.html', context)
