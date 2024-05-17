@@ -333,6 +333,7 @@ footer div{
 }
 
 .left-cursor {
+  display: none;
   top: 50%;
   left: -22px; /* Position des linken Cursors anpassen */
   transform: translateY(-50%);
@@ -341,6 +342,7 @@ footer div{
   
 
 .right-cursor {
+  display: none;
   top: 50%;
   right: -50px; /* Position des rechten Cursors anpassen */
   transform: translateY(-50%);
