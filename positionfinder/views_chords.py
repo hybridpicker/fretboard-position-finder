@@ -14,6 +14,16 @@ from .functionality_chord_tones_setup import get_functionality_note_names
 
 from .get_position_dict_chords import get_position_dict
 
+from django.shortcuts import render
+from .models import Chord
+from .views_helpers import get_menu_options
+
+def chord_list(request):
+    chords = Chord.objects.all()
+    menu_options = get_menu_options()
+    return render(request, 'chord_list.html', {'chords': chords, **menu_options})
+
+
 '''
 Main View
 '''

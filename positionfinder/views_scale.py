@@ -16,6 +16,16 @@ from .template_notes import ALL_NOTES_POSITION
 from .get_position_dict_scales import get_scale_position_dict, get_transposable_positions
 from .get_position_dict_scales import transpose_actual_position, re_ordering_positions
 
+from django.shortcuts import render
+from .models import Scale
+from .views_helpers import get_menu_options
+
+def scale_list(request):
+    scales = Scale.objects.all()
+    menu_options = get_menu_options()
+    return render(request, 'scale_list.html', {'scales': scales, **menu_options})
+
+
 '''
 Main View
 '''

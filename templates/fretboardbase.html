@@ -5,8 +5,9 @@
   <meta charset="UTF-8">
   <title>Guitar Positions</title>
   <!-- CSS fretboard -->
-  <link rel="stylesheet" href="{% static "css/fretboard.css" %}" type="text/css" media="screen">
-  <link rel="stylesheet" href="{% static "css/form.css" %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'css/fretboard.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'css/form.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'css/sidebar.css' %}" type="text/css" media="screen">
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
@@ -39,7 +40,7 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <!--- JS Scripts -->
-  <script src="{% static '/js/form.js' %}"></script>
+  <script src="{% static 'js/form.js' %}"></script>
 
   {% if chord_options %}
     <script src="{% static 'js/base_chords.js' %}"></script>
@@ -47,41 +48,43 @@
     <script src="{% static 'js/base_scales.js' %}"></script>
   {% endif %}
 
-</head>
-{% block head %}
-{% endblock %}
-
-<div class="mbs">
-  {% block heading %}
+  {% block head %}
   {% endblock %}
+</head>
+<body>
+  {% include "sidebar/sidebar.html" %}
+
+  <!-- Script for Menu -->
+  <script src="{% static 'js/sidebar.js' %}"></script>
+
+  <div class="mbs">
+    {% block heading %}
+    {% endblock %}
+    {% if chord_options %}
+      {% include "forms/fretboard_form_chords.html" %}
+    {% else %}
+      {% include "forms/fretboard_form.html" %}
+    {% endif %}
+    <br>
+    {% if chord_options %}
+      {% include "analysis/container_chords.html" %}
+    {% else %}
+       {% include "analysis/container_scales.html" %}
+    {% endif %}
+    {% include 'fretboard_fretboard.html' %}
+  </div>
+
+  <footer>
+    {% include "footer/footer.html" %}
+  </footer>
+
   {% if chord_options %}
-    {% include "forms/fretboard_form_chords.html" %}
+    <!-- Fretboard Form Script -->
+    <script src="{% static 'js/fretboard_chords.js' %}"></script>
   {% else %}
-    {% include "forms/fretboard_form.html" %}
+    <script src="{% static 'js/fretboard_scales.js' %}"></script>
   {% endif %}
-
-
-  <br>
-  {% if chord_options %}
-    {% include "analysis/container_chords.html" %}
-  {% else %}
-     {% include "analysis/container_scales.html" %}
-  {% endif %}
-
-  {% include 'fretboard_fretboard.html' %}
-
-
-</div>
-{% block fretboard %}
-{% endblock %}
-<footer>
-  {% include "footer/footer.html" %}
-</footer>
-{% if chord_options %}
-  <!-- Fretboard Form Script -->
-  <script src="{% static 'js/fretboard_chords.js' %}"></script>
-{% else %}
-  <script src="{% static 'js/fretboard_scales.js' %}"></script>
-{% endif %}
-{% block footer %}
-{% endblock %}
+  {% block footer %}
+  {% endblock %}
+</body>
+</html>

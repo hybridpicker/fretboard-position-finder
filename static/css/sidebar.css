@@ -1,0 +1,84 @@
+/* sidebar.css */
+body {
+    font-family: 'Dosis', sans-serif;
+  }
+  
+  #menuToggle {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+  }
+  
+  .menu-icon {
+    width: 33px; /* Passen Sie die Größe des Icons nach Bedarf an */
+    height: 33px;
+    margin-bottom: 5px;
+  }
+  
+  #menuToggle span {
+    display: none; /* Verstecke die span-Elemente, da wir das SVG-Icon verwenden */
+  }
+  
+  #menuToggle input {
+    display: none;
+  }
+  
+  #menu {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 300px;
+    height: 100%;
+    background: #ededed;
+    transition: left 0.3s ease-in-out; /* Ändern Sie die Dauer und den Übergangstyp nach Bedarf */
+    padding-top: 60px;
+    overflow-y: auto; /* Falls das Menü selbst scrollen muss */
+  }
+  
+  #menu a, .dropdown label {
+    display: block;
+    padding: 15px;
+    text-decoration: none;
+    color: #232323;
+  }
+  
+  #menu a:hover, .dropdown label:hover {
+    background: #f1f1f1;
+  }
+  
+  .dropdown {
+    position: relative;
+  }
+  
+  .dropdown-toggle {
+    display: none;
+  }
+  
+  .dropdown-menu {
+    max-height: 150px; /* Begrenze die Höhe des Dropdowns */
+    overflow-y: auto; /* Scrollbar, wenn die Optionen die Höhe überschreiten */
+    display: none;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1;
+  }
+  
+  .dropdown-toggle:checked + label + .dropdown-menu {
+    display: block;
+  }
+  
+  .dropdown-menu select {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: transparent;
+  }
+  

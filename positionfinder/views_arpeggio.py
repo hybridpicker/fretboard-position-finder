@@ -16,6 +16,16 @@ from .template_notes import ALL_NOTES_POSITION
 from .get_position_dict_scales import get_scale_position_dict, get_transposable_positions
 from .get_position_dict_scales import transpose_actual_position, re_ordering_positions
 
+from django.shortcuts import render
+from .models import Arpeggio
+from .views_helpers import get_menu_options
+
+def arpeggio_list(request):
+    arpeggios = Arpeggio.objects.all()
+    menu_options = get_menu_options()
+    return render(request, 'arpeggio_list.html', {'arpeggios': arpeggios, **menu_options})
+
+
 def fretboard_arpeggio_view (request):
     ''' Select which notes '''
     all_notes_position = ALL_NOTES_POSITION
