@@ -14,14 +14,7 @@ from .functionality_chord_tones_setup import get_functionality_note_names
 
 from .get_position_dict_chords import get_position_dict
 
-from django.shortcuts import render
-from .models import Chord
-from .views_helpers import get_menu_options
-
-def chord_list(request):
-    chords = Chord.objects.all()
-    menu_options = get_menu_options()
-    return render(request, 'chord_list.html', {'chords': chords, **menu_options})
+from positionfinder.views_helpers import get_menu_options
 
 
 '''
@@ -30,6 +23,7 @@ Main View
 def fretboard_chords_view (request):
     ''' Select which notes '''
     category = NotesCategory.objects.all()
+    menu_options = get_menu_options() 
     '''
     Template Variables
     '''
@@ -159,4 +153,7 @@ def fretboard_chords_view (request):
         'selected_type': type_id,
         'first_range_option': first_range_option,
         }
+    
+    context.update(menu_options)
+
     return render(request, 'fretboard.html', context)
