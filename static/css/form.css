@@ -5,7 +5,7 @@
         z-index: 100; 
         position: fixed; /* Stay in place */
         top: 1rem;
-        left: 1rem;
+        left: 5rem;
     }
 
     .bar1,
@@ -81,6 +81,7 @@
         }
     }
     .analysis_container {
+        display: none;
         font-size: 19px;
         padding-bottom: 1%;
     }
