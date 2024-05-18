@@ -58,7 +58,7 @@
             </div>
             <div class="sfbsfnr">
                 <select name="note_range" id="note_range">
-                    <option value="{{ first_range_option }}" {% if first_range_option == selected_range %} class="active" {% endif %}>{{ first_range_option }}</option>
+                    <option value="{{ first_range_option }}" {% if first_range_option == selected_range %} class="active" selected {% endif %}>{{ first_range_option }}</option>
                     {% for option in range_options %}
                     {% if option.range == selected_range %}
                     <option value="{{ option.range }}" class="active" selected>{{ option.range }}</option>
@@ -70,9 +70,13 @@
             </div>
             <div class="sfbsfpos">
                 <select name="position_select" id="position_select">
-                    <option value="Basic Position">Basic Position</option>
+                    <option value="Basic Position" {% if "Basic Position" == selected_position %} class="active" selected {% endif %}>Basic Position</option>
                     {% for option in position_options %}
+                    {% if option.inversion_order == selected_position %}
+                    <option value="{{ option.inversion_order }}" class="active" selected>{{ option.inversion_order }}</option>
+                    {% else %}
                     <option value="{{ option.inversion_order }}">{{ option.inversion_order }}</option>
+                    {% endif %}
                     {% endfor %}
                 </select>
             </div>

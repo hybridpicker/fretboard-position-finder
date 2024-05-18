@@ -51,7 +51,6 @@
         <div id="positionStepChords" class="step" style="display: none;">
             <h2>Select Position</h2>
             <div class="grid-container">
-                <div class="grid-item" data-value="Basic Position">Basic Position</div>
                 {% for option in position_options %}
                 <div class="grid-item" data-value="{{ option.inversion_order }}">{{ option.inversion_order }}</div>
                 {% endfor %}
