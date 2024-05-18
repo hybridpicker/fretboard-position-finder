@@ -8,7 +8,8 @@
   <link rel="stylesheet" href="{% static 'css/fretboard.css' %}" type="text/css" media="screen">
   <link rel="stylesheet" href="{% static 'css/form.css' %}" type="text/css" media="screen">
   <link rel="stylesheet" href="{% static 'css/sidebar.css' %}" type="text/css" media="screen">
-  <link rel="stylesheet" href="{% static 'css/overlay-menu.css' %}" type="text/css" media="screen"> <!-- Add overlay-menu CSS -->
+  <link rel="stylesheet" href="{% static 'css/overlay-menu.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'css/info-icon.css' %}" type="text/css" media="screen">
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
@@ -55,10 +56,15 @@
 <body>
   {% include "sidebar/sidebar.html" %}
   {% include "overlay-menu/overlay-menu.html" %}
+  <!-- Info Icon -->
+  <div id="infoToggle">
+    <img src="{% static 'media/svg/info-icon.svg' %}" alt="Info Icon" class="info-icon">
+  </div>
 
   <!-- Script for Menu -->
   <script src="{% static 'js/sidebar.js' %}"></script>
   <script src="{% static 'js/overlay-menu.js' %}"></script>
+  <script src="{% static 'js/info-icon.js' %}"></script>
   <div class="mbs">
     {% block heading %}
     {% endblock %}
