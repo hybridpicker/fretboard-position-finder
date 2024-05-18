@@ -4,22 +4,21 @@
 <head>
   <meta charset="UTF-8">
   <title>Guitar Positions</title>
-  <!-- CSS files -->
+  <!-- CSS fretboard -->
   <link rel="stylesheet" href="{% static 'css/fretboard.css' %}" type="text/css" media="screen">
   <link rel="stylesheet" href="{% static 'css/form.css' %}" type="text/css" media="screen">
   <link rel="stylesheet" href="{% static 'css/sidebar.css' %}" type="text/css" media="screen">
-  <link rel="stylesheet" href="{% static 'css/overlay-menu.css' %}" type="text/css" media="screen"> <!-- Add overlay-menu CSS -->
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
   {% include "favicon.html" %}
   {% if chord_options %}
   <script type="text/javascript">
-    var voicing_data = {{ chord_json_data|safe }};
+    var voicing_data = {{ chord_json_data|safe }}
   </script>
   {% else %}
   <script type="text/javascript">
-    var scale_data = {{ scale_json_data|safe }};
+    var scale_data = {{ scale_json_data|safe }}
   </script>
   {% endif %}
 
@@ -29,7 +28,7 @@
   <meta name="title" content="Fretboard-Position-Finder">
   <meta name="description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
 
-  <!-- Social Media Meta -->
+  <!-- Social Media Meta --->
   <meta property="og:title" content="Guitar Positions">
   <meta property="og:description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
   <meta property="og:image" content="static/thumbnail/facebook/home.jpg">
@@ -40,7 +39,7 @@
   <meta name="twitter:image" content="static/thumbnail/twitter/home.jpg">
   <meta name="twitter:card" content="summary_large_image">
 
-  <!-- JS Scripts -->
+  <!--- JS Scripts -->
   <script src="{% static 'js/form.js' %}"></script>
 
   {% if chord_options %}
@@ -58,7 +57,8 @@
 
   <!-- Script for Menu -->
   <script src="{% static 'js/sidebar.js' %}"></script>
-  <script src="{% static 'js/overlay-menu.js' %}"></script>
+  <script src="{% static 'js/overlay-menu.js' %}"></script> 
+
   <div class="mbs">
     {% block heading %}
     {% endblock %}
