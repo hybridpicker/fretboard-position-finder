@@ -22,6 +22,16 @@ document.addEventListener("DOMContentLoaded", function() {
     const backToInitialFromNoteRange = document.getElementById('backToInitialFromNoteRange');
     const backToInitialFromPositionChords = document.getElementById('backToInitialFromPositionChords');
 
+    // Default URL parameters
+    let urlParams = {
+        models_select: '3',
+        root: '6',
+        type_options_select: 'Triads',
+        chords_options_select: 'Major',
+        note_range: 'e+-+g',
+        position_select: 'Basic+Position'
+    };
+
     // Ensure the overlay menu is hidden initially
     overlayMenuChords.style.display = 'none';
 
@@ -91,29 +101,36 @@ document.addEventListener("DOMContentLoaded", function() {
             const step = this.closest('.step').id;
 
             if (step === 'rootStepChords') {
-                submitFormChords('root', value);
+                urlParams.root = value;
+                submitFormChords();
             } else if (step === 'typeStepChords') {
-                submitFormChords('type_options_select', value);
+                urlParams.type_options_select = value;
+                submitFormChords();
             } else if (step === 'chordStep') {
-                submitFormChords('chords_options_select', value);
+                urlParams.chords_options_select = value;
+                submitFormChords();
             } else if (step === 'noteRangeStep') {
-                submitFormChords('note_range', value);
+                urlParams.note_range = value;
+                submitFormChords();
             } else if (step === 'positionStepChords') {
-                submitFormChords('position_select', value);
+                urlParams.position_select = value;
+                submitFormChords();
             }
         });
     });
 
-    function submitFormChords(name, value) {
+    function submitFormChords() {
         const form = document.createElement('form');
         form.method = 'GET';
-        form.action = ''; // Set the form action URL here
+        form.action = '';
 
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
+        for (const key in urlParams) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = urlParams[key];
+            form.appendChild(input);
+        }
 
         document.body.appendChild(form);
         form.submit();
