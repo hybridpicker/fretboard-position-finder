@@ -1,6 +1,6 @@
     /* Hamburger Icon Style */
     #hamburgerIcon {
-        display: inline-block;
+        display: none;
         cursor: pointer;
         z-index: 100; 
         position: fixed; /* Stay in place */

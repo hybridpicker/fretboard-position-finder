@@ -1,0 +1,51 @@
+/* overlay-menu.css */
+.overlay-icon {
+    width: 33px; /* Adjust the size of the icon as needed */
+    height: 33px;
+    margin-left: 10px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.overlay-menu {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.overlay-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 90%;
+    max-height: 90%;
+    overflow: auto;
+}
+
+#closeOverlay {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #232323;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#overlayToggle {
+    position: fixed;
+    top: 25px;
+    left: 70px;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+}

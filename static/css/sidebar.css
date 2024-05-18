@@ -32,7 +32,7 @@
     background: #ededed;
     transition: left 0.3s ease-in-out; /* Change the duration and transition type as needed */
     padding-top: 60px;
-    overflow-y: auto; /* In case the menu itself needs to scroll */
+    overflow-y: scroll;
     z-index: 10;
 }
   
@@ -56,7 +56,7 @@
 }
   
 .dropdown-menu {
-    max-height: 150px; /* Limit the height of the dropdown */
+    max-height: 300px; /* Limit the height of the dropdown */
     overflow-y: auto; /* Scrollbar if the options exceed the height */
     display: none;
     background: #f9f9f9;
