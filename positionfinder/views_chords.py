@@ -116,7 +116,7 @@ def fretboard_chords_view(request):
         "chord": selected_note_option.chord_name,
         "type": selected_note_option.type_name,
         "root": root,
-        "note_range": range  # Adding note_range to chord_json_data
+        "note_range": range 
     }
 
     # Creating for every String Range available Inversions #
@@ -163,8 +163,8 @@ def fretboard_chords_view(request):
         'chord_options': chord_options,
         'selected_type': type_id,
         'first_range_option': first_range_option,
-        'note_range': range,  # Adding note_range to the context
-        'selected_range': selected_range  # Add selected_range to the context
+        'note_range': range,
+        'selected_range': selected_range,
     }
 
     context.update(menu_options)
