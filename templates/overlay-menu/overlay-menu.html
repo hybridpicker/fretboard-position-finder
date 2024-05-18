@@ -4,10 +4,41 @@
 </div>
 
 <div id="overlayMenu" class="overlay-menu">
-    <!-- Content for overlay menu -->
     <div class="overlay-content">
-      <h2>Overlay Menu</h2>
-      <p>This is an overlay menu.</p>
-      <button id="closeOverlay">Close</button>
+        <div id="initialStep" class="step">
+            <h2>What do you want to select?</h2>
+            <button id="selectRootNote">Root Note</button>
+            <button id="selectType">Type</button>
+            <button id="selectPosition">Position</button>
+        </div>
+        <div id="rootStep" class="step" style="display: none;">
+            <h2>Select Root Note</h2>
+            <div class="grid-container">
+                {% for root_option in root_options %}
+                <div class="grid-item" data-value="{{ root_option.id }}">{{ root_option.name }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromRoot">Back</button>
+        </div>
+        <div id="typeStep" class="step" style="display: none;">
+            <h2>Select Type</h2>
+            <div class="grid-container">
+                {% for category_option in category %}
+                <div class="grid-item" data-value="{{ category_option.id }}">{{ category_option.category_name }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromType">Back</button>
+        </div>
+        <div id="positionStep" class="step" style="display: none;">
+            <h2>Select Position</h2>
+            <div class="grid-container">
+                <div class="grid-item" data-value="0">All Notes</div>
+                {% for position in position_options %}
+                <div class="grid-item" data-value="{{ position.position_order }}">Position: {{ position.position_order }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromPosition">Back</button>
+        </div>
+        <button id="closeOverlay">Close</button>
     </div>
 </div>
