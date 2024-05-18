@@ -28,7 +28,7 @@ body {
 
 .overlay-content {
     background: white;
-    padding: 40px;
+    padding: 10rem;
     border-radius: 8px;
     max-width: 90%;
     max-height: 80%;
@@ -41,7 +41,7 @@ body {
 }
 
 .step.active {
-    display: block !important;
+    display: grid !important;
 }
 
 h2 {
@@ -54,14 +54,14 @@ button {
     margin: 10px 5px;
     font-size: 16px;
     border: none;
-    background-color: #232323;
-    color: white;
+    background-color: white;
+    color: #1D262A;
     cursor: pointer;
     border-radius: 4px;
 }
 
 button:hover {
-    background-color: #444444;
+    color: #FF6F5A;
 }
 
 .grid-container {
@@ -88,6 +88,27 @@ button:hover {
 .grid-item:hover {
     background-color: #ddd;
 }
+
+#positionStepChords > .grid-container {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+#rootStepChords > .grid-container {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+#typeStepChords > .grid-container {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+#chordStep > .grid-container {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
+#noteRangeStep > .grid-container {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
 
 .close-button {
     position: absolute;
