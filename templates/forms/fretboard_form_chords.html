@@ -5,10 +5,10 @@
     <div class="bar3"></div>
 </div>
   
-  <!-- Overlay und Formular-Code wie zuvor -->  
+<!-- Overlay und Formular-Code wie zuvor -->  
 
-    <!-- Overlay Menu Container -->
-    <div id="overlayMenu" class="overlay">
+<!-- Overlay Menu Container -->
+<div id="overlayMenu" class="overlay">
     <!-- Overlay Content -->
     <div class="overlay-content">
         <form id="fretboard_form" action="" method="get" style="text-align: center;">
@@ -58,9 +58,13 @@
             </div>
             <div class="sfbsfnr">
                 <select name="note_range" id="note_range">
-                    <option value="{{ first_range_option }}">{{ first_range_option }}</option>
+                    <option value="{{ first_range_option }}" {% if first_range_option == selected_range %} class="active" {% endif %}>{{ first_range_option }}</option>
                     {% for option in range_options %}
+                    {% if option.range == selected_range %}
+                    <option value="{{ option.range }}" class="active" selected>{{ option.range }}</option>
+                    {% else %}
                     <option value="{{ option.range }}">{{ option.range }}</option>
+                    {% endif %}
                     {% endfor %}
                 </select>
             </div>
@@ -72,7 +76,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <button id="show_tension_button" type="button" onclick=show_tension_notes_chords() style="width: 8em;">Show Tensions</button>
+            <button id="show_tension_button" type="button" onclick="show_tension_notes_chords()" style="width: 8em;">Show Tensions</button>
         </form>
     </div>
 </div>
