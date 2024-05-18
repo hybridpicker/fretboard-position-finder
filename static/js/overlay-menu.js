@@ -16,6 +16,14 @@ document.addEventListener("DOMContentLoaded", function() {
     const backToInitialFromType = document.getElementById('backToInitialFromType');
     const backToInitialFromPosition = document.getElementById('backToInitialFromPosition');
 
+    // Default URL parameters
+    let urlParams = {
+        models_select: '1',
+        root: '4',
+        notes_options_select: '1',
+        position_select: '0'
+    };
+
     // Ensure the overlay menu is hidden initially
     overlayMenu.style.display = 'none';
 
@@ -65,25 +73,30 @@ document.addEventListener("DOMContentLoaded", function() {
             const step = this.closest('.step').id;
 
             if (step === 'rootStep') {
-                submitForm('root', value);
+                urlParams.root = value;
+                submitForm();
             } else if (step === 'typeStep') {
-                submitForm('models_select', value);
+                urlParams.notes_options_select = value;
+                submitForm();
             } else if (step === 'positionStep') {
-                submitForm('position_select', value);
+                urlParams.position_select = value;
+                submitForm();
             }
         });
     });
 
-    function submitForm(name, value) {
+    function submitForm() {
         const form = document.createElement('form');
         form.method = 'GET';
-        form.action = ''; // Set the form action URL here
+        form.action = '';
 
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
+        for (const key in urlParams) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = urlParams[key];
+            form.appendChild(input);
+        }
 
         document.body.appendChild(form);
         form.submit();

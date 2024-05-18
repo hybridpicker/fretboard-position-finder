@@ -1,4 +1,8 @@
 /* overlay-menu-chords.css */
+body {
+    font-family: 'Dosis', sans-serif;
+}
+
 .overlay-icon {
     width: 33px;
     height: 33px;
@@ -24,19 +28,40 @@
 
 .overlay-content {
     background: white;
-    padding: 20px;
+    padding: 40px;
     border-radius: 8px;
     max-width: 90%;
-    max-height: 90%;
+    max-height: 80%;
     overflow: auto;
+    position: relative;
 }
 
 .step {
-    display: none;
+    display: none !important;
 }
 
-#initialStepChords.active, #rootStepChords.active, #typeStepChords.active, #chordStep.active, #noteRangeStep.active, #positionStepChords.active {
+.step.active {
     display: block !important;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 10px 5px;
+    font-size: 16px;
+    border: none;
+    background-color: #232323;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #444444;
 }
 
 .grid-container {
@@ -44,6 +69,7 @@
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: 10px;
     padding: 10px;
+    margin-bottom: 20px;
 }
 
 .grid-item {
@@ -53,19 +79,26 @@
     cursor: pointer;
     border: 1px solid #ccc;
     border-radius: 8px;
+    font-size: 16px;
+    min-width: 80px;
+    max-width: 120px;
+    word-wrap: break-word;
 }
 
 .grid-item:hover {
     background-color: #ddd;
 }
 
-#closeOverlayChords, #selectRootNoteChords, #selectTypeChords, #selectChord, #selectNoteRange, #selectPositionChords, #backToInitialFromRootChords, #backToInitialFromTypeChords, #backToInitialFromChord, #backToInitialFromNoteRange, #backToInitialFromPositionChords {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background: #232323;
-    color: white;
-    border: none;
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 30px;
+    font-weight: bold;
+    color: #232323;
     cursor: pointer;
+    background: none;
+    border: none;
 }
 
 #overlayToggleChords {
