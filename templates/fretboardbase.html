@@ -8,8 +8,14 @@
   <link rel="stylesheet" href="{% static 'css/fretboard.css' %}" type="text/css" media="screen">
   <link rel="stylesheet" href="{% static 'css/form.css' %}" type="text/css" media="screen">
   <link rel="stylesheet" href="{% static 'css/sidebar.css' %}" type="text/css" media="screen">
-  <link rel="stylesheet" href="{% static 'css/overlay-menu.css' %}" type="text/css" media="screen">
   <link rel="stylesheet" href="{% static 'css/info-icon.css' %}" type="text/css" media="screen">
+
+  {% if chord_options %}
+    <link rel="stylesheet" href="{% static 'css/overlay-menu-chords.css' %}">
+  {% else %}
+    <link rel="stylesheet" href="{% static 'css/overlay-menu.css' %}">
+  {% endif %}
+
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
@@ -55,7 +61,12 @@
 </head>
 <body>
   {% include "sidebar/sidebar.html" %}
-  {% include "overlay-menu/overlay-menu.html" %}
+  {% if chord_options %}
+    {% include "overlay-menu/overlay-menu-chords.html" %}
+  {% else %}
+    {% include "overlay-menu/overlay-menu.html" %}
+  {% endif %}
+
   <!-- Info Icon -->
   <div id="infoToggle">
     <img src="{% static 'media/svg/info-icon.svg' %}" alt="Info Icon" class="info-icon">
@@ -63,8 +74,13 @@
 
   <!-- Script for Menu -->
   <script src="{% static 'js/sidebar.js' %}"></script>
-  <script src="{% static 'js/overlay-menu.js' %}"></script>
   <script src="{% static 'js/info-icon.js' %}"></script>
+
+  {% if chord_options %}
+  <script src="{% static 'js/overlay-menu-chords.js' %}"></script>
+  {% else %}
+  <script src="{% static 'js/overlay-menu.js' %}"></script>
+  {% endif %}
   <div class="mbs">
     {% block heading %}
     {% endblock %}
