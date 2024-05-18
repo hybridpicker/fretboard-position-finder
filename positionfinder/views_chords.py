@@ -116,7 +116,7 @@ def fretboard_chords_view(request):
         "chord": selected_note_option.chord_name,
         "type": selected_note_option.type_name,
         "root": root,
-        "note_range": range 
+        "note_range": range
     }
 
     # Creating for every String Range available Inversions #
