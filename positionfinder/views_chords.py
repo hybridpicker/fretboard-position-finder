@@ -16,14 +16,13 @@ from .get_position_dict_chords import get_position_dict
 
 from positionfinder.views_helpers import get_menu_options
 
-
 '''
 Main View
 '''
-def fretboard_chords_view (request):
+def fretboard_chords_view(request):
     ''' Select which notes '''
     category = NotesCategory.objects.all()
-    menu_options = get_menu_options() 
+    menu_options = get_menu_options()
     '''
     Template Variables
     '''
@@ -33,9 +32,10 @@ def fretboard_chords_view (request):
     root_id = 1
     notes_options_id = ChordNotes.objects.all().first().id
     tonal_root = 0
-    range = 'e - d'
+    range = 'e - g'
     chord_select_name = 'Major 7'
     type_id = 'V2'
+    selected_range = 'e - g'  # Initialisiere selected_range
 
     '''
     Requesting GET form
@@ -60,6 +60,12 @@ def fretboard_chords_view (request):
             chord_select_name = request.GET['chords_options_select']
         except MultiValueDictKeyError:
             chord_select_name = 'Major'
+        try:
+            range = request.GET['note_range']
+            selected_range = range  # Aktualisiere selected_range
+        except MultiValueDictKeyError:
+            range = 'e - g'
+            selected_range = range
 
     '''
     Redirecting to other views if category is clicked
@@ -106,34 +112,39 @@ def fretboard_chords_view (request):
     ## Creating List of available Root Pitches ##
     root = get_root_note(root_pitch, tonal_root, root_id)
     ## Getting Chord Notes in chronological Order as a [list] ##
-    chord_json_data = {"chord": selected_note_option.chord_name,
-                       "type": selected_note_option.type_name,
-                       "root": root}
+    chord_json_data = {
+        "chord": selected_note_option.chord_name,
+        "type": selected_note_option.type_name,
+        "root": root,
+        "note_range": range  # Adding note_range to chord_json_data
+    }
 
     # Creating for every String Range available Inversions #
     position_json_data = {}
     temp_data = {}
     range_data = {}
 
-
     for option in range_options:
         temp_data = {}
         range_data = {}
 
         for position in position_options:
-            position_json_data = {position.inversion_order : [get_position_dict(position.inversion_order,
-                                                                                chord_name,
-                                                                                option.range,
-                                                                                type_name,
-                                                                                root_pitch,
-                                                                                tonal_root,
-                                                                                selected_root_name)]}
+            position_json_data = {
+                position.inversion_order: [
+                    get_position_dict(position.inversion_order,
+                                      chord_name,
+                                      option.range,
+                                      type_name,
+                                      root_pitch,
+                                      tonal_root,
+                                      selected_root_name)
+                ]
+            }
             range_data[position.inversion_order] = position_json_data[position.inversion_order]
 
             temp_data[option.range] = range_data
         chord_json_data[option.range] = range_data
         position_json_data = {}
-
 
     chord_json_data = json.dumps(chord_json_data)
     # notes data
@@ -152,8 +163,10 @@ def fretboard_chords_view (request):
         'chord_options': chord_options,
         'selected_type': type_id,
         'first_range_option': first_range_option,
-        }
-    
+        'note_range': range,  # Adding note_range to the context
+        'selected_range': selected_range  # Add selected_range to the context
+    }
+
     context.update(menu_options)
 
     return render(request, 'fretboard.html', context)
