@@ -1,34 +1,3 @@
-    /* Hamburger Icon Style */
-    #hamburgerIcon {
-        display: none;
-        cursor: pointer;
-        z-index: 100; 
-        position: fixed; /* Stay in place */
-        top: 1rem;
-        left: 5rem;
-    }
-
-    .bar1,
-    .bar2,
-    .bar3 {
-        width: 35px; /* Width of the lines */
-        height: 5px; /* Height of the lines */
-        background-color: #333; /* Color of the lines */
-        margin: 6px 0; /* Spacing between the lines */
-        transition: 0.4s; /* Animation */
-    }
-    .change .bar1 {
-        transform: rotate(-45deg) translate(-9px, 6px);
-      }
-      
-      .change .bar2 {
-        opacity: 0;
-      }
-      
-      .change .bar3 {
-        transform: rotate(45deg) translate(-8px, -8px);
-      }
-      
 
     /* Overlay style */
     .overlay {
@@ -52,34 +21,7 @@
         color: #fff;
         cursor: pointer;
     }
-
-    /* Style for the overlay content */
-    .overlay-content {
-        position: relative;
-        top: 10%; /* Distance from the top */
-        width: 100%; /* Full width */
-        text-align: center;
-    }
-
-    /* Form Styling */
-    @media only screen and (max-width: 936px) {
-        #catsfbsf {
-            width: 9rem;
-            margin-top: 0.8em;
-            margin-bottom: 0.8em;
-        }
-        .sfbsf,
-        .sfbsfnr,
-        .sfbsfpos,
-        .sfbsfnos {
-            width: 9rem;
-            margin-top: 0.8em;
-            margin-bottom: 0.8em;
-        }
-        form#fretboard_form > div{
-            width: 90vw;
-        }
-    }
+  
     .analysis_container {
         display: none;
         font-size: 19px;

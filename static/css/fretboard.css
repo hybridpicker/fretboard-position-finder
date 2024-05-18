@@ -72,8 +72,15 @@ a .active {
 #formselect{
   text-align: center;
 }
-h1 {
+h1, h2, h3 {
   text-align: center;
+  font-weight: normal;
+  font-size: 16pt;
+}
+p {
+  font-size: 14pt;
+  font-weight: lighter;
+  font-style: normal;
 }
 .note_name{
   position: absolute;

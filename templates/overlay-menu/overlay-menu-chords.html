@@ -6,7 +6,6 @@
 <div id="overlayMenuChords" class="overlay-menu">
     <div class="overlay-content">
         <div id="initialStepChords" class="step">
-            <h2>What do you want to select?</h2>
             <button id="selectRootNoteChords">Root Note</button>
             <button id="selectTypeChords">Type</button>
             <button id="selectChord">Chord</button>
@@ -26,7 +25,7 @@
             <h2>Select Type</h2>
             <div class="grid-container">
                 {% for option in type_options %}
-                <div class="grid-item" data-value="{{ option }}">{{ option }}</div>
+                <div class="grid-item" data-value="{{ option|urlencode }}">{{ option }}</div>
                 {% endfor %}
             </div>
             <button id="backToInitialFromTypeChords">Back</button>
@@ -35,7 +34,7 @@
             <h2>Select Chord</h2>
             <div class="grid-container">
                 {% for option in chord_options %}
-                <div class="grid-item" data-value="{{ option }}">{{ option }}</div>
+                <div class="grid-item" data-value="{{ option|urlencode }}">{{ option }}</div>
                 {% endfor %}
             </div>
             <button id="backToInitialFromChord">Back</button>
@@ -44,7 +43,7 @@
             <h2>Select Note Range</h2>
             <div class="grid-container">
                 {% for option in range_options %}
-                <div class="grid-item" data-value="{{ option.range }}">{{ option.range }}</div>
+                <div class="grid-item" data-value="{{ option.range|urlencode }}">{{ option.range }}</div>
                 {% endfor %}
             </div>
             <button id="backToInitialFromNoteRange">Back</button>
@@ -54,7 +53,7 @@
             <div class="grid-container">
                 <div class="grid-item" data-value="Basic Position">Basic Position</div>
                 {% for option in position_options %}
-                <div class="grid-item" data-value="{{ option.inversion_order }}">{{ option.inversion_order }}</div>
+                <div class="grid-item" data-value="{{ option.inversion_order|urlencode }}">{{ option.inversion_order }}</div>
                 {% endfor %}
             </div>
             <button id="backToInitialFromPositionChords">Back</button>

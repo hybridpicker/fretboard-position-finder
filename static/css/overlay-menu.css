@@ -28,7 +28,7 @@ body {
 
 .overlay-content {
     background: white;
-    padding: 40px;
+    padding: 10rem;
     border-radius: 8px;
     max-width: 90%;
     max-height: 80%;
@@ -41,7 +41,7 @@ body {
 }
 
 .step.active {
-    display: block !important;
+    display: grid !important;
 }
 
 h2 {
@@ -54,14 +54,14 @@ button {
     margin: 10px 5px;
     font-size: 16px;
     border: none;
-    background-color: #232323;
-    color: white;
+    background-color: white;
+    color: #1D262A;
     cursor: pointer;
     border-radius: 4px;
 }
 
 button:hover {
-    background-color: #444444;
+    color: #FF6F5A;
 }
 
 .grid-container {
@@ -89,6 +89,21 @@ button:hover {
     background-color: #ddd;
 }
 
+#positionStep > .grid-container{
+    grid-template-columns: repeat(3, 1fr);
+}
+
+#rootStep > .grid-container{
+    grid-template-columns: repeat(4, 1fr);
+}
+
+#typeStep > .grid-container{
+    grid-template-columns: repeat(4, 1fr);
+}
+
+#initialStep > button{
+    font-size: 16pt;
+}
 .close-button {
     position: absolute;
     top: 10px;
