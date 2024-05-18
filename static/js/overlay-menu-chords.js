@@ -100,29 +100,37 @@ document.addEventListener("DOMContentLoaded", function() {
             const value = this.getAttribute('data-value');
             const step = this.closest('.step').id;
 
+            // Log the current URL parameters
+            console.log('Current URL parameters:', JSON.stringify(urlParams));
+
             if (step === 'rootStepChords') {
+                console.log('Changing root to:', value);
                 urlParams.root = value;
             } else if (step === 'typeStepChords') {
+                console.log('Changing type_options_select to:', value);
                 urlParams.type_options_select = value;
             } else if (step === 'chordStep') {
+                console.log('Changing chords_options_select to:', value);
                 urlParams.chords_options_select = value;
             } else if (step === 'noteRangeStep') {
+                console.log('Changing note_range to:', value);
                 urlParams.note_range = value;
             } else if (step === 'positionStepChords') {
+                console.log('Changing position_select to:', value);
                 urlParams.position_select = value;
             }
+
+            // Log the new URL parameters before submitting
+            console.log('New URL parameters:', JSON.stringify(urlParams));
 
             submitFormChords();
         });
     });
 
     function submitFormChords() {
-        const form = document.createElement('form');
-        form.method = 'GET';
-        form.action = '';
-
         const queryParams = new URLSearchParams(urlParams).toString();
-        window.location.href = form.action + '?' + queryParams;
+        console.log('Submitting form with URL:', '?' + queryParams);
+        window.location.href = '?' + queryParams;
     }
 
     function resetStepsChords() {
