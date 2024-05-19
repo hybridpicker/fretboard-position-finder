@@ -5,15 +5,15 @@
   <meta charset="UTF-8">
   <title>Guitar Positions</title>
   <!-- CSS files -->
-  <link rel="stylesheet" href="{% static 'css/fretboard.css' %}" type="text/css" media="screen">
-  <link rel="stylesheet" href="{% static 'css/form.css' %}" type="text/css" media="screen">
-  <link rel="stylesheet" href="{% static 'css/sidebar.css' %}" type="text/css" media="screen">
-  <link rel="stylesheet" href="{% static 'css/info-icon.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'v2/css/fretboard.2.0.0.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'v2/css/form.2.0.0.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'v2/css/sidebar.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'v2/css/info-icon.css' %}" type="text/css" media="screen">
 
   {% if chord_options %}
-    <link rel="stylesheet" href="{% static 'css/overlay-menu-chords.css' %}">
+    <link rel="stylesheet" href="{% static 'v2/css/overlay-menu-chords.css' %}">
   {% else %}
-    <link rel="stylesheet" href="{% static 'css/overlay-menu.css' %}">
+    <link rel="stylesheet" href="{% static 'v2/css/overlay-menu.css' %}">
   {% endif %}
 
   <!-- Google Font -->
@@ -30,7 +30,7 @@
   </script>
   {% endif %}
 
-  <script src="{% static '/js/base.js' %}"></script>
+  <script src="{% static '/v2/js/base.js' %}"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
   <meta name="title" content="Fretboard-Position-Finder">
@@ -48,9 +48,9 @@
   <meta name="twitter:card" content="summary_large_image">
 
   {% if chord_options %}
-    <script src="{% static 'js/base_chords.js' %}"></script>
+    <script src="{% static 'v2/js/base_chords.js' %}"></script>
   {% else %}
-    <script src="{% static 'js/base_scales.js' %}"></script>
+    <script src="{% static 'v2/js/base_scales.js' %}"></script>
   {% endif %}
 
   {% block head %}
@@ -70,13 +70,13 @@
   </div>
 
   <!-- Script for Menu -->
-  <script src="{% static 'js/sidebar.js' %}"></script>
-  <script src="{% static 'js/info-icon.js' %}"></script>
+  <script src="{% static 'v2/js/sidebar.js' %}"></script>
+  <script src="{% static 'v2/js/info-icon.js' %}"></script>
 
   {% if chord_options %}
-  <script src="{% static 'js/overlay-menu-chords.js' %}"></script>
+  <script src="{% static 'v2/js/overlay-menu-chords.js' %}"></script>
   {% else %}
-  <script src="{% static 'js/overlay-menu.js' %}"></script>
+  <script src="{% static 'v2/js/overlay-menu.js' %}"></script>
   {% endif %}
   <div class="mbs">
     {% block heading %}
@@ -101,9 +101,9 @@
 
   {% if chord_options %}
     <!-- Fretboard Form Script -->
-    <script src="{% static 'js/fretboard_chords.js' %}"></script>
+    <script src="{% static 'v2/js/fretboard_chords.js' %}"></script>
   {% else %}
-    <script src="{% static 'js/fretboard_scales.js' %}"></script>
+    <script src="{% static 'v2/js/fretboard_scales.js' %}"></script>
   {% endif %}
   {% block footer %}
   {% endblock %}
