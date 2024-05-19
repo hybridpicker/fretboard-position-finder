@@ -15,12 +15,14 @@ def get_menu_options():
     # Retrieve notes based on the categories
     scales = Notes.objects.filter(category=scales_category).values('id', 'note_name')
     arpeggios = Notes.objects.filter(category=arpeggios_category).values('id', 'note_name')
-    chords = ChordNotes.objects.filter(category=chords_category).values('id', 'type_name', 'chord_name', 'range')
+    chords = ChordNotes.objects.filter(category=chords_category).values('id', 'type_name')
+    
+    # Remove duplicates from chords
+    unique_chords = list({chord['type_name']: chord for chord in chords}.values())
 
     # Return the menu options
     return {
         'scales_options': list(scales),
         'arpeggios_options': list(arpeggios),
-        'chords_options': list(chords),
+        'chords_options': unique_chords,
     }
-
