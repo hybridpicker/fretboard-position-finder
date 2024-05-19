@@ -5,9 +5,9 @@
   <meta charset="UTF-8">
   <title>Guitar Positions</title>
   <!-- CSS fretboard -->
-  <link rel="stylesheet" href="{% static 'css/fretboard.css' %}" type="text/css" media="screen">
-  <link rel="stylesheet" href="{% static 'css/form.css' %}" type="text/css" media="screen">
-  <link rel="stylesheet" href="{% static 'css/sidebar.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'v2/css/fretboard.2.0.0.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'v2/css/form.2.0.0.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'v2/css/sidebar.css' %}" type="text/css" media="screen">
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
@@ -22,7 +22,7 @@
   </script>
   {% endif %}
 
-  <script src="{% static '/js/base.js' %}"></script>
+  <script src="{% static '/v2/js/base.js' %}"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
   <meta name="title" content="Fretboard-Position-Finder">
@@ -40,12 +40,12 @@
   <meta name="twitter:card" content="summary_large_image">
 
   <!--- JS Scripts -->
-  <script src="{% static 'js/form.js' %}"></script>
+  <script src="{% static 'v2/js/form.js' %}"></script>
 
   {% if chord_options %}
-    <script src="{% static 'js/base_chords.js' %}"></script>
+    <script src="{% static 'v2/js/base_chords.js' %}"></script>
   {% else %}
-    <script src="{% static 'js/base_scales.js' %}"></script>
+    <script src="{% static 'v2/js/base_scales.js' %}"></script>
   {% endif %}
 
   {% block head %}
@@ -56,8 +56,8 @@
   {% include "overlay-menu/overlay-menu.html" %}
 
   <!-- Script for Menu -->
-  <script src="{% static 'js/sidebar.js' %}"></script>
-  <script src="{% static 'js/overlay-menu.js' %}"></script> 
+  <script src="{% static 'v2/js/sidebar.js' %}"></script>
+  <script src="{% static 'v2/js/overlay-menu.js' %}"></script> 
 
   <div class="mbs">
     {% block heading %}
@@ -82,9 +82,9 @@
 
   {% if chord_options %}
     <!-- Fretboard Form Script -->
-    <script src="{% static 'js/fretboard_chords.js' %}"></script>
+    <script src="{% static 'v2/js/fretboard_chords.js' %}"></script>
   {% else %}
-    <script src="{% static 'js/fretboard_scales.js' %}"></script>
+    <script src="{% static 'v2/js/fretboard_scales.js' %}"></script>
   {% endif %}
   {% block footer %}
   {% endblock %}

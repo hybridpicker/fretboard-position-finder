@@ -14,7 +14,9 @@
                 {{ option.note_name }}
               </a>
             </li>
-            {% endfor %}
+            {% empty %}
+              <li>No scales available</li>
+            {% endfor %}            
           </ul>
         </div>
       </div>
