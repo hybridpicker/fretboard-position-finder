@@ -22,14 +22,21 @@ document.addEventListener("DOMContentLoaded", function() {
     const backToInitialFromNoteRange = document.getElementById('backToInitialFromNoteRange');
     const backToInitialFromPositionChords = document.getElementById('backToInitialFromPositionChords');
 
+    // Function to get URL parameter value
+    function getUrlParam(paramName, defaultValue) {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get(paramName) || defaultValue;
+    }
+
     // Default URL parameters
     let urlParams = {
-        models_select: '3',
-        root: '6',
-        type_options_select: 'Triads',
-        chords_options_select: 'Major',
-        note_range: 'e - g',
-        position_select: 'Basic Position'
+        models_select: getUrlParam('models_select', '3'),
+        root: getUrlParam('root', '1'),
+        type_options_select: getUrlParam('type_options_select', 'Triads'),
+        chords_options_select: getUrlParam('chords_options_select', 'Major'),
+        note_range: getUrlParam('note_range', 'e - g'),
+        position_select: getUrlParam('position_select', 'Basic Position')
     };
 
     // Ensure the overlay menu is hidden initially
@@ -100,28 +107,18 @@ document.addEventListener("DOMContentLoaded", function() {
             const value = this.getAttribute('data-value');
             const step = this.closest('.step').id;
 
-            // Log the current URL parameters
-            console.log('Current URL parameters:', JSON.stringify(urlParams));
-
+            // Update URL parameters based on the step
             if (step === 'rootStepChords') {
-                console.log('Changing root to:', value);
                 urlParams.root = value;
             } else if (step === 'typeStepChords') {
-                console.log('Changing type_options_select to:', value);
                 urlParams.type_options_select = value;
             } else if (step === 'chordStep') {
-                console.log('Changing chords_options_select to:', value);
                 urlParams.chords_options_select = value;
             } else if (step === 'noteRangeStep') {
-                console.log('Changing note_range to:', value);
                 urlParams.note_range = value;
             } else if (step === 'positionStepChords') {
-                console.log('Changing position_select to:', value);
                 urlParams.position_select = value;
             }
-
-            // Log the new URL parameters before submitting
-            console.log('New URL parameters:', JSON.stringify(urlParams));
 
             submitFormChords();
         });
@@ -129,7 +126,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function submitFormChords() {
         const queryParams = new URLSearchParams(urlParams).toString();
-        console.log('Submitting form with URL:', '?' + queryParams);
         window.location.href = '?' + queryParams;
     }
 
