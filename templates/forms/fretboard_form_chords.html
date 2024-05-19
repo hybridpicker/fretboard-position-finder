@@ -4,8 +4,6 @@
     <div class="bar2"></div>
     <div class="bar3"></div>
 </div>
-  
-<!-- Overlay und Formular-Code wie zuvor -->  
 
 <!-- Overlay Menu Container -->
 <div id="overlayMenu" class="overlay">
@@ -14,7 +12,9 @@
         <form id="fretboard_form" action="" method="get" style="text-align: center;">
             <div class="sfbsf" id="catsfbsf">
                 <select name="models_select" id="models_select">
-                    <option value="1" id="cat1">{{ category|first }}</option>
+                    {% with first_category=category|first %}
+                    <option value="{{ first_category.id }}" id="cat1">{{ first_category.category_name }}</option>
+                    {% endwith %}
                     {% for category_option in category %}
                     {% if selected_category == category_option.id %}
                     <option value="{{ category_option.id }}" id="cat{{ category_option.id }}" selected>{{ category_option.category_name }}</option>
@@ -34,7 +34,9 @@
             </div>
             <div class="sfbsf">
                 <select name="type_options_select" id="type_options_select">
-                    <option value="{{ type_options|first }}">{{ type_options|first }}</option>
+                    {% with first_type_option=type_options|first %}
+                    <option value="{{ first_type_option }}">{{ first_type_option }}</option>
+                    {% endwith %}
                     {% for option in type_options %}
                     {% if selected_type == option %}
                     <option value="{{ option }}" selected>{{ option }}</option>
@@ -46,7 +48,9 @@
             </div>
             <div class="sfbsf">
                 <select name="chords_options_select" id="chords_options_select">
-                    <option value="{{ chord_options|first }}">{{ chord_options|first }}</option>
+                    {% with first_chord_option=chord_options|first %}
+                    <option value="{{ first_chord_option }}">{{ first_chord_option }}</option>
+                    {% endwith %}
                     {% for option in chord_options %}
                     {% if selected_chord == option %}
                     <option value="{{ option }}" selected>{{ option }}</option>
