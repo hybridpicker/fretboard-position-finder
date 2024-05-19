@@ -22,28 +22,47 @@ document.addEventListener("DOMContentLoaded", function() {
     const backToInitialFromNoteRange = document.getElementById('backToInitialFromNoteRange');
     const backToInitialFromPositionChords = document.getElementById('backToInitialFromPositionChords');
 
-    // Function to get URL parameter value
     function getUrlParam(paramName, defaultValue) {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         return urlParams.get(paramName) || defaultValue;
     }
 
-    // Default URL parameters
-    let urlParams = {
-        models_select: getUrlParam('models_select', '3'),
-        root: getUrlParam('root', '1'),
-        type_options_select: getUrlParam('type_options_select', 'Triads'),
-        chords_options_select: getUrlParam('chords_options_select', 'Major'),
-        note_range: getUrlParam('note_range', 'e - g'),
-        position_select: getUrlParam('position_select', 'Basic Position')
-    };
+    function setFormValuesFromParams() {
+        const params = new URLSearchParams(window.location.search);
+
+        const modelsSelect = document.getElementById('models_select');
+        const rootSelect = document.getElementById('root');
+        const typeOptionsSelect = document.getElementById('type_options_select');
+        const chordsOptionsSelect = document.getElementById('chords_options_select');
+        const noteRangeSelect = document.getElementById('note_range');
+        const positionSelect = document.getElementById('position_select');
+
+        const modelsValue = params.get('models_select') || '3';
+        const rootValue = params.get('root') || '1';
+        const typeOptionsValue = params.get('type_options_select') || 'Triads';
+        const chordsOptionsValue = params.get('chords_options_select') || 'Major';
+        const noteRangeValue = params.get('note_range') || 'e - g';
+        const positionValue = params.get('position_select') || 'Basic Position';
+
+        if (modelsSelect) modelsSelect.value = modelsValue;
+        if (rootSelect) rootSelect.value = rootValue;
+        if (typeOptionsSelect) typeOptionsSelect.value = typeOptionsValue;
+        if (chordsOptionsSelect) chordsOptionsSelect.value = chordsOptionsValue;
+        if (noteRangeSelect) noteRangeSelect.value = noteRangeValue;
+        if (positionSelect) positionSelect.value = positionValue;
+    }
+
+    // Call the function to initialize the form values
+    setFormValuesFromParams();
 
     // Ensure the overlay menu is hidden initially
     overlayMenuChords.style.display = 'none';
 
+    // Event listeners to show/hide overlay and navigate steps
     overlayToggleChords.addEventListener('click', function() {
         overlayMenuChords.style.display = 'flex';
+        initialStepChords.style.display = 'block';
         initialStepChords.classList.add('active');
     });
 
@@ -53,61 +72,61 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     selectRootNoteChords.addEventListener('click', function() {
-        initialStepChords.classList.remove('active');
-        rootStepChords.classList.add('active');
+        initialStepChords.style.display = 'none';
+        rootStepChords.style.display = 'block';
     });
 
     selectTypeChords.addEventListener('click', function() {
-        initialStepChords.classList.remove('active');
-        typeStepChords.classList.add('active');
+        initialStepChords.style.display = 'none';
+        typeStepChords.style.display = 'block';
     });
 
     selectChord.addEventListener('click', function() {
-        initialStepChords.classList.remove('active');
-        chordStep.classList.add('active');
+        initialStepChords.style.display = 'none';
+        chordStep.style.display = 'block';
     });
 
     selectNoteRange.addEventListener('click', function() {
-        initialStepChords.classList.remove('active');
-        noteRangeStep.classList.add('active');
+        initialStepChords.style.display = 'none';
+        noteRangeStep.style.display = 'block';
     });
 
     selectPositionChords.addEventListener('click', function() {
-        initialStepChords.classList.remove('active');
-        positionStepChords.classList.add('active');
+        initialStepChords.style.display = 'none';
+        positionStepChords.style.display = 'block';
     });
 
     backToInitialFromRootChords.addEventListener('click', function() {
-        rootStepChords.classList.remove('active');
-        initialStepChords.classList.add('active');
+        rootStepChords.style.display = 'none';
+        initialStepChords.style.display = 'block';
     });
 
     backToInitialFromTypeChords.addEventListener('click', function() {
-        typeStepChords.classList.remove('active');
-        initialStepChords.classList.add('active');
+        typeStepChords.style.display = 'none';
+        initialStepChords.style.display = 'block';
     });
 
     backToInitialFromChord.addEventListener('click', function() {
-        chordStep.classList.remove('active');
-        initialStepChords.classList.add('active');
+        chordStep.style.display = 'none';
+        initialStepChords.style.display = 'block';
     });
 
     backToInitialFromNoteRange.addEventListener('click', function() {
-        noteRangeStep.classList.remove('active');
-        initialStepChords.classList.add('active');
+        noteRangeStep.style.display = 'none';
+        initialStepChords.style.display = 'block';
     });
 
     backToInitialFromPositionChords.addEventListener('click', function() {
-        positionStepChords.classList.remove('active');
-        initialStepChords.classList.add('active');
+        positionStepChords.style.display = 'none';
+        initialStepChords.style.display = 'block';
     });
 
+    // Event listeners for grid items
     document.querySelectorAll('.grid-item').forEach(item => {
         item.addEventListener('click', function() {
             const value = this.getAttribute('data-value');
             const step = this.closest('.step').id;
 
-            // Update URL parameters based on the step
             if (step === 'rootStepChords') {
                 urlParams.root = value;
             } else if (step === 'typeStepChords') {
@@ -131,14 +150,24 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function resetStepsChords() {
         initialStepChords.classList.remove('active');
+        initialStepChords.style.display = 'block';
+
         rootStepChords.classList.remove('active');
+        rootStepChords.style.display = 'none';
+
         typeStepChords.classList.remove('active');
+        typeStepChords.style.display = 'none';
+
         chordStep.classList.remove('active');
+        chordStep.style.display = 'none';
+
         noteRangeStep.classList.remove('active');
+        noteRangeStep.style.display = 'none';
+
         positionStepChords.classList.remove('active');
+        positionStepChords.style.display = 'none';
     }
 
-    // Optional: Close overlay when clicking outside the content
     overlayMenuChords.addEventListener('click', function(event) {
         if (event.target === overlayMenuChords) {
             overlayMenuChords.style.display = 'none';
