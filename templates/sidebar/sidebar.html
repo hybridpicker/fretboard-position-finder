@@ -40,8 +40,8 @@
           <ul>
             {% for option in chords_options %}
             <li>
-              <a href="/chords?models_select=3&root=1&type_options_select={{ option.type_name|urlencode }}&chords_options_select={{ option.chord_name|urlencode }}&note_range={{ option.range|urlencode }}"">
-                {{ option.type_name }} - {{ option.chord_name }} ({{ option.range }})
+              <a href="/chords?models_select=3&root=1&type_options_select={{ option.type_name|urlencode }}">
+                {{ option.type_name }}
               </a>
             </li>
             {% endfor %}
