@@ -24,7 +24,7 @@
   
     .analysis_container {
         display: none;
-        font-size: 19px;
+        font-size: 14pt;
         padding-bottom: 1%;
     }
     @media only screen and (max-width: 1050px) {
@@ -34,7 +34,7 @@
     }
     form button {
         font-family: 'Dosis', sans-serif;
-        font-size: 18px;
+        font-size: 14pt;
         box-shadow: 0 4px #791006;
         width: 20%;
         height: 50px;
@@ -76,7 +76,7 @@
   .sfbsf, .sfbsfnr, .sfbsfpos, .sfbsfnos {
     position: relative;
     font-family: 'Dosis', sans-serif;
-    font-size: 18px;
+    font-size: 14pt;
     font-color: #0F262B;
     display: inline-block;
     width: 12rem;

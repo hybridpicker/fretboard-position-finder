@@ -2,48 +2,59 @@ body {
   font-family: 'Dosis', sans-serif;
   font-size: 14pt;
 }
+
 .fretboard {
   display: grid;
   grid-column-gap: 0 !important;
-  grid-template-columns: repeat(17, auto);
+  grid-template-columns: auto auto auto auto auto auto
+  auto auto auto auto auto auto auto auto auto auto auto;
   background-image: url(/static/media/fretboard_1400.png);
   background-size: contain;
   background-repeat: no-repeat;
   background-position-y: top;
+  padding-top: 10px;
   padding-left: 16px;
   padding-right: 0;
   width: 1400px;
   font-size: 14pt;
 }
+
 #fretboardcontainer {
   width: 1400px;
   margin: auto;
 }
+
 .eString, .bString, .gString {
-  border-top: 2px solid rgb(136, 138, 154);
+  border-top: 2px solid rgb(136,138,154);
 }
+
 .dString, .AString, .ELowString {
-  border-top: 2.5px solid rgb(171, 173, 193);
+  border-top: 2.5px solid rgb(171,173,193);
 }
+
 .fret .note {
   color: white;
 }
+
 .fret.one {
   padding-left: 0;
   padding-right: 0;
 }
+
 .fret.one.laststring {
   border-left: 0px;
 }
+
 .laststring {
   border-right: 0px;
-  height: 10px !important; /* Set height to 10px */
 }
+
 .note {
   position: absolute;
   left: -15px;
   top: 0;
 }
+
 .notename, .tensionname {
   position: absolute;
   top: 50%;
@@ -52,52 +63,63 @@ body {
   visibility: hidden;
   opacity: 0.85;
 }
+
 .note > .tone {
   visibility: hidden;
   vertical-align: middle;
   max-height: 25px;
   max-width: 25px;
 }
+
 .active {
   visibility: unset !important;
 }
+
 a .active {
   cursor: pointer;
 }
+
 #fretboardcontainer {
   margin-top: 4em;
 }
+
 #formselect {
   text-align: center;
 }
+
 h1, h2, h3 {
   text-align: center;
   font-weight: normal;
   font-size: 16pt;
 }
+
 p {
   font-size: 14pt;
   font-weight: lighter;
   font-style: normal;
 }
+
 .note_name {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
 .fret {
   position: relative;
   text-align: center;
   height: 50px;
   width: 83px;
 }
-.spacing-top {
+
+/* Neues CSS für die 10px Abstandselemente */
+.spacing-top, .spacing-bottom {
   height: 10px;
+  width: 100%;
+  background-color: transparent; /* Falls nötig, eine Farbe für Debugging hinzufügen */
 }
-.spacing-bottom {
-  height: 40px;
-}
+
 @media only screen and (max-width: 360px) {
   .fret {
     height: 42px;
@@ -106,24 +128,28 @@ p {
     width: 860px;
   }
 }
+
 .nofret {
   font-size: 14pt;
   text-align: center;
   color: #1D262A;
   width: 82px;
 }
+
 .note-click {
   position: absolute;
   top: -17px;
 }
+
 .notename, .tensionname {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 }
+
 @media only screen and (max-width: 1430px) {
   .fretboard {
     background-image: url(/static/media/fretboard_1000.png);
@@ -133,40 +159,17 @@ p {
     background-position-y: top;
   }
   .eString, .bString, .gString {
-    border-top: 1.5px solid rgb(136, 138, 154) !important;
+    border-top: 1.5px solid rgb(136,138,154) !important;
   }
   .dString, .AString, .ELowString {
-    border-top: 2px solid rgb(171, 173, 193) !important;
+    border-top: 2px solid rgb(171,173,193) !important;
   }
   #fretboardcontainer {
     width: 1000px;
     margin: auto;
   }
 }
-.fret {
-  position: relative;
-  text-align: center;
-  height: 50px;
-  width: 82px;
-}
-.nofret {
-  font-size: 14pt;
-  text-align: center;
-  color: #1D262A;
-  width: 82px;
-}
-.note-click {
-  position: absolute;
-  top: -17px;
-}
-@media only screen and (max-width: 1430px) {
-  .fret {
-    width: 59.7px;
-  }
-  .nofret {
-    width: 58.8167px;
-  }
-}
+
 @media only screen and (max-width: 1050px) {
   #fretboardcontainer {
     width: 100%;
@@ -180,6 +183,7 @@ p {
   }
   .fretboard {
     width: 100%;
+    background-size: contain;
     margin: auto;
     background-position-y: top;
     padding-left: 13px;
@@ -194,82 +198,91 @@ p {
     padding-top: 2px;
   }
 }
+
 @media only screen and (max-width: 982px) {
   .fretboard {
     background-image: url(/static/media/fretboard_4.png);
   }
 }
+
 @media only screen and (max-width: 945px) {
   .fretboard {
     background-image: url(/static/media/fretboard_3.png);
   }
 }
+
 @media only screen and (max-width: 895px) {
   .fretboard {
-    background-image: url(/static/media/fretboard_5.png);
+    background-image: url(/static/media/fretboard_2.png);
+  }
+  @media only screen and (max-width: 820px) {
+    .fretboard {
+      background-image: url(/static/media/fretboard_1.png);
+    }
   }
 }
-@media only screen and (max-width: 820px) {
-  .fretboard {
-    background-image: url(/static/media/fretboard_1.png);
-  }
-}
+
 @media only screen and (max-width: 780px) {
-  .spacing-top {
-    height: 6px;
-  }
   #fretboardcontainer {
     margin-top: 16px;
   }
   .fretboard {
-    background-image: url(/static/media/fretboard_4.png);
+    background-image: url(/static/media/fretboard_sq.png);
+    background-size: contain;
   }
   .note > .tone {
-    max-height: 20px;
-    max-width: 20px;
+    max-height: 26px;
+    max-width: 26px;
   }
 }
+
 @media only screen and (max-width: 700px) {
   #fretboardcontainer {
     margin-top: 16px;
   }
 }
+
 @media only screen and (max-width: 620px) {
   #fretboardcontainer {
     margin-top: 10px;
   }
 }
+
 @media only screen and (max-width: 550px) {
   #fretboardcontainer {
     margin-top: 16px;
   }
 }
+
 @media only screen and (max-width: 500px) {
   #fretboardcontainer {
     margin-top: 16px;
   }
 }
+
 @media only screen and (max-width: 442px) {
   #fretboardcontainer {
     margin-top: 16px;
     overflow-x: scroll;
     scroll-behavior: smooth;
   }
+  @media only screen and (max-width: 545px) {
+    }
+    .fretboard {
+      background-image: url(/static/media/fretboard_5.png);
+      width: 1000px;
+      padding-left: 14px;
+      margin: auto;
+      background-position-y: top;
+    }
 }
-@media only screen and (max-width: 545px) {
-  .fretboard {
-    background-image: url(/static/media/fretboard_5.png);
-    width: 1000px;
-    padding-left: 14px;
-    margin: auto;
-    background-position-y: top;
-  }
-}
+
 @media only screen and (max-width: 772px) {
   .mbs {
     margin-top: 3rem;
   }
 }
+
 @media only screen and (max-width: 894px) {
   .fretboard {
     width: 100%;
@@ -278,6 +291,7 @@ p {
     height: 42px;
   }
 }
+
 @media only screen and (max-width: 795px) {
   .fretboard {
     width: 100%;
@@ -286,6 +300,7 @@ p {
     height: 38px;
   }
 }
+
 @media only screen and (max-width: 743px) {
   .fretboard {
     width: 100%;
@@ -294,6 +309,7 @@ p {
     height: 34px;
   }
 }
+
 @media only screen and (max-width: 668px) {
   .fretboard {
     width: 668px;
@@ -303,28 +319,35 @@ p {
     height: 34px;
   }
 }
+
 footer a {
   margin-left: 1rem;
 }
+
 footer div {
   text-align: center;
   margin: auto;
 }
+
 #github:hover .st0 {
-  fill: rgb(171, 173, 193);
+  fill: rgb(171,173,193);
 }
+
 .rotate-container {
   margin: auto;
 }
+
 .rotate-container {
   text-align: center;
   position: fixed;
   top: 25%;
   width: 95vw;
 }
+
 .fretboardcontainer {
   position: relative;
 }
+
 .left-cursor,
 .right-cursor {
   position: absolute;
@@ -335,6 +358,7 @@ footer div {
   z-index: 10;
   cursor: pointer;
 }
+
 .left-cursor {
   display: none;
   top: 50%;
@@ -342,6 +366,7 @@ footer div {
   transform: translateY(-50%);
   background-image: url('/static/media/svg/cursor_left.svg');
 }
+
 .right-cursor {
   display: none;
   top: 50%;
@@ -349,6 +374,7 @@ footer div {
   transform: translateY(-50%);
   background-image: url('/static/media/svg/cursor_right.svg');
 }
+
 @media only screen and (max-width: 400px) and (orientation: portrait) {
   .fretboard {
     width: auto;
@@ -378,6 +404,7 @@ footer div {
     padding-top: 2px;
   }
 }
+
 .info-icon {
   width: 33px;
   height: 33px;
@@ -388,7 +415,7 @@ footer div {
   right: 25px;
   z-index: 1;
 }
-/* Sidebar */
+
 #menuToggle {
   position: fixed;
   top: 25px;
@@ -398,18 +425,22 @@ footer div {
   flex-direction: column;
   cursor: pointer;
 }
+
 .menu-icon {
   width: 33px;
   height: 33px;
   margin-bottom: 5px;
   z-index: 1000;
 }
+
 #menuToggle span {
   display: none;
 }
+
 #menuToggle input {
   display: none;
 }
+
 #menu {
   position: fixed;
   top: 0;
@@ -422,21 +453,26 @@ footer div {
   overflow-y: scroll;
   z-index: 10;
 }
+
 #menu a, .dropdown label {
   display: block;
   padding: 15px;
   text-decoration: none;
   color: #232323;
 }
+
 #menu a:hover, .dropdown label:hover {
   background: #f1f1f1;
 }
+
 .dropdown {
   position: relative;
 }
+
 .dropdown-toggle {
   display: none;
 }
+
 .dropdown-menu {
   max-height: 300px;
   overflow-y: auto;
@@ -446,19 +482,23 @@ footer div {
   position: relative;
   width: 100%;
 }
+
 .dropdown-toggle:checked + label + .dropdown-menu {
   display: block;
 }
+
 .dropdown-menu select {
   width: 100%;
   padding: 10px;
   border: none;
   background: transparent;
 }
+
 .dropdown-menu ul {
   list-style-type: none;
   padding-left: 0;
 }
+
 .dropdown-menu ul li {
   padding-left: 0;
 }

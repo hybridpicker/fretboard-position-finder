@@ -5,25 +5,27 @@ body {
 .fretboard {
   display: grid;
   grid-column-gap: 0 !important;
-  grid-template-columns: repeat(17, auto);
+  grid-template-columns: auto auto auto auto auto auto
+  auto auto auto auto auto auto auto auto auto auto auto;
   background-image: url(/static/media/fretboard_1400.png);
   background-size: contain;
   background-repeat: no-repeat;
   background-position-y: top;
+  padding-top: 10px;
   padding-left: 16px;
   padding-right: 0;
   width: 1400px;
   font-size: 14pt;
 }
-#fretboardcontainer {
+#fretboardcontainer{
   width: 1400px;
-  margin: auto;
+  margin:auto;
 }
 .eString, .bString, .gString {
-  border-top: 2px solid rgb(136, 138, 154);
+  border-top: 2px solid rgb(136,138,154);
 }
 .dString, .AString, .ELowString {
-  border-top: 2.5px solid rgb(171, 173, 193);
+  border-top: 2.5px solid rgb(171,173,193);
 }
 .fret .note {
   color: white;
@@ -32,12 +34,12 @@ body {
   padding-left: 0;
   padding-right: 0;
 }
+
 .fret.one.laststring {
   border-left: 0px;
 }
 .laststring {
-  border-right: 0px;
-  height: 10px !important; /* Set height to 10px */
+ border-right: 0px;
 }
 .note {
   position: absolute;
@@ -64,10 +66,10 @@ body {
 a .active {
   cursor: pointer;
 }
-#fretboardcontainer {
+#fretboardcontainer{
   margin-top: 4em;
 }
-#formselect {
+#formselect{
   text-align: center;
 }
 h1, h2, h3 {
@@ -80,7 +82,7 @@ p {
   font-weight: lighter;
   font-style: normal;
 }
-.note_name {
+.note_name{
   position: absolute;
   top: 50%;
   left: 50%;
@@ -90,69 +92,68 @@ p {
   position: relative;
   text-align: center;
   height: 50px;
+  /* IMPORTANT */
   width: 83px;
-}
-.spacing-top {
-  height: 10px;
-}
-.spacing-bottom {
-  height: 40px;
 }
 @media only screen and (max-width: 360px) {
   .fret {
-    height: 42px;
+    height:42px
   }
   .fretboard {
     width: 860px;
   }
 }
-.nofret {
+.nofret{
   font-size: 14pt;
   text-align: center;
   color: #1D262A;
+  /* IMPORTANT */
   width: 82px;
 }
 .note-click {
   position: absolute;
   top: -17px;
 }
-.notename, .tensionname {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+.notename, .tensionname{
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+  supported by Chrome and Opera */
 }
 @media only screen and (max-width: 1430px) {
   .fretboard {
     background-image: url(/static/media/fretboard_1000.png);
     width: 1010px;
     padding-left: 14px;
-    margin: auto;
+    margin:auto;
     background-position-y: top;
   }
   .eString, .bString, .gString {
-    border-top: 1.5px solid rgb(136, 138, 154) !important;
+    border-top: 1.5px solid rgb(136,138,154)!important;
   }
   .dString, .AString, .ELowString {
-    border-top: 2px solid rgb(171, 173, 193) !important;
+    border-top: 2px solid rgb(171,173,193)!important;
   }
-  #fretboardcontainer {
+  #fretboardcontainer{
     width: 1000px;
-    margin: auto;
+    margin:auto;
   }
 }
 .fret {
   position: relative;
   text-align: center;
   height: 50px;
+  /* IMPORTANT */
   width: 82px;
 }
-.nofret {
+.nofret{
   font-size: 14pt;
   text-align: center;
   color: #1D262A;
+  /* IMPORTANT */
   width: 82px;
 }
 .note-click {
@@ -163,23 +164,24 @@ p {
   .fret {
     width: 59.7px;
   }
-  .nofret {
+  .nofret{
     width: 58.8167px;
   }
 }
 @media only screen and (max-width: 1050px) {
-  #fretboardcontainer {
+  #fretboardcontainer{
     width: 100%;
     margin: auto;
   }
   .fret {
     width: 100%;
   }
-  .nofret {
+  .nofret{
     width: 39.2px;
   }
-  .fretboard {
+  .fretboard{
     width: 100%;
+    background-size: contain;
     margin: auto;
     background-position-y: top;
     padding-left: 13px;
@@ -195,75 +197,73 @@ p {
   }
 }
 @media only screen and (max-width: 982px) {
-  .fretboard {
-    background-image: url(/static/media/fretboard_4.png);
+  .fretboard{
+      background-image: url(/static/media/fretboard_4.png);
   }
 }
 @media only screen and (max-width: 945px) {
-  .fretboard {
-    background-image: url(/static/media/fretboard_3.png);
+  .fretboard{
+      background-image: url(/static/media/fretboard_3.png);
   }
 }
 @media only screen and (max-width: 895px) {
-  .fretboard {
-    background-image: url(/static/media/fretboard_5.png);
+  .fretboard{
+      background-image: url(/static/media/fretboard_2.png);
   }
-}
-@media only screen and (max-width: 820px) {
-  .fretboard {
-    background-image: url(/static/media/fretboard_1.png);
-  }
+  @media only screen and (max-width: 820px) {
+    .fretboard{
+        background-image: url(/static/media/fretboard_1.png);
+    }
 }
 @media only screen and (max-width: 780px) {
-  .spacing-top {
-    height: 6px;
-  }
-  #fretboardcontainer {
+  #fretboardcontainer{
     margin-top: 16px;
   }
-  .fretboard {
-    background-image: url(/static/media/fretboard_4.png);
+  .fretboard{
+  background-image: url(/static/media/fretboard_sq.png);
+  background-size: contain;
   }
   .note > .tone {
-    max-height: 20px;
-    max-width: 20px;
+    max-height: 26px;
+    max-width: 26px;
   }
 }
-@media only screen and (max-width: 700px) {
-  #fretboardcontainer {
-    margin-top: 16px;
+  @media only screen and (max-width: 700px) {
+    #fretboardcontainer{
+      margin-top: 16px;
+    }
   }
-}
-@media only screen and (max-width: 620px) {
-  #fretboardcontainer {
-    margin-top: 10px;
+  @media only screen and (max-width: 620px) {
+    #fretboardcontainer{
+      margin-top: 10px;
+    }
   }
-}
-@media only screen and (max-width: 550px) {
-  #fretboardcontainer {
-    margin-top: 16px;
+  @media only screen and (max-width: 550px) {
+    #fretboardcontainer{
+      margin-top: 16px;
+    }
   }
-}
-@media only screen and (max-width: 500px) {
-  #fretboardcontainer {
-    margin-top: 16px;
+  @media only screen and (max-width: 500px) {
+    #fretboardcontainer{
+      margin-top: 16px;
+    }
   }
-}
-@media only screen and (max-width: 442px) {
-  #fretboardcontainer {
-    margin-top: 16px;
-    overflow-x: scroll;
-    scroll-behavior: smooth;
+  @media only screen and (max-width: 442px) {
+    #fretboardcontainer{
+      margin-top: 16px;
+      overflow-x: scroll;
+      scroll-behavior: smooth;
+    }
   }
-}
-@media only screen and (max-width: 545px) {
-  .fretboard {
-    background-image: url(/static/media/fretboard_5.png);
-    width: 1000px;
-    padding-left: 14px;
-    margin: auto;
-    background-position-y: top;
-  }
+  @media only screen and (max-width: 545px) {
+    }
+    .fretboard{
+      background-image: url(/static/media/fretboard_5.png);
+      width: 1000px;
+      padding-left: 14px;
+      margin:auto;
+      background-position-y: top;
+    }
 }
 @media only screen and (max-width: 772px) {
   .mbs {
@@ -275,7 +275,7 @@ p {
     width: 100%;
   }
   .fret {
-    height: 42px;
+    height: 42px
   }
 }
 @media only screen and (max-width: 795px) {
@@ -283,7 +283,7 @@ p {
     width: 100%;
   }
   .fret {
-    height: 38px;
+    height: 38px
   }
 }
 @media only screen and (max-width: 743px) {
@@ -291,7 +291,7 @@ p {
     width: 100%;
   }
   .fret {
-    height: 34px;
+    height: 34px
   }
 }
 @media only screen and (max-width: 668px) {
@@ -300,86 +300,94 @@ p {
     padding-left: 10px;
   }
   .fret {
-    height: 34px;
+    height: 34px
   }
 }
-footer a {
+footer a{
   margin-left: 1rem;
 }
-footer div {
+footer div{
   text-align: center;
   margin: auto;
 }
-#github:hover .st0 {
-  fill: rgb(171, 173, 193);
+#github:hover .st0{
+  fill:rgb(171,173,193);
 }
-.rotate-container {
-  margin: auto;
+.rotate-container{
+  margin:auto;
 }
-.rotate-container {
+.rotate-container{
   text-align: center;
   position: fixed;
   top: 25%;
   width: 95vw;
 }
+
 .fretboardcontainer {
   position: relative;
+  /* andere notwendige Stile für den Container */
 }
+
 .left-cursor,
 .right-cursor {
   position: absolute;
-  width: 11.854px;
-  height: 25.175px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  z-index: 10;
-  cursor: pointer;
+  width: 11.854px; /* Breite des SVG-Cursors */
+  height: 25.175px; /* Höhe des SVG-Cursors */
+  background-size: contain; /* Stellt sicher, dass das Bild vollständig skaliert wird */
+  background-repeat: no-repeat; /* Keine Wiederholung des Bildes */
+  z-index: 10; /* Sicherstellen, dass der Cursor über dem Fretboard liegt */
+  cursor: pointer; /* Ändert den Cursor beim Hover */
 }
+
 .left-cursor {
   display: none;
   top: 50%;
-  left: -22px;
+  left: -22px; /* Position des linken Cursors anpassen */
   transform: translateY(-50%);
-  background-image: url('/static/media/svg/cursor_left.svg');
+  background-image: url('/static/media/svg/cursor_left.svg'); 
 }
+  
+
 .right-cursor {
   display: none;
   top: 50%;
-  right: -50px;
+  right: -50px; /* Position des rechten Cursors anpassen */
   transform: translateY(-50%);
-  background-image: url('/static/media/svg/cursor_right.svg');
+  background-image: url('/static/media/svg/cursor_right.svg'); 
 }
+
 @media only screen and (max-width: 400px) and (orientation: portrait) {
-  .fretboard {
-    width: auto;
-    padding-left: 10px;
-    rotate: 90deg;
-    transform-origin: top;
-    position: absolute;
-    top: 45vh;
-    left: -14vw;
-  }
-  #fretboardcontainer {
-    margin: 0;
-    height: 90vh;
-    max-height: 730px;
-  }
-  .left-cursor {
-    top: 50%;
-    left: 0;
-  }
-  .right-cursor {
-    top: 50%;
-    right: 0;
-  }
-  .note > .tone {
-    max-height: 22px;
-    max-width: 22px;
-    padding-top: 2px;
-  }
+.fretboard {
+  width: auto;
+  padding-left: 10px;
+  rotate: 90deg;
+  transform-origin: top;
+  position: absolute;
+  top: 45vh;
+  left: -14vw;
 }
+#fretboardcontainer{
+  margin: 0;
+  height: 90vh;
+  max-height: 730px;
+}
+.left-cursor {
+  top: 50%;
+  left: 0;
+}
+.right-cursor {
+  top: 50%;
+  right: 0;
+}
+.note > .tone {
+  max-height: 22px;
+  max-width: 22px;
+  padding-top: 2px;
+}
+}
+
 .info-icon {
-  width: 33px;
+  width: 33px; /* Adjust the size of the icon as needed */
   height: 33px;
   cursor: pointer;
   display: inline-block;
@@ -388,6 +396,7 @@ footer div {
   right: 25px;
   z-index: 1;
 }
+
 /* Sidebar */
 #menuToggle {
   position: fixed;
@@ -398,18 +407,22 @@ footer div {
   flex-direction: column;
   cursor: pointer;
 }
+
 .menu-icon {
-  width: 33px;
+  width: 33px; /* Adjust the size of the icon as needed */
   height: 33px;
   margin-bottom: 5px;
   z-index: 1000;
 }
+
 #menuToggle span {
-  display: none;
+  display: none; /* Hide the span elements as we are using the SVG icon */
 }
+
 #menuToggle input {
   display: none;
 }
+
 #menu {
   position: fixed;
   top: 0;
@@ -417,48 +430,58 @@ footer div {
   width: 300px;
   height: 100%;
   background: #ededed;
-  transition: left 0.3s ease-in-out;
+  transition: left 0.3s ease-in-out; /* Change the duration and transition type as needed */
   padding-top: 60px;
   overflow-y: scroll;
   z-index: 10;
 }
+
 #menu a, .dropdown label {
   display: block;
   padding: 15px;
   text-decoration: none;
   color: #232323;
 }
+
 #menu a:hover, .dropdown label:hover {
   background: #f1f1f1;
 }
+
 .dropdown {
   position: relative;
 }
+
 .dropdown-toggle {
   display: none;
 }
+
 .dropdown-menu {
-  max-height: 300px;
-  overflow-y: auto;
+  max-height: 300px; /* Limit the height of the dropdown */
+  overflow-y: auto; /* Scrollbar if the options exceed the height */
   display: none;
   background: #f9f9f9;
   border: 1px solid #ccc;
   position: relative;
-  width: 100%;
+  width: 100%; /* Ensure the dropdown menu takes the full width of the parent */
 }
+
 .dropdown-toggle:checked + label + .dropdown-menu {
   display: block;
 }
+
 .dropdown-menu select {
   width: 100%;
   padding: 10px;
   border: none;
   background: transparent;
 }
+
+/* Remove bullet points from the lists */
 .dropdown-menu ul {
   list-style-type: none;
-  padding-left: 0;
+  padding-left: 0; /* Remove default padding */
 }
+
 .dropdown-menu ul li {
-  padding-left: 0;
+  padding-left: 0; /* Ensure there is no padding in list items */
 }
