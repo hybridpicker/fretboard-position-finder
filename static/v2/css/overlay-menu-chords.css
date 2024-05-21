@@ -44,15 +44,10 @@ body {
     display: grid !important;
 }
 
-h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
 button {
     padding: 10px 20px;
     margin: 10px 5px;
-    font-size: 16px;
+    font-size: 14pt;
     border: none;
     background-color: white;
     color: #1D262A;

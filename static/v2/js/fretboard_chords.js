@@ -11,7 +11,6 @@ window.onload = function() {
     for (var i = 0; i < x.length; i++) {
         var selElmnt = x[i].getElementsByTagName("select")[0];
         if (selElmnt && selElmnt.options && selElmnt.options.length > 0 && selElmnt.selectedIndex >= 0) {
-            console.log("Processing select element:", selElmnt);
             var a = document.createElement("DIV");
             a.setAttribute("class", "sese");
             a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
@@ -53,7 +52,7 @@ window.onload = function() {
                 this.classList.toggle("slar-active");
             });
         } else {
-            console.log("Das <select> Element hat keine Optionen oder keinen gültigen ausgewählten Index: " + (selElmnt ? selElmnt.outerHTML : "undefined"));
+            
         }
     }
 
@@ -85,16 +84,13 @@ function closeAllSelect(elmnt) {
 }
 
 function getTonesFromDataChords(pos_val, note_range) {
-    console.log("Fetching tones for position:", pos_val, "and note range:", note_range);
     resetFretboard();
 
     // Sicherstellen, dass pos_val und note_range existieren, andernfalls Fallback-Werte verwenden
     if (!note_range || !voicing_data[note_range]) {
-        console.log("Note Range: " + note_range + " nicht gefunden. Verwende den ersten möglichen Wert.");
         note_range = Object.keys(voicing_data)[0];
     }
     if (!pos_val || !voicing_data[note_range][pos_val]) {
-        console.log("Position: " + pos_val + " nicht gefunden. Verwende den ersten möglichen Wert.");
         pos_val = Object.keys(voicing_data[note_range])[0];
     }
 
@@ -104,25 +100,21 @@ function getTonesFromDataChords(pos_val, note_range) {
         if (voicing_data[note_range][pos_val][0].hasOwnProperty(key)) {
             var tone = voicing_data[note_range][pos_val][0][key][0];
             var tone_name = voicing_data[note_range][pos_val][0][key][2];
-            console.log("Processing tone:", tone, "with name:", tone_name);
 
             var QuerySelect = document.querySelector('.' + key + ' img.tone.' + tone);
             if (QuerySelect) {
                 QuerySelect.classList.add('active');
             } else {
-                console.log("QuerySelect for tone image not found:", '.' + key + ' img.tone.' + tone);
             }
             QuerySelect = document.querySelector('.' + key + ' .notename.' + tone);
             if (QuerySelect) {
                 QuerySelect.classList.add('active');
             } else {
-                console.log("QuerySelect for notename not found:", '.' + key + ' .notename.' + tone);
             }
             QuerySelect = document.querySelector('.' + key + ' .note.' + tone);
             if (QuerySelect) {
                 QuerySelect.classList.add('active');
             } else {
-                console.log("QuerySelect for note not found:", '.' + key + ' .note.' + tone);
             }
         }
     }
@@ -157,11 +149,9 @@ function show_tension_notes_chords() {
 
     // Sicherstellen, dass pos_val und note_range existieren, andernfalls Fallback-Werte verwenden
     if (!y || !voicing_data[y]) {
-        console.log("Note Range: " + y + " nicht gefunden. Verwende den ersten möglichen Wert.");
         y = Object.keys(voicing_data)[0];
     }
     if (!x || !voicing_data[y][x]) {
-        console.log("Position: " + x + " nicht gefunden. Verwende den ersten möglichen Wert.");
         x = Object.keys(voicing_data[y])[0];
     }
 
@@ -205,7 +195,6 @@ function navBarFretboardChords(class_name) {
     for (i = 0; i < x.length; i++) {
         selElmnt = x[i].getElementsByTagName("select")[0];
         if (selElmnt && selElmnt.options && selElmnt.options.length > 0 && selElmnt.selectedIndex >= 0) {
-            console.log("Processing navBarFretboardChords select element:", selElmnt);
             /* For each element, create a new DIV that will act as the selected item: */
             a = document.createElement("DIV");
             a.setAttribute("class", "sese");
@@ -254,7 +243,6 @@ function navBarFretboardChords(class_name) {
                 this.classList.toggle("slar-active");
             });
         } else {
-            console.log("Das <select> Element hat keine Optionen oder keinen gültigen ausgewählten Index: " + (selElmnt ? selElmnt.outerHTML : "undefined"));
         }
     }
 }

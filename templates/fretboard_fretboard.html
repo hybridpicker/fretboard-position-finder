@@ -1,8 +1,18 @@
 {% load static %}
+{% load custom_tags %}
+
 <div id="fretboardcontainer" class="fretboardcontainer">
   <div class="left-cursor" onclick="leftCursorClick()"></div>
   <div class="right-cursor" onclick="rightCursorClick()"></div>
   <div class="fretboard">
+
+    <!-- Distance for first String -->
+    {% for i in 17|times %}
+      <div class="spacing-top">
+        <div class="fret"></div>
+      </div>
+    {% endfor %}
+
     <!-- e-String -->
     <div class="fret one eString">
       <a onclick="playTone('f2','eString')" class="note-click f2">
@@ -1283,6 +1293,10 @@
       </div>
     </a>
   </div>
+  <!-- Distance for last String -->
+  {% for i in 17|times %}
+  <div class="spacing-bottom"></div>
+  {% endfor %}
   <!-- No-String -->
   <div class="nofret">
     I

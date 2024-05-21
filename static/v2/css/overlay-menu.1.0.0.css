@@ -1,8 +1,4 @@
-/* overlay-menu.css */
-body {
-    font-family: 'Dosis', sans-serif;
-}
-
+/* overlay-menu-chords.css */
 .overlay-icon {
     width: 33px;
     height: 33px;
@@ -34,6 +30,7 @@ body {
     max-height: 80%;
     overflow: auto;
     position: relative;
+    font-size: 14pt;
 }
 
 .step {
@@ -44,15 +41,10 @@ body {
     display: grid !important;
 }
 
-h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
 button {
     padding: 10px 20px;
     margin: 10px 5px;
-    font-size: 16px;
+    font-size: 14pt;
     border: none;
     background-color: white;
     color: #1D262A;
@@ -79,7 +71,7 @@ button:hover {
     cursor: pointer;
     border: 1px solid #ccc;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: 14pt;
     min-width: 80px;
     max-width: 120px;
     word-wrap: break-word;
@@ -89,34 +81,40 @@ button:hover {
     background-color: #ddd;
 }
 
-#positionStep > .grid-container{
+#positionStepChords > .grid-container {
     grid-template-columns: repeat(3, 1fr);
 }
 
-#rootStep > .grid-container{
+#rootStepChords > .grid-container {
     grid-template-columns: repeat(4, 1fr);
 }
 
-#typeStep > .grid-container{
+#typeStepChords > .grid-container {
     grid-template-columns: repeat(4, 1fr);
 }
 
-#initialStep > button{
-    font-size: 16pt;
+#chordStep > .grid-container {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 }
+
+#noteRangeStep > .grid-container {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
+/* Close button with custom SVG */
 .close-button {
     position: absolute;
     top: 10px;
     right: 10px;
-    font-size: 30px;
-    font-weight: bold;
-    color: #232323;
+    width: 30px;
+    height: 30px;
+    background: url('/static/media/svg/close_menu.svg') no-repeat center center;
+    background-size: contain;
     cursor: pointer;
-    background: none;
     border: none;
 }
 
-#overlayToggle {
+#overlayToggle, #overlayToggleChords {
     position: fixed;
     top: 25px;
     left: 70px;
@@ -124,4 +122,57 @@ button:hover {
     display: flex;
     flex-direction: column;
     cursor: pointer;
+}
+
+/* Adjustments for Mobile and Tablets */
+@media only screen and (max-width: 768px) {
+    .overlay-content {
+        padding: 5rem;
+        max-width: 95%;
+        max-height: 90%;
+    }
+
+    button {
+        padding: 8px 16px;
+        font-size: 14pt; 
+    }
+
+    .grid-item {
+        padding: 15px;
+        font-size: 14pt;
+    }
+
+    .close-button {
+        width: 25px;
+        height: 25px;
+    }
+    #rootStepChords > .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media only screen and (max-width: 480px) {
+    .overlay-content {
+        padding: 3rem;
+        max-width: 98%;
+        max-height: 95%;
+    }
+
+    button {
+        padding: 6px 12px;
+        font-size: 14pt;
+    }
+
+    .grid-item {
+        padding: 10px;
+        font-size: 14pt;
+    }
+
+    .close-button {
+        width: 20px;
+        height: 20px;
+    }
+    .fret .note {
+        font-size: 10pt;
+    }
 }
