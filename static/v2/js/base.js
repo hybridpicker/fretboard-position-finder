@@ -23,7 +23,7 @@ function playTone(tone, stringName) {
 
     const isRoot = element.classList.contains('root');
     const newSrc = isRoot ? '/static/media/red_dot_active.svg' : '/static/media/yellow_dot_active.svg';
-    const revertSrc = isRoot ? '/static/media/red_dot.svg' : '/static/media/yellow_dot.svg';
+    const revertSrc = isRoot ? '/static/media/red_dot_24.svg' : '/static/media/yellow_dot_24.svg';
 
     // Update the UI
     element.setAttribute('src', newSrc);
@@ -46,7 +46,7 @@ function resetFretboard() {
 
   // Reset the 'src' attribute for all tone elements
   const toneElements = document.querySelectorAll('.tone');
-  toneElements.forEach(element => element.setAttribute('src', '/static/media/yellow_dot.svg'));
+  toneElements.forEach(element => element.setAttribute('src', '/static/media/yellow_dot_24.svg'));
 }
 
 

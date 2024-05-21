@@ -20,7 +20,7 @@
             <a onclick="playTone('{{ notes|join:"','" }}','{{ string_name }}')" class="note-click {{ notes|first }}">
               {% for note in notes %}
               <div class="note {{ note }}">
-                <img class="tone {{ note }}" src="{% static 'media/yellow_dot.svg' %}" alt="">
+                <img class="tone {{ note }}" src="{% static 'media/yellow_dot_24.svg' %}" alt="">
                 <div class="notename {{ note }}">
                   {{ note|upper }}
                 </div>

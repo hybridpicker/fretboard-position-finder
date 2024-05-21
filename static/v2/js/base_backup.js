@@ -12,13 +12,13 @@ function playtone(x, y){
   if ( root_class == true ) {
   document.querySelector(string + ' img.tone.' + x + '.active').setAttribute('src', '/static/media/red_dot_active.svg');
   setTimeout(function () {
-    document.querySelector(string + ' img.tone.' + x + '.active').setAttribute('src', '/static/media/red_dot.svg');
+    document.querySelector(string + ' img.tone.' + x + '.active').setAttribute('src', '/static/media/red_dot_24.svg');
   }, 300)
   }
   else {
   document.querySelector(string + ' img.tone.' + x + '.active').setAttribute('src', '/static/media/yellow_dot_active.svg');
   setTimeout(function () {
-    document.querySelector(string + ' img.tone.' + x + '.active').setAttribute('src', '/static/media/yellow_dot.svg');
+    document.querySelector(string + ' img.tone.' + x + '.active').setAttribute('src', '/static/media/yellow_dot_24.svg');
   }, 300)
   }
 }
@@ -30,7 +30,7 @@ function reset_fretboard(){
   }
   var tone_elements = document.querySelectorAll('.tone');
   for (var i=0; i<tone_elements.length; i++) {
-    tone_elements[i].setAttribute('src', '/static/media/yellow_dot.svg')
+    tone_elements[i].setAttribute('src', '/static/media/yellow_dot_24.svg')
   }
 }
 
@@ -155,7 +155,7 @@ function getTonesFromDataScales(y){
         string = string_array[i];
         var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
         if (root_note_image != null){
-          root_note_image.setAttribute('src', '/static/media/red_dot.svg');
+          root_note_image.setAttribute('src', '/static/media/red_dot_24.svg');
           root_note_image.classList.add('active');
           root_note_image.classList.add('root')
         }
@@ -224,7 +224,7 @@ function getTonesFromDataChords(x, y){
         string = string_array[i];
         var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
         if (root_note_image != null){
-          root_note_image.setAttribute('src', '/static/media/red_dot.svg');
+          root_note_image.setAttribute('src', '/static/media/red_dot_24.svg');
           root_note_image.classList.add('active');
           root_note_image.classList.add('root')
         }
