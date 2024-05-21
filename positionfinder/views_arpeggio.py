@@ -153,6 +153,11 @@ def fretboard_arpeggio_view (request):
     # notes data
     selected_position = position_id
 
+
+    # String Names for template
+    string_names = ["eString", "bString", "gString", "dString", "AString", "ELowString"]
+    
+
     context = {
         'scale_json_data': scale_json_data,
 
@@ -178,6 +183,8 @@ def fretboard_arpeggio_view (request):
         'selected_root_id': selected_root_id,
         'selected_category_name': selected_category_name,
         'selected_notes_name': selected_notes_name,
+
+        'string_names': string_names,
         }
     
     context.update(menu_options)

@@ -147,7 +147,10 @@ def fretboard_chords_view(request):
         position_json_data = {}
 
     chord_json_data = json.dumps(chord_json_data)
-    # notes data
+
+    # String Names for template
+    string_names = ["eString", "bString", "gString", "dString", "AString", "ELowString"]
+    
     context = {
         'selected_chord': selected_note_option.chord_name,
         'root_id': root_id,
@@ -165,6 +168,8 @@ def fretboard_chords_view(request):
         'first_range_option': first_range_option,
         'note_range': range,
         'selected_range': selected_range,
+
+        'string_names': string_names,
     }
 
     context.update(menu_options)
