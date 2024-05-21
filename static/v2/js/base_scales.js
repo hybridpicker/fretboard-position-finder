@@ -132,7 +132,7 @@ function multiple_notes(tone_name, y) {
           string = string_array[i];
           var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
           if (root_note_image != null){
-            root_note_image.setAttribute('src', '/static/media/red_dot.svg');
+            root_note_image.setAttribute('src', '/static/media/red_dot_24.svg');
             root_note_image.classList.add('active');
             root_note_image.classList.add('root')
           }
@@ -275,7 +275,7 @@ function multiple_notes(tone_name, y) {
           string = string_array[i];
           var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
           if (root_note_image != null){
-            root_note_image.setAttribute('src', '/static/media/red_dot.svg');
+            root_note_image.setAttribute('src', '/static/media/red_dot_24.svg');
             root_note_image.classList.add('active');
             root_note_image.classList.add('root')
           }

@@ -26,7 +26,7 @@ body {
   border-top: 2.5px solid rgb(171, 173, 193);
 }
 .fret .note {
-  color: white;
+  color: #1d262a;
 }
 .fret.one {
   padding-left: 0;
