@@ -1,18 +1,100 @@
-function getTonesFromDataChords(x, y){
-  resetFretboard()
+function getQueryParam(param) {
+  var url = new URL(window.location.href);
+  return parseInt(url.searchParams.get(param));
+}
+
+function updatePosition(newPosVal) {
+  document.getElementById('position_select').value = newPosVal;
+  var note_range = document.getElementById('note_range').value;
+  getTonesFromDataChords(newPosVal, note_range);
+}
+
+function leftCursorClick() {
+  var pos_val = getQueryParam("position_select");
+
+  if (isNaN(pos_val)) {
+    pos_val = 0; // Start with Basic Position if parameter is missing or invalid
+  }
+
+  var chordType = getChordType();
+  var positions = getChordPositions(chordType);
+  if (positions === undefined) {
+    console.error("Invalid chord type or positions undefined for chord type:", chordType);
+    return;
+  }
+  var current_index = positions.indexOf(getPositionName(pos_val, positions));
+  var max_pos = positions.length;
+
+  var new_pos_val = (current_index - 1 + max_pos) % max_pos; // Zyklisch rückwärts
+
+  updatePosition(new_pos_val);
+  updateCursorVisibility(new_pos_val, max_pos);
+}
+
+function rightCursorClick() {
+  var pos_val = getQueryParam("position_select");
+
+  if (isNaN(pos_val)) {
+    pos_val = 0; // Start with Basic Position if parameter is missing or invalid
+  }
+
+  var chordType = getChordType();
+  var positions = getChordPositions(chordType);
+  if (positions === undefined) {
+    console.error("Invalid chord type or positions undefined for chord type:", chordType);
+    return;
+  }
+  var current_index = positions.indexOf(getPositionName(pos_val, positions));
+  var max_pos = positions.length;
+
+  var new_pos_val = (current_index + 1) % max_pos; // Zyklisch vorwärts
+
+  updatePosition(new_pos_val);
+  updateCursorVisibility(new_pos_val, max_pos);
+}
+
+function getChordType() {
+  // Beispielhafte Implementierung, um den Akkordtyp abzurufen
+  // Hier könnte die tatsächliche Logik zum Abrufen des Akkordtyps stehen
+  var note_range = document.getElementById('note_range').value;
+  console.log("Chord type (note range):", note_range);
+  return note_range; // Beispielhafter Rückgabewert
+}
+
+function getChordPositions(chordType) {
+  var chordData = voicing_data[chordType];
+  if (!chordData) {
+    console.error("Chord data not found for chord type:", chordType);
+    return undefined;
+  }
+  var positions = Object.keys(chordData);
+  console.log("Positions for chord type", chordType, ":", positions);
+  return positions;
+}
+
+function getPositionName(index, positions) {
+  return positions[index % positions.length];
+}
+
+// Beispielhafte Definition der Funktion updateCursorVisibility (falls benötigt)
+function updateCursorVisibility(pos, max) {
+  // Logik zur Aktualisierung der Sichtbarkeit des Cursors basierend auf pos und max
+}
+
+function getTonesFromDataChords(x, y) {
+  resetFretboard();
   /* x sets the id of inversions */
-  var i = 0;
   for (var key in voicing_data[y][x][0]) {
     if (voicing_data[y][x][0].hasOwnProperty(key)) {
-      var tone = voicing_data[y][x][0][key][0]
-      var tone_name = voicing_data[y][x][0][key][2]
+      var tone = voicing_data[y][x][0][key][0];
+      var tone_name = voicing_data[y][x][0][key][2];
 
       var QuerySelect = document.querySelector('.' + key + ' img.tone.' + tone);
       QuerySelect.classList.add('active');
-      var QuerySelect = document.querySelector('.' + key + ' .notename.' + tone);
+      QuerySelect = document.querySelector('.' + key + ' .notename.' + tone);
       QuerySelect.classList.add('active');
       /* Check every note that has a defined Query for not activating all chord tones */
-      var QuerySelect = document.querySelector('.' + key + ' .note.' + tone);
+      QuerySelect = document.querySelector('.' + key + ' .note.' + tone);
       QuerySelect.classList.add('active');
     }
   }
@@ -20,14 +102,14 @@ function getTonesFromDataChords(x, y){
   /* Change for RootNote Color */
   for (var key in voicing_data.root) {
     if (voicing_data.root.hasOwnProperty(key)) {
-      var root = voicing_data.root[key]
-      for (i = 0; i < string_array.length; i++) {
-        string = string_array[i];
+      var root = voicing_data.root[key];
+      for (var i = 0; i < string_array.length; i++) {
+        var string = string_array[i];
         var root_note_image = document.querySelector('.' + string + ' img.tone.active.' + root);
-        if (root_note_image != null){
+        if (root_note_image != null) {
           root_note_image.setAttribute('src', '/static/media/red_dot_24.svg');
           root_note_image.classList.add('active');
-          root_note_image.classList.add('root')
+          root_note_image.classList.add('root');
         }
       }
     }
@@ -35,100 +117,83 @@ function getTonesFromDataChords(x, y){
 }
 
 function show_tension_notes_chords() {
-  var x = document.getElementById('position_select').value
-  var y = document.getElementById('note_range').value
+  var x = document.getElementById('position_select').value;
+  var y = document.getElementById('note_range').value;
 
   var tension_elements = document.querySelectorAll('.tensionname');
-  if (tension_elements != undefined){
-    for (var i=0; i<tension_elements.length; i++) {
+  if (tension_elements != undefined) {
+    for (var i = 0; i < tension_elements.length; i++) {
       tension_elements[i].remove();
     }
   }
 
-  var i = 0;
   for (var key in voicing_data[y][x][0]) {
     if (voicing_data[y][x][0].hasOwnProperty(key)) {
-      var tone = voicing_data[y][x][0][key][0]
-      var tension_name = voicing_data[y][x][0][key][1]
+      var tone = voicing_data[y][x][0][key][0];
+      var tension_name = voicing_data[y][x][0][key][1];
 
       var QuerySelect = '.' + key + ' .notename.' + tone + '.active';
       var selection = document.getElementsByClassName("note active " + tone)[0];
       if (typeof selection !== "undefined") {
-          /* creating a div for tension notes */
-          var node = document.createElement("DIV");
-          node.className = "tensionname";
-          document.getElementsByClassName("active note " + tone)[0].appendChild(node);
-          var textnode = document.createTextNode(tension_name);
-          node.appendChild(textnode);
-          /* Remove class for not showing Notename */
-          var QuerySelect = document.querySelector('.' + key + ' .notename.' + tone + '.active');
-          if (QuerySelect != null){
-            QuerySelect.classList.remove("active")
-          }
+        /* creating a div for tension notes */
+        var node = document.createElement("DIV");
+        node.className = "tensionname";
+        document.getElementsByClassName("active note " + tone)[0].appendChild(node);
+        var textnode = document.createTextNode(tension_name);
+        node.appendChild(textnode);
+        /* Remove class for not showing Notename */
+        QuerySelect = document.querySelector('.' + key + ' .notename.' + tone + '.active');
+        if (QuerySelect != null) {
+          QuerySelect.classList.remove("active");
+        }
       }
     }
-    /* add class active for showing up */
-    var tension_names = document.querySelectorAll('.tensionname')
-    for (var i=0; i<tension_names.length; i++) {
-      tension_names[i].classList.add("active");
-    }
-    var button = document.getElementById("show_tension_button")
-    button.setAttribute("onclick","getToneNameFromDataChords()")
-    button.innerHTML = 'Tone Names';
   }
+  /* add class active for showing up */
+  var tension_names = document.querySelectorAll('.tensionname');
+  for (var i = 0; i < tension_names.length; i++) {
+    tension_names[i].classList.add("active");
+  }
+  var button = document.getElementById("show_tension_button");
+  button.setAttribute("onclick", "getToneNameFromDataChords()");
+  button.innerHTML = 'Tone Names';
 }
-function navBarFretboardChords(class_name){
-  var x, i, j, selElmnt, a, b, c;
-  /* Look for any elements with the class "sfbsf": */
-  x = document.getElementsByClassName(class_name);
+
+// HTML-Buttons für die Cursor-Funktion
+document.addEventListener("DOMContentLoaded", function() {
+  var leftButton = document.createElement("button");
+  leftButton.innerText = "Left";
+  leftButton.onclick = leftCursorClick;
+  document.body.appendChild(leftButton);
+
+  var rightButton = document.createElement("button");
+  rightButton.innerText = "Right";
+  rightButton.onclick = rightCursorClick;
+  document.body.appendChild(rightButton);
+});
+
+function resetFretboard() {
+  // Implement the reset logic here
+}
+
+function closeAllSelect(elmnt) {
+  /* A function that will close all select boxes in the document,
+  except the current select box: */
+  var x, y, i, arrNo = [];
+  x = document.getElementsByClassName("slit");
+  y = document.getElementsByClassName("sese");
+  for (i = 0; i < y.length; i++) {
+    if (elmnt == y[i]) {
+      arrNo.push(i)
+    } else {
+      y[i].classList.remove("slar-active");
+    }
+  }
   for (i = 0; i < x.length; i++) {
-    selElmnt = x[i].getElementsByTagName("select")[0];
-    /* For each element, create a new DIV that will act as the selected item: */
-    a = document.createElement("DIV");
-    a.setAttribute("class", "sese");
-    a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
-    x[i].appendChild(a);
-    /* For each element, create a new DIV that will contain the option list: */
-    b = document.createElement("DIV");
-    b.setAttribute("class", "slit sehi");
-    for (j = 1; j < selElmnt.length; j++) {
-      /* For each option in the original select element,
-      create a new DIV that will act as an option item: */
-      c = document.createElement("DIV");
-      c.innerHTML = selElmnt.options[j].innerHTML;
-      c.addEventListener("click", function(e) {
-        /* When an item is clicked, update the original select box,
-        and the selected item: */
-        var y, i, k, s, h;
-        s = this.parentNode.parentNode.getElementsByTagName("select")[0];
-        h = this.parentNode.previousSibling;
-        for (i = 0; i < s.length; i++) {
-          if (s.options[i].innerHTML == this.innerHTML) {
-            s.selectedIndex = i;
-            h.innerHTML = this.innerHTML;
-            y = this.parentNode.getElementsByClassName("swasd");
-            for (k = 0; k < y.length; k++) {
-              y[k].removeAttribute("class");
-            }
-            this.setAttribute("class", "swasd");
-            break;
-          }
-        }
-        h.click();
-        var pos_val = document.getElementById('position_select').value
-        var note_range = document.getElementById('note_range').value
-        getTonesFromDataChords(pos_val, note_range)
-      });
-      b.appendChild(c);
+    if (arrNo.indexOf(i)) {
+      x[i].classList.add("sehi");
     }
-    x[i].appendChild(b);
-    a.addEventListener("click", function(e) {
-      /* When the select box is clicked, close any other select boxes,
-      and open/close the current select box: */
-      e.stopPropagation();
-      closeAllSelect(this);
-      this.nextSibling.classList.toggle("sehi");
-      this.classList.toggle("slar-active");
-    });
   }
 }
+
+document.addEventListener("click", closeAllSelect);

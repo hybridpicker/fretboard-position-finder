@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_tags %}
 {% load filters %}
 
 <div id="fretboardcontainer" class="fretboardcontainer">
@@ -12,17 +13,18 @@
       </div>
     {% endfor %}
 
+    <!-- Loop through string names and frets -->
     {% for string_name in string_names %}
       {% for i in 17|times %}
-        <div class="fret {{ i }} {{ string_name }}">
+        <div class="fret {{ i|to_english }} {{ string_name }}">
           {% with notes=string_name|get_notes:i %}
           {% if notes %}
-            <a onclick="playTone('{{ notes|join:"','" }}','{{ string_name }}')" class="note-click {{ notes|first }}">
+            <a onclick="playTone('{{ notes.0 }}','{{ string_name }}')" class="note-click">
               {% for note in notes %}
               <div class="note {{ note }}">
                 <img class="tone {{ note }}" src="{% static 'media/yellow_dot_24.svg' %}" alt="">
                 <div class="notename {{ note }}">
-                  {{ note|upper }}
+                  {{ note|format_note_name }}
                 </div>
               </div>
               {% endfor %}

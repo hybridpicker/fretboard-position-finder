@@ -4,37 +4,58 @@ var frets = ['one','two','three','four','five','six',
             'seven','eight','nine','ten','eleven', 'twelve',
             'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen']
 
+// Define the NOTES variable
+const NOTES = {
+    "eString": [["f2"], ["gb2", "fs2"], ["g2"], ["ab2", "gs2"], ["a2"], ["bb2", "as2"], ["b2"], ["c3"], ["db3", "cs3"], ["d3"], ["eb3", "ds3"], ["e3"], ["f3"], ["gb3", "fs3"], ["g3"], ["ab3", "gs3"], ["a3"]],
+    "bString": [["c2"], ["db2", "cs2"], ["d2"], ["eb2", "ds2"], ["e2"], ["f2"], ["gb2", "fs2"], ["g2"], ["ab2", "gs2"], ["a2"], ["bb2", "as2"], ["b2"], ["c3"], ["db3", "cs3"], ["d3"], ["eb3", "ds3"], ["e3"]],
+    "gString": [["ab1", "gs1"], ["a1"], ["bb1", "as1"], ["b1"], ["c2"], ["db2", "cs2"], ["d2"], ["eb2", "ds2"], ["e2"], ["f2"], ["gb2", "fs2"], ["g2"], ["ab2", "gs2"], ["a2"], ["bb2", "as2"], ["b2"], ["c3"]],
+    "dString": [["eb1", "ds1"], ["e1"], ["f1"], ["gb1", "fs1"], ["g1"], ["ab1", "gs1"], ["a1"], ["bb1", "as1"], ["b1"], ["c2"], ["db2", "cs2"], ["d2"], ["eb2", "ds2"], ["e2"], ["f2"], ["gb2", "fs2"], ["g2"]],
+    "AString": [["bb0", "as0"], ["b0"], ["c1"], ["db1", "cs1"], ["d1"], ["eb1", "ds1"], ["e1"], ["f1"], ["gb1", "fs1"], ["g1"], ["ab1", "gs1"], ["a1"], ["bb1", "as1"], ["b1"], ["c2"], ["db2", "cs2"], ["d2"]],
+    "ELowString": [["f0"], ["gb0", "fs0"], ["g0"], ["ab0", "gs0"], ["a0"], ["bb0", "as0"], ["b0"], ["c1"], ["db1", "cs1"], ["d1"], ["eb1", "ds1"], ["e1"], ["f1"], ["gb1", "fs1"], ["g1"], ["ab1", "gs1"], ["a1"]],
+}
+
 /**
  * Play a tone and update the UI based on the 'root' class.
  * @param {string} tone - The name of the tone to play.
  * @param {string} stringName - The name of the string where the tone is played.
  */
-
 function playTone(tone, stringName) {
-
   // Determine the element to update
-  const element = document.querySelector(`.${stringName} img.tone.${tone}.active`);
-  
-  // Check if element exists and is active
+  const element = document.querySelector(`.${stringName} img.tone.${tone}`);
+
+  // Check for the equivalent tone
+  const equivalentTones = NOTES[stringName].find(fret => fret.includes(tone));
+  const equivalentTone = equivalentTones ? equivalentTones.find(t => t !== tone) : null;
+
+  const equivalentElement = equivalentTone ? document.querySelector(`.${stringName} img.tone.${equivalentTone}`) : null;
+
+  // Determine the element to use for updating
+  let activeElement = null;
+
   if (element && element.classList.contains('active')) {
+    activeElement = element;
+  } else if (equivalentElement && equivalentElement.classList.contains('active')) {
+    activeElement = equivalentElement;
+  }
+
+  if (activeElement) {
     // Initialize audio and play
     const audio = new Audio(`static/media/tone_sounds/${tone}.mp3`);
     audio.play();
 
-    const isRoot = element.classList.contains('root');
-    const newSrc = isRoot ? '/static/media/red_dot_active.svg' : '/static/media/yellow_dot_active.svg';
+    const isRoot = activeElement.classList.contains('root');
+    const newSrc = isRoot ? '/static/media/red_dot_active_24.svg' : '/static/media/yellow_dot_active_24.svg';
     const revertSrc = isRoot ? '/static/media/red_dot_24.svg' : '/static/media/yellow_dot_24.svg';
 
-    // Update the UI
-    element.setAttribute('src', newSrc);
+    // Update the UI for the active tone
+    activeElement.setAttribute('src', newSrc);
     setTimeout(() => {
-      element.setAttribute('src', revertSrc);
+      activeElement.setAttribute('src', revertSrc);
     }, 300);
   } else {
-    console.warn(`Element for tone ${tone} on string ${stringName} is not active or not found.`);
+    console.warn(`Element for tone ${tone} on string ${stringName} and its equivalent are not active or not found.`);
   }
 }
-
 
 /**
  * Resets the fretboard by removing 'active' class and setting the tone elements back to default.
