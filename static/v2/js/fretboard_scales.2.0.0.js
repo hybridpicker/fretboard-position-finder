@@ -466,3 +466,47 @@ window.onload = function() {
     }
   }
   
+  const notes = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+const validRoots = Array.from({length: 17}, (_, i) => i + 1).filter(n => ![2, 5, 9, 12, 15].includes(n)); // [1, 3, 4, 6, 7, 8, 10, 11, 13, 14, 16, 17]
+
+function changeScaleRoot(noteChange) {
+    var urlParams = new URLSearchParams(window.location.search);
+    var root = parseInt(urlParams.get('root')) || 1; // Fallback to 1 if 'root' param is missing or invalid
+
+    // Find the current index in validRoots
+    var currentIndex = validRoots.indexOf(root);
+
+    // Calculate new index cyclically
+    var newIndex = (currentIndex + noteChange + validRoots.length) % validRoots.length;
+
+    var newRoot = validRoots[newIndex];
+    urlParams.set('root', newRoot);
+    window.history.replaceState(null, null, "?" + urlParams.toString());
+
+    // Only update tones if pos_val is specified
+    if (urlParams.has('position_select')) {
+        var pos_val = urlParams.get('position_select');
+        var note_range = urlParams.get('note_range') || (document.getElementById('note_range') ? document.getElementById('note_range').value : null);
+        getTonesFromDataScales(pos_val);
+    }
+
+    // Reload the page with new URL parameters
+    window.location.search = urlParams.toString();
+}
+
+function increaseScaleRoot() {
+    changeScaleRoot(1);
+}
+
+function decreaseScaleRoot() {
+    changeScaleRoot(-1);
+}
+
+// Event listener for keyboard inputs
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'ArrowUp') { // Up arrow key
+        increaseScaleRoot();
+    } else if (event.key === 'ArrowDown') { // Down arrow key
+        decreaseScaleRoot();
+    }
+});
