@@ -25,6 +25,19 @@ window.onload = function() {
     }
 
     getTonesFromDataChords(pos_val, note_range);
+
+     // Set the display style for cursor elements
+     var leftCursor = document.querySelector(".left-cursor");
+     var rightCursor = document.querySelector(".right-cursor");
+ 
+     if (leftCursor) {
+         leftCursor.style.display = "block";
+     }
+ 
+     if (rightCursor) {
+         rightCursor.style.display = "block";
+     }
+
 };
 
 function navBarFretboardChords(class_name) {
@@ -143,3 +156,107 @@ function resetFretboard() {
         element.classList.remove('active');
     });
 }
+
+
+function leftCursorClick() {
+    var pos_val = getQueryParam("position_select");
+    var note_range = getQueryParam("note_range");
+
+    if (pos_val === null || pos_val === undefined || !isNaN(pos_val)) {
+        pos_val = "Basic Position"; // Start with Basic Position if parameter is missing or invalid
+    }
+    
+    var chordType = getChordType();
+
+    var positions = getChordPositions(chordType);
+
+    if (positions === undefined || positions.length === 0) {
+        console.error("Invalid chord type or positions undefined for chord type:", chordType);
+        return;
+    }
+    var current_index = positions.indexOf(pos_val);
+
+    if (current_index === -1) {
+        current_index = 0; // Fallback if the current position is not found in positions
+    }
+    var max_pos = positions.length;
+
+    var new_pos_val = (current_index - 1 + max_pos) % max_pos; // Zyklisch rückwärts
+
+    updatePosition(positions[new_pos_val]);
+    getTonesFromDataChords(positions[new_pos_val], note_range); // Update tones
+}
+
+function rightCursorClick() {
+    var pos_val = getQueryParam("position_select");
+    var note_range = getQueryParam("note_range");
+
+    if (pos_val === null || pos_val === undefined || !isNaN(pos_val)) {
+        pos_val = "Basic Position"; // Start with Basic Position if parameter is missing or invalid
+    }
+    
+    var chordType = getChordType();
+
+    var positions = getChordPositions(chordType);
+
+    if (positions === undefined || positions.length === 0) {
+        console.error("Invalid chord type or positions undefined for chord type:", chordType);
+        return;
+    }
+    var current_index = positions.indexOf(pos_val);
+
+    if (current_index === -1) {
+        current_index = 0; // Fallback if the current position is not found in positions
+    }
+    var max_pos = positions.length;
+
+    var new_pos_val = (current_index + 1) % max_pos; // Zyklisch vorwärts
+
+    updatePosition(positions[new_pos_val]);
+    getTonesFromDataChords(positions[new_pos_val], note_range); // Update tones
+}
+
+// Helper functions
+
+function getQueryParam(param) {
+    var urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+}
+
+function getChordType() {
+    return voicing_data.type; // Example implementation, modify as needed
+}
+
+function getChordPositions(chordType) {
+    var positions = [];
+    var validPositions = ["Basic Position", "First Inversion", "Second Inversion", "Third Inversion"]; // Define valid positions
+
+    for (var noteRange in voicing_data) {
+        if (voicing_data.hasOwnProperty(noteRange) && typeof voicing_data[noteRange] === 'object') {
+            for (var position in voicing_data[noteRange]) {
+                if (voicing_data[noteRange].hasOwnProperty(position) && validPositions.includes(position)) {
+                    if (!positions.includes(position)) {
+                        positions.push(position);
+                    }
+                }
+            }
+        }
+    }
+    return positions;
+}
+
+function updatePosition(new_pos_val) {
+    var urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('position_select', new_pos_val);
+    window.history.replaceState(null, null, "?" + urlParams.toString());
+}
+
+
+// Event listener for keyboard inputs
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'ArrowLeft') { // Left arrow key
+      leftCursorClick();
+    } else if (event.key === 'ArrowRight') { // Right arrow key
+      rightCursorClick();
+    }
+});
