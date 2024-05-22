@@ -19,43 +19,59 @@ const NOTES = {
  * @param {string} tone - The name of the tone to play.
  * @param {string} stringName - The name of the string where the tone is played.
  */
-function playTone(tone, stringName) {
-  // Determine the element to update
-  const element = document.querySelector(`.${stringName} img.tone.${tone}`);
 
-  // Check for the equivalent tone
-  const equivalentTones = NOTES[stringName].find(fret => fret.includes(tone));
-  const equivalentTone = equivalentTones ? equivalentTones.find(t => t !== tone) : null;
+// Angepasste playTone Funktion
+// Deine playTone Funktion
+// Angepasste playTone Funktion
+function playTone(tone, stringName = null) {
+  let element;
+  if (stringName) {
+      element = document.querySelector(`.${stringName} img.tone.${tone}`);
+  } else {
+      element = document.querySelector(`img.tone.${tone}`);
+  }
+  
+  if (!element) {
+      console.warn(`Element for tone ${tone} ${stringName ? 'on string ' + stringName : ''} not found.`);
+      return;
+  }
 
-  const equivalentElement = equivalentTone ? document.querySelector(`.${stringName} img.tone.${equivalentTone}`) : null;
-
-  // Determine the element to use for updating
   let activeElement = null;
 
-  if (element && element.classList.contains('active')) {
-    activeElement = element;
-  } else if (equivalentElement && equivalentElement.classList.contains('active')) {
-    activeElement = equivalentElement;
+  // If stringName is provided, check for equivalent tones within the same string
+  if (stringName) {
+      const equivalentTones = NOTES[stringName].find(fret => fret.includes(tone));
+      const equivalentTone = equivalentTones ? equivalentTones.find(t => t !== tone) : null;
+      const equivalentElement = equivalentTone ? document.querySelector(`.${stringName} img.tone.${equivalentTone}`) : null;
+
+      if (element && element.classList.contains('active')) {
+          activeElement = element;
+      } else if (equivalentElement && equivalentElement.classList.contains('active')) {
+          activeElement = equivalentElement;
+      }
+  } else {
+      if (element.classList.contains('active')) {
+          activeElement = element;
+      }
   }
 
   if (activeElement) {
-    // Initialize audio and play
-    const audio = new Audio(`static/media/tone_sounds/${tone}.mp3`);
-    audio.play();
+      const audio = new Audio(`static/media/tone_sounds/${tone}.mp3`);
+      audio.play();
 
-    const isRoot = activeElement.classList.contains('root');
-    const newSrc = isRoot ? '/static/media/red_dot_active_24.svg' : '/static/media/yellow_dot_active_24.svg';
-    const revertSrc = isRoot ? '/static/media/red_dot_24.svg' : '/static/media/yellow_dot_24.svg';
+      const isRoot = activeElement.classList.contains('root');
+      const newSrc = isRoot ? '/static/media/red_dot_active_24.svg' : '/static/media/yellow_dot_active_24.svg';
+      const revertSrc = isRoot ? '/static/media/red_dot_24.svg' : '/static/media/yellow_dot_24.svg';
 
-    // Update the UI for the active tone
-    activeElement.setAttribute('src', newSrc);
-    setTimeout(() => {
-      activeElement.setAttribute('src', revertSrc);
-    }, 300);
+      activeElement.setAttribute('src', newSrc);
+      setTimeout(() => {
+          activeElement.setAttribute('src', revertSrc);
+      }, 300);
   } else {
-    console.warn(`Element for tone ${tone} on string ${stringName} and its equivalent are not active or not found.`);
+      console.warn(`Element for tone ${tone} ${stringName ? 'on string ' + stringName : ''} and its equivalent are not active or not found.`);
   }
 }
+
 
 /**
  * Resets the fretboard by removing 'active' class and setting the tone elements back to default.
