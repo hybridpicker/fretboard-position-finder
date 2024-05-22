@@ -376,6 +376,9 @@ if (event.key === 'ArrowLeft') { // Left arrow key
 
 // Customize the "sfbsfnos" select field on page load
 window.onload = function() {
+    const overlayMenu = document.getElementById('overlayMenu');
+    overlayMenu.style.display = 'none';
+
     customizeSelectField("sfbsfnos");
     customizeSelectField("sfbsfpos");
     customizeSelectField("sfbsf");

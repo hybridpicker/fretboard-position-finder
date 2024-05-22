@@ -1,4 +1,8 @@
 window.onload = function() {
+    // Ensure the overlay menu is hidden initially
+    const overlayMenuChords = document.getElementById('overlayMenuChords');
+    overlayMenuChords.style.display = 'none';
+    
     // Initialize navBarFretboardChords for the specified class names
     navBarFretboardChords("sfbsfnr");
     navBarFretboardChords("catsfbsf");
