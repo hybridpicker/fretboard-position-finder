@@ -1,4 +1,8 @@
 /* overlay-menu-chords.css */
+#overlayMenuChords, #overlayMenu {
+    display: none;
+}
+
 .overlay-icon {
     width: 33px;
     height: 33px;
