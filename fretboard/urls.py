@@ -20,7 +20,6 @@ import positionfinder.views_arpeggio
 import positionfinder.views_chords
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', positionfinder.views_scale.fretboard_scale_view, name='show_scale_fretboard'),
     path('arpeggios', positionfinder.views_arpeggio.fretboard_arpeggio_view,
          name='show_arpeggio_fretboard'),

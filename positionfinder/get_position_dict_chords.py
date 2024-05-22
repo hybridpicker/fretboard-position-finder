@@ -6,7 +6,7 @@ import numpy
 def get_position_dict(chord_inversion, chord_name, range, type_name, root_pitch, tonal_root, selected_root_name):
     x = INVERSIONS.index(chord_inversion)
 
-    chord_note = ChordNotes.objects.get(chord_name=chord_name, range=range, type_name=type_name)
+    chord_note = ChordNotes.objects.filter(chord_name=chord_name, range=range, type_name=type_name).first()
     chord_notes_position = ChordPosition.objects.filter(notes_name_id=chord_note.id)
 
     POSITION_DICT = {}
