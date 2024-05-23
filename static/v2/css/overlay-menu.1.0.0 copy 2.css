@@ -68,10 +68,9 @@ button:hover {
     gap: 2rem;
     padding: 10px;
     margin-bottom: 20px;
-    overflow-y: auto; /* Enables vertical scrolling within the container */
-    overflow-x: hidden; /* Prevents horizontal scrolling */
-    max-height: calc(80vh - 20rem); /* Ensures the container doesn't exceed the overlay's height */
-}
+    overflow-y: auto; 
+    overflow-x: hidden;
+    max-height: calc(80vh - 10rem);
 
 .grid-item {
     background-color: white;
