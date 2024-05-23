@@ -255,16 +255,6 @@ function updatePosition(new_pos_val) {
     window.history.replaceState(null, null, "?" + urlParams.toString());
 }
 
-
-// Event listener for keyboard inputs
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'ArrowLeft') { // Left arrow key
-      leftCursorClick();
-    } else if (event.key === 'ArrowRight') { // Right arrow key
-      rightCursorClick();
-    }
-});
-
 // Change Root Note
 const noteMapping = {
     1: 'C', 3: 'Db', 4: 'D', 6: 'Eb', 7: 'E', 8: 'F', 10: 'Gb', 11: 'G', 13: 'Ab', 14: 'A', 16: 'Bb', 17: 'B'
@@ -303,13 +293,3 @@ function increaseRoot() {
 function decreaseRoot() {
     changeRoot(-1);
 }
-
-// Event listener for keyboard inputs
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'ArrowUp') { // Up arrow key
-        increaseRoot();
-    } else if (event.key === 'ArrowDown') { // Down arrow key
-        decreaseRoot();
-    }
-});
-

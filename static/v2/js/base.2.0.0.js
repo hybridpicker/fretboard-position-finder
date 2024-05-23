@@ -230,3 +230,55 @@ document.addEventListener("DOMContentLoaded", function() {
       });
   }
 });
+
+// Sidebar Script
+function toggleDropdown(currentCheckbox) {
+  const dropdowns = document.querySelectorAll('.dropdown-toggle');
+  dropdowns.forEach(dropdown => {
+      if (dropdown !== currentCheckbox) {
+          dropdown.checked = false;
+      }
+  });
+}
+
+// Keyboard Handlers
+document.addEventListener('DOMContentLoaded', function() {
+  // Event listener for keydown events
+  document.addEventListener('keydown', function(event) {
+      // Check if the "Escape" key is pressed
+      if (event.key === 'Escape') {
+          var closeButton = document.getElementById('closeOverlay');
+          if (closeButton) {
+              closeButton.click();
+          }
+      }
+      // Check if the "i" key is pressed
+      if (event.key === 'i' || event.key === 'I') {
+          var infoToggle = document.getElementById('infoToggle');
+          if (infoToggle) {
+              infoToggle.click();
+          }
+      }
+      // Check if the left arrow key is pressed
+      if (event.key === 'ArrowLeft') {
+          leftCursorClick();
+      }
+      // Check if the right arrow key is pressed
+      if (event.key === 'ArrowRight') {
+          rightCursorClick();
+      }
+      if (event.key === 'ArrowUp') { // Up arrow key
+          increaseRoot();
+      } 
+      if (event.key === 'ArrowDown') { // Down arrow key
+          decreaseRoot();
+      }
+      // Check if the "p" key is pressed
+      if (event.key === 'p' || event.key === 'P') {
+          var overlayToggle = document.getElementById('overlayToggle');
+          if (overlayToggle) {
+              overlayToggle.click();
+          }
+      }
+  });
+});
