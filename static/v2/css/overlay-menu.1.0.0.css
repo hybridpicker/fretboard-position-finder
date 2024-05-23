@@ -35,6 +35,8 @@
     overflow: auto;
     position: relative;
     font-size: 14pt;
+    margin: 0 auto;
+    min-width: 40vw;
 }
 
 .step {
@@ -63,48 +65,33 @@ button:hover {
 .grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 10px;
+    gap: 2rem;
     padding: 10px;
     margin-bottom: 20px;
+    overflow-y: auto; /* Enables vertical scrolling within the container */
+    overflow-x: hidden; /* Prevents horizontal scrolling */
+    max-height: calc(80vh - 20rem); /* Ensures the container doesn't exceed the overlay's height */
 }
 
 .grid-item {
-    background-color: #f1f1f1;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 20px;
     text-align: center;
     cursor: pointer;
-    border-radius: 8px;
     font-size: 14pt;
     min-width: 80px;
     max-width: 120px;
     word-wrap: break-word;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .grid-item:hover {
-    background-color: #ddd;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
 }
 
-#positionStepChords > .grid-container {
-    grid-template-columns: repeat(3, 1fr);
-}
-
-#rootStepChords > .grid-container {
-    grid-template-columns: repeat(4, 1fr);
-}
-
-#typeStepChords > .grid-container {
-    grid-template-columns: repeat(4, 1fr);
-}
-
-#chordStep > .grid-container {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-}
-
-#noteRangeStep > .grid-container {
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-}
-
-/* Close button with custom SVG */
 .close-button {
     position: absolute;
     top: 30px;
@@ -149,8 +136,9 @@ button:hover {
         width: 25px;
         height: 25px;
     }
-    #rootStepChords > .grid-container {
-        grid-template-columns: repeat(2, 1fr);
+
+    .grid-container {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     }
 }
 
@@ -175,7 +163,19 @@ button:hover {
         width: 20px;
         height: 20px;
     }
+
+    .grid-container {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
     .fret .note {
         font-size: 10pt;
+    }
+}
+
+/* Ensure up to 4 columns on larger screens */
+@media only screen and (min-width: 769px) {
+    .grid-container {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     }
 }

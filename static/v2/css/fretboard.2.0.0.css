@@ -326,13 +326,15 @@ footer div {
 .left-cursor,
 .right-cursor {
   position: absolute;
-  width: 11.854px;
-  height: 25.175px;
-  background-size: contain;
   background-repeat: no-repeat;
   z-index: 10;
   cursor: pointer;
+  background-position: center;
+  width: 2rem;
+  height: 50vh;
+  background-size: auto;
 }
+
 .left-cursor {
   display: none;
   top: 50%;
