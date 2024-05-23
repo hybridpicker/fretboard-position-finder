@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Guitar Positions</title>
+  <title>About</title>
   
   <!-- CSS files -->
   <link rel="stylesheet" href="{% static 'v2/css/fretboard.2.0.0.css' %}" type="text/css" media="screen">
@@ -16,16 +16,6 @@
   <!-- Favicon -->
   {% include "favicon.html" %}
 
-  <!-- JavaScript data -->
-  {% if chord_options %}
-  <script type="text/javascript">
-    var voicing_data = {{ chord_json_data|safe }};
-  </script>
-  {% else %}
-  <script type="text/javascript">
-    var scale_data = {{ scale_json_data|safe }};
-  </script>
-  {% endif %}
 
   <!-- Base JavaScript -->
   <script src="{% static 'v2/js/base.2.0.0.js' %}"></script>
@@ -46,63 +36,37 @@
   <meta name="twitter:image" content="{% static 'thumbnail/twitter/home.jpg' %}">
   <meta name="twitter:card" content="summary_large_image">
 
-  {% block head %}
-  {% endblock %}
 </head>
 <body>
   {% include "sidebar/sidebar.html" %}
-  {% if chord_options %}
-    {% include "overlay-menu/overlay-menu-chords.html" %}
-  {% else %}
-    {% include "overlay-menu/overlay-menu.html" %}
-  {% endif %}
+  
+<div class="mbs">
+   
+<h1>About</h1>
 
-  <!-- Info Icon -->
-  <div id="infoToggle">
-    <img src="{% static 'media/svg/info-icon.svg' %}" alt="Info Icon" class="info-icon">
-  </div>
+<p>This web app was born out of a passion for supporting guitarists of all levels in expanding their skills and developing a deeper understanding of their instrument. As a guitar teacher and musician, it was my heartfelt desire to create a tool that would not only support my students but also assist me in my daily practice.</p>
 
-  {% if chord_options %}
-  <script src="{% static 'v2/js/overlay-menu-chords.js' %}"></script>
-  {% else %}
-  <script src="{% static 'v2/js/overlay-menu.js' %}"></script>
-  {% endif %}
-  <div class="mbs">
-    {% block heading %}
-    {% endblock %}
+<p>Guitar-positions.org generates all possible fingerings for guitarists in all keys and positions. Our app is organized into categories to make navigation easier:</p>
+<ul>
+    <li><strong>Scales:</strong> From pentatonic scales to melodic minor scales and symmetrical scales.</li>
+    <li><strong>Arpeggios:</strong> Triads- and Seventh Chord-Arpeggios.</li>
+    <li><strong>Chords:</strong> Triads and Seventh Chords.</li>
+</ul>
 
-    {% block content %}
-    {% endblock %}
+<p>Whether you are looking for simple triads, spread triads, or more complex chords, our app provides you with a comprehensive collection of fretboard diagrams and positions. We are particularly proud of the integration of Ted Greene's V-System, which helps you find and master all the notes on the guitar fretboard.</p>
 
-    {% if chord_options %}
-      {% include "forms/fretboard_form_chords.html" %}
-    {% else %}
-      {% include "forms/fretboard_form.html" %}
-    {% endif %}
-    <br>
+<p>Our app is ideal for students who want to improve their technique as well as advanced guitarists seeking new challenges. With guitar-positions.org, you can take your musical journey to the next level.</p>
 
-    {% if chord_options %}
-      {% include "analysis/container_chords.html" %}
-    {% else %}
-       {% include "analysis/container_scales.html" %}
-    {% endif %}
-    {% include 'fretboard_fretboard.html' %}
-  </div>
+<p>This app is an open-source project. We welcome anyone who wishes to contribute to the code or provide feedback. You can reach us anytime at <a href="mailto:lukas@schoensgibl.com">lukas@schoensgibl.com</a>.</p>
 
-  {% block fretboard %}
-  {% endblock %}
+<p>Enjoy practicing and discovering!</p>
 
-  <footer>
+    
+</div>
+
+<footer>
     {% include "footer/footer.html" %}
-  </footer>
+</footer>
 
-  {% if chord_options %}
-    <!-- Fretboard Form Script -->
-    <script src="{% static 'v2/js/fretboard_chords.2.0.0.js' %}"></script>
-  {% else %}
-    <script src="{% static 'v2/js/fretboard_scales.2.0.0.js' %}"></script>
-  {% endif %}
-  {% block footer %}
-  {% endblock %}
 </body>
 </html>
