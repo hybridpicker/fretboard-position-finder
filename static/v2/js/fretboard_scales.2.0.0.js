@@ -365,15 +365,6 @@ var max_pos = Object.keys(scale_data).filter(key => !isNaN(key)).length; // Numb
 updateCursorVisibility(pos_val, max_pos);
 });
 
-// Event listener for keyboard inputs
-document.addEventListener('keydown', function(event) {
-if (event.key === 'ArrowLeft') { // Left arrow key
-  leftCursorClick();
-} else if (event.key === 'ArrowRight') { // Right arrow key
-  rightCursorClick();
-}
-});
-
 // Customize the "sfbsfnos" select field on page load
 window.onload = function() {
     const overlayMenu = document.getElementById('overlayMenu');
@@ -494,19 +485,10 @@ function changeScaleRoot(noteChange) {
     window.location.search = urlParams.toString();
 }
 
-function increaseScaleRoot() {
+function increaseRoot() {
     changeScaleRoot(1);
 }
 
-function decreaseScaleRoot() {
+function decreaseRoot() {
     changeScaleRoot(-1);
 }
-
-// Event listener for keyboard inputs
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'ArrowUp') { // Up arrow key
-        increaseScaleRoot();
-    } else if (event.key === 'ArrowDown') { // Down arrow key
-        decreaseScaleRoot();
-    }
-});
