@@ -1,0 +1,90 @@
+<!-- Hamburger Menu Icon -->
+<div id="hamburgerIcon">
+    <div class="bar1"></div>
+    <div class="bar2"></div>
+    <div class="bar3"></div>
+</div>
+
+<!-- Overlay Menu Container -->
+<div id="overlayMenu" class="overlay">
+    <!-- Overlay Content -->
+    <div class="overlay-content">
+        <form id="fretboard_form" action="" method="get" style="text-align: center;">
+            <div class="sfbsf" id="catsfbsf">
+                <select name="models_select" id="models_select">
+                    {% with first_category=category|first %}
+                    <option value="{{ first_category.id }}" id="cat1">{{ first_category.category_name }}</option>
+                    {% endwith %}
+                    {% for category_option in category %}
+                    {% if selected_category == category_option.id %}
+                    <option value="{{ category_option.id }}" id="cat{{ category_option.id }}" selected>{{ category_option.category_name }}</option>
+                    {% else %}
+                    <option value="{{ category_option.id }}" id="cat{{ category_option.id }}">{{ category_option.category_name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="sfbsf">
+                <select name="root" id="root">
+                    <option value="{{ root_id }}" selected>{{ root_name }}</option>
+                    {% for option in root_options %}
+                    <option value="{{ option.id }}">{{ option.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="sfbsf">
+                <select name="type_options_select" id="type_options_select">
+                    {% with first_type_option=type_options|first %}
+                    <option value="{{ first_type_option }}">{{ first_type_option }}</option>
+                    {% endwith %}
+                    {% for option in type_options %}
+                    {% if selected_type == option %}
+                    <option value="{{ option }}" selected>{{ option }}</option>
+                    {% else %}
+                    <option value="{{ option }}">{{ option }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="sfbsf">
+                <select name="chords_options_select" id="chords_options_select">
+                    {% with first_chord_option=chord_options|first %}
+                    <option value="{{ first_chord_option }}">{{ first_chord_option }}</option>
+                    {% endwith %}
+                    {% for option in chord_options %}
+                    {% if selected_chord == option %}
+                    <option value="{{ option }}" selected>{{ option }}</option>
+                    {% else %}
+                    <option value="{{ option }}">{{ option }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="sfbsfnr">
+                <select name="note_range" id="note_range">
+                    <option value="{{ first_range_option }}" {% if first_range_option == selected_range %} class="active" selected {% endif %}>{{ first_range_option }}</option>
+                    {% for option in range_options %}
+                    {% if option.range == selected_range %}
+                    <option value="{{ option.range }}" class="active" selected>{{ option.range }}</option>
+                    {% else %}
+                    <option value="{{ option.range }}">{{ option.range }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="sfbsfpos">
+                <select name="position_select" id="position_select">
+                    <option value="Basic Position" {% if "Basic Position" == selected_position %} class="active" selected {% endif %}>Basic Position</option>
+                    {% for option in position_options %}
+                    {% if option.inversion_order == selected_position %}
+                    <option value="{{ option.inversion_order }}" class="active" selected>{{ option.inversion_order }}</option>
+                    {% else %}
+                    <option value="{{ option.inversion_order }}">{{ option.inversion_order }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <button id="show_tension_button" type="button" onclick="show_tension_notes_chords()" style="width: 8em;">Show Tensions</button>
+        </form>
+    </div>
+</div>

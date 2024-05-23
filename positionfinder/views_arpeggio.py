@@ -16,10 +16,23 @@ from .template_notes import ALL_NOTES_POSITION
 from .get_position_dict_scales import get_scale_position_dict, get_transposable_positions
 from .get_position_dict_scales import transpose_actual_position, re_ordering_positions
 
+from django.shortcuts import render
+from positionfinder.models import Notes  # For Scales and Arpeggios
+from positionfinder.views_helpers import get_menu_options
+
+def arpeggio_list(request):
+    arpeggios = Notes.objects.filter(category_id=2)  # ID 2 = Arpeggios
+    menu_options = get_menu_options()
+    print("Arpeggios View:", menu_options)  # Debugging output
+    return render(request, 'arpeggio_list.html', {'arpeggios': arpeggios, **menu_options})
+
+
+
 def fretboard_arpeggio_view (request):
     ''' Select which notes '''
     all_notes_position = ALL_NOTES_POSITION
     category = NotesCategory.objects.all()
+    menu_options = get_menu_options() 
     '''
     Template Variables
     '''
@@ -140,6 +153,11 @@ def fretboard_arpeggio_view (request):
     # notes data
     selected_position = position_id
 
+
+    # String Names for template
+    string_names = ["eString", "bString", "gString", "dString", "AString", "ELowString"]
+    
+
     context = {
         'scale_json_data': scale_json_data,
 
@@ -165,5 +183,10 @@ def fretboard_arpeggio_view (request):
         'selected_root_id': selected_root_id,
         'selected_category_name': selected_category_name,
         'selected_notes_name': selected_notes_name,
+
+        'string_names': string_names,
         }
+    
+    context.update(menu_options)
+
     return render(request, 'fretboard.html', context)

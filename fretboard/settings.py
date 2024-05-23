@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'positionfinder.apps.PositionfinderConfig',
     'django_extensions',
+    'fretboard',
     ]
 
 MIDDLEWARE = [

@@ -1,0 +1,481 @@
+body {
+  font-family: 'Dosis', sans-serif;
+  font-size: 14pt;
+}
+.fretboard {
+  display: grid;
+  grid-column-gap: 0 !important;
+  grid-template-columns: repeat(17, auto);
+  background-image: url(/static/media/fretboard_1400.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position-y: top;
+  padding-left: 16px;
+  padding-right: 0;
+  width: 1400px;
+  font-size: 14pt;
+}
+#fretboardcontainer {
+  width: 1400px;
+  margin: auto;
+}
+.eString, .bString, .gString {
+  border-top: 2px solid rgb(136, 138, 154);
+}
+.dString, .AString, .ELowString {
+  border-top: 2.5px solid rgb(171, 173, 193);
+}
+.fret .note {
+  color: #1d262a;
+}
+.fret.one {
+  padding-left: 0;
+  padding-right: 0;
+}
+.fret.one.laststring {
+  border-left: 0px;
+}
+.laststring {
+  border-right: 0px;
+  height: 10px !important; /* Set height to 10px */
+}
+.note {
+  position: absolute;
+  left: -15px;
+  top: 0;
+}
+.notename, .tensionname {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  visibility: hidden;
+  opacity: 0.85;
+}
+.note > .tone {
+  visibility: hidden;
+  vertical-align: middle;
+  max-height: 25px;
+  max-width: 25px;
+}
+.active {
+  visibility: unset !important;
+}
+a .active {
+  cursor: pointer;
+}
+#fretboardcontainer {
+  margin-top: 4em;
+}
+#formselect {
+  text-align: center;
+}
+h1, h2, h3 {
+  text-align: center;
+  font-weight: normal;
+  font-size: 16pt;
+}
+p {
+  font-size: 14pt;
+  font-weight: lighter;
+  font-style: normal;
+  padding: 0 1rem;
+}
+a {
+  color: #FF6F5A;
+  text-decoration: none;
+}
+.mbs h1:first-of-type{
+  margin-top: 4rem;
+}
+button {
+  font-family: 'Dosis', sans-serif;
+  font-weight: bold;
+  font-size: 14pt;
+}
+.note_name {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.fret {
+  position: relative;
+  text-align: center;
+  height: 50px;
+  width: 83px;
+}
+.spacing-top {
+  height: 10px;
+}
+.spacing-bottom {
+  height: 1px;
+}
+@media only screen and (max-width: 360px) {
+  .fret {
+    height: 42px;
+  }
+  .fretboard {
+    width: 860px;
+  }
+}
+.nofret {
+  font-size: 14pt;
+  text-align: center;
+  color: #1D262A;
+  width: 82px;
+}
+.note-click {
+  position: absolute;
+  top: -17px;
+}
+.notename, .tensionname {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+@media only screen and (max-width: 1430px) {
+  .fretboard {
+    background-image: url(/static/media/fretboard_1000.png);
+    width: 1010px;
+    padding-left: 14px;
+    margin: auto;
+    background-position-y: top;
+  }
+  .eString, .bString, .gString {
+    border-top: 1.5px solid rgb(136, 138, 154) !important;
+  }
+  .dString, .AString, .ELowString {
+    border-top: 2px solid rgb(171, 173, 193) !important;
+  }
+  #fretboardcontainer {
+    width: 1000px;
+    margin: auto;
+  }
+}
+.fret {
+  position: relative;
+  text-align: center;
+  height: 50px;
+  width: 82px;
+}
+.nofret {
+  font-size: 14pt;
+  text-align: center;
+  color: #1D262A;
+  width: 82px;
+}
+.note-click {
+  position: absolute;
+  top: -17px;
+}
+@media only screen and (max-width: 1430px) {
+  .fret {
+    width: 59.7px;
+  }
+  .nofret {
+    width: 58.8167px;
+  }
+}
+@media only screen and (max-width: 1050px) {
+  #fretboardcontainer {
+    width: 100%;
+    margin: auto;
+  }
+  .fret {
+    width: 100%;
+  }
+  .nofret {
+    width: 39.2px;
+  }
+  .fretboard {
+    width: 100%;
+    margin: auto;
+    background-position-y: top;
+    padding-left: 13px;
+    background-image: url(/static/media/fretboard_5.png);
+  }
+  .note > .tone {
+    max-height: 26px;
+    max-width: 26px;
+  }
+  .fret .note {
+    font-size: 10pt;
+    padding-top: 3px;
+  }
+}
+@media only screen and (max-width: 982px) {
+  .fretboard {
+    background-image: url(/static/media/fretboard_4.png);
+  }
+}
+@media only screen and (max-width: 945px) {
+  .fretboard {
+    background-image: url(/static/media/fretboard_3.png);
+  }
+}
+@media only screen and (max-width: 890px) {
+  .fretboard {
+    background-image: url(/static/media/fretboard_5.png);
+  }
+}
+@media only screen and (max-width: 780px) {
+  .spacing-top {
+    height: 6px;
+  }
+  #fretboardcontainer {
+    margin-top: 16px;
+  }
+  .note > .tone {
+    max-height: 20px;
+    max-width: 20px;
+  }
+  .fretboard {
+    background-image: url(/static/media/fretboard_5.png);
+  }
+}
+@media only screen and (max-width: 700px) {
+  #fretboardcontainer {
+    margin-top: 16px;
+  }
+  .fretboard {
+    background-image: url(/static/media/fretboard_4.png);
+  }
+}
+@media only screen and (max-width: 620px) {
+  #fretboardcontainer {
+    margin-top: 10px;
+  }
+}
+@media only screen and (max-width: 550px) {
+  #fretboardcontainer {
+    margin-top: 16px;
+  }
+}
+@media only screen and (max-width: 500px) {
+  #fretboardcontainer {
+    margin-top: 16px;
+  }
+}
+@media only screen and (max-width: 442px) {
+  #fretboardcontainer {
+    margin-top: 16px;
+    overflow-x: scroll;
+    scroll-behavior: smooth;
+  }
+}
+@media only screen and (max-width: 545px) {
+  .fretboard {
+    background-image: url(/static/media/fretboard_5.png);
+    width: 1000px;
+    padding-left: 14px;
+    margin: auto;
+    background-position-y: top;
+  }
+}
+@media only screen and (max-width: 772px) {
+  .mbs {
+    margin-top: 3rem;
+  }
+}
+@media only screen and (max-width: 894px) {
+  .fretboard {
+    width: 100%;
+  }
+  .fret {
+    height: 42px;
+  }
+}
+@media only screen and (max-width: 795px) {
+  .fretboard {
+    width: 100%;
+  }
+  .fret {
+    height: 38px;
+  }
+}
+@media only screen and (max-width: 743px) {
+  .fretboard {
+    width: 100%;
+  }
+  .fret {
+    height: 34px;
+  }
+}
+@media only screen and (max-width: 668px) {
+  .fretboard {
+    width: 668px;
+    padding-left: 10px;
+  }
+  .fret {
+    height: 34px;
+  }
+}
+footer div {
+  text-align: center;
+  margin: auto;
+}
+#github:hover .st0 {
+  fill: rgb(171, 173, 193);
+}
+.rotate-container {
+  margin: auto;
+}
+.rotate-container {
+  text-align: center;
+  position: fixed;
+  top: 25%;
+  width: 95vw;
+}
+.fretboardcontainer {
+  position: relative;
+}
+.left-cursor,
+.right-cursor {
+  position: absolute;
+  background-repeat: no-repeat;
+  z-index: 10;
+  cursor: pointer;
+  background-position: center;
+  width: 2rem;
+  height: 50vh;
+  background-size: auto;
+}
+
+.left-cursor {
+  display: none;
+  top: 50%;
+  left: -22px;
+  transform: translateY(-50%);
+  background-image: url('/static/media/svg/cursor_left.svg');
+}
+.right-cursor {
+  display: none;
+  top: 50%;
+  right: -50px;
+  transform: translateY(-50%);
+  background-image: url('/static/media/svg/cursor_right.svg');
+}
+@media only screen and (max-width: 400px) and (orientation: portrait) {
+  .fretboard {
+    width: auto;
+    padding-left: 10px;
+    rotate: 90deg;
+    transform-origin: top;
+    position: absolute;
+    top: 45vh;
+    left: -14vw;
+  }
+  #fretboardcontainer {
+    margin: 0;
+    height: 90vh;
+    max-height: 730px;
+  }
+  .left-cursor {
+    top: 50%;
+    left: 0;
+  }
+  .right-cursor {
+    top: 50%;
+    right: 0;
+  }
+  .note > .tone {
+    max-height: 22px;
+    max-width: 22px;
+    padding-top: 2px;
+  }
+}
+.info-icon {
+  width: 33px;
+  height: 33px;
+  cursor: pointer;
+  display: inline-block;
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  z-index: 1;
+}
+
+/* Sidebar */
+#menuToggle {
+  position: fixed;
+  top: 25px;
+  left: 25px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.menu-icon {
+  width: 33px;
+  height: 33px;
+  margin-bottom: 5px;
+  z-index: 1000;
+}
+
+#menuToggle input {
+  display: none;
+}
+
+#menu {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 300px;
+  height: 100%;
+  background: #f0f0f0;
+  transition: left 0.3s ease-in-out;
+  padding-top: 60px;
+  overflow-y: scroll;
+  z-index: 10;
+}
+
+#menu a, .dropdown label {
+  display: block;
+  padding: 15px;
+  text-decoration: none;
+  color: #1D262A;
+}
+
+#menu a:hover, .dropdown label:hover {
+  background: #f1f1f1;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  display: none;
+}
+
+.dropdown-menu {
+  max-height: 0;
+  overflow: scroll;
+  display: block;
+  background: #f9f9f9;
+  position: relative;
+  width: 100%;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+  visibility: hidden;
+}
+
+.dropdown-toggle:checked + label + .dropdown-menu {
+  max-height: 300px; /* adjust as needed */
+  padding: 10px 0; /* adjust as needed */
+  visibility: visible;
+}
+
+.dropdown-menu ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.dropdown-menu ul li {
+  padding-left: 0;
+}
