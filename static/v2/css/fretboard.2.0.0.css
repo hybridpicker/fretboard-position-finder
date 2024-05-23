@@ -79,6 +79,19 @@ p {
   font-size: 14pt;
   font-weight: lighter;
   font-style: normal;
+  padding: 0 1rem;
+}
+a {
+  color: #FF6F5A;
+  text-decoration: none;
+}
+.mbs h1:first-of-type{
+  margin-top: 4rem;
+}
+button {
+  font-family: 'Dosis', sans-serif;
+  font-weight: bold;
+  font-size: 14pt;
 }
 .note_name {
   position: absolute;
@@ -300,9 +313,6 @@ p {
   .fret {
     height: 34px;
   }
-}
-footer a {
-  margin-left: 1rem;
 }
 footer div {
   text-align: center;

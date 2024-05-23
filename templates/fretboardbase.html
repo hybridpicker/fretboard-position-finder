@@ -4,16 +4,19 @@
 <head>
   <meta charset="UTF-8">
   <title>Guitar Positions</title>
+  
   <!-- CSS files -->
   <link rel="stylesheet" href="{% static 'v2/css/fretboard.2.0.0.css' %}" type="text/css" media="screen">
   <link rel="stylesheet" href="{% static 'v2/css/form.2.0.0.css' %}" type="text/css" media="screen">
-
   <link rel="stylesheet" href="{% static 'v2/css/overlay-menu.1.0.0.css' %}">
 
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
 
+  <!-- Favicon -->
   {% include "favicon.html" %}
+
+  <!-- JavaScript data -->
   {% if chord_options %}
   <script type="text/javascript">
     var voicing_data = {{ chord_json_data|safe }};
@@ -24,21 +27,23 @@
   </script>
   {% endif %}
 
-  <script src="{% static '/v2/js/base.2.0.0.js' %}"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- Base JavaScript -->
+  <script src="{% static 'v2/js/base.2.0.0.js' %}"></script>
 
+  <!-- Meta Tags -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="title" content="Fretboard-Position-Finder">
   <meta name="description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
 
   <!-- Social Media Meta -->
   <meta property="og:title" content="Guitar Positions">
   <meta property="og:description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
-  <meta property="og:image" content="static/thumbnail/facebook/home.jpg">
+  <meta property="og:image" content="{% static 'thumbnail/facebook/home.jpg' %}">
   <meta property="og:url" content="https://guitar-positions.org">
 
   <meta name="twitter:title" content="Guitar Positions">
   <meta name="twitter:description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
-  <meta name="twitter:image" content="static/thumbnail/twitter/home.jpg">
+  <meta name="twitter:image" content="{% static 'thumbnail/twitter/home.jpg' %}">
   <meta name="twitter:card" content="summary_large_image">
 
   {% block head %}
@@ -65,12 +70,17 @@
   <div class="mbs">
     {% block heading %}
     {% endblock %}
+
+    {% block content %}
+    {% endblock %}
+
     {% if chord_options %}
       {% include "forms/fretboard_form_chords.html" %}
     {% else %}
       {% include "forms/fretboard_form.html" %}
     {% endif %}
     <br>
+
     {% if chord_options %}
       {% include "analysis/container_chords.html" %}
     {% else %}
@@ -78,6 +88,9 @@
     {% endif %}
     {% include 'fretboard_fretboard.html' %}
   </div>
+
+  {% block fretboard %}
+  {% endblock %}
 
   <footer>
     {% include "footer/footer.html" %}

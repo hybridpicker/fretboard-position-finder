@@ -150,7 +150,7 @@ function getNotePicFromData(){
   }
   var button = document.getElementById("show_note_name_button")
   button.setAttribute("onclick","getNoteNameFromData()")
-  button.innerHTML = 'Note Name';
+  button.innerHTML = 'Show Note Names';
 }
 
 function closeAllSelect(elmnt) {
@@ -206,7 +206,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const menuCheckbox = document.getElementById('menuCheckbox');
   const menu = document.getElementById('menu');
   const leftCursor = document.querySelector('.left-cursor');
-  
+
   if (menuToggle && menuCheckbox && menu) {
       menuToggle.addEventListener('click', function(event) {
           event.stopPropagation(); // Prevent the event from triggering on the document
@@ -217,6 +217,12 @@ document.addEventListener("DOMContentLoaded", function() {
           } else {
               menu.style.left = '-300px';
               leftCursor.style.zIndex = '10';
+              document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                  const label = document.querySelector(`label[for="${toggle.id}"]`);
+                  if (label) {
+                      label.removeAttribute('style'); // Remove all inline styles
+                  }
+              });
           }
       });
 
@@ -226,10 +232,33 @@ document.addEventListener("DOMContentLoaded", function() {
               menuCheckbox.checked = false;
               menu.style.left = '-300px';
               leftCursor.style.zIndex = '10';
+              document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                  const label = document.querySelector(`label[for="${toggle.id}"]`);
+                  if (label) {
+                      label.removeAttribute('style'); // Remove all inline styles
+                  }
+              });
           }
+      });
+
+      document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+          toggle.addEventListener('click', function() {
+              document.querySelectorAll('.dropdown-toggle').forEach(innerToggle => {
+                  const label = document.querySelector(`label[for="${innerToggle.id}"]`);
+                  if (innerToggle.checked && label) {
+                      label.style.color = '#FF6F5A'; // Change color when active
+                      label.style.fontWeight = 'bold'; // Change font weight when active
+                  } else if (label) {
+                      label.removeAttribute('style'); // Remove all inline styles
+                  }
+              });
+          });
       });
   }
 });
+
+
+
 
 // Sidebar Script
 function toggleDropdown(currentCheckbox) {
@@ -248,8 +277,11 @@ document.addEventListener('DOMContentLoaded', function() {
       // Check if the "Escape" key is pressed
       if (event.key === 'Escape') {
           var closeButton = document.getElementById('closeOverlay');
+          var closeButtonChords = document.getElementById('closeOverlayChords');
           if (closeButton) {
               closeButton.click();
+          } else if (closeButtonChords) {
+              closeButtonChords.click();
           }
       }
       // Check if the "i" key is pressed
@@ -267,17 +299,22 @@ document.addEventListener('DOMContentLoaded', function() {
       if (event.key === 'ArrowRight') {
           rightCursorClick();
       }
-      if (event.key === 'ArrowUp') { // Up arrow key
+      // Check if the up arrow key is pressed
+      if (event.key === 'ArrowUp') { 
           increaseRoot();
-      } 
-      if (event.key === 'ArrowDown') { // Down arrow key
+      }
+      // Check if the down arrow key is pressed
+      if (event.key === 'ArrowDown') {
           decreaseRoot();
       }
       // Check if the "p" key is pressed
       if (event.key === 'p' || event.key === 'P') {
           var overlayToggle = document.getElementById('overlayToggle');
+          var overlayToggleChords = document.getElementById('overlayToggleChords');
           if (overlayToggle) {
               overlayToggle.click();
+          } else if (overlayToggleChords) {
+              overlayToggleChords.click();
           }
       }
   });
