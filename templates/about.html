@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>About</title>
+  
+  <!-- CSS files -->
+  <link rel="stylesheet" href="{% static 'v2/css/fretboard.2.0.0.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'v2/css/form.2.0.0.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'v2/css/overlay-menu.1.0.0.css' %}">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css?family=Dosis&display=swap" rel="stylesheet">
+
+  <!-- Favicon -->
+  {% include "favicon.html" %}
+
+
+  <!-- Base JavaScript -->
+  <script src="{% static 'v2/js/base.2.0.0.js' %}"></script>
+
+  <!-- Meta Tags -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="title" content="Fretboard-Position-Finder">
+  <meta name="description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
+
+  <!-- Social Media Meta -->
+  <meta property="og:title" content="Guitar Positions">
+  <meta property="og:description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
+  <meta property="og:image" content="{% static 'thumbnail/v2/facebook/home.jpg' %}">
+  <meta property="og:url" content="https://guitar-positions.org">
+
+  <meta name="twitter:title" content="Guitar Positions">
+  <meta name="twitter:description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
+  <meta name="twitter:image" content="{% static 'thumbnail/v2/twitter/home.jpg' %}">
+  <meta name="twitter:card" content="summary_large_image">
+
+</head>
+<body>
+  {% include "sidebar/sidebar.html" %}
+  
+<div class="mbs">
+   
+<h1>About</h1>
+
+<p>This web app was born out of a passion for supporting guitarists of all levels in expanding their skills and developing a deeper understanding of their instrument. As a guitar teacher and musician, it was my heartfelt desire to create a tool that would not only support my students but also assist me in my daily practice.</p>
+
+<p>Guitar-positions.org generates all possible fingerings for guitarists in all keys and positions. Our app is organized into categories to make navigation easier:</p>
+<ul>
+    <li><strong>Scales:</strong> From pentatonic scales to melodic minor scales and symmetrical scales.</li>
+    <li><strong>Arpeggios:</strong> Triads- and Seventh Chord-Arpeggios.</li>
+    <li><strong>Chords:</strong> Triads and Seventh Chords.</li>
+</ul>
+
+<p>Whether you are looking for simple triads, spread triads, or more complex chords, our app provides you with a comprehensive collection of fretboard diagrams and positions. We are particularly proud of the integration of Ted Greene's V-System, which helps you find and master all the notes on the guitar fretboard.</p>
+
+<p>Our app is ideal for students who want to improve their technique as well as advanced guitarists seeking new challenges. With guitar-positions.org, you can take your musical journey to the next level.</p>
+
+<p>This app is an open-source project. We welcome anyone who wishes to contribute to the code or provide feedback. You can reach us anytime at <a href="mailto:lukas@schoensgibl.com">lukas@schoensgibl.com</a>.</p>
+
+<p>Enjoy practicing and discovering!</p>
+
+    
+</div>
+
+<footer>
+    {% include "footer/footer.html" %}
+</footer>
+
+</body>
+</html>

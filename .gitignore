@@ -140,3 +140,6 @@ dmypy.json
 *.ipynb
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
+
+#VisualStudioCode
+.vs_code/

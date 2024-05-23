@@ -1,0 +1,43 @@
+{% load static %}
+<div id="overlayToggle">
+    <img src="{% static 'media/svg/position_icon.svg' %}" alt="Position Icon" class="overlay-icon">
+</div>
+
+<div id="overlayMenu" class="overlay-menu">
+    <div class="overlay-content">
+        <div id="initialStep" class="step">
+            <button id="selectRootNote">Root Note</button>
+            <button id="selectType">Type</button>
+            <button id="selectPosition">Position</button>
+        </div>
+        <div id="rootStep" class="step" style="display: none;">
+            <h2>Root Note</h2>
+            <div class="grid-container">
+                {% for option in root_options %}
+                <div class="grid-item" data-value="{{ option.id }}">{{ option.name }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromRoot">Back</button>
+        </div>
+        <div id="typeStep" class="step" style="display: none;">
+            <h2>Type</h2>
+            <div class="grid-container">
+                {% for option in notes_options %}
+                <div class="grid-item" data-value="{{ option.id }}">{{ option.note_name }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromType">Back</button>
+        </div>
+        <div id="positionStep" class="step" style="display: none;">
+            <h2>Position</h2>
+            <div class="grid-container">
+                <div class="grid-item" data-value="0">All Notes</div>
+                {% for option in position_options %}
+                <div class="grid-item" data-value="{{ option.position_order }}">{{ option.position_order }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromPosition">Back</button>
+        </div>
+        <div id="closeOverlay" class="close-button">&times;</div>
+    </div>
+</div>

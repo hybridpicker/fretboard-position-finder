@@ -1,0 +1,62 @@
+{% load static %}
+<div id="overlayToggleChords">
+    <img src="{% static 'media/svg/position_icon.svg' %}" alt="Position Icon" class="overlay-icon">
+</div>
+
+<div id="overlayMenuChords" class="overlay-menu">
+    <div class="overlay-content">
+        <div id="initialStepChords" class="step">
+            <button id="selectRootNoteChords">Root Note</button>
+            <button id="selectTypeChords">Type</button>
+            <button id="selectChord">Chord</button>
+            <button id="selectNoteRange">Note Range</button>
+            <button id="selectPositionChords">Position</button>
+        </div>
+        <div id="rootStepChords" class="step" style="display: none;">
+            <h2>Select Root Note</h2>
+            <div class="grid-container">
+                {% for option in root_options %}
+                <div class="grid-item" data-value="{{ option.id }}">{{ option.name }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromRootChords">Back</button>
+        </div>
+        <div id="typeStepChords" class="step" style="display: none;">
+            <h2>Select Type</h2>
+            <div class="grid-container">
+                {% for option in type_options %}
+                <div class="grid-item" data-value="{{ option }}">{{ option }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromTypeChords">Back</button>
+        </div>
+        <div id="chordStep" class="step" style="display: none;">
+            <h2>Select Chord</h2>
+            <div class="grid-container">
+                {% for option in chord_options %}
+                <div class="grid-item" data-value="{{ option }}">{{ option }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromChord">Back</button>
+        </div>
+        <div id="noteRangeStep" class="step" style="display: none;">
+            <h2>Select Note Range</h2>
+            <div class="grid-container">
+                {% for option in range_options %}
+                <div class="grid-item" data-value="{{ option.range }}">{{ option.range }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromNoteRange">Back</button>
+        </div>
+        <div id="positionStepChords" class="step" style="display: none;">
+            <h2>Select Position</h2>
+            <div class="grid-container">
+                {% for option in position_options %}
+                <div class="grid-item" data-value="{{ option.inversion_order }}">{{ option.inversion_order }}</div>
+                {% endfor %}
+            </div>
+            <button id="backToInitialFromPositionChords">Back</button>
+        </div>
+        <div id="closeOverlayChords" class="close-button">&times;</div>
+    </div>
+</div>

@@ -1,0 +1,166 @@
+
+    /* Overlay style */
+    .overlay {
+        display: none; /* Hide the overlay by default */
+        position: fixed; /* Stay in place */
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        top: 0;
+        left: 0;
+        background-color: rgba(172, 172, 172, 0.7); /* Black background with opacity */
+        z-index: 99; /* Ensures the overlay is on top of other content */
+        overflow: auto; /* Allows scrolling if content exceeds overlay */
+    }
+
+    /* Style for the close button */
+    .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        font-size: 40px;
+        color: #fff;
+        cursor: pointer;
+    }
+  
+    .analysis_container {
+        display: none;
+        font-size: 14pt;
+        padding-bottom: 1%;
+    }
+    @media only screen and (max-width: 1050px) {
+        .analysis_container {
+            display: none;
+        }
+    }
+    form button {
+        font-family: 'Dosis', sans-serif;
+        font-size: 14pt;
+        box-shadow: 0 4px #791006;
+        width: 20%;
+        height: 50px;
+        border-radius: 10px;
+        background: #AA1A0D;
+        border-width: 0.5px;
+        color: #fff;
+        border-color: #aa1a0d;
+    }
+    form button:hover {
+        transform: translate(0, 1.5px);
+        box-shadow: 0 2.5px #7E1444;
+        cursor: pointer;
+    }
+    .form-actions {
+        padding-top: 1em;
+    }
+
+    .change .bar1 {
+        -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+        transform: rotate(-45deg) translate(-9px, 6px);
+    }
+
+    .change .bar2 {
+        opacity: 0;
+    }
+
+    .change .bar3 {
+        -webkit-transform: rotate(45deg) translate(-8px, -8px);
+        transform: rotate(45deg) translate(-8px, -8px);
+    }
+
+
+    /* Navbar  */
+.sfbsf-text {
+    display: inline-block;
+  }
+  /* The container must be positioned relative: */
+  .sfbsf, .sfbsfnr, .sfbsfpos, .sfbsfnos {
+    position: relative;
+    font-family: 'Dosis', sans-serif;
+    font-size: 14pt;
+    font-color: #0F262B;
+    display: inline-block;
+    width: 12rem;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
+  select {
+    display: none;
+  }
+  .sfbsfnr-text, .sfbsfpos-text, {
+    display: inline-block;
+  }
+  
+  .sfbsfpos > .slit, .sfbsfnr > .slit, .sfbsfnos-text {
+    height: auto;
+  }
+  .sese {
+    background-color: #fff;
+    border-radius: 18px 0 18px 18px;
+    box-shadow: 0px 2px 2px 1px #00000005;
+    padding: 6px 10px;
+    border: 1px solid;
+    border-top-color: currentcolor;
+    border-right-color: currentcolor;
+    border-bottom-color: currentcolor;
+    border-left-color: currentcolor;
+    border-color: #BABABAAD;
+    cursor: pointer;
+  }
+  .sese.slar-active{
+    border-radius: 18px 0 0 0;
+    box-shadow: none;
+  }
+  /* Point the arrow upwards when the select box is open (active): */
+  .sese.slar-active:before {
+    content: url(/static/media/select_field/arrow/arrow_before.png);
+    margin-left: -18px;
+    margin-right: 8px;
+  }
+  .sese.slar-active:after {
+    content: '';
+  }
+  /* Style items (options): */
+  .slit {
+    position: absolute;
+    background-color: #fff;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    border-radius: 0px 0px 18px 18px;
+    overflow-y: scroll;
+    height: 600%;
+    background: #fffffff2;
+  }
+  /* Hide the items when the select box is closed: */
+  .sehi {
+    display: none;
+  }
+  .swasd:before {
+    content: url(/static/media/select_field/arrow/arrow_before.png);
+    margin-left: -18px;
+    margin-right: 8px;
+  }
+  #catsfbsf > .slit {
+    overflow-y: unset;
+    height: auto;
+  }
+  .slit div {
+    padding: 6px 10px;
+    border-right: 1px solid;
+    border-left: 1px solid;
+    border-right-color: currentcolor;
+    border-left-color: currentcolor;
+    border-color: #0F262B4D;
+    cursor: pointer;
+  }
+  #catsfbsf > .slit div:last-of-type, .sfbsfnr > .slit div:last-of-type,
+  .sfbsfpos > .slit div:last-of-type {
+    border-bottom: 1px solid;
+    border-bottom-color: currentcolor;
+    border-color: #0F262B4D;
+    border-radius: 0 0 18px 18px;
+  }
+  .slit div:hover, .swasd {
+    background-color: #fdb22e33;
+  }
