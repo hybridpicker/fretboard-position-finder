@@ -118,7 +118,6 @@ function initializeOverlayMenu() {
     });
 }
 
-// Initialize overlay menu on DOMContentLoaded
 document.addEventListener("DOMContentLoaded", function() {
-    initializeOverlayMenu();
+      initializeOverlayMenu();
 });
