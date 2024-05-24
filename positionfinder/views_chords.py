@@ -16,6 +16,69 @@ from .get_position_dict_chords import get_position_dict
 
 from positionfinder.views_helpers import get_menu_options
 
+NOTE_MAPPING = {
+    'c': 'C',
+    'cs': 'C#',
+    'd': 'D',
+    'ds': 'D#',
+    'e': 'E',
+    'f': 'F',
+    'fs': 'F#',
+    'g': 'G',
+    'gs': 'G#',
+    'a': 'A',
+    'as': 'A#',
+    'b': 'B',
+    'db': 'Db',
+    'eb': 'Eb',
+    'gb': 'Gb',
+    'ab': 'Ab',
+    'bb': 'Bb'
+}
+
+NOTE_ORDER = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B']
+
+def get_note_order(root_note):
+    start_index = NOTE_ORDER.index(root_note)
+    return NOTE_ORDER[start_index:] + NOTE_ORDER[:start_index]
+
+def extract_and_convert_notes(json_data):
+    notes = set()
+    root_note = None
+
+    def extract_notes_from_position(positions):
+        for position in positions:
+            for string, note_info in position.items():
+                note = note_info[0].lower().rstrip('0123456789-')
+                notes.add(NOTE_MAPPING.get(note, note).upper())
+
+    def traverse(data):
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if key == 'Basic Position':
+                    extract_notes_from_position(value)
+                elif isinstance(value, dict) or isinstance(value, list):
+                    traverse(value)
+        elif isinstance(data, list):
+            for item in data:
+                if isinstance(item, dict) or isinstance(item, list):
+                    traverse(item)
+
+    if "root" in json_data:
+        root_note_full = json_data["root"][0].lower().rstrip('0123456789-')
+        root_note = NOTE_MAPPING.get(root_note_full, root_note_full).upper()
+        notes.add(root_note)
+
+    traverse(json_data)
+
+    if root_note:
+        note_order = get_note_order(root_note)
+        sorted_notes = sorted(notes, key=lambda x: note_order.index(x))
+    else:
+        sorted_notes = sorted(notes, key=lambda x: NOTE_ORDER.index(x))
+
+    return sorted_notes
+
 '''
 Main View
 '''
@@ -148,8 +211,11 @@ def fretboard_chords_view(request):
 
     chord_json_data = json.dumps(chord_json_data)
 
+    selected_notes = extract_and_convert_notes(json.loads(chord_json_data))
+
     # String Names for template
     string_names = ["eString", "bString", "gString", "dString", "AString", "ELowString"]
+    selected_type = selected_note_option.type_name
     
     context = {
         'selected_chord': selected_note_option.chord_name,
@@ -170,6 +236,8 @@ def fretboard_chords_view(request):
         'selected_range': selected_range,
 
         'string_names': string_names,
+        'selected_type': selected_type,
+        'selected_notes': selected_notes,
     }
 
     context.update(menu_options)

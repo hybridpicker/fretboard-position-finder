@@ -3,8 +3,12 @@
     <h2>{{ root_name }} {{ selected_chord }}</h2>
     <h3>{{ selected_root_name }} {{ selected_notes_name }}</h3>
 
+    <b>Type: {{ selected_type }}</b>
+    <br>
     <b>Range: {{ selected_range }}</b>
-    <b>{{ selected_notes_name }}</b>
+    <br>
+    <b>Notes: {% for x in selected_notes %}{{ x }} {% endfor %}
+    </b>
     <br>
 
 </div>
