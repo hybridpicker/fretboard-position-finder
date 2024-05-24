@@ -50,7 +50,8 @@ def extract_and_convert_notes(json_data):
         for position in positions:
             for string, note_info in position.items():
                 note = note_info[0].lower().rstrip('0123456789-')
-                notes.add(NOTE_MAPPING.get(note, note).upper())
+                mapped_note = NOTE_MAPPING.get(note, note.capitalize())
+                notes.add(mapped_note)
 
     def traverse(data):
         if isinstance(data, dict):
@@ -66,10 +67,15 @@ def extract_and_convert_notes(json_data):
 
     if "root" in json_data:
         root_note_full = json_data["root"][0].lower().rstrip('0123456789-')
-        root_note = NOTE_MAPPING.get(root_note_full, root_note_full).upper()
+        root_note = NOTE_MAPPING.get(root_note_full, root_note_full.capitalize())
         notes.add(root_note)
 
     traverse(json_data)
+
+    # Sicherstellen, dass alle Noten im NOTE_ORDER enthalten sind
+    for note in notes:
+        if note not in NOTE_ORDER:
+            raise ValueError(f"Note {note} is not in NOTE_ORDER")
 
     if root_note:
         note_order = get_note_order(root_note)
@@ -210,6 +216,7 @@ def fretboard_chords_view(request):
         position_json_data = {}
 
     chord_json_data = json.dumps(chord_json_data)
+    print(chord_json_data)
 
     selected_notes = extract_and_convert_notes(json.loads(chord_json_data))
 
