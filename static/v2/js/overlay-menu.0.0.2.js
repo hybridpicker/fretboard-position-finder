@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+function initializeOverlayMenu() {
     const overlayToggle = document.getElementById('overlayToggle');
     const overlayMenu = document.getElementById('overlayMenu');
     const closeOverlay = document.getElementById('closeOverlay');
@@ -116,4 +116,8 @@ document.addEventListener("DOMContentLoaded", function() {
             resetSteps();
         }
     });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+      initializeOverlayMenu();
 });
