@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Guitar Positions</title>
-  
+
   <!-- CSS files -->
   <link rel="stylesheet" href="{% static 'v2/css/fretboard.2.0.0.css' %}" type="text/css" media="screen">
   <link rel="stylesheet" href="{% static 'v2/css/form.2.0.0.css' %}" type="text/css" media="screen">
@@ -28,7 +28,7 @@
   {% endif %}
 
   <!-- Base JavaScript -->
-  <script src="{% static 'v2/js/base.2.0.0.js' %}"></script>
+  <script src="{% static 'v2/js/base.2.0.0.js' %}" async></script>
 
   <!-- Meta Tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -45,7 +45,6 @@
   <meta name="twitter:description" content="Discover all possible fingerings on the guitar fretboard for scales, arpeggios, and chords in all 12 keys. Perfect for guitarists of all levels to expand their skills.">
   <meta name="twitter:image" content="{% static 'thumbnail/v2/twitter/home.jpg' %}">
   <meta name="twitter:card" content="summary_large_image">
-
 
   {% block head %}
   {% endblock %}
@@ -64,9 +63,9 @@
   </div>
 
   {% if chord_options %}
-  <script src="{% static 'v2/js/overlay-menu-chords.js' %}"></script>
+  <script src="{% static 'v2/js/overlay-menu-chords.js' %}" async></script>
   {% else %}
-  <script src="{% static 'v2/js/overlay-menu.js' %}"></script>
+  <script src="{% static 'v2/js/overlay-menu.js' %}" async></script>
   {% endif %}
   <div class="mbs">
     {% block heading %}
@@ -99,9 +98,9 @@
 
   {% if chord_options %}
     <!-- Fretboard Form Script -->
-    <script src="{% static 'v2/js/fretboard_chords.2.0.0.js' %}"></script>
+    <script src="{% static 'v2/js/fretboard_chords.2.0.0.js' %}" async></script>
   {% else %}
-    <script src="{% static 'v2/js/fretboard_scales.2.0.0.js' %}"></script>
+    <script src="{% static 'v2/js/fretboard_scales.2.0.0.js' %}" async></script>
   {% endif %}
   {% block footer %}
   {% endblock %}
