@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Guitar Positions</title>
-  
+
   <!-- CSS files -->
   <link rel="stylesheet" href="{% static 'v2/css/fretboard.2.0.0.css' %}" type="text/css" media="screen">
   <link rel="stylesheet" href="{% static 'v2/css/form.2.0.0.css' %}" type="text/css" media="screen">
@@ -28,7 +28,14 @@
   {% endif %}
 
   <!-- Base JavaScript -->
-  <script src="{% static 'v2/js/base.2.0.0.js' %}"></script>
+  <script src="{% static 'v2/js/base.2.0.1.js' %}" defer></script>
+
+
+  {% if chord_options %}
+  <script src="{% static 'v2/js/overlay-menu-chords.0.0.2.js' %}" defer></script>
+  {% else %}
+  <script src="{% static 'v2/js/overlay-menu.0.0.2.js' %}" defer></script>
+  {% endif %}
 
   <!-- Meta Tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -46,7 +53,6 @@
   <meta name="twitter:image" content="{% static 'thumbnail/v2/twitter/home.jpg' %}">
   <meta name="twitter:card" content="summary_large_image">
 
-
   {% block head %}
   {% endblock %}
 </head>
@@ -63,11 +69,6 @@
     <img src="{% static 'media/svg/info-icon.svg' %}" alt="Info Icon" class="info-icon">
   </div>
 
-  {% if chord_options %}
-  <script src="{% static 'v2/js/overlay-menu-chords.js' %}"></script>
-  {% else %}
-  <script src="{% static 'v2/js/overlay-menu.js' %}"></script>
-  {% endif %}
   <div class="mbs">
     {% block heading %}
     {% endblock %}
@@ -99,10 +100,20 @@
 
   {% if chord_options %}
     <!-- Fretboard Form Script -->
-    <script src="{% static 'v2/js/fretboard_chords.2.0.0.js' %}"></script>
+    <script src="{% static 'v2/js/fretboard_chords.2.0.1.js' %}" defer></script>
   {% else %}
-    <script src="{% static 'v2/js/fretboard_scales.2.0.0.js' %}"></script>
+    <script src="{% static 'v2/js/fretboard_scales.2.0.1.js' %}" defer></script>
   {% endif %}
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      {% if chord_options %}
+        initializeOverlayMenuChords();
+      {% else %}
+        initializeOverlayMenu();
+      {% endif %}
+    });
+  </script>
   {% block footer %}
   {% endblock %}
 </body>
