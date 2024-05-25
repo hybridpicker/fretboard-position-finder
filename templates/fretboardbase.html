@@ -6,7 +6,7 @@
   <title>Guitar Positions</title>
 
   <!-- CSS files -->
-  <link rel="stylesheet" href="{% static 'v2/css/base.2.0.2.min.css' %}" type="text/css" media="screen">
+  <link rel="stylesheet" href="{% static 'v2/css/base.2.0.3.min.css' %}" type="text/css" media="screen">
 
   <!-- Favicon -->
   {% include "favicon.html" %}
@@ -49,19 +49,19 @@
   {% endblock %}
 </head>
 <body>
-  {% include "sidebar/sidebar.html" %}
-  {% if chord_options %}
-    {% include "overlay-menu/overlay-menu-chords.html" %}
-  {% else %}
-    {% include "overlay-menu/overlay-menu.html" %}
-  {% endif %}
-
-  <!-- Info Icon -->
-  <div id="infoToggle">
-    <img src="{% static 'media/svg/info-icon.svg' %}" alt="Info Icon" class="info-icon">
-  </div>
-
   <div class="mbs">
+    {% include "sidebar/sidebar.html" %}
+    {% if chord_options %}
+      {% include "overlay-menu/overlay-menu-chords.html" %}
+    {% else %}
+      {% include "overlay-menu/overlay-menu.html" %}
+    {% endif %}
+  
+    <!-- Info Icon -->
+    <div id="infoToggle">
+      <img src="{% static 'media/svg/info-icon.svg' %}" alt="Info Icon" class="info-icon">
+    </div>
+
     {% block heading %}
     {% endblock %}
 

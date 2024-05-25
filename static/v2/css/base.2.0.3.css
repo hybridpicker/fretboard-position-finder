@@ -32,7 +32,7 @@ body {
   background-size: contain;
   background-repeat: no-repeat;
   background-position-y: top;
-  padding-left: 16px;
+  padding-left: 28px;
   padding-right: 0;
   width: 1400px;
   font-size: 14pt;
@@ -107,6 +107,10 @@ a {
   color: #FF6F5A;
   text-decoration: none;
 }
+.mbs {
+  max-width: 1400px;
+  margin: 0 auto;
+}
 .mbs h1:first-of-type{
   margin-top: 4rem;
 }
@@ -124,7 +128,7 @@ button {
   position: relative;
   text-align: center;
   height: 50px;
-  width: 83px;
+  width: auto;
 }
 .spacing-top {
   height: 10px;
@@ -158,11 +162,11 @@ button {
   -ms-user-select: none;
   user-select: none;
 }
-@media only screen and (max-width: 1430px) {
+@media only screen and (max-width: 1500px) {
   .fretboard {
     background-image: url(/static/media/svg/fretboard_1000.svg);
     width: 1010px;
-    padding-left: 14px;
+    padding-left: 20px;
     margin: auto;
     background-position-y: top;
   }
@@ -180,8 +184,7 @@ button {
 .fret {
   position: relative;
   text-align: center;
-  height: 50px;
-  width: 82px;
+  width: auto;
 }
 .nofret {
   font-size: 14pt;
@@ -193,9 +196,9 @@ button {
   position: absolute;
   top: -17px;
 }
-@media only screen and (max-width: 1430px) {
+@media only screen and (max-width: 1500px) {
   .fret {
-    width: 59.7px;
+    width: 100%;
   }
   .nofret {
     width: 58.8167px;
@@ -230,12 +233,7 @@ button {
 }
 @media only screen and (max-width: 982px) {
   .fretboard {
-    background-image: url(/static/media/fretboard_4.png);
-  }
-}
-@media only screen and (max-width: 945px) {
-  .fretboard {
-    background-image: url(/static/media/fretboard_3.png);
+    background-image: url(/static/media/svg/fretboard_4.svg);
   }
 }
 @media only screen and (max-width: 890px) {
@@ -256,14 +254,6 @@ button {
   }
   .fretboard {
     background-image: url(/static/media/svg/fretboard_5.svg);
-  }
-}
-@media only screen and (max-width: 700px) {
-  #fretboardcontainer {
-    margin-top: 16px;
-  }
-  .fretboard {
-    background-image: url(/static/media/fretboard_4.png);
   }
 }
 @media only screen and (max-width: 620px) {
@@ -307,13 +297,15 @@ button {
     width: 100%;
   }
   .fret {
-    height: 42px;
+    height: 44px;
+  }
+}
+@media only screen and (max-width: 850px) {
+  .fret {
+    height: 40px;
   }
 }
 @media only screen and (max-width: 795px) {
-  .fretboard {
-    width: 100%;
-  }
   .fret {
     height: 38px;
   }
@@ -369,14 +361,14 @@ footer div {
 .left-cursor {
   display: none;
   top: 50%;
-  left: -22px;
+  left: -30px;
   transform: translateY(-50%);
   background-image: url('/static/media/svg/cursor_left.svg');
 }
 .right-cursor {
   display: none;
   top: 50%;
-  right: -50px;
+  right: -60px;
   transform: translateY(-50%);
   background-image: url('/static/media/svg/cursor_right.svg');
 }
