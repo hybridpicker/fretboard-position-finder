@@ -1,15 +1,15 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener('DOMContentLoaded', function() {
     // Ensure the overlay menu is hidden initially
     const overlayMenuChords = document.getElementById('overlayMenuChords');
     overlayMenuChords.style.display = 'none';
     
     // Initialize navBarFretboardChords for the specified class names
-    navBarFretboardChords("sfbsfnr");
-    navBarFretboardChords("catsfbsf");
-    navBarFretboardChords("sfbsfpos");
+    navBarFretboardChords('sfbsfnr');
+    navBarFretboardChords('catsfbsf');
+    navBarFretboardChords('sfbsfpos');
 
     // Close all select boxes if the user clicks outside of them
-    document.addEventListener("click", closeAllSelect);
+    document.addEventListener('click', closeAllSelect);
 
     // Retrieve tones for chords from data
     var urlParams = new URLSearchParams(window.location.search);
@@ -31,15 +31,15 @@ document.addEventListener("DOMContentLoaded", function() {
     getTonesFromDataChords(pos_val, note_range);
 
      // Set the display style for cursor elements
-     var leftCursor = document.querySelector(".left-cursor");
-     var rightCursor = document.querySelector(".right-cursor");
+     var leftCursor = document.querySelector('.left-cursor');
+     var rightCursor = document.querySelector('.right-cursor');
  
      if (leftCursor) {
-         leftCursor.style.display = "block";
+         leftCursor.style.display = 'block';
      }
  
      if (rightCursor) {
-         rightCursor.style.display = "block";
+         rightCursor.style.display = 'block';
      }
 });
 
@@ -50,10 +50,10 @@ function navBarFretboardChords(class_name) {
         var element = elements[i];
 
         // Add a click event listener to each element with the specified class name
-        element.addEventListener("click", function(e) {
+        element.addEventListener('click', function(e) {
             e.stopPropagation();
             closeAllSelect(this);
-            this.classList.toggle("active");
+            this.classList.toggle('active');
 
             // When an item is clicked, update the tones from data chords
             var urlParams = new URLSearchParams(window.location.search);
@@ -78,19 +78,19 @@ function navBarFretboardChords(class_name) {
 }
 
 function closeAllSelect(elmnt) {
-    var x = document.getElementsByClassName("slit");
-    var y = document.getElementsByClassName("sese");
+    var x = document.getElementsByClassName('slit');
+    var y = document.getElementsByClassName('sese');
     var arrNo = [];
     for (var i = 0; i < y.length; i++) {
         if (elmnt == y[i]) {
             arrNo.push(i);
         } else {
-            y[i].classList.remove("slar-active");
+            y[i].classList.remove('slar-active');
         }
     }
     for (var i = 0; i < x.length; i++) {
         if (arrNo.indexOf(i) === -1) {
-            x[i].classList.add("sehi");
+            x[i].classList.add('sehi');
         }
     }
 }
@@ -129,7 +129,7 @@ function getTonesFromDataChords(pos_val, note_range) {
                         QuerySelect.classList.add('active');
                     }
                 } catch (error) {
-                    console.error("Invalid selector for key or tone:", validKey, validTone, error);
+                    console.error('Invalid selector for key or tone:', validKey, validTone, error);
                 }
             }
         }
@@ -163,11 +163,11 @@ function resetFretboard() {
 
 
 function leftCursorClick() {
-    var pos_val = getQueryParam("position_select");
-    var note_range = getQueryParam("note_range");
+    var pos_val = getQueryParam('position_select');
+    var note_range = getQueryParam('note_range');
 
     if (pos_val === null || pos_val === undefined || !isNaN(pos_val)) {
-        pos_val = "Basic Position"; // Start with Basic Position if parameter is missing or invalid
+        pos_val = 'Basic Position'; // Start with Basic Position if parameter is missing or invalid
     }
     
     var chordType = getChordType();
@@ -175,7 +175,7 @@ function leftCursorClick() {
     var positions = getChordPositions(chordType);
 
     if (positions === undefined || positions.length === 0) {
-        console.error("Invalid chord type or positions undefined for chord type:", chordType);
+        console.error('Invalid chord type or positions undefined for chord type:', chordType);
         return;
     }
     var current_index = positions.indexOf(pos_val);
@@ -192,11 +192,11 @@ function leftCursorClick() {
 }
 
 function rightCursorClick() {
-    var pos_val = getQueryParam("position_select");
-    var note_range = getQueryParam("note_range");
+    var pos_val = getQueryParam('position_select');
+    var note_range = getQueryParam('note_range');
 
     if (pos_val === null || pos_val === undefined || !isNaN(pos_val)) {
-        pos_val = "Basic Position"; // Start with Basic Position if parameter is missing or invalid
+        pos_val = 'Basic Position'; // Start with Basic Position if parameter is missing or invalid
     }
     
     var chordType = getChordType();
@@ -204,7 +204,7 @@ function rightCursorClick() {
     var positions = getChordPositions(chordType);
 
     if (positions === undefined || positions.length === 0) {
-        console.error("Invalid chord type or positions undefined for chord type:", chordType);
+        console.error('Invalid chord type or positions undefined for chord type:', chordType);
         return;
     }
     var current_index = positions.indexOf(pos_val);
@@ -233,7 +233,7 @@ function getChordType() {
 
 function getChordPositions(chordType) {
     var positions = [];
-    var validPositions = ["Basic Position", "First Inversion", "Second Inversion", "Third Inversion"]; // Define valid positions
+    var validPositions = ['Basic Position', 'First Inversion', 'Second Inversion', 'Third Inversion']; // Define valid positions
 
     for (var noteRange in voicing_data) {
         if (voicing_data.hasOwnProperty(noteRange) && typeof voicing_data[noteRange] === 'object') {
@@ -252,7 +252,7 @@ function getChordPositions(chordType) {
 function updatePosition(new_pos_val) {
     var urlParams = new URLSearchParams(window.location.search);
     urlParams.set('position_select', new_pos_val);
-    window.history.replaceState(null, null, "?" + urlParams.toString());
+    window.history.replaceState(null, null, '?' + urlParams.toString());
 }
 
 // Change Root Note
@@ -273,7 +273,7 @@ function changeRoot(noteChange) {
 
     var newRoot = validRoots[newIndex];
     urlParams.set('root', newRoot);
-    window.history.replaceState(null, null, "?" + urlParams.toString());
+    window.history.replaceState(null, null, '?' + urlParams.toString());
 
     // Only update tones if pos_val is specified
     if (urlParams.has('position_select')) {
