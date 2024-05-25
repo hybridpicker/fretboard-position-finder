@@ -1,3 +1,25 @@
+/* static/css/local-fonts.css */
+@font-face {
+  font-family: 'Dosis';
+  src: url('/static/fonts/dosis/Dosis-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dosis';
+  src: url('/static/fonts/dosis/Dosis-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dosis';
+  src: url('/static/fonts/dosis/Dosis-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
 body {
   font-family: 'Dosis', sans-serif;
   font-size: 14pt;
@@ -6,7 +28,7 @@ body {
   display: grid;
   grid-column-gap: 0 !important;
   grid-template-columns: repeat(17, auto);
-  background-image: url(/static/media/fretboard_1400.png);
+  background-image: url(/static/media/svg/fretboard_1400.svg);
   background-size: contain;
   background-repeat: no-repeat;
   background-position-y: top;
@@ -138,7 +160,7 @@ button {
 }
 @media only screen and (max-width: 1430px) {
   .fretboard {
-    background-image: url(/static/media/fretboard_1000.png);
+    background-image: url(/static/media/svg/fretboard_1000.svg);
     width: 1010px;
     padding-left: 14px;
     margin: auto;
@@ -195,7 +217,7 @@ button {
     margin: auto;
     background-position-y: top;
     padding-left: 13px;
-    background-image: url(/static/media/fretboard_5.png);
+    background-image: url(/static/media/svg/fretboard_5.svg);
   }
   .note > .tone {
     max-height: 26px;
@@ -218,7 +240,7 @@ button {
 }
 @media only screen and (max-width: 890px) {
   .fretboard {
-    background-image: url(/static/media/fretboard_5.png);
+    background-image: url(/static/media/svg/fretboard_5.svg);
   }
 }
 @media only screen and (max-width: 780px) {
@@ -233,7 +255,7 @@ button {
     max-width: 20px;
   }
   .fretboard {
-    background-image: url(/static/media/fretboard_5.png);
+    background-image: url(/static/media/svg/fretboard_5.svg);
   }
 }
 @media only screen and (max-width: 700px) {
@@ -268,7 +290,7 @@ button {
 }
 @media only screen and (max-width: 545px) {
   .fretboard {
-    background-image: url(/static/media/fretboard_5.png);
+    background-image: url(/static/media/svg/fretboard_5.svg);
     width: 1000px;
     padding-left: 14px;
     margin: auto;
