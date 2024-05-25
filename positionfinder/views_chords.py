@@ -216,7 +216,6 @@ def fretboard_chords_view(request):
         position_json_data = {}
 
     chord_json_data = json.dumps(chord_json_data)
-    print(chord_json_data)
 
     selected_notes = extract_and_convert_notes(json.loads(chord_json_data))
 
