@@ -106,6 +106,7 @@ function deactivateActiveNotes(string, toneName) {
   }
 }
 
+/* IMPORTANT */
 function getToneNameFromDataChords() {
   var button = document.getElementById("show_tension_button")
   button.setAttribute("onclick","show_tension_notes_chords()")

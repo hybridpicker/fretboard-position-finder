@@ -6,8 +6,8 @@
   <title>Guitar Positions</title>
 
   <!-- CSS files -->
-  <link rel="stylesheet" href="{% static 'v2/css/base.2.0.2.css' %}" type="text/css" media="screen">
-  
+  <link rel="stylesheet" href="{% static 'v2/css/base.2.0.2.min.css' %}" type="text/css" media="screen">
+
   <!-- Favicon -->
   {% include "favicon.html" %}
 
@@ -22,14 +22,11 @@
   </script>
   {% endif %}
 
-  <!-- Base JavaScript -->
-  <script src="{% static 'v2/js/base.2.0.2.min.js' %}" defer></script>
-
-
   {% if chord_options %}
-  <script src="{% static 'v2/js/overlay-menu-chords.0.0.3.min.js' %}" defer></script>
+    <!-- Fretboard Form Script -->
+    <script src="{% static 'v2/js/fretboard_chords.2.0.3.min.js' %}"></script>
   {% else %}
-  <script src="{% static 'v2/js/overlay-menu.0.0.3.min.js' %}" defer></script>
+    <script src="{% static 'v2/js/fretboard_scales.2.0.3.min.js' %}"></script>
   {% endif %}
 
   <!-- Meta Tags -->
@@ -93,22 +90,15 @@
     {% include "footer/footer.html" %}
   </footer>
 
+
+  <!-- Base JavaScript -->
+  <script src="{% static 'v2/js/base.2.0.2.min.js' %}" defer></script>
   {% if chord_options %}
-    <!-- Fretboard Form Script -->
-    <script src="{% static 'v2/js/fretboard_chords.2.0.2.min.js' %}" defer></script>
+  <script src="{% static 'v2/js/overlay-menu-chords.0.0.4.min.js' %}" defer></script>
   {% else %}
-    <script src="{% static 'v2/js/fretboard_scales.2.0.2.min.js' %}" defer></script>
+  <script src="{% static 'v2/js/overlay-menu.0.0.4.min.js' %}" defer></script>
   {% endif %}
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      {% if chord_options %}
-        initializeOverlayMenuChords();
-      {% else %}
-        initializeOverlayMenu();
-      {% endif %}
-    });
-  </script>
   {% block footer %}
   {% endblock %}
 </body>

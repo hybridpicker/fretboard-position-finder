@@ -174,3 +174,7 @@ function initializeOverlayMenuChords() {
         });
     }
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    initializeOverlayMenuChords();
+});
