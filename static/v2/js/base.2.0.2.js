@@ -6,12 +6,12 @@ var frets = ['one','two','three','four','five','six',
 
 // Define the NOTES variable
 const NOTES = {
-    "eString": [["f2"], ["gb2", "fs2"], ["g2"], ["ab2", "gs2"], ["a2"], ["bb2", "as2"], ["b2"], ["c3"], ["db3", "cs3"], ["d3"], ["eb3", "ds3"], ["e3"], ["f3"], ["gb3", "fs3"], ["g3"], ["ab3", "gs3"], ["a3"]],
-    "bString": [["c2"], ["db2", "cs2"], ["d2"], ["eb2", "ds2"], ["e2"], ["f2"], ["gb2", "fs2"], ["g2"], ["ab2", "gs2"], ["a2"], ["bb2", "as2"], ["b2"], ["c3"], ["db3", "cs3"], ["d3"], ["eb3", "ds3"], ["e3"]],
-    "gString": [["ab1", "gs1"], ["a1"], ["bb1", "as1"], ["b1"], ["c2"], ["db2", "cs2"], ["d2"], ["eb2", "ds2"], ["e2"], ["f2"], ["gb2", "fs2"], ["g2"], ["ab2", "gs2"], ["a2"], ["bb2", "as2"], ["b2"], ["c3"]],
-    "dString": [["eb1", "ds1"], ["e1"], ["f1"], ["gb1", "fs1"], ["g1"], ["ab1", "gs1"], ["a1"], ["bb1", "as1"], ["b1"], ["c2"], ["db2", "cs2"], ["d2"], ["eb2", "ds2"], ["e2"], ["f2"], ["gb2", "fs2"], ["g2"]],
-    "AString": [["bb0", "as0"], ["b0"], ["c1"], ["db1", "cs1"], ["d1"], ["eb1", "ds1"], ["e1"], ["f1"], ["gb1", "fs1"], ["g1"], ["ab1", "gs1"], ["a1"], ["bb1", "as1"], ["b1"], ["c2"], ["db2", "cs2"], ["d2"]],
-    "ELowString": [["f0"], ["gb0", "fs0"], ["g0"], ["ab0", "gs0"], ["a0"], ["bb0", "as0"], ["b0"], ["c1"], ["db1", "cs1"], ["d1"], ["eb1", "ds1"], ["e1"], ["f1"], ["gb1", "fs1"], ["g1"], ["ab1", "gs1"], ["a1"]],
+    'eString': [['f2'], ['gb2', 'fs2'], ['g2'], ['ab2', 'gs2'], ['a2'], ['bb2', 'as2'], ['b2'], ['c3'], ['db3', 'cs3'], ['d3'], ['eb3', 'ds3'], ['e3'], ['f3'], ['gb3', 'fs3'], ['g3'], ['ab3', 'gs3'], ['a3']],
+    'bString': [['c2'], ['db2', 'cs2'], ['d2'], ['eb2', 'ds2'], ['e2'], ['f2'], ['gb2', 'fs2'], ['g2'], ['ab2', 'gs2'], ['a2'], ['bb2', 'as2'], ['b2'], ['c3'], ['db3', 'cs3'], ['d3'], ['eb3', 'ds3'], ['e3']],
+    'gString': [['ab1', 'gs1'], ['a1'], ['bb1', 'as1'], ['b1'], ['c2'], ['db2', 'cs2'], ['d2'], ['eb2', 'ds2'], ['e2'], ['f2'], ['gb2', 'fs2'], ['g2'], ['ab2', 'gs2'], ['a2'], ['bb2', 'as2'], ['b2'], ['c3']],
+    'dString': [['eb1', 'ds1'], ['e1'], ['f1'], ['gb1', 'fs1'], ['g1'], ['ab1', 'gs1'], ['a1'], ['bb1', 'as1'], ['b1'], ['c2'], ['db2', 'cs2'], ['d2'], ['eb2', 'ds2'], ['e2'], ['f2'], ['gb2', 'fs2'], ['g2']],
+    'AString': [['bb0', 'as0'], ['b0'], ['c1'], ['db1', 'cs1'], ['d1'], ['eb1', 'ds1'], ['e1'], ['f1'], ['gb1', 'fs1'], ['g1'], ['ab1', 'gs1'], ['a1'], ['bb1', 'as1'], ['b1'], ['c2'], ['db2', 'cs2'], ['d2']],
+    'ELowString': [['f0'], ['gb0', 'fs0'], ['g0'], ['ab0', 'gs0'], ['a0'], ['bb0', 'as0'], ['b0'], ['c1'], ['db1', 'cs1'], ['d1'], ['eb1', 'ds1'], ['e1'], ['f1'], ['gb1', 'fs1'], ['g1'], ['ab1', 'gs1'], ['a1']],
 }
 
 /**
@@ -101,14 +101,15 @@ function deactivateActiveNotes(string, toneName) {
     // Check if the index is a natural number
     if (!isNaN(x)) {
       // Remove the 'active' class from the element
-      elements[x].classList.remove("active");
+      elements[x].classList.remove('active');
     }
   }
 }
 
+/* IMPORTANT */
 function getToneNameFromDataChords() {
-  var button = document.getElementById("show_tension_button")
-  button.setAttribute("onclick","show_tension_notes_chords()")
+  var button = document.getElementById('show_tension_button')
+  button.setAttribute('onclick','show_tension_notes_chords()')
   button.innerHTML = 'Show Tensions';
   var pos_val = document.getElementById('position_select').value
   var note_range = document.getElementById('note_range').value
@@ -122,20 +123,20 @@ function getNoteNameFromData(){
   var i = 0;
   for (var key in scale_data[y]) {
     if (scale_data[y].hasOwnProperty(key)) {
-      for (var z in scale_data[y][key][0]["tones"]) {
-        var tone_name = scale_data[y][key][0]["tones"][z]
+      for (var z in scale_data[y][key][0]['tones']) {
+        var tone_name = scale_data[y][key][0]['tones'][z]
         var QuerySelect = document.querySelector('.' + key + ' .notename.' + tone_name);
         var image = document.querySelector('.' + key + ' .' + tone_name + ' img.active');
         if (image){
           if (QuerySelect != null){
-            QuerySelect.classList.add("active")
+            QuerySelect.classList.add('active')
           }
         }
       }
     }
   }
-  var button = document.getElementById("show_note_name_button")
-  button.setAttribute("onclick","getNotePicFromData()")
+  var button = document.getElementById('show_note_name_button')
+  button.setAttribute('onclick','getNotePicFromData()')
   button.innerHTML = 'Only Tones';
 }
 
@@ -148,8 +149,8 @@ function getNotePicFromData(){
       notename_elements[i].classList.remove('active');
     }
   }
-  var button = document.getElementById("show_note_name_button")
-  button.setAttribute("onclick","getNoteNameFromData()")
+  var button = document.getElementById('show_note_name_button')
+  button.setAttribute('onclick','getNoteNameFromData()')
   button.innerHTML = 'Show Note Names';
 }
 
@@ -157,24 +158,24 @@ function closeAllSelect(elmnt) {
   /*  Close all select boxes in the document,
   except the current select box: */
   var x, y, i, arrNo = [];
-  x = document.getElementsByClassName("slit");
-  y = document.getElementsByClassName("sese");
+  x = document.getElementsByClassName('slit');
+  y = document.getElementsByClassName('sese');
   for (i = 0; i < y.length; i++) {
     if (elmnt == y[i]) {
       arrNo.push(i)
     } else {
-      y[i].classList.remove("slar-active");
+      y[i].classList.remove('slar-active');
     }
   }
   for (i = 0; i < x.length; i++) {
     if (arrNo.indexOf(i)) {
-      x[i].classList.add("sehi");
+      x[i].classList.add('sehi');
     }
   }
 }
 
 /* Save Scroll Position when Refreshing Page */
-document.addEventListener("DOMContentLoaded", function(event) {
+document.addEventListener('DOMContentLoaded', function(event) {
     var scrollpos = localStorage.getItem('scrollpos');
     if (scrollpos) window.scrollTo(0, scrollpos);
 });
@@ -184,7 +185,7 @@ window.onbeforeunload = function(e) {
 };
 
 // Info Icon
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener('DOMContentLoaded', function() {
   const infoToggle = document.getElementById('infoToggle');
   const analysisContainer = document.querySelector('.analysis_container');
 
@@ -201,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // Sidebar
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener('DOMContentLoaded', function() {
   const menuToggle = document.getElementById('menuToggle');
   const menuCheckbox = document.getElementById('menuCheckbox');
   const menu = document.getElementById('menu');
@@ -218,7 +219,7 @@ document.addEventListener("DOMContentLoaded", function() {
               menu.style.left = '-300px';
               leftCursor.style.zIndex = '10';
               document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-                  const label = document.querySelector(`label[for="${toggle.id}"]`);
+                  const label = document.querySelector(`label[for='${toggle.id}']`);
                   if (label) {
                       label.removeAttribute('style'); // Remove all inline styles
                   }
@@ -233,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function() {
               menu.style.left = '-300px';
               leftCursor.style.zIndex = '10';
               document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-                  const label = document.querySelector(`label[for="${toggle.id}"]`);
+                  const label = document.querySelector(`label[for='${toggle.id}']`);
                   if (label) {
                       label.removeAttribute('style'); // Remove all inline styles
                   }
@@ -244,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function() {
       document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
           toggle.addEventListener('click', function() {
               document.querySelectorAll('.dropdown-toggle').forEach(innerToggle => {
-                  const label = document.querySelector(`label[for="${innerToggle.id}"]`);
+                  const label = document.querySelector(`label[for='${innerToggle.id}']`);
                   if (innerToggle.checked && label) {
                       label.style.color = '#FF6F5A'; // Change color when active
                       label.style.fontWeight = 'bold'; // Change font weight when active
@@ -274,7 +275,7 @@ function toggleDropdown(currentCheckbox) {
 document.addEventListener('DOMContentLoaded', function() {
   // Event listener for keydown events
   document.addEventListener('keydown', function(event) {
-      // Check if the "Escape" key is pressed
+      // Check if the 'Escape' key is pressed
       if (event.key === 'Escape') {
           var closeButton = document.getElementById('closeOverlay');
           var closeButtonChords = document.getElementById('closeOverlayChords');
@@ -284,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
               closeButtonChords.click();
           }
       }
-      // Check if the "i" key is pressed
+      // Check if the 'i' key is pressed
       if (event.key === 'i' || event.key === 'I') {
           var infoToggle = document.getElementById('infoToggle');
           if (infoToggle) {
@@ -307,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (event.key === 'ArrowDown') {
           decreaseRoot();
       }
-      // Check if the "p" key is pressed
+      // Check if the 'p' key is pressed
       if (event.key === 'p' || event.key === 'P') {
           var overlayToggle = document.getElementById('overlayToggle');
           var overlayToggleChords = document.getElementById('overlayToggleChords');

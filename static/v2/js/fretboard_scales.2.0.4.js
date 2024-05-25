@@ -1,8 +1,30 @@
+document.addEventListener('DOMContentLoaded', function() {
+  const overlayMenu = document.getElementById('overlayMenu');
+  overlayMenu.style.display = 'none';
+
+  customizeSelectField('sfbsfnos');
+  customizeSelectField('sfbsfpos');
+  customizeSelectField('sfbsf');
+
+  // If the user clicks anywhere outside the select box, close all select boxes
+  document.addEventListener('click', closeAllSelect);
+
+  var pos_val = document.getElementById('position_select').value;
+  var url_string = window.location.href;
+  var url = new URL(url_string);
+  pos_val = url.searchParams.get('position_select');
+  if (pos_val) {
+    getTonesFromDataScales(pos_val);
+  } else {
+    getTonesFromDataScales('0');
+  }
+});
+
 
 function multiple_notes(tone_name, y) {
   var url_string = window.location.href;
   var url = new URL(url_string);
-  var pos_val = url.searchParams.get("position_select");
+  var pos_val = url.searchParams.get('position_select');
 
   // Check if positions are clicked
   if (!pos_val) {
@@ -10,13 +32,13 @@ function multiple_notes(tone_name, y) {
   }
   for (var key in scale_data[y]) {
       if (scale_data[y].hasOwnProperty(key)) {
-          for (var z in scale_data[y][key][0]["tones"]) {
-              var tone_name = scale_data[y][key][0]["tones"][z];
+          for (var z in scale_data[y][key][0]['tones']) {
+              var tone_name = scale_data[y][key][0]['tones'][z];
               var elements = document.querySelectorAll('.' + tone_name + '.active');
               if (elements.length > 2) {
                   var url_string = window.location.href;
                   var url = new URL(url_string);
-                  var pos_val = url.searchParams.get("position_select");
+                  var pos_val = url.searchParams.get('position_select');
                   if (pos_val != 0) {
                       var list_of_strings = [];
                       for (var variable in frets) {
@@ -82,10 +104,10 @@ function avoid_four_notes_on_string(){
     var element = document.querySelectorAll('.' + avoid_strings[x] +' .active > img')
     if (element.length > 3){
       if (avoid_strings[x] == avoid_strings[1]){
-        element[0].classList.remove("active")
+        element[0].classList.remove('active')
       }
       else{
-        element[3].classList.remove("active")
+        element[3].classList.remove('active')
       }
     }
   }
@@ -98,8 +120,8 @@ function getTonesFromDataScales(y){
   var i = 0;
   for (var key in scale_data[y]) {
     if (scale_data[y].hasOwnProperty(key)) {
-      for (var z in scale_data[y][key][0]["tones"]) {
-        var tone_name = scale_data[y][key][0]["tones"][z]
+      for (var z in scale_data[y][key][0]['tones']) {
+        var tone_name = scale_data[y][key][0]['tones'][z]
         var QuerySelect = document.querySelector('.' + key + ' img.tone.' + tone_name);
         if (QuerySelect != null){
           QuerySelect.classList.add('active');
@@ -145,7 +167,7 @@ function getTonesFromDataScales(y){
 function multiple_notes(tone_name, y) {
   var url_string = window.location.href;
   var url = new URL(url_string);
-  var pos_val = url.searchParams.get("position_select");
+  var pos_val = url.searchParams.get('position_select');
 
   // Check if positions are clicked
   if (!pos_val) {
@@ -153,13 +175,13 @@ function multiple_notes(tone_name, y) {
   }
   for (var key in scale_data[y]) {
       if (scale_data[y].hasOwnProperty(key)) {
-          for (var z in scale_data[y][key][0]["tones"]) {
-              var tone_name = scale_data[y][key][0]["tones"][z];
+          for (var z in scale_data[y][key][0]['tones']) {
+              var tone_name = scale_data[y][key][0]['tones'][z];
               var elements = document.querySelectorAll('.' + tone_name + '.active');
               if (elements.length > 2) {
                   var url_string = window.location.href;
                   var url = new URL(url_string);
-                  var pos_val = url.searchParams.get("position_select");
+                  var pos_val = url.searchParams.get('position_select');
                   if (pos_val != 0) {
                       var list_of_strings = [];
                       for (var variable in frets) {
@@ -225,10 +247,10 @@ function avoid_four_notes_on_string(){
     var element = document.querySelectorAll('.' + avoid_strings[x] +' .active > img')
     if (element.length > 3){
       if (avoid_strings[x] == avoid_strings[1]){
-        element[0].classList.remove("active")
+        element[0].classList.remove('active')
       }
       else{
-        element[3].classList.remove("active")
+        element[3].classList.remove('active')
       }
     }
   }
@@ -241,8 +263,8 @@ function getTonesFromDataScales(y){
   var i = 0;
   for (var key in scale_data[y]) {
     if (scale_data[y].hasOwnProperty(key)) {
-      for (var z in scale_data[y][key][0]["tones"]) {
-        var tone_name = scale_data[y][key][0]["tones"][z]
+      for (var z in scale_data[y][key][0]['tones']) {
+        var tone_name = scale_data[y][key][0]['tones'][z]
         var QuerySelect = document.querySelector('.' + key + ' img.tone.' + tone_name);
         if (QuerySelect != null){
           QuerySelect.classList.add('active');
@@ -306,7 +328,7 @@ if (pos_val < max_pos - 1) {
 function leftCursorClick() {
 var url_string = window.location.href;
 var url = new URL(url_string);
-var pos_val = parseInt(url.searchParams.get("position_select")); // Convert pos_val to a number
+var pos_val = parseInt(url.searchParams.get('position_select')); // Convert pos_val to a number
 
 // Filter the keys to count only numeric keys
 var max_pos = Object.keys(scale_data).filter(key => !isNaN(key)).length; // Number of numeric positions in the scale_data object
@@ -314,7 +336,7 @@ var max_pos = Object.keys(scale_data).filter(key => !isNaN(key)).length; // Numb
 if (pos_val > 0) { // Ensure the new position is not less than 0
   var new_pos_val = pos_val - 1;
   document.getElementById('position_select').value = new_pos_val;
-  document.getElementById("fretboard_form").submit();
+  document.getElementById('fretboard_form').submit();
   updateCursorVisibility(new_pos_val, max_pos);
 } else {
   return;
@@ -324,10 +346,10 @@ if (pos_val > 0) { // Ensure the new position is not less than 0
 function rightCursorClick() {
 var url_string = window.location.href;
 var url = new URL(url_string);
-var pos_val = url.searchParams.get("position_select"); // Get the position value from the URL
+var pos_val = url.searchParams.get('position_select'); // Get the position value from the URL
 
 // Check if the URL is empty and set pos_val to 0 if true
-if (pos_val === null || pos_val === "") {
+if (pos_val === null || pos_val === '') {
   pos_val = 0;
 } else {
   pos_val = parseInt(pos_val); // Convert pos_val to a number
@@ -339,7 +361,7 @@ var max_pos = Object.keys(scale_data).filter(key => !isNaN(key)).length; // Numb
 if (pos_val < max_pos - 1) { // Ensure the new position is not greater than max_pos - 1
   var new_pos_val = pos_val + 1;
   document.getElementById('position_select').value = new_pos_val;
-  document.getElementById("fretboard_form").submit();
+  document.getElementById('fretboard_form').submit();
   updateCursorVisibility(new_pos_val, max_pos);
 } else {
   return;
@@ -350,10 +372,10 @@ if (pos_val < max_pos - 1) { // Ensure the new position is not greater than max_
 document.addEventListener('DOMContentLoaded', function() {
 var url_string = window.location.href;
 var url = new URL(url_string);
-var pos_val = url.searchParams.get("position_select"); // Get the position value from the URL
+var pos_val = url.searchParams.get('position_select'); // Get the position value from the URL
 
 // Check if the URL is empty and set pos_val to 0 if true
-if (pos_val === null || pos_val === "") {
+if (pos_val === null || pos_val === '') {
   pos_val = 0;
 } else {
   pos_val = parseInt(pos_val); // Convert pos_val to a number
@@ -365,73 +387,51 @@ var max_pos = Object.keys(scale_data).filter(key => !isNaN(key)).length; // Numb
 updateCursorVisibility(pos_val, max_pos);
 });
 
-// Customize the "sfbsfnos" select field on page load
-window.onload = function() {
-    const overlayMenu = document.getElementById('overlayMenu');
-    overlayMenu.style.display = 'none';
 
-    customizeSelectField("sfbsfnos");
-    customizeSelectField("sfbsfpos");
-    customizeSelectField("sfbsf");
-  
-    // If the user clicks anywhere outside the select box, close all select boxes
-    document.addEventListener("click", closeAllSelect);
-  
-    var pos_val = document.getElementById('position_select').value;
-    var url_string = window.location.href;
-    var url = new URL(url_string);
-    pos_val = url.searchParams.get("position_select");
-    if (pos_val) {
-      getTonesFromDataScales(pos_val);
-    } else {
-      getTonesFromDataScales('0');
-    }
-  };
-  
   /**
    * Customize the select field by creating custom dropdown elements
    */
   function customizeSelectField(className) {
     var x = document.getElementsByClassName(className);
     for (var i = 0; i < x.length; i++) {
-      var selElmnt = x[i].getElementsByTagName("select")[0];
-      var a = document.createElement("DIV");
-      a.setAttribute("class", "sese");
+      var selElmnt = x[i].getElementsByTagName('select')[0];
+      var a = document.createElement('DIV');
+      a.setAttribute('class', 'sese');
       a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
       x[i].appendChild(a);
   
-      var b = document.createElement("DIV");
-      b.setAttribute("class", "slit sehi");
+      var b = document.createElement('DIV');
+      b.setAttribute('class', 'slit sehi');
       for (var j = 1; j < selElmnt.length; j++) {
-        var c = document.createElement("DIV");
+        var c = document.createElement('DIV');
         c.innerHTML = selElmnt.options[j].innerHTML;
-        c.addEventListener("click", function(e) {
+        c.addEventListener('click', function(e) {
           var y, k, s, h;
-          s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+          s = this.parentNode.parentNode.getElementsByTagName('select')[0];
           h = this.parentNode.previousSibling;
           for (var i = 0; i < s.length; i++) {
             if (s.options[i].innerHTML == this.innerHTML) {
               s.selectedIndex = i;
               h.innerHTML = this.innerHTML;
-              y = this.parentNode.getElementsByClassName("swasd");
+              y = this.parentNode.getElementsByClassName('swasd');
               for (k = 0; k < y.length; k++) {
-                y[k].removeAttribute("class");
+                y[k].removeAttribute('class');
               }
-              this.setAttribute("class", "swasd");
+              this.setAttribute('class', 'swasd');
               break;
             }
           }
           h.click();
-          document.getElementById("fretboard_form").submit();
+          document.getElementById('fretboard_form').submit();
         });
         b.appendChild(c);
       }
       x[i].appendChild(b);
-      a.addEventListener("click", function(e) {
+      a.addEventListener('click', function(e) {
         e.stopPropagation();
         closeAllSelect(this);
-        this.nextSibling.classList.toggle("sehi");
-        this.classList.toggle("slar-active");
+        this.nextSibling.classList.toggle('sehi');
+        this.classList.toggle('slar-active');
       });
     }
   }
@@ -440,19 +440,19 @@ window.onload = function() {
    * Close all select boxes in the document, except the current select box
    */
   function closeAllSelect(elmnt) {
-    var x = document.getElementsByClassName("slit");
-    var y = document.getElementsByClassName("sese");
+    var x = document.getElementsByClassName('slit');
+    var y = document.getElementsByClassName('sese');
     var arrNo = [];
     for (var i = 0; i < y.length; i++) {
       if (elmnt == y[i]) {
         arrNo.push(i);
       } else {
-        y[i].classList.remove("slar-active");
+        y[i].classList.remove('slar-active');
       }
     }
     for (var i = 0; i < x.length; i++) {
       if (arrNo.indexOf(i)) {
-        x[i].classList.add("sehi");
+        x[i].classList.add('sehi');
       }
     }
   }
@@ -472,7 +472,7 @@ function changeScaleRoot(noteChange) {
 
     var newRoot = validRoots[newIndex];
     urlParams.set('root', newRoot);
-    window.history.replaceState(null, null, "?" + urlParams.toString());
+    window.history.replaceState(null, null, '?' + urlParams.toString());
 
     // Only update tones if pos_val is specified
     if (urlParams.has('position_select')) {

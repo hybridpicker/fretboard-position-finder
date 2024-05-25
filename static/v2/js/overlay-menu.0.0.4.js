@@ -118,6 +118,6 @@ function initializeOverlayMenu() {
     });
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener('DOMContentLoaded', function() {
       initializeOverlayMenu();
 });
