@@ -1,3 +1,25 @@
+document.addEventListener("DOMContentLoaded", function() {
+  const overlayMenu = document.getElementById('overlayMenu');
+  overlayMenu.style.display = 'none';
+
+  customizeSelectField("sfbsfnos");
+  customizeSelectField("sfbsfpos");
+  customizeSelectField("sfbsf");
+
+  // If the user clicks anywhere outside the select box, close all select boxes
+  document.addEventListener("click", closeAllSelect);
+
+  var pos_val = document.getElementById('position_select').value;
+  var url_string = window.location.href;
+  var url = new URL(url_string);
+  pos_val = url.searchParams.get("position_select");
+  if (pos_val) {
+    getTonesFromDataScales(pos_val);
+  } else {
+    getTonesFromDataScales('0');
+  }
+});
+
 
 function multiple_notes(tone_name, y) {
   var url_string = window.location.href;
@@ -365,29 +387,7 @@ var max_pos = Object.keys(scale_data).filter(key => !isNaN(key)).length; // Numb
 updateCursorVisibility(pos_val, max_pos);
 });
 
-// Customize the "sfbsfnos" select field on page load
-window.onload = function() {
-    const overlayMenu = document.getElementById('overlayMenu');
-    overlayMenu.style.display = 'none';
 
-    customizeSelectField("sfbsfnos");
-    customizeSelectField("sfbsfpos");
-    customizeSelectField("sfbsf");
-  
-    // If the user clicks anywhere outside the select box, close all select boxes
-    document.addEventListener("click", closeAllSelect);
-  
-    var pos_val = document.getElementById('position_select').value;
-    var url_string = window.location.href;
-    var url = new URL(url_string);
-    pos_val = url.searchParams.get("position_select");
-    if (pos_val) {
-      getTonesFromDataScales(pos_val);
-    } else {
-      getTonesFromDataScales('0');
-    }
-  };
-  
   /**
    * Customize the select field by creating custom dropdown elements
    */

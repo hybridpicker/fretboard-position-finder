@@ -1,4 +1,4 @@
-window.onload = function() {
+document.addEventListener("DOMContentLoaded", function() {
     // Ensure the overlay menu is hidden initially
     const overlayMenuChords = document.getElementById('overlayMenuChords');
     overlayMenuChords.style.display = 'none';
@@ -41,8 +41,8 @@ window.onload = function() {
      if (rightCursor) {
          rightCursor.style.display = "block";
      }
+});
 
-};
 
 function navBarFretboardChords(class_name) {
     var elements = document.getElementsByClassName(class_name);
