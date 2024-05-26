@@ -1,0 +1,8 @@
+ {% load static %}
+ <!-- Base JavaScript -->
+ <script src="{% static 'v2/js/base.2.0.2.min.js' %}" defer></script>
+ {% if chord_options %}
+ <script src="{% static 'v2/js/overlay-menu-chords.0.0.4.min.js' %}" defer></script>
+ {% elif scale_json_data %}
+ <script src="{% static 'v2/js/overlay-menu.0.0.4.min.js' %}" defer></script>
+ {% endif %}
