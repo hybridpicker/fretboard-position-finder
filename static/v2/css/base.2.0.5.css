@@ -567,12 +567,12 @@ button:hover {
 .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 2rem;
+  gap: 1rem;
   padding: 10px;
   margin-bottom: 20px;
   overflow-y: auto; /* Enables vertical scrolling within the container */
   overflow-x: hidden; /* Prevents horizontal scrolling */
-  max-height: calc(80vh - 20rem); /* Ensures the container doesn't exceed the overlay's height */
+  max-height: calc(100vh - 22rem); /* Ensures the container doesn't exceed the overlay's height */
 }
 
 .grid-item {
@@ -590,7 +590,6 @@ button:hover {
 }
 
 .grid-item:hover {
-  transform: scale(1.05);
   background-color: #ececec;
 }
 
@@ -623,7 +622,7 @@ button:hover {
 /* Adjustments for Mobile and Tablets */
 @media only screen and (max-width: 768px) {
   .overlay-content {
-      padding: 5rem;
+      padding: 2rem;
       max-width: 95%;
       max-height: 90%;
   }
@@ -636,21 +635,22 @@ button:hover {
   .grid-item {
       padding: 15px;
       font-size: 14pt;
+      margin: auto;
   }
 
   .close-button {
-      width: 25px;
-      height: 25px;
+      width: 20px;
+      height: 20px;
   }
 
   .grid-container {
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      max-height: calc(100vh - 10rem);
   }
 }
 
 @media only screen and (max-width: 480px) {
   .overlay-content {
-      padding: 3rem;
       max-width: 98%;
       max-height: 95%;
   }
