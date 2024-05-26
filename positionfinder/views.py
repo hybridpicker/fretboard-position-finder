@@ -9,3 +9,13 @@ def about_view(request):
     }
     context.update(menu_options)
     return render(request, 'about.html', context)
+
+
+def impressum_view(request):
+    menu_options = get_menu_options() 
+    context = {
+        'show_fretboard': False,
+    }
+    context.update(menu_options)
+    return render(request, 'impressum.html', context)
+
