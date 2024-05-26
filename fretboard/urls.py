@@ -27,4 +27,5 @@ urlpatterns = [
     path('chords', positionfinder.views_chords.fretboard_chords_view,
          name='show_chords_fretboard'),
     path('about/', positionfinder.views.about_view, name='about'),
+    path('impressum/', positionfinder.views.impressum_view, name='impressum'),
 ]
