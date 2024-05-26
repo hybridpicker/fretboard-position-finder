@@ -5,14 +5,7 @@
   <meta charset="UTF-8">
   <title>About</title>
   
-  <!-- CSS files -->
-  <link rel="stylesheet" href="{% static 'v2/css/base.2.0.4.min.css' %}" type="text/css" media="screen">
-  
-  <!-- Favicon -->
-  {% include "favicon.html" %}
-
-  <!-- Base JavaScript -->
-  <script src="{% static 'v2/js/base.2.0.2.min.js' %}"></script>
+  {% include "header/header.html" %}
 
   <!-- Meta Tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -70,6 +63,7 @@
 </div>
 
 <footer>
+    {% include "footer/scripts.html" %}
     {% include "footer/footer.html" %}
 </footer>
 
