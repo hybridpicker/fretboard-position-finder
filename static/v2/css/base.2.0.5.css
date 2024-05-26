@@ -586,12 +586,12 @@ button:hover {
   min-width: 80px;
   max-width: 120px;
   word-wrap: break-word;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 .grid-item:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  background-color: #ececec;
 }
 
 .close-button {
