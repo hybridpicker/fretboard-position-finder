@@ -248,7 +248,6 @@ document.addEventListener('DOMContentLoaded', function() {
                   const label = document.querySelector(`label[for='${innerToggle.id}']`);
                   if (innerToggle.checked && label) {
                       label.style.color = '#FF6F5A'; // Change color when active
-                      label.style.fontWeight = 'bold'; // Change font weight when active
                   } else if (label) {
                       label.removeAttribute('style'); // Remove all inline styles
                   }
