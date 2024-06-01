@@ -28,7 +28,7 @@ body {
   display: grid;
   grid-column-gap: 0 !important;
   grid-template-columns: repeat(17, auto);
-  background-image: url(/static/media/svg/fretboard_1400.svg);
+  background-image: url(/static/media/svg/fretboard_big.svg);
   background-size: contain;
   background-repeat: no-repeat;
   background-position-y: top;
@@ -131,7 +131,7 @@ button {
   width: auto;
 }
 .spacing-top {
-  height: 10px;
+  height: 15px;
 }
 .spacing-bottom {
   height: 1px;
@@ -164,7 +164,7 @@ button {
 }
 @media only screen and (max-width: 1500px) {
   .fretboard {
-    background-image: url(/static/media/svg/fretboard_1000.svg);
+    background-image: url(/static/media/svg/fretboard_main.svg);
     width: 1010px;
     padding-left: 20px;
     margin: auto;
@@ -196,6 +196,12 @@ button {
   position: absolute;
   top: -17px;
 }
+@media only screen and (min-width: 1500px) {
+  .spacing-top {
+    height: 22px;
+  }
+}
+
 @media only screen and (max-width: 1500px) {
   .fret {
     width: 100%;
@@ -219,8 +225,8 @@ button {
     width: 100%;
     margin: auto;
     background-position-y: top;
-    padding-left: 13px;
-    background-image: url(/static/media/svg/fretboard_5.svg);
+    padding-left: 18px;
+    background-image: url(/static/media/svg/fretboard_tablet.svg);
   }
   .note > .tone {
     max-height: 26px;
@@ -230,20 +236,23 @@ button {
     font-size: 10pt;
     padding-top: 3px;
   }
+  .spacing-top {
+    height: 20px;
+  }
 }
 @media only screen and (max-width: 982px) {
-  .fretboard {
-    background-image: url(/static/media/svg/fretboard_4.svg);
+  .fret{
+    height: 44px;
   }
 }
 @media only screen and (max-width: 890px) {
   .fretboard {
-    background-image: url(/static/media/svg/fretboard_5.svg);
+    background-image: url(/static/media/svg/fretboard_tablet.svg);
   }
 }
 @media only screen and (max-width: 780px) {
   .spacing-top {
-    height: 6px;
+    height: 15px;
   }
   #fretboardcontainer {
     margin-top: 16px;
@@ -253,7 +262,7 @@ button {
     max-width: 20px;
   }
   .fretboard {
-    background-image: url(/static/media/svg/fretboard_5.svg);
+    background-image: url(/static/media/svg/fretboard_tablet.svg);
   }
 }
 @media only screen and (max-width: 620px) {
@@ -280,7 +289,7 @@ button {
 }
 @media only screen and (max-width: 545px) {
   .fretboard {
-    background-image: url(/static/media/svg/fretboard_5.svg);
+    background-image: url(/static/media/svg/fretboard_tablet.svg);
     width: 1000px;
     padding-left: 14px;
     margin: auto;
@@ -325,6 +334,11 @@ button {
   }
   .fret {
     height: 34px;
+  }
+}
+@media only screen and (max-width: 620px) {
+  .fret {
+    height: 33px;
   }
 }
 footer div {
@@ -567,12 +581,12 @@ button:hover {
 .grid-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 2rem;
+  gap: 1rem;
   padding: 10px;
   margin-bottom: 20px;
   overflow-y: auto; /* Enables vertical scrolling within the container */
   overflow-x: hidden; /* Prevents horizontal scrolling */
-  max-height: calc(80vh - 20rem); /* Ensures the container doesn't exceed the overlay's height */
+  max-height: calc(100vh - 22rem); /* Ensures the container doesn't exceed the overlay's height */
 }
 
 .grid-item {
@@ -586,12 +600,11 @@ button:hover {
   min-width: 80px;
   max-width: 120px;
   word-wrap: break-word;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 
 .grid-item:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+  background-color: #ececec;
 }
 
 .close-button {
@@ -623,7 +636,7 @@ button:hover {
 /* Adjustments for Mobile and Tablets */
 @media only screen and (max-width: 768px) {
   .overlay-content {
-      padding: 5rem;
+      padding: 2rem;
       max-width: 95%;
       max-height: 90%;
   }
@@ -636,21 +649,22 @@ button:hover {
   .grid-item {
       padding: 15px;
       font-size: 14pt;
+      margin: auto;
   }
 
   .close-button {
-      width: 25px;
-      height: 25px;
+      width: 20px;
+      height: 20px;
   }
 
   .grid-container {
       grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      max-height: calc(100vh - 10rem);
   }
 }
 
 @media only screen and (max-width: 480px) {
   .overlay-content {
-      padding: 3rem;
       max-width: 98%;
       max-height: 95%;
   }

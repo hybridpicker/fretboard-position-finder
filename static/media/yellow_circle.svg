@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50.371" height="50.375" viewBox="0 0 50.371 50.375">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rechteck_36" data-name="Rechteck 36" width="50.371" height="50.375" fill="none"/>
+    </clipPath>
+  </defs>
+  <g id="Gruppe_54" data-name="Gruppe 54" transform="translate(0 0)">
+    <g id="Gruppe_53" data-name="Gruppe 53" transform="translate(0 0.001)" clip-path="url(#clip-path)">
+      <path id="Pfad_895" data-name="Pfad 895" d="M47.8,44.057c-2.972,2.73-7.05,2.8-11.149,2.425-5.578-.514-9.9-2.043-15.021-4.3C15.986,39.691,11.436,37.229,7,32.947c-2.812-2.714-5.237-5.689-5.125-9.467A25.178,25.178,0,0,0,47.8,44.057" transform="translate(0 -7.74)" fill="#ffae00"/>
+      <path id="Pfad_896" data-name="Pfad 896" d="M48.719,38.893a25.221,25.221,0,0,0-7.042-30.9c-9.847-.228-21.244-.237-31.138,0A24.286,24.286,0,0,0,2.793,18.316c-.112,3.778,2.313,6.753,5.125,9.467,4.437,4.282,8.988,6.744,14.63,9.232,5.125,2.26,9.444,3.79,15.021,4.3,4.1.377,8.177.3,11.149-2.425" transform="translate(-0.919 -2.576)" fill="#ffc343"/>
+      <path id="Pfad_897" data-name="Pfad 897" d="M45.488,6.267A22.149,22.149,0,0,0,39.073,2.59H20.843A21.421,21.421,0,0,0,14.35,6.267c9.894-.237,21.29-.228,31.138,0" transform="translate(-4.73 -0.854)" fill="#ffd06e"/>
+      <path id="Pfad_898" data-name="Pfad 898" d="M42.266,1.736a24.792,24.792,0,0,0-18.23,0Z" transform="translate(-7.923 0)" fill="#ffdb90"/>
+    </g>
+  </g>
+</svg>

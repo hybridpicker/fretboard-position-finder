@@ -60,7 +60,7 @@ function playTone(tone, stringName = null) {
       audio.play();
 
       const isRoot = activeElement.classList.contains('root');
-      const newSrc = isRoot ? '/static/media/red_circle_active_24.svg' : '/static/media/yellow_circle_active_24.svg';
+      const newSrc = isRoot ? '/static/media/red_active_circle.svg' : '/static/media/yellow_active_circle.svg';
       const revertSrc = isRoot ? '/static/media/red_circle.svg' : '/static/media/yellow_circle.svg';
 
       activeElement.setAttribute('src', newSrc);

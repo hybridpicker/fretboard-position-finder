@@ -145,7 +145,7 @@ function getTonesFromDataChords(pos_val, note_range) {
                 var validRoot = root.replace(/[^a-zA-Z0-9-_]/g, '');
                 var root_note_image = document.querySelector('.' + validString + ' img.tone.active.' + validRoot);
                 if (root_note_image != null) {
-                    root_note_image.setAttribute('src', '/static/media/red_dot_24.svg');
+                    root_note_image.setAttribute('src', '/static/media/red_circle.svg');
                     root_note_image.classList.add('active');
                     root_note_image.classList.add('root');
                 }
