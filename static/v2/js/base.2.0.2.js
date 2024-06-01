@@ -60,8 +60,8 @@ function playTone(tone, stringName = null) {
       audio.play();
 
       const isRoot = activeElement.classList.contains('root');
-      const newSrc = isRoot ? '/static/media/red_dot_active_24.svg' : '/static/media/yellow_dot_active_24.svg';
-      const revertSrc = isRoot ? '/static/media/red_dot_24.svg' : '/static/media/yellow_dot_24.svg';
+      const newSrc = isRoot ? '/static/media/red_circle_active_24.svg' : '/static/media/yellow_circle_active_24.svg';
+      const revertSrc = isRoot ? '/static/media/red_circle.svg' : '/static/media/yellow_circle.svg';
 
       activeElement.setAttribute('src', newSrc);
       setTimeout(() => {
@@ -83,7 +83,7 @@ function resetFretboard() {
 
   // Reset the 'src' attribute for all tone elements
   const toneElements = document.querySelectorAll('.tone');
-  toneElements.forEach(element => element.setAttribute('src', '/static/media/yellow_dot_24.svg'));
+  toneElements.forEach(element => element.setAttribute('src', '/static/media/yellow_circle.svg'));
 }
 
 
