@@ -1,6 +1,6 @@
 {% load static %}
 <!-- CSS files -->
-<link rel="stylesheet" href="{% static 'v2/css/base.2.0.6.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/base.2.0.6.css' %}" type="text/css" media="screen">
 
 <!-- Favicon -->
 {% include "favicon.html" %}
@@ -19,7 +19,7 @@
 
 {% if chord_options %}
   <!-- Fretboard Form Script -->
-  <script src="{% static 'v2/js/fretboard_chords.2.0.3.min.js' %}"></script>
+  <script src="{% static 'js/fretboard_chords.2.0.3.min.js' %}"></script>
 {% elif scale_json_data %}
-  <script src="{% static 'v2/js/fretboard_scales.2.0.4.min.js' %}"></script>
+  <script src="{% static 'js/fretboard_scales.2.0.4.min.js' %}"></script>
 {% endif %}
