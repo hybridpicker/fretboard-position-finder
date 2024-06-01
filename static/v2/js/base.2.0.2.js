@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function() {
               document.querySelectorAll('.dropdown-toggle').forEach(innerToggle => {
                   const label = document.querySelector(`label[for='${innerToggle.id}']`);
                   if (innerToggle.checked && label) {
-                      label.style.color = '#FF6F5A'; // Change color when active
+                      label.style.color = '#FF877A'; // Change color when active
                   } else if (label) {
                       label.removeAttribute('style'); // Remove all inline styles
                   }
