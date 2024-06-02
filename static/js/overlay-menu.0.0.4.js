@@ -86,21 +86,32 @@ function initializeOverlayMenu() {
     });
 
     function submitForm() {
+        alert('submitForm function started');
+        
         const form = document.createElement('form');
         form.method = 'GET';
         form.action = '';
-
+        alert('Form created with method GET and empty action');
+    
         for (const key in urlParams) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = urlParams[key];
-            form.appendChild(input);
+            if (urlParams.hasOwnProperty(key)) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = urlParams[key];
+                form.appendChild(input);
+                alert('Added input: ' + key + ' = ' + urlParams[key]);
+            }
         }
-
+    
         document.body.appendChild(form);
+        alert('Form appended to body');
+        
         form.submit();
+        alert('Form submitted');
     }
+    
+    
 
     function resetSteps() {
         initialStep.classList.remove('active');
