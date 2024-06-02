@@ -27,6 +27,14 @@ function initializeOverlayMenu() {
     // Ensure the overlay menu is hidden initially
     overlayMenu.style.display = 'none';
 
+    // Read current URL parameters and update urlParams
+    const currentUrlParams = new URLSearchParams(window.location.search);
+    for (const [key, value] of currentUrlParams.entries()) {
+        if (urlParams.hasOwnProperty(key)) {
+            urlParams[key] = value;
+        }
+    }
+
     overlayToggle.addEventListener('click', function() {
         overlayMenu.style.display = 'flex';
         initialStep.classList.add('active');
@@ -86,32 +94,21 @@ function initializeOverlayMenu() {
     });
 
     function submitForm() {
-        alert('submitForm function started');
-        
-        const form = document.createElement('form');
-        form.method = 'GET';
-        form.action = '';
-        alert('Form created with method GET and empty action');
-    
-        for (const key in urlParams) {
-            if (urlParams.hasOwnProperty(key)) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = key;
-                input.value = urlParams[key];
-                form.appendChild(input);
-                alert('Added input: ' + key + ' = ' + urlParams[key]);
-            }
+        // Basis-URL prüfen und festlegen
+        const currentPath = window.location.pathname;
+        let baseURL = '';
+
+        if (currentPath.includes('/arpeggios')) {
+            baseURL = '/arpeggios';
+        } else {
+            baseURL = '/';
         }
-    
-        document.body.appendChild(form);
-        alert('Form appended to body');
-        
-        form.submit();
-        alert('Form submitted');
+
+        const queryString = new URLSearchParams(urlParams).toString();
+        const finalURL = `${baseURL}?${queryString}`;
+
+        window.location.href = finalURL;
     }
-    
-    
 
     function resetSteps() {
         initialStep.classList.remove('active');
@@ -130,5 +127,5 @@ function initializeOverlayMenu() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-      initializeOverlayMenu();
+    initializeOverlayMenu();
 });
