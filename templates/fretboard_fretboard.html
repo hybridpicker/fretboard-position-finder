@@ -22,7 +22,7 @@
             <a onclick="playTone('{{ notes.0 }}','{{ string_name }}')" class="note-click">
               {% for note in notes %}
               <div class="note {{ note }}">
-                <img class="tone {{ note }}" src="{% static 'media/yellow_dot_24.svg' %}" alt="">
+                <img class="tone {{ note }}" src="{% static 'media/yellow_circle.svg' %}" alt="">
                 <div class="notename {{ note }}">
                   {{ note|format_note_name }}
                 </div>
