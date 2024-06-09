@@ -167,7 +167,7 @@ button {
   .fretboard {
     background-image: url(/static/media/svg/fretboard_main.svg);
     width: 1010px;
-    padding-left: 20px;
+    padding-left: 22px;
     margin: auto;
     background-position-y: top;
   }
@@ -226,7 +226,7 @@ button {
     width: 100%;
     margin: auto;
     background-position-y: top;
-    padding-left: 18px;
+    padding-left: 22px;
     background-image: url(/static/media/svg/fretboard_tablet.svg);
   }
   .note > .tone {
@@ -249,6 +249,7 @@ button {
 @media only screen and (max-width: 890px) {
   .fretboard {
     background-image: url(/static/media/svg/fretboard_tablet.svg);
+    padding-left: 18px;
   }
 }
 @media only screen and (max-width: 780px) {
@@ -264,6 +265,7 @@ button {
   }
   .fretboard {
     background-image: url(/static/media/svg/fretboard_tablet.svg);
+    padding-left: 16px;
   }
 }
 @media only screen and (max-width: 620px) {
@@ -331,7 +333,7 @@ button {
 @media only screen and (max-width: 668px) {
   .fretboard {
     width: 668px;
-    padding-left: 10px;
+    padding-left: 16px;
   }
   .fret {
     height: 34px;
