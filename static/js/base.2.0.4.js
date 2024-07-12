@@ -317,5 +317,12 @@ document.addEventListener('DOMContentLoaded', function() {
               overlayToggleChords.click();
           }
       }
+      // Check if the 'n' key is pressed
+      if (event.key === 'n' || event.key === 'N') {
+        var showNoteNameButton = document.getElementById('show_note_name_button');
+        if (showNoteNameButton) {
+            showNoteNameButton.click();
+        }
+    }
   });
 });
