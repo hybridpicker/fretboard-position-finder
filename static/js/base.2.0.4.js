@@ -270,59 +270,138 @@ function toggleDropdown(currentCheckbox) {
   });
 }
 
-// Keyboard Handlers
 document.addEventListener('DOMContentLoaded', function() {
+  // Function to set a cookie
+  function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+      var date = new Date();
+      date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+  }
+
+  // Function to get a cookie value
+  function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+      if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
+  }
+
+  // Function to erase a cookie
+  function eraseCookie(name) {
+    document.cookie = name + '=; Max-Age=-99999999; path=/; SameSite=Lax';
+  }
+
+  // Function For Getting Note Names on Dots
+  function getNoteNameFromData() {
+    var noteNames = document.querySelectorAll('.note .notename');
+    noteNames.forEach(function(noteName) {
+      var parentNote = noteName.closest('.note');
+      var activeImage = parentNote.querySelector('img.active');
+      if (activeImage) {
+        noteName.classList.add('active');
+        noteName.style.visibility = 'visible'; // Ensure visibility
+      }
+    });
+    document.body.classList.add('show-notes');
+    var button = document.getElementById('show_note_name_button');
+    button.setAttribute('onclick', 'hideNoteNames()');
+    button.innerHTML = 'Only Tones';
+  }
+
+  // Function For Hiding Note Names on Dots
+  function hideNoteNames() {
+    var notenames = document.querySelectorAll('.notename.active');
+    notenames.forEach(function(n) {
+      n.classList.remove('active');
+      n.style.visibility = 'hidden'; // Hide visibility
+    });
+    document.body.classList.remove('show-notes');
+    var button = document.getElementById('show_note_name_button');
+    button.setAttribute('onclick', 'getNoteNameFromData()');
+    button.innerHTML = 'Show Note Names';
+  }
+
+  // Check if the 'showNoteName' cookie is set to 'true'
+  if (getCookie('showNoteName') === 'true') {
+    getNoteNameFromData(); // Call the function to show note names
+  }
+
   // Event listener for keydown events
   document.addEventListener('keydown', function(event) {
-      // Check if the 'Escape' key is pressed
-      if (event.key === 'Escape') {
-          var closeButton = document.getElementById('closeOverlay');
-          var closeButtonChords = document.getElementById('closeOverlayChords');
-          if (closeButton) {
-              closeButton.click();
-          } else if (closeButtonChords) {
-              closeButtonChords.click();
-          }
+    // Check if the 'Escape' key is pressed
+    if (event.key === 'Escape') {
+      var closeButton = document.getElementById('closeOverlay');
+      var closeButtonChords = document.getElementById('closeOverlayChords');
+      if (closeButton) {
+        closeButton.click();
+      } else if (closeButtonChords) {
+        closeButtonChords.click();
       }
-      // Check if the 'i' key is pressed
-      if (event.key === 'i' || event.key === 'I') {
-          var infoToggle = document.getElementById('infoToggle');
-          if (infoToggle) {
-              infoToggle.click();
-          }
+    }
+    // Check if the 'i' key is pressed
+    if (event.key === 'i' || event.key === 'I') {
+      var infoToggle = document.getElementById('infoToggle');
+      if (infoToggle) {
+        infoToggle.click();
       }
-      // Check if the left arrow key is pressed
-      if (event.key === 'ArrowLeft') {
-          leftCursorClick();
+    }
+    // Check if the left arrow key is pressed
+    if (event.key === 'ArrowLeft') {
+      leftCursorClick();
+    }
+    // Check if the right arrow key is pressed
+    if (event.key === 'ArrowRight') {
+      rightCursorClick();
+    }
+    // Check if the up arrow key is pressed
+    if (event.key === 'ArrowUp') { 
+      increaseRoot();
+    }
+    // Check if the down arrow key is pressed
+    if (event.key === 'ArrowDown') {
+      decreaseRoot();
+    }
+    // Check if the 'p' key is pressed
+    if (event.key === 'p' || event.key === 'P') {
+      var overlayToggle = document.getElementById('overlayToggle');
+      var overlayToggleChords = document.getElementById('overlayToggleChords');
+      if (overlayToggle) {
+        overlayToggle.click();
+      } else if (overlayToggleChords) {
+        overlayToggleChords.click();
       }
-      // Check if the right arrow key is pressed
-      if (event.key === 'ArrowRight') {
-          rightCursorClick();
+    }
+    // Check if the 'n' key is pressed
+    if (event.key === 'n' || event.key === 'N') {
+      if (document.body.classList.contains('show-notes')) {
+        hideNoteNames();
+        eraseCookie('showNoteName');
+      } else {
+        getNoteNameFromData();
+        setCookie('showNoteName', 'true', 7); // Set cookie to remember the state for 7 days
       }
-      // Check if the up arrow key is pressed
-      if (event.key === 'ArrowUp') { 
-          increaseRoot();
-      }
-      // Check if the down arrow key is pressed
-      if (event.key === 'ArrowDown') {
-          decreaseRoot();
-      }
-      // Check if the 'p' key is pressed
-      if (event.key === 'p' || event.key === 'P') {
-          var overlayToggle = document.getElementById('overlayToggle');
-          var overlayToggleChords = document.getElementById('overlayToggleChords');
-          if (overlayToggle) {
-              overlayToggle.click();
-          } else if (overlayToggleChords) {
-              overlayToggleChords.click();
-          }
-      }
-      // Check if the 'n' key is pressed
-      if (event.key === 'n' || event.key === 'N') {
-        var showNoteNameButton = document.getElementById('show_note_name_button');
-        if (showNoteNameButton) {
-            showNoteNameButton.click();
-        }
     }
   });
+
+  // Add click event listener to the button
+  var showNoteNameButton = document.getElementById('show_note_name_button');
+  if (showNoteNameButton) {
+    showNoteNameButton.addEventListener('click', function() {
+      if (document.body.classList.contains('show-notes')) {
+        hideNoteNames();
+        eraseCookie('showNoteName');
+      } else {
+        getNoteNameFromData();
+        setCookie('showNoteName', 'true', 7); // Set cookie to remember the state for 7 days
+      }
+    });
+  }
 });
