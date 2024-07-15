@@ -257,9 +257,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-
-
-
 // Sidebar Script
 function toggleDropdown(currentCheckbox) {
   const dropdowns = document.querySelectorAll('.dropdown-toggle');
