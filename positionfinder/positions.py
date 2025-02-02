@@ -1,3 +1,4 @@
+# positionfinder/positions.py
 from django.utils.translation import gettext as _
 from django.db import models
 from .models import Notes

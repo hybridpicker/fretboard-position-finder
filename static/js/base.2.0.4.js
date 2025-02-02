@@ -1,3 +1,4 @@
+// static/js/base.2.0.4.js
 var string_array = ['eString', 'bString', 'gString', 'dString', 'AString', 'ELowString']
 
 var frets = ['one','two','three','four','five','six',

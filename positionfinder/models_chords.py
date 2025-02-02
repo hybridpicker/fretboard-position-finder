@@ -1,3 +1,4 @@
+# positionfinder/models_chords.py
 from django.utils.translation import gettext as _
 from django.db import models
 

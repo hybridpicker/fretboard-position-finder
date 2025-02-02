@@ -1,3 +1,4 @@
+// static/js/fretboard_chords.2.0.3.js
 document.addEventListener('DOMContentLoaded', function() {
     // Ensure the overlay menu is hidden initially
     const overlayMenuChords = document.getElementById('overlayMenuChords');

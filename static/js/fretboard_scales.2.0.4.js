@@ -1,3 +1,4 @@
+// static/js/fretboard_scales.2.0.4.js
 document.addEventListener('DOMContentLoaded', function() {
   const overlayMenu = document.getElementById('overlayMenu');
   overlayMenu.style.display = 'none';

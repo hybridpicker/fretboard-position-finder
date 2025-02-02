@@ -1,3 +1,4 @@
+// static/js/overlay-menu-chords.0.0.4.js
 function initializeOverlayMenuChords() {
     const overlayToggleChords = document.getElementById('overlayToggleChords');
     const overlayMenuChords = document.getElementById('overlayMenuChords');

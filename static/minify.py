@@ -1,3 +1,4 @@
+# static/minify.py
 import os
 from jsmin import jsmin
 from cssmin import cssmin

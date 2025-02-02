@@ -1,3 +1,4 @@
+# fretboard/settings.py
 """
 Django settings for fretboard project.
 

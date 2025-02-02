@@ -1,3 +1,4 @@
+# positionfinder/views_helpers.py
 from positionfinder.models import Notes, NotesCategory  # Scales and Arpeggios
 from positionfinder.models_chords import ChordNotes  # Chords
 
