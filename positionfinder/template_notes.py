@@ -1,3 +1,4 @@
+# positionfinder/template_notes.py
 NOTES = [
     'c', 'db', 'd',
     'eb', 'e', 'f',

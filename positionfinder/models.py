@@ -1,3 +1,4 @@
+# positionfinder/models.py
 from django.utils.translation import gettext as _
 from django.db import models
 from .notes_choices import ChordChoicesField

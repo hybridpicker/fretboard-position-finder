@@ -1,3 +1,4 @@
+# positionfinder/string_choices.py
 from django.db import models
 from django.utils.translation import gettext as _
 from django.db.models import SmallIntegerField
