@@ -1,36 +1,50 @@
-/* Info button positioning */
+/* Make sure the analysis container has proper styling when shown */
+.analysis_container {
+    background-color: var(--bg-primary); /* Match body background */
+    color: var(--text-primary); /* Match body text color */
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px auto;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(var(--color-dark-slate-rgb), 0.15);
+    line-height: 1.6;
+    display: none; /* Hidden by default */
+    border: 1px solid var(--border-accent);
+}
+
+.analysis_container h2 {
+    margin-top: 0;
+    color: var(--text-primary);
+}
+
+.analysis_container b {
+    margin: 0 5px;
+    color: var(--text-accent);
+    font-weight: 600; /* Semi-bold for better readability */
+}
+
+#show_note_name_button {
+    margin-top: 10px;
+    padding: 5px 15px;
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-family: 'Dosis', sans-serif;
+}
+
+#show_note_name_button:hover {
+    background-color: var(--color-teal-dark);
+}
+
+/* Improve the appearance of the button when info is shown */
+#infoToggle.active .info-icon {
+    filter: brightness(0.8);
+}
+
+/* Ensure we don't override the original position */
 #infoToggle {
-  position: fixed;
-  left: 20px;
-  bottom: 20px;
-  top: auto; /* Override the default top positioning */
-  right: auto; /* Override the default right positioning */
-  z-index: 100;
-  cursor: pointer;
-}
-
-#infoToggle:hover {
-  transform: scale(1.1);
-}
-
-.info-icon {
-  width: 33px;
-  height: 33px;
-  display: inline-block;
-  position: relative !important; /* Override the fixed position */
-  top: auto !important; /* Override the default top positioning */
-  right: auto !important; /* Override the default right positioning */
-}
-
-/* Position adjustment for mobile devices */
-@media (max-width: 768px) {
-  #infoToggle {
-    left: 15px;
-    bottom: 15px;
-  }
-  
-  .info-icon {
-    width: 28px;
-    height: 28px;
-  }
+    /* No positioning properties here - using the base.css positioning */
 }

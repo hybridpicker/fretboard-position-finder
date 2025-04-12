@@ -76,6 +76,39 @@ function initializeStringConfig() {
     
     // Apply the configuration to the fretboard
     applyStringConfiguration(preferredConfig);
+    
+    // Also set a cookie to ensure backend can read it
+    setStringConfigCookie(preferredConfig, 30);
+    console.log(`Initialized string configuration: ${preferredConfig} (set in cookie)`);
+}
+
+/**
+ * Get string configuration from all possible storage mechanisms
+ * @returns {string} Either 'six-string' or 'eight-string'
+ */
+function getStringConfigFromStorage() {
+    // Try cookie first
+    const cookieValue = getStringConfigCookie();
+    if (cookieValue && (cookieValue === 'six-string' || cookieValue === 'eight-string')) {
+        console.log('Found stringConfig in cookie:', cookieValue);
+        return cookieValue;
+    }
+    
+    // Try localStorage with both possible keys
+    try {
+        // Check both possible localStorage keys
+        const localValue = localStorage.getItem('stringConfig') || localStorage.getItem('stringConfiguration');
+        if (localValue && (localValue === 'six-string' || localValue === 'eight-string')) {
+            console.log('Found stringConfig in localStorage:', localValue);
+            return localValue;
+        }
+    } catch (e) {
+        console.warn('Could not read from localStorage:', e);
+    }
+    
+    // Default to eight-string if no valid stored config
+    console.log('No valid string configuration found, defaulting to eight-string');
+    return 'eight-string';
 }
 
 /**
@@ -276,7 +309,7 @@ function updateAvailableRanges(config) {
     // Filter options based on configuration
     const filteredOptions = window.originalRangeOptions.filter(opt => {
         if (config === 'six-string') {
-            // Filter out options containing lowB or highA
+            // Filter out options containing lowB or highA strings
             return !opt.value.includes('lowB') && !opt.value.includes('highA');
         }
         return true; // Keep all options for 8-string

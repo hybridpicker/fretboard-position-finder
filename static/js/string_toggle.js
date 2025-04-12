@@ -80,15 +80,15 @@ function initializeStringConfig() {
     }
     
     // Determine which configuration to use (stored or default)
-    let configState = 'six-string'; // Default to six-string
+    let configState = 'eight-string'; // Default to eight-string
     
     if (preferredConfig && (preferredConfig === 'six-string' || preferredConfig === 'eight-string')) {
         // Use the valid stored configuration
         configState = preferredConfig;
         console.log('Using stored configuration:', configState);
-    } else if (fretboardContainer.classList.contains('eight-string-config')) {
+    } else if (fretboardContainer.classList.contains('six-string-config')) {
         // If no valid stored config but the container has the class
-        configState = 'eight-string';
+        configState = 'six-string';
         console.log('Using class-based configuration:', configState);
     }
     
@@ -187,20 +187,24 @@ function getStringConfigCookie() {
     for (let i = 0; i < cookieArray.length; i++) {
         let cookie = cookieArray[i].trim();
         if (cookie.indexOf(name) === 0) {
-            return cookie.substring(name.length, cookie.length);
+            const value = cookie.substring(name.length, cookie.length);
+            console.log(`Found stringConfig in cookie: ${value}`);
+            return value;
         }
     }
     
-    // If cookie failed, try localStorage
+    // If cookie failed, try localStorage with both possible keys
     try {
-        const localConfig = localStorage.getItem('stringConfig');
+        const localConfig = localStorage.getItem('stringConfig') || localStorage.getItem('stringConfiguration');
         if (localConfig) {
+            console.log(`Found string configuration in localStorage: ${localConfig}`);
             return localConfig;
         }
     } catch (e) {
         console.warn('Could not retrieve string configuration from localStorage:', e);
     }
     
+    console.log('No string configuration found in cookie or localStorage');
     return null;
 }
 
@@ -290,8 +294,8 @@ function updateAvailableRanges(config) {
     // Filter options based on configuration
     const filteredOptions = window.originalRangeOptions.filter(opt => {
         if (config === 'six-string') {
-            // Filter out options containing BbString or highAString
-            return !opt.value.includes('BbString') && !opt.value.includes('highAString');
+            // Filter out options containing lowB or highA strings
+            return !opt.value.includes('lowB') && !opt.value.includes('highA');
         }
         return true; // Keep all options for 8-string
     });
