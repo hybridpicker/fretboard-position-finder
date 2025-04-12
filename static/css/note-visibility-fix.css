@@ -1,0 +1,37 @@
+/* Fix for notename visibility issues */
+
+/* Default state for all tone graphics and notenames: hidden */
+.note > .tone,
+.notename,
+.tensionname {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.2s, opacity 0.2s;
+}
+
+/* When a note or tone is active, make the tone circle visible */
+.note.active > .tone,
+.tone.active {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Show notenames when they are active or have show-name class */
+.notename.active,
+.notename.show-name {
+  visibility: visible !important;
+  opacity: 0.85 !important;
+  z-index: 4 !important; /* Ensure visible name is stacked on top */
+}
+
+/* Fix for scale positions - ensure notes are properly shown in positions */
+.note.active {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Root note styling */
+img.tone.root {
+  border: none !important;
+  box-shadow: none !important;
+}

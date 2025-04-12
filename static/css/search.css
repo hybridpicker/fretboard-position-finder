@@ -1,0 +1,334 @@
+/* Search Styles */
+.search-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.search-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.search-header h1 {
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 2.2rem;
+}
+
+.search-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+/* Search Overlay */
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 5%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  overflow-y: auto;
+}
+
+.search-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.search-overlay-content {
+  background-color: white;
+  width: 90%;
+  max-width: 800px;
+  border-radius: 8px;
+  padding: 2rem;
+  max-height: 80vh;
+  overflow-y: auto;
+  transform: translateY(-20px);
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.search-overlay.active .search-overlay-content {
+  transform: translateY(0);
+}
+
+.search-overlay-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.search-overlay-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-overlay-button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: #333;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.close-overlay-button:hover {
+  opacity: 1;
+}
+
+.search-overlay .search-form,
+.search-overlay-form {
+  max-width: 100%;
+  margin-bottom: 2rem;
+}
+
+.search-loading {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.search-error {
+  text-align: center;
+  padding: 2rem;
+  color: #d9534f;
+}
+
+/* Global Search Icon */
+.global-search-icon {
+  position: fixed;
+  top: 25px;
+  right: 20px;
+  z-index: 100;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.global-search-icon:hover {
+  transform: scale(1.1);
+}
+
+/* Position the search icon alongside other control icons */
+@media (max-width: 768px) {
+  .global-search-icon {
+    top: 19px;
+    right: 15px;
+    padding: 6px;
+  }
+  
+  .global-search-icon img {
+    margin-left: 10px;
+    display: inline-block;
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .result-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .search-overlay-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+}
+
+/* Make sure the search overlay doesn't interfere with fretboard */
+.search-overlay * {
+  box-sizing: border-box;
+}
+
+.search-overlay .search-overlay-content {
+  z-index: 10000;
+}
+
+/* Ensure the autocomplete dropdown is above other elements */
+.autocomplete-container {
+  z-index: 10001;
+}
+
+/* Fix for search results in overlay to maintain proper styling */
+.search-overlay .result-item {
+  background-color: white;
+}
+
+/* Enhanced Search Form */
+.search-form, .search-overlay-form {
+  margin-bottom: 30px;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #fff;
+  padding: 20px;
+}
+
+.search-overlay-form {
+  box-shadow: none;
+  padding: 0;
+  margin-bottom: 25px;
+}
+
+.search-input-wrapper {
+  display: flex;
+  position: relative;
+}
+
+.search-input, #overlaySearchInput {
+  flex: 1;
+  padding: 14px 16px;
+  border: 2px solid #ddd;
+  font-size: 16px;
+  border-radius: 8px 0 0 8px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-input:focus, #overlaySearchInput:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.search-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0 24px;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 0 8px 8px 0;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button:hover {
+  background-color: #2980b9;
+}
+
+/* Autocomplete */
+.autocomplete-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  max-height: 300px;
+  overflow-y: auto;
+  display: none;
+}
+
+.autocomplete-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.autocomplete-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover, .autocomplete-item.selected {
+  background-color: #f5f9ff;
+}
+
+.item-name {
+  font-weight: 500;
+}
+
+.item-type {
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+/* Search Examples */
+.search-examples {
+  margin-bottom: 30px;
+}
+
+.search-examples h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #555;
+}
+
+.search-examples ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.search-examples li {
+  background-color: #f0f0f0;
+  color: #555;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-examples li:hover {
+  background-color: #e8e8e8;
+}
+
+/* Language switcher styles in settings menu */
+.language-form {
+  width: 100%;
+}
+
+.settings-section {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+}
+
+/* Modify language selector to match settings style */
+#language-select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background-color: white;
+  font-size: 14px;
+}

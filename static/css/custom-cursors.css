@@ -1,0 +1,141 @@
+/* Custom cursor styling using SVG images */
+
+/* Base styles for cursors - overriding cursor_controls.css */
+.left-cursor,
+.right-cursor {
+  position: absolute !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 47px !important;
+  height: 47px !important;
+  cursor: pointer !important;
+  z-index: 100 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s !important;
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}
+
+/* Position cursors on each side */
+.left-cursor {
+  left: -20px !important;
+  background-image: url('/static/media/svg/cursor_left.svg') !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+.right-cursor {
+  right: -60px !important;
+  background-image: url('/static/media/svg/cursor_right.svg') !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+/* Hover effects */
+.left-cursor:hover,
+.right-cursor:hover {
+  transform: translateY(-50%) scale(1.1) !important;
+  background-color: transparent !important;
+  filter: brightness(1.2) !important;
+}
+
+/* Active state */
+.left-cursor:active,
+.right-cursor:active {
+  transform: translateY(-50%) scale(0.95) !important;
+  background-color: transparent !important;
+  filter: brightness(1.5) !important;
+}
+
+/* Class-based active state for JavaScript */
+.left-cursor.active,
+.right-cursor.active {
+  filter: brightness(1.5) !important;
+  transform: translateY(-50%) scale(0.95) !important;
+}
+
+/* Hide the default triangle indicators */
+.left-cursor::before,
+.right-cursor::before {
+  display: none;
+}
+
+/* Add tooltips */
+.left-cursor::after,
+.right-cursor::after {
+  position: absolute;
+  bottom: -30px;
+  background-color: #333;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.left-cursor::after {
+  content: 'Previous (←)';
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.right-cursor::after {
+  content: 'Next (→)';
+  right: 50%;
+  transform: translateX(50%);
+}
+
+.left-cursor:hover::after,
+.right-cursor:hover::after {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .left-cursor,
+  .right-cursor {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  
+  .left-cursor {
+    left: -12px !important;
+  }
+  
+  .right-cursor {
+    right: -12px !important;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .left-cursor,
+  .right-cursor {
+    width: 35px !important;
+    height: 35px !important;
+  }
+}
+
+/* Make sure SVG cursors are always visible */
+.left-cursor:empty,
+.right-cursor:empty {
+  background-color: transparent !important;
+  background-image: url('/static/media/svg/cursor_left.svg') !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+.right-cursor:empty {
+  background-image: url('/static/media/svg/cursor_right.svg') !important;
+}

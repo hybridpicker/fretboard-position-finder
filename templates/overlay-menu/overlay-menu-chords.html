@@ -1,4 +1,3 @@
-<!-- templates/overlay-menu/overlay-menu-chords.html -->
 {% load static %}
 <div id="overlayToggleChords">
     <img src="{% static 'media/svg/position_icon.svg' %}" alt="Position Icon" class="overlay-icon">
@@ -35,7 +34,9 @@
             <h2>Select Chord</h2>
             <div class="grid-container">
                 {% for option in chord_options %}
-                <div class="grid-item" data-value="{{ option }}">{{ option }}</div>
+                <div class="grid-item" data-value="{{ option }}" {% if option == selected_chord %}class="active"{% endif %}>
+                    {{ option }}
+                </div>
                 {% endfor %}
             </div>
             <button id="backToInitialFromChord">Back</button>

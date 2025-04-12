@@ -1,0 +1,45 @@
+/* String labels styling */
+.string-label {
+    position: absolute;
+    left: -35px; /* Position to the left of the fretboard */
+    font-size: 12pt;
+    font-weight: bold;
+    color: #1d262a;
+    width: 30px;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+}
+
+/* Style for different string labels */
+.string-label.eString, .string-label.highAString {
+    color: #FF877A; /* Highlight high strings */
+}
+
+.string-label.lowBString, .string-label.ELowString {
+    color: #5B5F97; /* Highlight low strings */
+}
+
+/* Responsive adjustments */
+@media only screen and (max-width: 1050px) {
+    .string-label {
+        left: -30px;
+        font-size: 10pt;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .string-label {
+        left: -25px;
+        font-size: 9pt;
+    }
+}
+
+@media only screen and (max-width: 400px) and (orientation: portrait) {
+    .string-label {
+        left: -20px;
+        font-size: 8pt;
+    }
+}

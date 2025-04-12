@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyboard Navigation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .container {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            border: 1px solid #ccc;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .left-cursor, .right-cursor {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+
+        .left-cursor {
+            left: -20px;
+        }
+
+        .right-cursor {
+            right: -20px;
+        }
+
+        .position-display {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .instructions {
+            margin: 20px auto;
+            max-width: 600px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 5px solid #007bff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Keyboard Navigation Test</h1>
+    
+    <div class="instructions">
+        <p>This page tests the keyboard arrow navigation for the fretboard position finder.</p>
+        <ul>
+            <li>Press <strong>Left Arrow</strong> key to trigger the left cursor</li>
+            <li>Press <strong>Right Arrow</strong> key to trigger the right cursor</li>
+        </ul>
+        <p>The current position will update and display in the center box.</p>
+    </div>
+
+    <div class="container">
+        <div class="left-cursor" onclick="leftCursorClick()"></div>
+        <div class="position-display">Position: <span id="position">0</span></div>
+        <div class="right-cursor" onclick="rightCursorClick()"></div>
+    </div>
+
+    <div id="log" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; height: 200px; overflow-y: auto;">
+        <p>Event Log:</p>
+    </div>
+
+    <script>
+        // Global state
+        let currentPosition = 0;
+        const maxPosition = 5;
+
+        // DOM Elements
+        const positionDisplay = document.getElementById('position');
+        const logContainer = document.getElementById('log');
+        
+        // Initialize
+        updateDisplay();
+
+        // Add log entry
+        function log(message) {
+            const entry = document.createElement('div');
+            entry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Update the position display
+        function updateDisplay() {
+            positionDisplay.textContent = currentPosition;
+            log(`Position updated to: ${currentPosition}`);
+        }
+
+        // Left cursor click handler
+        function leftCursorClick() {
+            log('Left cursor clicked');
+            if (currentPosition > 0) {
+                currentPosition--;
+                updateDisplay();
+            } else {
+                log('Cannot move left: already at minimum position');
+            }
+        }
+
+        // Right cursor click handler
+        function rightCursorClick() {
+            log('Right cursor clicked');
+            if (currentPosition < maxPosition) {
+                currentPosition++;
+                updateDisplay();
+            } else {
+                log('Cannot move right: already at maximum position');
+            }
+        }
+
+        // Keyboard event listener
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                log('Left arrow key pressed');
+                leftCursorClick();
+            } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                log('Right arrow key pressed');
+                rightCursorClick();
+            }
+        });
+
+        // Initial log
+        log('Test page loaded. Ready for keyboard navigation.');
+    </script>
+</body>
+</html>

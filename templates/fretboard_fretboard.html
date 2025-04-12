@@ -1,11 +1,9 @@
-<!-- templates/fretboard_fretboard.html -->
 {% load static %}
 {% load custom_tags %}
 {% load filters %}
 
-<div id="fretboardcontainer" class="fretboardcontainer {% if eight_string_mode %}eight-string-config{% else %}six-string-config{% endif %}">
-  <div class="left-cursor" onclick="leftCursorClick()"></div>
-  <div class="right-cursor" onclick="rightCursorClick()"></div>
+<div id="fretboardcontainer" class="fretboardcontainer eight-string-config">
+  <!-- Cursor elements are now added dynamically by JavaScript -->
   <div class="fretboard">
     <!-- Distance for first String -->
     {% for i in 17|times %}
@@ -14,10 +12,23 @@
       </div>
     {% endfor %}
 
-    <!-- Loop through string names and frets -->
-    {% for string_name in string_names %}
+    <!-- Loop through string names and frets in reverse order -->
+    {% for string_name in string_names reversed %}
       {% for i in 17|times %}
         <div class="fret {{ i|to_english }} {{ string_name }}">
+          {% if i == 0 %}
+          <!-- Add string label at first fret -->
+          <div class="string-label {{ string_name }}">
+            {% if string_name == 'eString' %}E{% endif %}
+            {% if string_name == 'bString' %}B{% endif %}
+            {% if string_name == 'gString' %}G{% endif %}
+            {% if string_name == 'dString' %}D{% endif %}
+            {% if string_name == 'AString' %}A{% endif %}
+            {% if string_name == 'ELowString' %}E{% endif %}
+            {% if string_name == 'lowBString' %}B{% endif %}
+            {% if string_name == 'highAString' %}A{% endif %}
+          </div>
+          {% endif %}
           {% with notes=string_name|get_notes:i %}
           {% if notes %}
             <a onclick="playTone('{{ notes.0 }}','{{ string_name }}')" class="note-click">
@@ -47,5 +58,22 @@
     {% endfor %}
   </div>
 </div>
+
+<!-- Pass string data to JavaScript -->
+<script>
+  var string_array = [{% for string_name in string_names %}'{{ string_name }}'{% if not forloop.last %}, {% endif %}{% endfor %}];
+  var frets = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen'];
+  
+  {% if chord_json_data %}
+  // Make chord data available for tone identification
+  var voicing_data = {{ chord_json_data|safe }};
+  {% endif %}
+</script>
+
+<!-- Data attribute for chords to improve accessibility for scripts -->
+{% if chord_json_data %}
+<div id="chord-data" data-chord-json="{{ chord_json_data|safe }}" style="display: none;"></div>
+{% endif %}
+
 {% block fretboard %}
 {% endblock %}

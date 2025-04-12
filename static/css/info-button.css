@@ -1,0 +1,36 @@
+/* Info button positioning */
+#infoToggle {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  top: auto; /* Override the default top positioning */
+  right: auto; /* Override the default right positioning */
+  z-index: 100;
+  cursor: pointer;
+}
+
+#infoToggle:hover {
+  transform: scale(1.1);
+}
+
+.info-icon {
+  width: 33px;
+  height: 33px;
+  display: inline-block;
+  position: relative !important; /* Override the fixed position */
+  top: auto !important; /* Override the default top positioning */
+  right: auto !important; /* Override the default right positioning */
+}
+
+/* Position adjustment for mobile devices */
+@media (max-width: 768px) {
+  #infoToggle {
+    left: 15px;
+    bottom: 15px;
+  }
+  
+  .info-icon {
+    width: 28px;
+    height: 28px;
+  }
+}

@@ -1,0 +1,262 @@
+{% extends 'fretboardbase.html' %}
+{% load static %}
+
+{% block title %}Chord Search{% endblock %}
+
+{% block css %}
+<style>
+    .search-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+    
+    .search-form {
+        background-color: #f5f5f5;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    .btn-search {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    
+    .btn-search:hover {
+        background-color: #0069d9;
+    }
+    
+    .search-results {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .result-count {
+        font-weight: bold;
+        color: #666;
+    }
+    
+    .result-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .result-table th {
+        background-color: #f5f5f5;
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 2px solid #ddd;
+    }
+    
+    .result-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .result-table tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .position-tag {
+        display: inline-block;
+        background-color: #e9ecef;
+        color: #495057;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .notes-cell {
+        font-family: monospace;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+    }
+    
+    .debug-panel {
+        margin-top: 2rem;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 1rem;
+    }
+    
+    .debug-panel h3 {
+        margin-top: 0;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 0.5rem;
+    }
+    
+    .debug-panel pre {
+        background-color: #343a40;
+        color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+        overflow-x: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <h1>Chord Search</h1>
+    
+    <div class="search-form">
+        <form method="GET" action="{% url 'chord_search' %}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="search_query">Search Query</label>
+                    <input 
+                        type="text" 
+                        id="search_query" 
+                        name="search_query" 
+                        class="form-control" 
+                        placeholder="Enter chord name, type, etc."
+                        value="{{ search_query }}"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="chord_type">Chord Type</label>
+                    <select id="chord_type" name="chord_type" class="form-control">
+                        <option value="">All Types</option>
+                        {% for type in chord_types %}
+                            <option value="{{ type }}" {% if chord_type == type %}selected{% endif %}>{{ type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="note_range">Note Range</label>
+                    <select id="note_range" name="note_range" class="form-control">
+                        <option value="">All Ranges</option>
+                        {% for range in note_ranges %}
+                            <option value="{{ range }}" {% if note_range == range %}selected{% endif %}>{{ range }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-search">Search Chords</button>
+        </form>
+    </div>
+    
+    <div class="search-results">
+        <div class="result-header">
+            <h2>Search Results</h2>
+            <div class="result-count">{{ result_count }} chords found</div>
+        </div>
+        
+        {% if results %}
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>Chord Name</th>
+                        <th>Type</th>
+                        <th>Range</th>
+                        <th>Category</th>
+                        <th>Positions</th>
+                        <th>Notes</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                        <tr>
+                            <td>{{ result.name }}</td>
+                            <td>{{ result.type }}</td>
+                            <td>{{ result.range }}</td>
+                            <td>{{ result.category }}</td>
+                            <td>
+                                {% for position in result.positions %}
+                                    <span class="position-tag">{{ position }}</span>
+                                {% endfor %}
+                            </td>
+                            <td class="notes-cell">{{ result.notes|join:" - " }}</td>
+                            <td>
+                                <a href="{% url 'fretboard' %}?models_select=3&type_options_select={{ result.type }}&chords_options_select={{ result.name }}&note_range={{ result.range }}">
+                                    View
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="no-results">
+                <p>No chords found matching your search criteria.</p>
+                <p>Try adjusting your search parameters or viewing all chords.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    {% if DEBUG %}
+    <div class="debug-panel">
+        <h3>Debug Information</h3>
+        <pre>
+Search Query: {{ search_query|default:"None" }}
+Chord Type: {{ chord_type|default:"None" }}
+Note Range: {{ note_range|default:"None" }}
+Result Count: {{ result_count }}
+        </pre>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Chord search page loaded');
+        
+        // Add any client-side search enhancements here
+        // For example, you could implement live filtering or sorting
+    });
+</script>
+{% endblock %}
