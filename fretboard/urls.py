@@ -27,14 +27,15 @@ from positionfinder.views import fretboard_unified_view, chord_search_test_view
 urlpatterns = [
     # API endpoints
     path('api/', include('api.urls', namespace='api')),
-    path('i18n/', include('django.conf.urls.i18n')),  # Add this for language switcher
 ]
 
 # Translatable URLs
 urlpatterns += i18n_patterns(
+    # i18n URLs (moved inside for testing)
+    path('i18n/', include('django.conf.urls.i18n')),
+    
     # Main unified view that handles scales, arpeggios, and chords
     path('', fretboard_unified_view, name='fretboard'),
-    
     # Search views
     path('search/', positionfinder.search_views.search_view, name='search'),
     path('search/json/', positionfinder.search_views.search_json, name='search_json'),
