@@ -27,3 +27,25 @@ def get_menu_options():
         'arpeggios_options': list(arpeggios),
         'chords_options': unique_chords,
     }
+
+def get_string_config(request):
+    """
+    Determine string configuration (6 or 8 strings) based on request parameters.
+    Returns appropriate string names and a flag for 8-string mode.
+    """
+    eight_string_mode = request.GET.get('eight_string', '0') == '1'
+    
+    if eight_string_mode:
+        # 8-string configuration with high A and low B strings
+        string_names = [
+            'highAString', 'eString', 'bString', 'gString', 
+            'dString', 'AString', 'ELowString', 'lowBString'
+        ]
+    else:
+        # Standard 6-string configuration
+        string_names = ['eString', 'bString', 'gString', 'dString', 'AString', 'ELowString']
+        
+    return {
+        'string_names': string_names,
+        'eight_string_mode': eight_string_mode,
+    }

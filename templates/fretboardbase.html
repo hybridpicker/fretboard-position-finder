@@ -8,6 +8,9 @@
 
   {% include "header/header.html" %}
   
+  <!-- Eight-string specific CSS -->
+  <link rel="stylesheet" href="{% static 'css/eight-string.css' %}" type="text/css" media="screen">
+  
   <!-- Meta Tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="title" content="Fretboard-Position-Finder">
@@ -53,6 +56,22 @@
       {% include "forms/fretboard_form.html" %}
     {% endif %}
     <br>
+
+    <!-- String Configuration Toggle -->
+    <div class="string-config-toggle" style="text-align: center; margin-bottom: 10px;">
+      <form id="stringConfigForm" method="get" style="display: inline-block;">
+        {% for key, value in request.GET.items %}
+          {% if key != 'eight_string' %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+          {% endif %}
+        {% endfor %}
+        
+        <input type="hidden" name="eight_string" value="{% if eight_string_mode %}0{% else %}1{% endif %}">
+        <button type="submit" style="padding: 5px 10px; cursor: pointer;">
+          Switch to {% if eight_string_mode %}6-string{% else %}8-string{% endif %} mode
+        </button>
+      </form>
+    </div>
 
     {% if chord_options %}
       {% include "analysis/container_chords.html" %}
