@@ -1,4 +1,3 @@
-# fretboard/templatetags/filters.py
 from django import template
 
 register = template.Library()
@@ -60,15 +59,17 @@ def format_note_name(note):
         if note.lower().startswith(key):
             return sharps[key] + note[-1]
     return note.capitalize()
-
 NOTES = {
+    "highAString": [["bb2", "as2"], ["b2"], ["c3"], ["db3", "cs3"], ["d3"], ["eb3", "ds3"], ["e3"], ["f3"], ["gb3", "fs3"], ["g3"], ["ab3", "gs3"], ["a3"], ["bb3", "as3"], ["b3"], ["c4"], ["db4", "cs4"], ["d4"]],
     "eString": [["f2"], ["gb2", "fs2"], ["g2"], ["ab2", "gs2"], ["a2"], ["bb2", "as2"], ["b2"], ["c3"], ["db3", "cs3"], ["d3"], ["eb3", "ds3"], ["e3"], ["f3"], ["gb3", "fs3"], ["g3"], ["ab3", "gs3"], ["a3"]],
     "bString": [["c2"], ["db2", "cs2"], ["d2"], ["eb2", "ds2"], ["e2"], ["f2"], ["gb2", "fs2"], ["g2"], ["ab2", "gs2"], ["a2"], ["bb2", "as2"], ["b2"], ["c3"], ["db3", "cs3"], ["d3"], ["eb3", "ds3"], ["e3"]],
     "gString": [["ab1", "gs1"], ["a1"], ["bb1", "as1"], ["b1"], ["c2"], ["db2", "cs2"], ["d2"], ["eb2", "ds2"], ["e2"], ["f2"], ["gb2", "fs2"], ["g2"], ["ab2", "gs2"], ["a2"], ["bb2", "as2"], ["b2"], ["c3"]],
     "dString": [["eb1", "ds1"], ["e1"], ["f1"], ["gb1", "fs1"], ["g1"], ["ab1", "gs1"], ["a1"], ["bb1", "as1"], ["b1"], ["c2"], ["db2", "cs2"], ["d2"], ["eb2", "ds2"], ["e2"], ["f2"], ["gb2", "fs2"], ["g2"]],
     "AString": [["bb0", "as0"], ["b0"], ["c1"], ["db1", "cs1"], ["d1"], ["eb1", "ds1"], ["e1"], ["f1"], ["gb1", "fs1"], ["g1"], ["ab1", "gs1"], ["a1"], ["bb1", "as1"], ["b1"], ["c2"], ["db2", "cs2"], ["d2"]],
     "ELowString": [["f0"], ["gb0", "fs0"], ["g0"], ["ab0", "gs0"], ["a0"], ["bb0", "as0"], ["b0"], ["c1"], ["db1", "cs1"], ["d1"], ["eb1", "ds1"], ["e1"], ["f1"], ["gb1", "fs1"], ["g1"], ["ab1", "gs1"], ["a1"]],
+    "lowBString": [["c0"], ["db0", "cs0"], ["d0"], ["eb0", "ds0"], ["e0"], ["f0"], ["gb0", "fs0"], ["g0"], ["ab0", "gs0"], ["a0"], ["bb0", "as0"], ["b0"], ["c1"], ["db1", "cs1"], ["d1"], ["eb1", "ds1"], ["e1"]]
 }
+
 
 @register.filter
 def get_notes(string_name, fret):

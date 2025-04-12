@@ -1,4 +1,3 @@
-# fretboard/settings.py
 """
 Django settings for fretboard project.
 
@@ -36,11 +35,14 @@ INSTALLED_APPS = [
     'positionfinder.apps.PositionfinderConfig',
     'django_extensions',
     'fretboard',
+    'rest_framework',
+    'api',
     ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # Add locale middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -61,6 +63,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'positionfinder.context_processors.unified_menu_context',
             ],
         },
     },
@@ -101,6 +104,18 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Available languages
+from django.utils.translation import gettext_lazy as _
+LANGUAGES = [
+    ('en', _('English')),
+    ('de', _('German')),
+]
+
+# Location of translation files
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale'),
+]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -122,6 +137,29 @@ FIXTURE_DIRS = [
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+}
+
+# Caching
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'fretboard-cache',
+        'TIMEOUT': 60 * 15,  # 15 minutes
+    }
+}
+
+# Custom setting to enable the optimized chord view by default
+USE_OPTIMIZED_CHORD_VIEW = True
 
 if os.path.isfile(os.path.join(BASE_DIR, 'local_settings.py')):
     from local_settings import *

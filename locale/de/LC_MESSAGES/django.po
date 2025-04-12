@@ -1,0 +1,392 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-04-03 16:26+0000\n"
+"PO-Revision-Date: 2025-04-06 10:45+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: fretboard/settings.py:110
+msgid "English"
+msgstr "Englisch"
+
+#: fretboard/settings.py:111
+msgid "German"
+msgstr "Deutsch"
+
+#: positionfinder/chord_position_choices.py:6
+msgid "Basic Position"
+msgstr "Grundstellung"
+
+#: positionfinder/chord_position_choices.py:7
+msgid "First Inversion"
+msgstr "Erste Umkehrung"
+
+#: positionfinder/chord_position_choices.py:8
+msgid "Second Inversion"
+msgstr "Zweite Umkehrung"
+
+#: positionfinder/chord_position_choices.py:9
+msgid "Third Inversion"
+msgstr "Dritte Umkehrung"
+
+#: positionfinder/chord_position_choices.py:10
+msgid "Fourth Inversion"
+msgstr "Vierte Umkehrung"
+
+#: positionfinder/chord_position_choices.py:11
+msgid "Fifth Inversion"
+msgstr "Fünfte Umkehrung"
+
+#: positionfinder/chord_position_choices.py:12
+msgid "Sixth Inversion"
+msgstr "Sechste Umkehrung"
+
+#: positionfinder/models.py:35 positionfinder/models_chords.py:469
+msgid "Chord Name"
+msgstr "Akkordname"
+
+#: positionfinder/models_chords.py:471
+msgid "String Range"
+msgstr "Saitenbereich"
+
+#: positionfinder/models_chords.py:474
+msgid "First Note"
+msgstr "Erste Note"
+
+#: positionfinder/models_chords.py:475 positionfinder/models_chords.py:479
+#: positionfinder/models_chords.py:483 positionfinder/models_chords.py:487
+#: positionfinder/models_chords.py:491 positionfinder/models_chords.py:495
+msgid "String for Note"
+msgstr "Saite für Note"
+
+#: positionfinder/models_chords.py:477
+msgid "Second Note"
+msgstr "Zweite Note"
+
+#: positionfinder/models_chords.py:481
+msgid "Third Note"
+msgstr "Dritte Note"
+
+#: positionfinder/models_chords.py:485
+msgid "Fourth Tone"
+msgstr "Vierter Ton"
+
+#: positionfinder/models_chords.py:489
+msgid "Sixth Tone"
+msgstr "Sechster Ton"
+
+#: positionfinder/models_chords.py:493
+msgid "Seventh Tone"
+msgstr "Siebter Ton"
+
+#: positionfinder/models_chords.py:616
+msgid "Inversion for Chord"
+msgstr "Umkehrung für Akkord"
+
+#: positionfinder/notes_choices.py:43 positionfinder/string_range_choices.py:30
+msgid "highA - b"
+msgstr "hoches A - h"
+
+#: positionfinder/notes_choices.py:44 positionfinder/string_range_choices.py:29
+msgid "highA - e"
+msgstr "hohes A - e"
+
+#: positionfinder/notes_choices.py:45 positionfinder/string_range_choices.py:31
+msgid "highA - g"
+msgstr "hohes A - g"
+
+#: positionfinder/notes_choices.py:46 positionfinder/string_range_choices.py:7
+msgid "a - b"
+msgstr "a - h"
+
+#: positionfinder/notes_choices.py:47 positionfinder/string_range_choices.py:37
+msgid "highA - lowB"
+msgstr "hohes A - tiefes H"
+
+#: positionfinder/notes_choices.py:50 positionfinder/string_range_choices.py:8
+msgid "e - g"
+msgstr "e - g"
+
+#: positionfinder/notes_choices.py:51 positionfinder/string_range_choices.py:14
+msgid "e - d"
+msgstr "e - d"
+
+#: positionfinder/notes_choices.py:52 positionfinder/string_range_choices.py:9
+msgid "b - d"
+msgstr "h - d"
+
+#: positionfinder/notes_choices.py:53 positionfinder/string_range_choices.py:10
+msgid "g - A"
+msgstr "g - A"
+
+#: positionfinder/notes_choices.py:54 positionfinder/string_range_choices.py:11
+msgid "d - E"
+msgstr "d - E"
+
+#: positionfinder/notes_choices.py:57 positionfinder/string_range_choices.py:40
+msgid "e - lowB"
+msgstr "e - tiefes H"
+
+#: positionfinder/notes_choices.py:58 positionfinder/string_range_choices.py:43
+msgid "d - lowB"
+msgstr "d - tiefes H"
+
+#: positionfinder/notes_choices.py:59 positionfinder/string_range_choices.py:44
+msgid "A - lowB"
+msgstr "A - tiefes H"
+
+#: positionfinder/notes_choices.py:62 positionfinder/string_range_choices.py:12
+msgid "A - B"
+msgstr "A - H"
+
+#: positionfinder/notes_choices.py:63 positionfinder/string_range_choices.py:13
+msgid "a - g"
+msgstr "a - g"
+
+#: positionfinder/notes_choices.py:64 positionfinder/string_range_choices.py:15
+msgid "b - A"
+msgstr "h - A"
+
+#: positionfinder/notes_choices.py:65 positionfinder/string_range_choices.py:16
+msgid "g - E"
+msgstr "g - E"
+
+#: positionfinder/notes_choices.py:66 positionfinder/string_range_choices.py:17
+msgid "d - B"
+msgstr "d - H"
+
+#: positionfinder/notes_choices.py:67 positionfinder/string_range_choices.py:18
+msgid "a - D"
+msgstr "a - D"
+
+#: positionfinder/notes_choices.py:68 positionfinder/string_range_choices.py:19
+msgid "e - A"
+msgstr "e - A"
+
+#: positionfinder/notes_choices.py:69 positionfinder/string_range_choices.py:20
+msgid "b - E"
+msgstr "h - E"
+
+#: positionfinder/notes_choices.py:70 positionfinder/string_range_choices.py:21
+msgid "g - B"
+msgstr "g - H"
+
+#: positionfinder/notes_choices.py:71 positionfinder/string_range_choices.py:22
+msgid "a - A"
+msgstr "a - A"
+
+#: positionfinder/notes_choices.py:72 positionfinder/string_range_choices.py:23
+msgid "e - E"
+msgstr "e - E"
+
+#: positionfinder/notes_choices.py:73 positionfinder/string_range_choices.py:24
+msgid "b - B"
+msgstr "h - H"
+
+#: positionfinder/notes_choices.py:74 positionfinder/string_range_choices.py:25
+msgid "a - E"
+msgstr "a - E"
+
+#: positionfinder/notes_choices.py:75 positionfinder/string_range_choices.py:26
+msgid "e - B"
+msgstr "e - H"
+
+#: positionfinder/notes_choices.py:79
+msgid "C"
+msgstr "C"
+
+#: positionfinder/notes_choices.py:80
+msgid "Db/C#"
+msgstr "Db/C#"
+
+#: positionfinder/notes_choices.py:81
+msgid "D"
+msgstr "D"
+
+#: positionfinder/notes_choices.py:82
+msgid "Eb/D#"
+msgstr "Eb/D#"
+
+#: positionfinder/notes_choices.py:83
+msgid "E"
+msgstr "E"
+
+#: positionfinder/notes_choices.py:84
+msgid "F"
+msgstr "F"
+
+#: positionfinder/notes_choices.py:85
+msgid "Gb/F#"
+msgstr "Gb/F#"
+
+#: positionfinder/notes_choices.py:86
+msgid "G"
+msgstr "G"
+
+#: positionfinder/notes_choices.py:87
+msgid "Ab/G#"
+msgstr "Ab/G#"
+
+#: positionfinder/notes_choices.py:88
+msgid "A"
+msgstr "A"
+
+#: positionfinder/notes_choices.py:89
+msgid "Bb/A#"
+msgstr "B/A#"
+
+#: positionfinder/notes_choices.py:90
+msgid "B"
+msgstr "H"
+
+#: positionfinder/notes_choices.py:99
+msgid "Major 7"
+msgstr "Dur 7"
+
+#: positionfinder/notes_choices.py:100
+msgid "Major7(#5)"
+msgstr "Dur7(#5)"
+
+#: positionfinder/notes_choices.py:101
+msgid "Minor 7"
+msgstr "Moll 7"
+
+#: positionfinder/notes_choices.py:102
+msgid "Dominant 7"
+msgstr "Dominant 7"
+
+#: positionfinder/notes_choices.py:103
+msgid "Minor 7b5"
+msgstr "Moll 7b5"
+
+#: positionfinder/notes_choices.py:104
+msgid "Major"
+msgstr "Dur"
+
+#: positionfinder/notes_choices.py:105
+msgid "Minor"
+msgstr "Moll"
+
+#: positionfinder/notes_choices.py:106
+msgid "Diminished"
+msgstr "Vermindert"
+
+#: positionfinder/notes_choices.py:107
+msgid "Diminished 7"
+msgstr "Vermindert 7"
+
+#: positionfinder/notes_choices.py:108
+msgid "Augmented"
+msgstr "Übermäßig"
+
+#: positionfinder/notes_choices.py:109
+msgid "Altered 7"
+msgstr "Alteriert 7"
+
+#: positionfinder/notes_choices.py:110
+msgid "MinMaj7"
+msgstr "MollDur7"
+
+#: positionfinder/notes_choices.py:111
+msgid "7 #5"
+msgstr "7 #5"
+
+#: positionfinder/notes_choices.py:112
+msgid "6 #5"
+msgstr "6 #5"
+
+#: positionfinder/positions.py:11
+msgid "Order of Position"
+msgstr "Reihenfolge der Position"
+
+#: positionfinder/positions.py:12
+msgid "position"
+msgstr "Position"
+
+#: positionfinder/string_choices.py:8
+msgid "High E String (1st)"
+msgstr "Hohe E-Saite (1.)"
+
+#: positionfinder/string_choices.py:9
+msgid "B String (2nd)"
+msgstr "H-Saite (2.)"
+
+#: positionfinder/string_choices.py:10
+msgid "G String (3rd)"
+msgstr "G-Saite (3.)"
+
+#: positionfinder/string_choices.py:11
+msgid "D String (4th)"
+msgstr "D-Saite (4.)"
+
+#: positionfinder/string_choices.py:12
+msgid "A String (5th)"
+msgstr "A-Saite (5.)"
+
+#: positionfinder/string_choices.py:13
+msgid "Low E String (6th)"
+msgstr "Tiefe E-Saite (6.)"
+
+#: positionfinder/string_choices.py:16
+msgid "Low B String (7th)"
+msgstr "Tiefe H-Saite (7.)"
+
+#: positionfinder/string_choices.py:19
+msgid "High A String (0th)"
+msgstr "Hohe A-Saite (0.)"
+
+#: positionfinder/string_choices.py:20
+msgid "Low F# String (8th)"
+msgstr "Tiefe F#-Saite (8.)"
+
+#: positionfinder/string_range_choices.py:32
+msgid "highA - d"
+msgstr "hohes A - d"
+
+#: positionfinder/string_range_choices.py:33
+msgid "highA - A"
+msgstr "hohes A - A"
+
+#: positionfinder/string_range_choices.py:34
+msgid "highA - E"
+msgstr "hohes A - E"
+
+#: positionfinder/string_range_choices.py:41
+msgid "b - lowB"
+msgstr "h - tiefes H"
+
+#: positionfinder/string_range_choices.py:42
+msgid "g - lowB"
+msgstr "g - tiefes H"
+
+#: positionfinder/string_range_choices.py:45
+msgid "E - lowB"
+msgstr "E - tiefes H"
+
+#: positionfinder/string_range_choices.py:48
+msgid "highA - AString"
+msgstr "hohes A - A-Saite"
+
+#: positionfinder/string_range_choices.py:49
+msgid "highA - ELowString"
+msgstr "hohes A - tiefe E-Saite"
+
+#: positionfinder/string_range_choices.py:50
+msgid "bString - lowB"
+msgstr "H-Saite - tiefes H"
+
+#: positionfinder/string_range_choices.py:51
+msgid "dString - lowB"
+msgstr "D-Saite - tiefes H"

@@ -1,0 +1,919 @@
+/**
+ * Reset the fretboard by removing all active classes and resetting styles
+ */
+function resetFretboard() {
+  // Reset all active tones
+  var images = document.querySelectorAll('img.tone');
+  images.forEach(function(image) {
+    // Determine octave-appropriate default circle
+    const noteElement = image.closest('.note');
+    if (noteElement) {
+      const toneNames = Array.from(noteElement.classList).filter(cls => cls !== 'note' && cls !== 'active');
+      if (toneNames.length > 0) {
+        const toneName = toneNames[0];
+        const octaveMatch = toneName.match(/[a-z]+([0-4])/);
+        
+        if (octaveMatch && octaveMatch[1]) {
+          const octave = parseInt(octaveMatch[1]);
+          // Set appropriate SVG based on octave
+          let svgSrc = '/static/media/';
+          
+          switch (octave) {
+            case 0: svgSrc += 'circle_01.svg'; break;
+            case 1: svgSrc += 'circle_01.svg'; break;
+            case 2: svgSrc += 'circle_02.svg'; break;
+            case 3: svgSrc += 'circle_03.svg'; break;
+            case 4: svgSrc += 'circle_04.svg'; break;
+            default: svgSrc += 'circle_01.svg';
+          }
+          
+          image.setAttribute('src', svgSrc);
+        } else {
+          image.setAttribute('src', '/static/media/circle_01.svg');
+        }
+      } else {
+        image.setAttribute('src', '/static/media/circle_01.svg');
+      }
+    } else {
+      image.setAttribute('src', '/static/media/circle_01.svg');
+    }
+    
+    image.classList.remove('active');
+    image.classList.remove('root');
+    image.classList.remove('all-positions-note');
+    image.classList.remove('low-fret-note');
+    // Reset any custom styling
+    image.style.opacity = '';
+    image.style.border = '';
+    image.style.boxShadow = '';
+  });
+
+  // Reset all active notes
+  var notes = document.querySelectorAll('.note');
+  notes.forEach(function(note) {
+    note.classList.remove('active');
+    note.classList.remove('all-positions-note');
+    note.classList.remove('low-fret-note');
+    note.classList.remove('auxiliary-note');
+    note.classList.remove('stretch-warning');
+    // Clear any inline opacity styles
+    note.style.removeProperty('opacity');
+    note.style.removeProperty('border');
+    note.style.removeProperty('animation');
+
+    // Remove any tooltip elements
+    const tooltip = note.querySelector('.tooltip');
+    if (tooltip) {
+      note.removeChild(tooltip);
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const overlayMenu = document.getElementById('overlayMenu');
+  if (overlayMenu) {
+    overlayMenu.style.display = 'none';
+  }
+
+  customizeSelectField('sfbsfnos');
+  customizeSelectField('sfbsfpos');
+  customizeSelectField('sfbsf');
+
+  // If the user clicks anywhere outside the select box, close all select boxes
+  document.addEventListener('click', closeAllSelect);
+
+  // Make string_array accessible globally for debug tools
+  if (typeof string_array !== 'undefined') {
+    window.string_array = string_array;
+  }
+
+  var pos_val = document.getElementById('position_select').value;
+  var url_string = window.location.href;
+  var url = new URL(url_string);
+  pos_val = url.searchParams.get('position_select');
+  if (pos_val) {
+    getTonesFromDataScales(pos_val);
+  } else {
+    getTonesFromDataScales('0');
+  }
+});
+
+
+function multiple_notes(tone_name, y) {
+  var url_string = window.location.href;
+  var url = new URL(url_string);
+  var pos_val = url.searchParams.get('position_select');
+
+  // Check if positions are clicked
+  if (!pos_val) {
+    return; // Close function at the start
+  }
+
+  // Track which notes we've already processed to avoid duplicate processing
+  const processedNotes = new Set();
+
+  // Process each tone in each string in scale data
+  for (var key in scale_data[y]) {
+    if (scale_data[y].hasOwnProperty(key)) {
+      for (var z in scale_data[y][key][0]['tones']) {
+        var currentTone = scale_data[y][key][0]['tones'][z];
+
+        // Skip if we've already processed this tone to avoid duplicate processing
+        if (processedNotes.has(currentTone)) {
+          continue;
+        }
+
+        // Mark this tone as processed
+        processedNotes.add(currentTone);
+
+
+        var elements = document.querySelectorAll('.' + currentTone + '.active');
+
+        // If we have more than 2 active elements with this tone name, we need to decide which to keep
+        if (elements.length > 2) {
+          // Find which strings have this tone active
+          var stringWithTones = {};
+
+          // Collect information about which strings have this tone and at which frets
+          for (var i = 0; i < elements.length; i++) {
+            var element = elements[i];
+            var stringEl = element.closest('[class*="String"]');
+
+            if (stringEl) {
+              var stringName = Array.from(stringEl.classList)
+                .find(cls => cls.endsWith('String'));
+
+              if (stringName) {
+                if (!stringWithTones[stringName]) {
+                  stringWithTones[stringName] = [];
+                }
+
+                var fretEl = element.closest('[class*="fret"]');
+                if (fretEl) {
+                  var fretNumber = Array.from(fretEl.classList)
+                    .find(cls => cls.startsWith('fret'))
+                    ?.replace('fret', '')
+                    || '';
+
+                  stringWithTones[stringName].push(fretNumber);
+                }
+              }
+            }
+          }
+
+
+          // Prioritize keeping notes on strings that are in the scale_data for this position
+          // and deactivate duplicates on other strings
+          const stringsToKeep = new Set();
+
+          // Only try to get strings from scale_data if position is valid
+          if (y && scale_data[y]) {
+            Object.keys(scale_data[y]).forEach(key => {
+              stringsToKeep.add(key);
+            });
+          }
+
+          // For each string that has this tone...
+          Object.keys(stringWithTones).forEach(strName => {
+            // If this string is not in the scale data for this position, deactivate its notes
+            if (!stringsToKeep.has(strName)) {
+              deactivateActiveNotes(strName, currentTone);
+            }
+          });
+
+          // If we still have too many active notes, use the original algorithm to decide which to keep
+          elements = document.querySelectorAll('.' + currentTone + '.active');
+          if (elements.length > 2) {
+
+            // Get all strings that still have active notes
+            const activeStrings = Array.from(new Set(Array.from(elements).map(el =>
+              el.closest('[class*="String"]')?.classList?.value.match(/[a-zA-Z]+String/)?.[0] || ''
+            ))).filter(s => s);
+
+            if (activeStrings.length > 1) {
+              // Keep the string with the best position (closest to center of fretboard)
+              // Sort strings by their order in string_array
+              const orderedStrings = activeStrings.sort((a, b) => {
+                const aIdx = string_array.indexOf(a);
+                const bIdx = string_array.indexOf(b);
+                return aIdx - bIdx;
+              });
+
+              // Instead of only keeping middle strings, let's try to keep at least one note per string
+              // This ensures all strings have the correct scale notes visible
+              let keptAnyOnString = new Set();
+
+              // First try to keep the best-positioned notes (usually the ones on the middle frets)
+              const bestNotes = [];
+
+              // For each string with active notes of this tone
+              for (const strName of orderedStrings) {
+                // Get notes on this string
+                const notesOnString = Array.from(document.querySelectorAll(`.${strName} .note.${currentTone}.active`));
+
+                if (notesOnString.length > 0) {
+                  // Find the note in the middle fret position (usually the most playable)
+                  let bestNote = notesOnString[0];
+
+                  if (notesOnString.length > 1) {
+                    // Sort by fret position - prefer middle frets (5-9)
+                    const sortedNotes = notesOnString.sort((a, b) => {
+                      const fretA = a.closest('[class*="fret"]');
+                      const fretB = b.closest('[class*="fret"]');
+
+                      if (!fretA || !fretB) return 0;
+
+                      const getFretNumber = (fret) => {
+                        const fretName = Array.from(fret.classList).find(cls => cls.includes('fret'));
+                        if (!fretName) return 0;
+
+                        // Convert fret name to number
+                        const fretMap = {
+                          'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
+                          'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+                          'eleven': 11, 'twelve': 12, 'thirteen': 13, 'fourteen': 14,
+                          'fifteen': 15, 'sixteen': 16, 'seventeen': 17
+                        };
+
+                        return fretMap[fretName] || 0;
+                      };
+
+                      const numA = getFretNumber(fretA);
+                      const numB = getFretNumber(fretB);
+
+                      // Prefer frets in the 5-9 range (good playing position)
+                      const scoreA = Math.abs(7 - numA);
+                      const scoreB = Math.abs(7 - numB);
+
+                      return scoreA - scoreB;
+                    });
+
+                    bestNote = sortedNotes[0];
+                  }
+
+                  // Add the best note to our list of notes to keep
+                  bestNotes.push(bestNote);
+                  keptAnyOnString.add(strName);
+                }
+              }
+
+              // Get all active notes again after filtering
+              const allActiveNotes = document.querySelectorAll(`.note.${currentTone}.active`);
+
+              // Remove notes that aren't in our "best notes" list
+              Array.from(allActiveNotes).forEach(note => {
+                if (!bestNotes.includes(note)) {
+                  // Get the string this note is on
+                  const stringEl = note.closest('[class*="String"]');
+                  if (stringEl) {
+                    const stringName = Array.from(stringEl.classList).find(cls => cls.endsWith('String'));
+
+                    // Only deactivate if we've kept another note on this string already
+                    if (keptAnyOnString.has(stringName)) {
+                      // Deactivate this note
+                      note.classList.remove('active');
+
+                      // Also deactivate the tone image
+                      const toneImg = note.querySelector('img.tone');
+                      if (toneImg) {
+                        toneImg.classList.remove('active');
+                      }
+
+                    }
+                  }
+                }
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+function deactivateActiveNotes(string, tone_name) {
+  var elements = document.querySelectorAll(`.${string} .${tone_name}.active`);
+
+  if (elements.length === 0) {
+    console.warn(`No active notes found for tone ${tone_name} on string ${string}`);
+    return;
+  }
+
+
+  elements.forEach(function(element) {
+    // Also deactivate the corresponding tone image
+    const toneImg = element.querySelector('img.tone');
+    if (toneImg) {
+      toneImg.classList.remove('active');
+
+      // If it's a root note, keep the red color but make it slightly transparent
+      if (toneImg.classList.contains('root')) {
+        toneImg.style.opacity = '0.8';
+      }
+    }
+
+    // Deactivate the note element
+    element.classList.remove('active');
+
+    // Try to get the fret information for better logging
+    const fretEl = element.closest('[class*="fret"]');
+    const fretName = fretEl ? Array.from(fretEl.classList).find(c => c.includes('fret')) : 'unknown-fret';
+
+  });
+}
+
+function avoid_four_notes_on_string(){
+  var avoid_strings = [string_array[0], (string_array[string_array.length - 1])]
+  for (x in avoid_strings){
+    var element = document.querySelectorAll('.' + avoid_strings[x] +' .active > img')
+    if (element.length > 3){
+      if (avoid_strings[x] == avoid_strings[1]){
+        element[0].classList.remove('active')
+      }
+      else{
+        element[3].classList.remove('active')
+      }
+    }
+  }
+}
+
+function getTonesFromDataScales(y) {
+  // First find all notes that are active and reset the fretboard
+  resetFretboard();
+
+  // Check if the selected position 'y' exists in scale_data
+  if (!scale_data || !scale_data[y]) {
+    console.error(`Scale data for position ${y} not found.`);
+    // Optionally display "All Positions" or handle the error
+    if (y !== '0' && scale_data && scale_data['0']) {
+       activateAllPositionNotes('0'); // Or just return/show nothing
+    }
+    return;
+  }
+
+  // Handle "All Positions" explicitly by calling the dedicated function
+  if (y === '0') {
+      activateAllPositionNotes('0');
+      // avoid_four_notes_on_string(); // Decide if this constraint applies to 'All Positions' view
+      return; // Exit after handling '0'
+  }
+
+  const activatedNotesInPosition = new Set(); // Track notes activated for this specific position
+
+  // Iterate through the strings defined for the selected position 'y'
+  for (const stringName in scale_data[y]) {
+    if (scale_data[y].hasOwnProperty(stringName)) {
+      const stringData = scale_data[y][stringName][0]; // Assuming the structure holds
+
+      if (stringData && stringData.tones) {
+        // Iterate through the specific tones defined for this string in this position
+        stringData.tones.forEach(toneNameForPosition => {
+
+          // Find all DOM note elements on this string that match the tone name
+          // Important: We need to find the specific note element(s) for this tone on this string
+          // The scale_data might not map 1:1 to frets if the same note appears multiple times.
+          // We activate *all* DOM elements matching the string/tone combination for this position.
+          const noteElements = document.querySelectorAll(`.${stringName} .note.${toneNameForPosition}`);
+
+          noteElements.forEach(noteEl => {
+            const fretEl = noteEl.closest('[class*="fret"]');
+            if (fretEl) {
+              const fretName = Array.from(fretEl.classList).find(c => c.includes('fret'));
+              const noteId = `${stringName}-${fretName}-${toneNameForPosition}`;
+
+              // Activate this specific note element if it hasn't been already for this position run
+              // Check activatedNotesInPosition to avoid double-processing if multiple DOM elements match
+              if (!activatedNotesInPosition.has(noteId)) {
+                  noteEl.classList.add('active');
+                  activatedNotesInPosition.add(noteId);
+
+                  const toneImage = noteEl.querySelector('img.tone');
+                  if (toneImage) {
+                      toneImage.classList.add('active');
+                      toneImage.style.opacity = '1'; // Make fully opaque for selected position notes
+
+                      // Check if it's a root note
+                      const isRoot = scale_data.root && Object.values(scale_data.root).some(root =>
+                          root.replace(/[0-9]/g, '') === toneNameForPosition.replace(/[0-9]/g, '')
+                      );
+
+                      if (isRoot) {
+                          toneImage.classList.add('root');
+                          toneImage.setAttribute('src', '/static/media/red_circle.svg');
+                      } else {
+                          // Ensure non-roots get the correct octave circle
+                          toneImage.classList.remove('root'); // Remove root class if it's not a root
+                          
+                          // Determine octave-appropriate circle
+                          const octaveMatch = toneNameForPosition.match(/[a-z]+([0-4])/);
+                          if (octaveMatch && octaveMatch[1]) {
+                              const octave = parseInt(octaveMatch[1]);
+                              let svgSrc = '/static/media/';
+                              
+                              switch (octave) {
+                                  case 0: svgSrc += 'circle_01.svg'; break;
+                                  case 1: svgSrc += 'circle_01.svg'; break;
+                                  case 2: svgSrc += 'circle_02.svg'; break;
+                                  case 3: svgSrc += 'circle_03.svg'; break;
+                                  case 4: svgSrc += 'circle_04.svg'; break;
+                                  default: svgSrc += 'circle_01.svg';
+                              }
+                              
+                              toneImage.setAttribute('src', svgSrc);
+                          } else {
+                              toneImage.setAttribute('src', '/static/media/circle_01.svg');
+                          }
+                      }
+                  }
+              }
+            }
+          });
+        });
+      } else {
+        console.warn(`No tone data found for string ${stringName} in position ${y}`);
+      }
+    }
+  }
+
+  // Check if not 4 notes on highest or lowest string for the selected position
+  avoid_four_notes_on_string();
+}
+
+/**
+ * Special handling for "All Positions" mode to show a more comprehensive set of notes
+ * @param {string} positionId - The position ID (unused in this revised version, always shows all)
+ */
+function activateAllPositionNotes(positionId) { // positionId is kept for signature consistency but not used
+  // Make sure prerequisites are available
+  if (typeof scale_data === 'undefined' || !scale_data) {
+    console.error('Scale data not available, cannot activate all position notes');
+    return;
+  }
+  if (typeof string_array === 'undefined' || !string_array || !string_array.length) {
+    console.error('String array not defined or empty, cannot activate all position notes');
+    return;
+  }
+
+
+  // --- Step 1: Gather all valid scale note locations ---
+  const validScaleNoteLocations = new Set();
+  const positions = Object.keys(scale_data).filter(key => key !== 'root' && key !== '0' && !isNaN(parseInt(key)));
+
+  positions.forEach(pos => {
+    if (!scale_data[pos]) return; // Skip if position data doesn't exist
+
+    Object.keys(scale_data[pos]).forEach(stringName => {
+      if (!scale_data[pos][stringName] || !scale_data[pos][stringName][0] || !scale_data[pos][stringName][0].tones) return;
+
+      scale_data[pos][stringName][0].tones.forEach(toneName => {
+        // Find the specific DOM elements for this tone on this string
+        const noteElements = document.querySelectorAll(`.${stringName} .note.${toneName}`);
+        noteElements.forEach(noteEl => {
+          const fretEl = noteEl.closest('[class*="fret"]');
+          if (fretEl) {
+            const fretName = Array.from(fretEl.classList).find(c => c.includes('fret'));
+            if (fretName) {
+              const noteId = `${stringName}-${fretName}-${toneName}`;
+              validScaleNoteLocations.add(noteId);
+            }
+          }
+        });
+      });
+    });
+  });
+
+
+  // --- Step 2 & 3: Iterate through all DOM notes and activate if valid ---
+  const allNoteElements = document.querySelectorAll('.note');
+  const activatedNoteIds = new Set(); // Keep track of notes already activated in this run
+
+  allNoteElements.forEach(noteEl => {
+    const stringEl = noteEl.closest('[class*="String"]');
+    const fretEl = noteEl.closest('[class*="fret"]');
+
+    if (stringEl && fretEl) {
+      const stringName = Array.from(stringEl.classList).find(c => c.endsWith('String'));
+      const fretName = Array.from(fretEl.classList).find(c => c.includes('fret'));
+
+      // Find the tone class (e.g., 'c4', 'gs2')
+      const toneClass = Array.from(noteEl.classList).find(cls =>
+        ['a', 'ab', 'as', 'b', 'bb', 'c', 'cs', 'db', 'd', 'ds', 'eb', 'e', 'f', 'fs', 'gb', 'g', 'gs']
+        .some(note => cls.startsWith(note) && cls.length > note.length && !isNaN(parseInt(cls.substring(note.length)))) // Basic check for note + octave
+      );
+
+      if (stringName && fretName && toneClass) {
+        const noteId = `${stringName}-${fretName}-${toneClass}`;
+
+        // Check if this specific note location is part of the scale (in any position)
+        if (validScaleNoteLocations.has(noteId) && !activatedNoteIds.has(noteId)) {
+          noteEl.classList.add('active', 'all-positions-note');
+          activatedNoteIds.add(noteId); // Mark as activated
+
+          const toneImage = noteEl.querySelector('img.tone');
+          if (toneImage) {
+            toneImage.classList.add('active');
+            toneImage.style.opacity = '0.9'; // Slightly less transparent than before
+
+            // Check if it's a root note
+            const isRoot = scale_data.root && Object.values(scale_data.root).some(root =>
+              root.replace(/[0-9]/g, '') === toneClass.replace(/[0-9]/g, '')
+            );
+
+            if (isRoot) {
+              toneImage.classList.add('root');
+              toneImage.setAttribute('src', '/static/media/red_circle.svg');
+            } else {
+               // Ensure non-roots get the correct octave-based image
+               const octaveMatch = toneClass.match(/[a-z]+([0-4])/);
+               if (octaveMatch && octaveMatch[1]) {
+                   const octave = parseInt(octaveMatch[1]);
+                   let svgSrc = '/static/media/';
+                   
+                   switch (octave) {
+                       case 0: svgSrc += 'circle_01.svg'; break;
+                       case 1: svgSrc += 'circle_01.svg'; break;
+                       case 2: svgSrc += 'circle_02.svg'; break;
+                       case 3: svgSrc += 'circle_03.svg'; break;
+                       case 4: svgSrc += 'circle_04.svg'; break;
+                       default: svgSrc += 'circle_01.svg';
+                   }
+                   
+                   toneImage.setAttribute('src', svgSrc);
+               } else {
+                   toneImage.setAttribute('src', '/static/media/circle_01.svg');
+               }
+            }
+          }
+        }
+      }
+    }
+  });
+
+
+  // The ensureLowFretNotesShown function might be redundant now, as the main logic
+  // should correctly identify all valid notes based on scale_data.
+  // Commenting it out for now. If low fret notes are still missing, we might need to revisit.
+  // ensureLowFretNotesShown(positionId);
+}
+
+/**
+ * Special handling for low frets to ensure notes are visible
+ */
+function ensureLowFretNotesShown(positionId) {
+  // Focus on the first, second, and third frets
+  const lowFrets = [1, 2, 3];
+
+  // Focus especially on higher strings (d-string to highA-string)
+  const priorityStrings = ['highAString', 'eString', 'bString', 'gString', 'dString'];
+
+  // First process priority strings
+  for (const stringName of priorityStrings) {
+    // Skip if the string doesn't exist in the DOM
+    if (!document.querySelector(`.${stringName}`)) {
+      console.warn(`Priority string ${stringName} not found in the DOM, skipping`);
+      continue;
+    }
+
+    // Process each fret for this string
+    for (const fret of lowFrets) {
+      const fretName = numberToEnglishFret(fret);
+
+      // Check if this fret exists in the DOM
+      if (!document.querySelector(`.fret.${fretName}`)) {
+        console.warn(`Fret ${fretName} not found in the DOM, skipping`);
+        continue;
+      }
+
+      // Find all notes on this string/fret
+      const fretSelector = `.${stringName} .fret.${fretName} .note`;
+      const notesOnFret = document.querySelectorAll(fretSelector);
+
+      // Process these notes with higher priority
+      processNotesOnFret(notesOnFret, stringName, fret, positionId, true);
+    }
+  }
+
+  // Then process remaining strings
+  for (let i = 0; i < string_array.length; i++) {
+    const stringName = string_array[i];
+
+    // Skip if this is a priority string (already processed)
+    if (priorityStrings.includes(stringName)) {
+      continue;
+    }
+
+    // Skip if the string doesn't exist in the DOM
+    if (!document.querySelector(`.${stringName}`)) {
+      console.warn(`String ${stringName} not found in the DOM, skipping`);
+      continue;
+    }
+
+    // Process each fret for this string
+    for (const fret of lowFrets) {
+      const fretName = numberToEnglishFret(fret);
+
+      // Check if this fret exists in the DOM
+      if (!document.querySelector(`.fret.${fretName}`)) {
+        console.warn(`Fret ${fretName} not found in the DOM, skipping`);
+        continue;
+      }
+
+      // Find all notes on this string/fret
+      const fretSelector = `.${stringName} .fret.${fretName} .note`;
+      const notesOnFret = document.querySelectorAll(fretSelector);
+
+      // Process these notes with normal priority
+      processNotesOnFret(notesOnFret, stringName, fret, positionId, false);
+    }
+  }
+}
+
+/**
+ * Helper function to process notes on a specific fret
+ */
+function processNotesOnFret(notesOnFret, stringName, fret, positionId, isPriority) {
+
+  if (notesOnFret.length > 0) {
+    // For each note element
+    notesOnFret.forEach(noteEl => {
+      // Check if this note should be part of the scale
+      const toneClass = Array.from(noteEl.classList).find(cls =>
+        ['a', 'ab', 'as', 'b', 'bb', 'c', 'cs', 'db', 'd', 'ds', 'eb', 'e', 'f', 'fs', 'gb', 'g', 'gs']
+        .some(note => cls.startsWith(note))
+      );
+
+      if (toneClass) {
+        // See if this tone is in the scale data for this position
+        let isInScale = false;
+
+        // Check against the scale data for this position
+        if (scale_data[positionId] && scale_data[positionId][stringName]) {
+          const stringTones = scale_data[positionId][stringName][0]?.tones || [];
+
+          // Match just the note, without the octave
+          const baseNote = toneClass.replace(/[0-9]/g, '');
+          isInScale = stringTones.some(tone => tone.replace(/[0-9]/g, '') === baseNote);
+        }
+
+        // For priority strings, also check if the note is in ANY position's scale
+        if (!isInScale && isPriority) {
+          // Get all scale positions (except "All Positions")
+          const positions = Object.keys(scale_data).filter(key =>
+            key !== 'root' && key !== '0' && !isNaN(parseInt(key))
+          );
+
+          // Check each position
+          for (const pos of positions) {
+            if (scale_data[pos] && scale_data[pos][stringName]) {
+              const stringTones = scale_data[pos][stringName][0]?.tones || [];
+
+              // Match just the note, without the octave
+              const baseNote = toneClass.replace(/[0-9]/g, '');
+              if (stringTones.some(tone => tone.replace(/[0-9]/g, '') === baseNote)) {
+                isInScale = true;
+                break; // Found it in at least one position
+              }
+            }
+          }
+        }
+
+        // If the note is part of the scale (either in this position or any position for priority strings)
+        if (isInScale) {
+          // Only activate if not already active
+          if (!noteEl.classList.contains('active')) {
+            noteEl.classList.add('active', 'low-fret-note'); // Mark as low fret note
+
+            // Also activate the tone image
+            const toneImage = noteEl.querySelector('img.tone');
+            if (toneImage) {
+              toneImage.classList.add('active');
+              toneImage.style.opacity = '0.9'; // Consistent opacity
+
+              // Check if it's a root note
+              const isRoot = scale_data.root && Object.values(scale_data.root).some(root =>
+                root.replace(/[0-9]/g, '') === toneClass.replace(/[0-9]/g, '')
+              );
+
+              if (isRoot) {
+                toneImage.classList.add('root');
+                toneImage.setAttribute('src', '/static/media/red_circle.svg');
+              } else {
+                // Use octave-appropriate circle for non-root notes
+                const octaveMatch = toneClass.match(/[a-z]+([0-4])/);
+                if (octaveMatch && octaveMatch[1]) {
+                  const octave = parseInt(octaveMatch[1]);
+                  let svgSrc = '/static/media/';
+                  
+                  switch (octave) {
+                    case 0: svgSrc += 'circle_01.svg'; break;
+                    case 1: svgSrc += 'circle_01.svg'; break;
+                    case 2: svgSrc += 'circle_02.svg'; break;
+                    case 3: svgSrc += 'circle_03.svg'; break;
+                    case 4: svgSrc += 'circle_04.svg'; break;
+                    default: svgSrc += 'circle_01.svg';
+                  }
+                  
+                  toneImage.setAttribute('src', svgSrc);
+                } else {
+                  toneImage.setAttribute('src', '/static/media/circle_01.svg');
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+
+function updateCursorVisibility(pos_val, max_pos) {
+  var leftCursor = document.getElementById('leftCursor');
+  var rightCursor = document.getElementById('rightCursor');
+
+  if (!leftCursor || !rightCursor) {
+    console.error("Cursor elements not found");
+    return;
+  }
+
+  // Always show cursors when "All Positions" (0) is selected
+  if (pos_val == 0) {
+    leftCursor.style.display = 'block';
+    rightCursor.style.display = 'block';
+  } else {
+    // Hide left cursor if at the first position (1)
+    leftCursor.style.display = (pos_val <= 1) ? 'none' : 'block';
+    // Hide right cursor if at the last position
+    rightCursor.style.display = (pos_val >= max_pos) ? 'none' : 'block';
+  }
+}
+
+// leftCursorClick function has been removed to disable left arrow functionality
+
+function rightCursorClick() {
+  var url_string = window.location.href;
+  var url = new URL(url_string);
+  var pos_val = parseInt(url.searchParams.get('position_select')) || 0; // Default to 0 if not present
+  var max_pos = 0;
+
+  // Find the maximum position value from the select options
+  var selectElement = document.getElementById('position_select');
+  if (selectElement) {
+    var options = selectElement.getElementsByTagName('option');
+    for (var i = 0; i < options.length; i++) {
+      var val = parseInt(options[i].value);
+      if (!isNaN(val) && val > max_pos) {
+        max_pos = val;
+      }
+    }
+  } else {
+    console.error("Position select element not found");
+    return; // Cannot proceed without max position
+  }
+
+
+  // If currently showing "All Positions" (0), go to the first position (1)
+  if (pos_val === 0) {
+    pos_val = 1;
+  } else {
+    // Otherwise, increment position, but not beyond max_pos
+    pos_val = Math.min(max_pos, pos_val + 1);
+  }
+
+  // Update the URL and refresh data
+  url.searchParams.set('position_select', pos_val);
+  window.location.href = url.toString();
+}
+
+
+/* Look for any elements with the class "custom-select": */
+// Add event listeners for custom select fields
+document.addEventListener('DOMContentLoaded', function() {
+  customizeSelectField('sfbsfnos'); // Scale/Fretboard/ScaleForm/NotesOptionSelect
+  customizeSelectField('sfbsfpos'); // Scale/Fretboard/ScaleForm/PositionSelect
+  customizeSelectField('sfbsf'); // Scale/Fretboard/ScaleForm/RootSelect
+});
+
+function customizeSelectField(className) {
+  var x, i, j, l, ll, selElmnt, a, b, c;
+  /* Look for any elements with the class name: */
+  x = document.getElementsByClassName(className);
+  l = x.length;
+  for (i = 0; i < l; i++) {
+    selElmnt = x[i].getElementsByTagName("select")[0];
+    ll = selElmnt.length;
+    /* For each element, create a new DIV that will act as the selected item: */
+    a = document.createElement("DIV");
+    a.setAttribute("class", "select-selected");
+    a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+    x[i].appendChild(a);
+    /* For each element, create a new DIV that will contain the option list: */
+    b = document.createElement("DIV");
+    b.setAttribute("class", "select-items select-hide");
+    for (j = 1; j < ll; j++) {
+      /* For each option in the original select element,
+      create a new DIV that will act as an option item: */
+      c = document.createElement("DIV");
+      c.innerHTML = selElmnt.options[j].innerHTML;
+      c.addEventListener("click", function(e) {
+          /* When an item is clicked, update the original select box,
+          and the selected item: */
+          var y, i, k, s, h, sl, yl;
+          s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+          sl = s.length;
+          h = this.parentNode.previousSibling;
+          for (i = 0; i < sl; i++) {
+            if (s.options[i].innerHTML == this.innerHTML) {
+              s.selectedIndex = i;
+              h.innerHTML = this.innerHTML;
+              y = this.parentNode.getElementsByClassName("same-as-selected");
+              yl = y.length;
+              for (k = 0; k < yl; k++) {
+                y[k].removeAttribute("class");
+              }
+              this.setAttribute("class", "same-as-selected");
+
+              // Trigger the change event on the original select element
+              var event = new Event('change', { 'bubbles': true });
+              s.dispatchEvent(event);
+
+              break;
+            }
+          }
+          h.click(); // Close the select box
+      });
+      b.appendChild(c);
+    }
+    x[i].appendChild(b);
+    a.addEventListener("click", function(e) {
+      /* When the select box is clicked, close any other select boxes,
+      and open/close the current select box: */
+      e.stopPropagation();
+      closeAllSelect(this);
+      this.nextSibling.classList.toggle("select-hide");
+      this.classList.toggle("select-arrow-active");
+    });
+  }
+}
+
+
+function closeAllSelect(elmnt) {
+  /* A function that will close all select boxes in the document,
+  except the current select box: */
+  var x, y, i, xl, yl, arrNo = [];
+  x = document.getElementsByClassName("select-items");
+  y = document.getElementsByClassName("select-selected");
+  xl = x.length;
+  yl = y.length;
+  for (i = 0; i < yl; i++) {
+    if (elmnt == y[i]) {
+      arrNo.push(i)
+    } else {
+      y[i].classList.remove("select-arrow-active");
+    }
+  }
+  for (i = 0; i < xl; i++) {
+    if (arrNo.indexOf(i)) {
+      x[i].classList.add("select-hide");
+    }
+  }
+}
+
+function numberToEnglishFret(num) {
+    const fretMap = {
+        1: 'one', 2: 'two', 3: 'three', 4: 'four', 5: 'five',
+        6: 'six', 7: 'seven', 8: 'eight', 9: 'nine', 10: 'ten',
+        11: 'eleven', 12: 'twelve', 13: 'thirteen', 14: 'fourteen',
+        15: 'fifteen', 16: 'sixteen', 17: 'seventeen'
+        // Add more if needed
+    };
+    return fretMap[num] || '';
+}
+
+
+// Function to handle changing the scale root note
+function changeScaleRoot(noteChange) {
+    const url = new URL(window.location.href);
+    let currentRoot = parseInt(url.searchParams.get('root')) || 1; // Default to 1 (C) if not set
+
+    // Assuming root notes are numbered 1-12 (C to B)
+    const maxRoot = 12;
+    const minRoot = 1;
+
+    currentRoot += noteChange;
+
+    // Wrap around
+    if (currentRoot > maxRoot) {
+        currentRoot = minRoot;
+    } else if (currentRoot < minRoot) {
+        currentRoot = maxRoot;
+    }
+
+    url.searchParams.set('root', currentRoot);
+    window.location.href = url.toString();
+}
+
+// Keyboard listener for root note changes (right arrow key functionality removed)
+document.addEventListener('keydown', function(event) {
+    // Right arrow key functionality has been removed
+});

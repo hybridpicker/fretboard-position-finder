@@ -1,26 +1,52 @@
-<!-- templates/header/header.html -->
 {% load static %}
+<!-- Color scheme -->
+<link rel="stylesheet" href="{% static 'css/colors.css' %}" type="text/css" media="screen">
 <!-- CSS files -->
-<link rel="stylesheet" href="{% static 'css/base.2.0.8.min.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/base.2.0.9.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/string-labels.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/position-indicators.css' %}" type="text/css" media="screen">
+
+<!-- Color-themed components -->
+<link rel="stylesheet" href="{% static 'css/chord-display.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/chord_selection.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/chord_selector_colors.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/user_friendly_chord_selector.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/direct-inversion-cycling-colors.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/3d-strings-colors.css' %}" type="text/css" media="screen">
+
+<link rel="stylesheet" href="{% static 'css/cursor_controls.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/custom-cursors.css' %}" type="text/css" media="screen"> {# Custom cursor SVG styling #}
+<link rel="stylesheet" href="{% static 'css/unified_menu.css' %}" type="text/css" media="screen"> {# Base unified menu CSS #}
+<link rel="stylesheet" href="{% static 'css/unified_menu_colors.css' %}" type="text/css" media="screen"> {# Color scheme for unified menu #}
+<link rel="stylesheet" href="{% static 'css/root-note-fix.css' %}" type="text/css" media="screen"> {# Fix for root note borders #}
+<link rel="stylesheet" href="{% static 'css/search.css' %}" type="text/css" media="screen"> {# Base search CSS #}
+<link rel="stylesheet" href="{% static 'css/search_colors.css' %}" type="text/css" media="screen"> {# Color scheme for search #}
+<link rel="stylesheet" href="{% static 'css/language-switcher.css' %}" type="text/css" media="screen"> {# Added language switcher CSS #}
+<link rel="stylesheet" href="{% static 'css/info-button.css' %}" type="text/css" media="screen"> {# Added info button CSS #}
+<link rel="stylesheet" href="{% static 'css/about-button.css' %}" type="text/css" media="screen"> {# Added about button CSS #}
 
 <!-- Favicon -->
 {% include "favicon.html" %}
 
-{% if chord_options %}
 <!-- JavaScript data -->
+{% if chord_options %}
 <script type="text/javascript">
-  var voicing_data = {{ chord_json_data|safe }};
+var voicing_data = {{ chord_json_data|safe }};
 </script>
 {% elif scale_json_data %}
-<!-- JavaScript data -->
 <script type="text/javascript">
-  var scale_data = {{ scale_json_data|safe }};
+var scale_data = {{ scale_json_data|safe }};
 </script>
 {% endif %}
 
+<!-- Fretboard Scripts -->
 {% if chord_options %}
-  <!-- Fretboard Form Script -->
-  <script src="{% static 'js/fretboard_chords.2.0.3.min.js' %}"></script>
+  <script src="{% static 'js/fretboard_chords.2.0.4.js' %}"></script>
 {% elif scale_json_data %}
-  <script src="{% static 'js/fretboard_scales.2.0.4.min.js' %}"></script>
+  <script src="{% static 'js/fretboard_scales.2.0.5.js' %}"></script>
 {% endif %}
+
+<!-- Include search form -->
+{% include "search/search_form.html" %}
+
+<!-- Language Switcher removed - moved to settings menu -->

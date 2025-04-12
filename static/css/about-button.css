@@ -1,0 +1,22 @@
+/* About button styles */
+.about-button {
+  background-color: #3498db !important; /* Blue color to make it stand out */
+  color: white !important;
+  text-decoration: none !important;
+  display: inline-block;
+  text-align: center;
+  margin: 10px !important;
+  transition: background-color 0.3s ease, transform 0.2s ease !important;
+}
+
+.about-button:hover {
+  background-color: #2980b9 !important;
+  transform: scale(1.05) !important;
+}
+
+/* Add icon to about button */
+.about-button:before {
+  content: 'ℹ';
+  margin-right: 8px;
+  font-size: 1.1em;
+}

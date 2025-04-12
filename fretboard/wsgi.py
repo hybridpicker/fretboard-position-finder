@@ -1,4 +1,3 @@
-# fretboard/wsgi.py
 """
 WSGI config for fretboard project.
 

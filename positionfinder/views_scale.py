@@ -1,167 +1,71 @@
-# positionfinder/views_scale.py
-import json
-from django import forms
-from django.shortcuts import render, redirect
+from django.http import HttpRequest
 
-from .models import Notes, Root, NotesCategory
-from .positions import NotesPosition
-from .note_setup import get_notes_tones
-from .root_note_setup import get_root_note
-from .functionality_tones_setup import get_functionality_tones, get_functionality_pitches
-from. functionality_tones_setup import get_functionality_note_names
-from .get_position import get_notes_position
-from django.utils.datastructures import MultiValueDictKeyError
-from django.core.exceptions import ObjectDoesNotExist
-from .template_notes import ALL_NOTES_POSITION
-
-from .get_position_dict_scales import get_scale_position_dict, get_transposable_positions
-from .get_position_dict_scales import transpose_actual_position, re_ordering_positions
-
-from django.shortcuts import render
-from positionfinder.views_helpers import get_menu_options, get_string_config
+from .views_base import MusicalTheoryView
+from .models_chords import ChordNotes
 
 
-'''
-Main View
-'''
-def fretboard_scale_view (request):
-    ''' Select which notes '''
-    all_notes_position = ALL_NOTES_POSITION
-    category = NotesCategory.objects.all()
-    menu_options = get_menu_options()
-    string_config = get_string_config(request)
-    '''
-    Template Variables
-    '''
-    selected_category = 1
-    root_id = 1
-    root_pitch = 0
-    tonal_root = 0
-    category_id = 0
-    notes_options_id = 0
-
-    if request.method == 'GET':
-        '''
-        Template View
-        '''
-        position = all_notes_position
-        try:
-            root_id = request.GET['root']
-        except MultiValueDictKeyError:
-            root_id = 1
-        try:
-            category_id = request.GET['models_select']
-        except MultiValueDictKeyError:
-            category_id = 1
-        try:
-            notes_options_id = request.GET['notes_options_select']
-        except MultiValueDictKeyError:
-            notes_options_id = '1'
-        try:
-            position_id = request.GET['position_select']
-        except MultiValueDictKeyError:
-            position_id = '0'
-
-    if category_id == '2':
-        return redirect('show_arpeggio_fretboard')
-    if category_id == '3':
-        return redirect('show_chords_fretboard')
-
-    notes_options = Notes.objects.filter(category_id=category_id).first().pk
-
-    root_pitch = Root.objects.get(pk=root_id).pitch
-    notes_options = Notes.objects.filter(category=category_id).order_by('ordering')
-    position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
-    tones = get_notes_tones(notes_options_id, root_pitch, tonal_root, root_id)
-    tensions = get_functionality_tones(notes_options_id, root_pitch)
-    root = get_root_note(root_pitch, tonal_root, root_id)
-
-    position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
-    root_options = Root.objects.all()
-
-    selected_category = int(category_id)
-    selected_notes = int(notes_options_id)
-
-    '''
-    Controlling Lines
-    '''
-    try:
-        selected_category_name = NotesCategory.objects.get(pk=category_id).category_name
-    except NotesCategory.DoesNotExist:
-        selected_category_name = NotesCategory.objects.first().category_name
-    selected_root_name = Root.objects.get(pk=root_id).name
-    selected_root_id = Root.objects.get(pk=root_id).id
-
-    selected_notes_name = Notes.objects.get(pk=notes_options_id).note_name
-    chord_name = Notes.objects.get(pk=notes_options_id).chords
-
-    note_names = get_functionality_note_names(notes_options_id, root_pitch, tonal_root, root_id)
-    tension_pitches = get_functionality_pitches(notes_options_id, root_pitch)
-
-    tensions_json_data = {"tensions": tensions}
-    tension_json_data = json.dumps(tensions_json_data)
-    note_name_json_data = {"tones": note_names}
-    note_name_json_data = json.dumps(note_name_json_data)
+class ScaleView(MusicalTheoryView):
+    """
+    View class for handling scale-related functionality
+    Inherits from MusicalTheoryView to leverage common functionality
+    """
     
-    position_json_data = {}
-    position_json_data = get_scale_position_dict(selected_notes_name,
-                                                 selected_root_id,
-                                                 root_pitch,
-                                                 tonal_root,
-                                                 selected_root_name)
-    if len(position_json_data) > 1:
-        # Get Meta-Data for transposable position function
-        x = Notes.objects.get(id=notes_options_id).note_name
-        y = len(NotesPosition.objects.all().filter(notes_name__note_name=x))
-        transposable_position = get_transposable_positions(y, position_json_data)
+    def __init__(self):
+        """Initialize with scales category ID (1)"""
+        super().__init__(category_id=1)
+    
+    def apply_defaults(self, params):
+        """
+        Apply scale-specific default values
         
-        # Transpose position that transposable
-        position_json_data = transpose_actual_position(position_json_data, transposable_position)
-
-        # ReOrdering Positions
-        position_json_data = re_ordering_positions(position_json_data)
+        Args:
+            params: Dictionary of request parameters
+        
+        Returns:
+            Updated parameter dictionary with defaults applied
+        """
+        # Default values for scales
+        if params['notes_options_id'] is None:
+            params['notes_options_id'] = '1'  # Default scale
+            
+        return params
     
-    else:
-        pass
+    def add_view_specific_context(self, context, params):
+        """
+        Add scale-specific context variables
+        
+        Args:
+            context: Base context dictionary
+            params: Dictionary of processed parameters
+        
+        Returns:
+            Updated context dictionary with scale-specific variables
+        """
+        # Add chord name if available
+        try:
+            context['chord_name'] = context['notes_options'].get(pk=params['notes_options_id']).chords
+        except:
+            context['chord_name'] = ''
+            
+        # Check for V1/V2 data existence for the unified menu
+        v1_data_exists = ChordNotes.objects.filter(type_name='V1').exists()
+        v2_data_exists = ChordNotes.objects.filter(type_name='V2').exists()
+        
+        context['v1_data_exists'] = v1_data_exists
+        context['v2_data_exists'] = v2_data_exists
+        
+        return context
+
+
+def fretboard_scale_view(request: HttpRequest):
+    """
+    View function for displaying scales on the fretboard
     
-    selected_root_options = get_root_note(root_pitch, tonal_root, root_id)
-    position_json_data["name"] = selected_notes_name
-    position_json_data["root"] = selected_root_options
-
-    scale_json_data = json.dumps(position_json_data)
+    Args:
+        request: The HTTP request object
     
-    # notes data
-    selected_position = position_id
-    
-    context = {
-        'scale_json_data': scale_json_data,
-
-        'tension_json_data': tension_json_data,
-        'note_name_json_data': note_name_json_data,
-        'tones': tones,
-        'root': root,
-
-        'root_options': root_options,
-        'position_options': position_options,
-        'position': position,
-        'category': category,
-        'selected_category': selected_category,
-        'notes_options': notes_options,
-        'selected_notes': selected_notes,
-        'selected_position': selected_position,
-
-        'tensions': tensions,
-        'tension_pitches': tension_pitches,
-        'note_names': note_names,
-        'chord_name': chord_name,
-
-        'selected_root_name': selected_root_name,
-        'selected_root_id': selected_root_id,
-        'selected_category_name': selected_category_name,
-        'selected_notes_name': selected_notes_name,
-        }
-    
-    context.update(menu_options)
-    context.update(string_config)
-   
-    return render(request, 'fretboard.html', context)
+    Returns:
+        Rendered template response
+    """
+    scale_view = ScaleView()
+    return scale_view.render(request)

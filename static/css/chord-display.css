@@ -1,0 +1,380 @@
+/* Inversion styling - make alternative inversions semi-transparent */
+.inversion-note.active, .inversion-tone.active {
+    opacity: 0.4;
+    transition: all 0.3s ease;
+    border: none !important;
+    filter: brightness(0.9);
+}
+
+/* Note names for inversion notes should match their notes' opacity */
+.inversion-note.active .notename, 
+.note.active.inversion-note .notename,
+.active .inversion-tone + .notename {
+    opacity: 0.4 !important;
+    visibility: visible !important;
+    transition: all 0.3s ease;
+}
+
+/* Hover effects for alternative inversions */
+.inversion-note.active:hover, .inversion-tone.active:hover {
+    opacity: 0.7;
+    filter: brightness(1);
+    cursor: pointer;
+    border: none !important;
+}
+
+/* Hover effects for inversion note names */
+.inversion-note.active:hover .notename,
+.note.active.inversion-note:hover .notename {
+    opacity: 0.7 !important;
+}
+
+/* Active notes that are not inversions - make them stand out */
+.note.active:not(.inversion-note), .tone.active:not(.inversion-tone) {
+    opacity: 1;
+    filter: brightness(1.1);
+    border: none !important;
+    transition: all 0.3s ease;
+}
+
+/* Active note names should be fully visible */
+.note.active .notename:not(.inversion-note ~ .notename),
+.note.active:not(.inversion-note) .notename {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Inversion note names should be semi-transparent */
+.note.active.inversion-note .notename,
+.inversion-note .notename,
+.inversion-note ~ .notename {
+    visibility: visible !important;
+    opacity: 0.4 !important;
+    transition: opacity 0.2s ease-in-out;
+}
+
+/* Add hover effect to make semi-transparent note names more visible on hover */
+.note.active.inversion-note:hover .notename,
+.inversion-note:hover .notename,
+.inversion-note:hover ~ .notename {
+    opacity: 0.9 !important;
+}
+
+/* Root notes should always be visible and emphasized */
+img.root,
+img.tone.root,
+.note img.root,
+.note img.tone.root,
+img.tone.active.root {
+    opacity: 1 !important;
+    visibility: visible !important;
+    border: 2px solid var(--color-khaki) !important;
+    box-shadow: 0 0 5px rgba(var(--color-khaki-rgb), 0.5) !important;
+}
+
+/* Root note names must be visible */
+img.root + .notename,
+img.tone.root + .notename,
+.note img.root + .notename,
+.note img.tone.root + .notename,
+.root ~ .notename {
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: var(--text-secondary) !important;
+}
+
+/* Primary root note styling - for the active inversion */
+img.tone.active.root:not(.inversion-root):not(.inversion-tone),
+img.tone.root:not(.inversion-root):not(.inversion-tone) {
+    opacity: 1 !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: brightness(1.1) !important;
+    transition: all 0.3s ease;
+    position: relative !important;
+}
+
+/* Alternative inversion root styling - visible but less prominent */
+img.tone.active.root.inversion-root {
+    opacity: 0.7 !important;
+    border: none !important;
+    box-shadow: none !important;
+    position: relative !important;
+}
+
+/* Hover effect for alternative inversion roots */
+img.tone.active.root.inversion-root:hover {
+    opacity: 0.85 !important;
+    border: none !important;
+    filter: brightness(1.05) !important;
+}
+
+/* Enhanced chord display styling */
+
+/* Chord voicing indicators */
+.chord-voicing-indicators {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    position: relative;
+}
+
+.chord-voicing-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ccc;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    position: relative;
+}
+
+.chord-voicing-dot:hover {
+    transform: scale(1.2);
+}
+
+.chord-voicing-dot.current {
+    transform: scale(1.2);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Color-code voicing types */
+.chord-voicing-dot.triad {
+    background-color: #4CAF50; /* Green */
+}
+
+.chord-voicing-dot.seventh {
+    background-color: #2196F3; /* Blue */
+}
+
+.chord-voicing-dot.extended {
+    background-color: #9C27B0; /* Purple */
+}
+
+.chord-voicing-dot.eight-string {
+    background-color: #FF5722; /* Orange */
+    border: 2px solid #BF360C;
+}
+
+/* Chord info tooltip */
+.chord-voicing-info {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+    width: 200px;
+    text-align: center;
+}
+
+.chord-voicing-dot:hover .chord-voicing-info {
+    opacity: 1;
+}
+
+/* Chord diagram - removed for consistent UI */
+
+/* Chord tone explanation */
+.chord-tone-explanation {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.chord-tone {
+    display: flex;
+    align-items: center;
+    margin: 0 10px 5px 0;
+    font-size: 12px;
+}
+
+.chord-tone-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.chord-tone-color.root {
+    background-color: #FF4500; /* Red-orange for root */
+}
+
+.chord-tone-color.third {
+    background-color: #4CAF50; /* Green for third */
+}
+
+.chord-tone-color.fifth {
+    background-color: #2196F3; /* Blue for fifth */
+}
+
+.chord-tone-color.seventh {
+    background-color: #9C27B0; /* Purple for seventh */
+}
+
+.chord-tone-color.extension {
+    background-color: #FF9800; /* Orange for extensions (9, 11, 13) */
+}
+
+/* Chord navigation */
+.chord-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.chord-nav-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.chord-nav-section h4 {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.chord-nav-buttons {
+    display: flex;
+}
+
+.chord-nav-button {
+    padding: 8px 12px;
+    margin: 0 5px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+    color: #333;
+}
+
+.chord-nav-button:hover {
+    background-color: #e0e0e0;
+}
+
+.chord-nav-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 8-string indicator */
+.eight-string-indicator {
+    display: inline-block;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background-color: #FF5722;
+    color: white;
+    font-size: 10px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+/* Chord quality selector */
+.chord-quality-selector {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+}
+
+.chord-quality-selector h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.chord-quality-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.chord-quality-option {
+    padding: 5px 10px;
+    margin: 0 5px 5px 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.chord-quality-option:hover {
+    background-color: #f5f5f5;
+    border-color: #aaa;
+}
+
+.chord-quality-option.selected {
+    background-color: #e0e0e0;
+    border-color: #999;
+    font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media only screen and (max-width: 768px) {
+    .chord-voicing-dot {
+        width: 10px;
+        height: 10px;
+        margin: 0 3px;
+    }
+    
+    .chord-voicing-info {
+        width: 150px;
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+    
+    .chord-name {
+        font-size: 16px;
+    }
+    
+    .chord-details, .chord-notes {
+        font-size: 12px;
+    }
+    
+    .chord-tone {
+        font-size: 10px;
+        margin: 0 5px 3px 0;
+    }
+    
+    .chord-navigation {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .chord-nav-section {
+        margin-bottom: 10px;
+    }
+    
+    .chord-nav-button {
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+}
+
+/* General note color */
+.fret .note {
+  color: #efede8;
+}
+
+/* Specific note color for notes c3-b3 using circle_03.svg */
+.fret .note img[src*="/static/media/circle_03.svg"] + .notename {
+  color: #1d262a !important; /* Use !important for specificity */
+}
+
+/* OVERRIDE: Root notes should always have light text regardless of their octave */
+.fret .note img.root + .notename {
+  color: #efede8 !important; /* Light color for root notes */
+}

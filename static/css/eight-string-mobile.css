@@ -1,0 +1,37 @@
+/* 
+ * Eight-string mobile fretboard styles
+ * Provides custom positioning for eight-string fretboards on mobile devices
+ */
+
+/* Mobile portrait mode styling for eight-string configuration */
+@media only screen and (max-width: 400px) and (orientation: portrait) {
+  .eight-string-config .fretboard {
+    width: auto;
+    padding-left: 10px;
+    rotate: 90deg;
+    transform-origin: top;
+    position: absolute;
+    top: 330px;
+    left: 0;
+  }
+  
+  .eight-string-config {
+    margin: 0;
+    height: 90vh;
+    max-height: 730px;
+  }
+  
+  /* Hide cursor elements in mobile portrait mode */
+  .left-cursor,
+  .right-cursor {
+    display: none !important;
+  }
+}
+
+/* Keep standard styling for landscape mode */
+@media only screen and (max-width: 400px) and (orientation: landscape) {
+  .eight-string-config {
+    overflow-x: auto;
+    width: 100%;
+  }
+}

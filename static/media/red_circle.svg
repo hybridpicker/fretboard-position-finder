@@ -1,15 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50.202" height="50.211" viewBox="0 0 50.202 50.211">
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Ebene_2" data-name="Ebene 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48.53 48.54" width="48" height="48">
   <defs>
-    <clipPath id="clip-path">
-      <rect id="rectangle_39" data-name="rectangle 39" width="50.202" height="50.211" fill="none"/>
+    <style>
+      .cls-1 {
+        fill: none;
+      }
+
+      .cls-2 {
+        fill: #ef6262;
+      }
+
+      .cls-3 {
+        fill: #ed5656;
+      }
+
+      .cls-4 {
+        fill: #eb4841;
+      }
+
+      .cls-5 {
+        fill: #ce3b38;
+      }
+
+      .cls-6 {
+        clip-path: url(#clippath);
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="cls-1" width="48.53" height="48.54"/>
     </clipPath>
   </defs>
-  <g id="group_60" data-name="group 60" transform="translate(0 0)">
-    <g id="group_59" data-name="group 59" transform="translate(0 0)" clip-path="url(#clip-path)">
-      <path id="path_907" data-name="path 907" d="M47.637,43.914c-2.887,2.876-7.143,2.884-11.269,2.5-5.679-.535-10.006-2.1-15.208-4.446C15.793,39.549,11.478,37.2,7.2,33.152,4.294,30.4,1.745,27.322,1.858,23.56A25.064,25.064,0,0,0,47.637,43.914" transform="translate(0 -7.817)" fill="#f36758"/>
-      <path id="path_908" data-name="path 908" d="M48.558,38.7A25.1,25.1,0,0,0,41.539,7.971c-9.642-.178-21.263-.184-30.961,0a23.7,23.7,0,0,0-7.8,10.372c-.114,3.762,2.435,6.844,5.343,9.592,4.277,4.043,8.592,6.4,13.959,8.812,5.2,2.341,9.528,3.911,15.208,4.446,4.126.388,8.382.38,11.269-2.5" transform="translate(-0.921 -2.6)" fill="#ff877a"/>
-      <path id="path_909" data-name="path 909" d="M45.413,6.217a23.175,23.175,0,0,0-6.473-3.665H20.925a20.7,20.7,0,0,0-6.473,3.665c9.7-.184,21.318-.178,30.961,0" transform="translate(-4.795 -0.847)" fill="#ff9e95"/>
-      <path id="path_910" data-name="path 910" d="M42.153,1.705a24.64,24.64,0,0,0-18.014,0Z" transform="translate(-8.009 0)" fill="#ffd9d5"/>
+  <g id="Design_Idea" data-name="Design Idea">
+    <g id="group_64" data-name="group 64">
+      <g class="cls-6">
+        <g id="group_63" data-name="group 63">
+          <path id="path_915" data-name="path 915" class="cls-5" d="M46.05,34.9c-2.79,2.78-6.91,2.79-10.89,2.41-5.49-.52-9.67-2.03-14.7-4.3-5.19-2.33-9.36-4.61-13.49-8.52-2.81-2.66-5.28-5.63-5.16-9.27-5,12.41,1.01,26.53,13.42,31.53,11.79,4.75,25.26-.42,30.83-11.85"/>
+          <path id="path_916" data-name="path 916" class="cls-4" d="M46.05,34.9c5.01-10.26,2.19-22.63-6.78-29.7-9.32-.17-20.56-.18-29.93,0-3.4,2.57-6.01,6.05-7.54,10.02-.11,3.64,2.35,6.62,5.17,9.27,4.13,3.91,8.31,6.18,13.49,8.52,5.03,2.26,9.21,3.78,14.7,4.3,3.99.38,8.1.37,10.89-2.41"/>
+          <path id="path_917" data-name="path 917" class="cls-3" d="M39.27,5.2c-1.88-1.51-3.99-2.71-6.26-3.54H15.59c-2.28.79-4.4,1.99-6.26,3.54,9.38-.18,20.61-.17,29.93,0"/>
+          <path id="path_918" data-name="path 918" class="cls-2" d="M33.01,1.65C27.41-.55,21.19-.55,15.59,1.65h17.42Z"/>
+        </g>
+      </g>
     </g>
   </g>
 </svg>

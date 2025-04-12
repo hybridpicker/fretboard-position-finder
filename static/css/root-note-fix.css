@@ -1,0 +1,32 @@
+/* Root note styling for scales and arpeggios */
+
+/* Make sure ALL root notes (with or without active class) use the red circle image */
+img.tone.root {
+  opacity: 1 !important;
+  border: 2px solid rgb(204, 0, 0) !important;
+  box-shadow: rgba(255, 0, 0, 0.3) 0px 0px 5px !important;
+  content: url('/static/media/red_circle.svg') !important; /* Force the image source in CSS */
+}
+
+/* Ensure active root notes keep correct styling */
+img.tone.active.root {
+  opacity: 1 !important;
+  border: 2px solid rgb(204, 0, 0) !important;
+  box-shadow: rgba(255, 0, 0, 0.3) 0px 0px 5px !important;
+}
+
+/* Regular active tones (non-root) */
+img.tone.active:not(.root) {
+  opacity: 1 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure root note text is always the correct color with highest specificity */
+img.tone.root + .notename,
+.note.active img.tone.root + .notename,
+.fret .note img.tone.root + .notename {
+  color: #efede8 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}

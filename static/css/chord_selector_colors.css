@@ -1,0 +1,126 @@
+/* Chord selector color variables */
+
+.user-friendly-chord-selector {
+    background-color: var(--bg-primary);
+    box-shadow: 0 3px 12px rgba(var(--color-dark-slate-rgb), 0.15);
+}
+
+.chord-display {
+    background: linear-gradient(135deg, var(--color-teal), var(--color-dark-slate));
+    color: var(--text-secondary);
+    text-shadow: 0 1px 2px rgba(var(--color-dark-slate-rgb), 0.2);
+}
+
+.chord-category-tabs {
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid rgba(var(--color-dark-slate-rgb), 0.1);
+}
+
+.chord-category-tab {
+    color: var(--text-primary);
+    border-bottom: 3px solid transparent;
+}
+
+.chord-category-tab:hover {
+    color: var(--text-primary);
+    background-color: rgba(var(--color-teal-rgb), 0.1);
+}
+
+.chord-category-tab.active {
+    color: var(--color-teal);
+    border-bottom-color: var(--color-teal);
+    background-color: rgba(var(--color-teal-rgb), 0.1);
+}
+
+.chord-options-container {
+    background-color: var(--bg-primary);
+}
+
+.chord-option {
+    background-color: rgba(var(--color-dark-slate-rgb), 0.05);
+    border: 1px solid rgba(var(--color-dark-slate-rgb), 0.1);
+}
+
+.chord-option:hover {
+    background-color: rgba(var(--color-teal-rgb), 0.1);
+}
+
+.chord-option.selected {
+    background-color: var(--color-teal);
+    color: var(--text-secondary);
+    border-color: var(--color-blue-teal);
+}
+
+/* Styling for different chord types */
+.chord-option:contains('Major'):not(:contains('7')):not(:contains('9')) {
+    border-left: 3px solid var(--color-teal);
+}
+
+.chord-option:contains('Minor'):not(:contains('7')):not(:contains('9')) {
+    border-left: 3px solid var(--color-terra-cotta);
+}
+
+.chord-option:contains('Diminished') {
+    border-left: 3px solid var(--color-blue-teal);
+}
+
+.chord-option:contains('Augmented') {
+    border-left: 3px solid var(--color-khaki);
+}
+
+.chord-option:contains('7') {
+    border-left: 3px solid var(--color-terra-cotta);
+}
+
+.chord-option:contains('9'), 
+.chord-option:contains('11'),
+.chord-option:contains('13') {
+    border-left: 3px solid var(--color-teal);
+}
+
+.chord-option:contains('Sus') {
+    border-left: 3px solid var(--color-khaki);
+}
+
+/* Keyboard shortcut tooltips */
+.chord-option::after {
+    background-color: var(--color-dark-slate);
+    color: var(--text-secondary);
+}
+
+/* Help button for keyboard shortcuts */
+.shortcuts-help {
+    background-color: rgba(var(--color-cream-rgb), 0.2);
+    color: var(--text-secondary);
+}
+
+.shortcuts-help:hover {
+    background-color: rgba(var(--color-cream-rgb), 0.4);
+}
+
+/* Shortcuts modal */
+.shortcuts-modal {
+    background-color: rgba(var(--color-dark-slate-rgb), 0.7);
+}
+
+.shortcuts-content {
+    background-color: var(--bg-primary);
+}
+
+.shortcuts-title {
+    border-bottom: 1px solid rgba(var(--color-dark-slate-rgb), 0.1);
+}
+
+.shortcut-key {
+    background-color: rgba(var(--color-dark-slate-rgb), 0.05);
+    border: 1px solid rgba(var(--color-dark-slate-rgb), 0.1);
+}
+
+.shortcuts-close {
+    background-color: var(--color-teal);
+    color: var(--text-secondary);
+}
+
+.shortcuts-close:hover {
+    background-color: var(--color-blue-teal);
+}

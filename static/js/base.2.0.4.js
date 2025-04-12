@@ -1,11 +1,10 @@
-// static/js/base.2.0.4.js
-var string_array = ['highAString', 'eString', 'bString', 'gString', 'dString', 'AString', 'ELowString', 'lowBString']
+var string_array = ['highAString', 'eString', 'bString', 'gString', 'dString', 'AString', 'ELowString', 'lowBString'];
+
 
 var frets = ['one','two','three','four','five','six',
             'seven','eight','nine','ten','eleven', 'twelve',
             'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen']
 
-// Define the NOTES variable
 const NOTES = {
     'eString': [['f2'], ['gb2', 'fs2'], ['g2'], ['ab2', 'gs2'], ['a2'], ['bb2', 'as2'], ['b2'], ['c3'], ['db3', 'cs3'], ['d3'], ['eb3', 'ds3'], ['e3'], ['f3'], ['gb3', 'fs3'], ['g3'], ['ab3', 'gs3'], ['a3']],
     'bString': [['c2'], ['db2', 'cs2'], ['d2'], ['eb2', 'ds2'], ['e2'], ['f2'], ['gb2', 'fs2'], ['g2'], ['ab2', 'gs2'], ['a2'], ['bb2', 'as2'], ['b2'], ['c3'], ['db3', 'cs3'], ['d3'], ['eb3', 'ds3'], ['e3']],
@@ -15,12 +14,12 @@ const NOTES = {
     'ELowString': [['f0'], ['gb0', 'fs0'], ['g0'], ['ab0', 'gs0'], ['a0'], ['bb0', 'as0'], ['b0'], ['c1'], ['db1', 'cs1'], ['d1'], ['eb1', 'ds1'], ['e1'], ['f1'], ['gb1', 'fs1'], ['g1'], ['ab1', 'gs1'], ['a1']],
     'highAString': [['bb2', 'as2'], ['b2'], ['c3'], ['db3', 'cs3'], ['d3'], ['eb3', 'ds3'], ['e3'], ['f3'], ['gb3', 'fs3'], ['g3'], ['ab3', 'gs3'], ['a3'], ['bb3', 'as3'], ['b3'], ['c4'], ['db4', 'cs4'], ['d4']],
     'lowBString': [['c0'], ['db0', 'cs0'], ['d0'], ['eb0', 'ds0'], ['e0'], ['f0'], ['gb0', 'fs0'], ['g0'], ['ab0', 'gs0'], ['a0'], ['bb0', 'as0'], ['b0'], ['c1'], ['db1', 'cs1'], ['d1'], ['eb1', 'ds1'], ['e1']]
-}
+};
 
 // --- Height Synchronization Function (Global Scope) ---
 function syncLowestStringHeight() {
   const spacingTop = document.querySelector('.fretboard .spacing-top');
-  const fretboardContainer = document.querySelector('.fretboardcontainer');
+  const fretboardContainer = document.querySelector('.fretboardcontainer'); // Assuming this container holds the config class
 
   if (!spacingTop || !fretboardContainer) {
     console.warn('Required elements for height sync not found.');
@@ -57,12 +56,16 @@ function syncLowestStringHeight() {
 }
 // --- End Height Synchronization Function ---
 
+
+
 /**
  * Play a tone and update the UI based on the 'root' class.
  * @param {string} tone - The name of the tone to play.
  * @param {string} stringName - The name of the string where the tone is played.
  */
 
+// Angepasste playTone Funktion
+// Deine playTone Funktion
 // Angepasste playTone Funktion
 function playTone(tone, stringName = null) {
   let element;
@@ -213,6 +216,33 @@ function getNoteNameFromData(){
   button.setAttribute('onclick','getNotePicFromData()')
   button.innerHTML = 'Only Tones';
 }
+ // Function For Getting Note Names on Dots
+ function getNoteNameFromData() {
+  var noteNames = document.querySelectorAll('.note .notename');
+  noteNames.forEach(function(noteName) {
+    var parentNote = noteName.closest('.note');
+    var activeImage = parentNote.querySelector('img.active');
+    if (activeImage) {
+      noteName.classList.add('active');
+      noteName.style.visibility = 'visible'; // Ensure visibility
+    }
+  });
+  var button = document.getElementById('show_note_name_button');
+  button.setAttribute('onclick', 'hideNoteNames()');
+  button.innerHTML = 'Only Tones';
+}
+
+// Function For Hiding Note Names on Dots
+function hideNoteNames() {
+  var notenames = document.querySelectorAll('.notename.active');
+  notenames.forEach(function(n) {
+    n.classList.remove('active');
+    n.style.visibility = 'hidden'; // Hide visibility
+  });
+  var button = document.getElementById('show_note_name_button');
+  button.setAttribute('onclick', 'getNoteNameFromData()');
+  button.innerHTML = 'Show Note Names';
+}
 
 /* Function For Deleting Note Names */
 function getNotePicFromData(){
@@ -225,36 +255,6 @@ function getNotePicFromData(){
   }
   var button = document.getElementById('show_note_name_button')
   button.setAttribute('onclick','getNoteNameFromData()')
-  button.innerHTML = 'Show Note Names';
-}
-
-// Universal function for showing note names (used by both scales/arpeggios and chords)
-function getNoteNameFromData() {
-  var noteNames = document.querySelectorAll('.note .notename');
-  noteNames.forEach(function(noteName) {
-    var parentNote = noteName.closest('.note');
-    var activeImage = parentNote.querySelector('img.active');
-    if (activeImage) {
-      noteName.classList.add('active');
-      noteName.style.visibility = 'visible'; // Ensure visibility
-    }
-  });
-  document.body.classList.add('show-notes');
-  var button = document.getElementById('show_note_name_button');
-  button.setAttribute('onclick', 'hideNoteNames()');
-  button.innerHTML = 'Only Tones';
-}
-
-// Universal function for hiding note names (used by both scales/arpeggios and chords)
-function hideNoteNames() {
-  var notenames = document.querySelectorAll('.notename.active');
-  notenames.forEach(function(n) {
-    n.classList.remove('active');
-    n.style.visibility = 'hidden'; // Hide visibility
-  });
-  document.body.classList.remove('show-notes');
-  var button = document.getElementById('show_note_name_button');
-  button.setAttribute('onclick', 'getNoteNameFromData()');
   button.innerHTML = 'Show Note Names';
 }
 
@@ -290,9 +290,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
         // Set up observer to prevent future duplication
         setupCursorMutationObserver();
     }, 500);
-    
-    // Sync string heights after the DOM is fully loaded
-    setTimeout(syncLowestStringHeight, 300);
 });
 
 // Function to clean up duplicate cursors - enhanced with complete removal and recreation
@@ -469,6 +466,9 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
+
+
+
 // Sidebar Script
 function toggleDropdown(currentCheckbox) {
   const dropdowns = document.querySelectorAll('.dropdown-toggle');
@@ -508,21 +508,60 @@ document.addEventListener('DOMContentLoaded', function() {
     document.cookie = name + '=; Max-Age=-99999999; path=/; SameSite=Lax';
   }
 
-  // Check if the 'showNoteName' cookie is set to 'true'
-  if (getCookie('showNoteName') === 'true') {
-    getNoteNameFromData(); // Call the function to show note names
+  // Function For Getting Note Names on Dots
+  function getNoteNameFromData() {
+    var noteNames = document.querySelectorAll('.note .notename');
+    noteNames.forEach(function(noteName) {
+      var parentNote = noteName.closest('.note');
+      var activeImage = parentNote.querySelector('img.active');
+      if (activeImage) {
+        noteName.classList.add('active');
+        noteName.style.visibility = 'visible'; // Ensure visibility
+      }
+    });
+    document.body.classList.add('show-notes');
+    var button = document.getElementById('show_note_name_button');
+    button.setAttribute('onclick', 'hideNoteNames()');
+    button.innerHTML = 'Only Tones';
   }
 
+  // Function For Hiding Note Names on Dots
+  function hideNoteNames() {
+    var notenames = document.querySelectorAll('.notename.active');
+    notenames.forEach(function(n) {
+      n.classList.remove('active');
+      n.style.visibility = 'hidden'; // Hide visibility
+    });
+    document.body.classList.remove('show-notes');
+    var button = document.getElementById('show_note_name_button');
+    button.setAttribute('onclick', 'getNoteNameFromData()');
+    button.innerHTML = 'Show Note Names';
+  }
+
+  // Check if the 'showNoteName' cookie is set to 'true' AND the button state allows it
+  // NOTE: Removing the automatic call based on cookie for scale/arpeggio views.
+  // The button state should be the source of truth after initial load.
+  /*
+  if (getCookie('showNoteName') === 'true') {
+     // Check button state before activating? Might be complex due to timing.
+     // Let's disable automatic activation for now. User can click the button.
+     // getNoteNameFromData();
+  }
+  */
   // Event listener for keydown events
   document.addEventListener('keydown', function(event) {
     // Check if the 'Escape' key is pressed
     if (event.key === 'Escape') {
-      var closeButton = document.getElementById('closeOverlay');
-      var closeButtonChords = document.getElementById('closeOverlayChords');
-      if (closeButton) {
-        closeButton.click();
-      } else if (closeButtonChords) {
-        closeButtonChords.click();
+      var closeUnifiedButton = document.getElementById('closeUnifiedOverlay');
+      if (closeUnifiedButton) {
+        closeUnifiedButton.click();
+      } else {
+        // Fallback to toggling the menu closed
+        var menu = document.getElementById('unifiedOverlayMenu');
+        if (menu && (menu.style.display === 'flex' || menu.style.display === 'block')) {
+          // Use global toggle function
+          toggleUnifiedMenu();
+        }
       }
     }
     // Check if the 'i' key is pressed
@@ -532,14 +571,7 @@ document.addEventListener('DOMContentLoaded', function() {
         infoToggle.click();
       }
     }
-    // Check if the left arrow key is pressed
-    if (event.key === 'ArrowLeft') {
-      leftCursorClick();
-    }
-    // Check if the right arrow key is pressed
-    if (event.key === 'ArrowRight') {
-      rightCursorClick();
-    }
+    // Right arrow key functionality has been removed
     // Check if the up arrow key is pressed
     if (event.key === 'ArrowUp') { 
       increaseRoot();
@@ -550,12 +582,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // Check if the 'p' key is pressed
     if (event.key === 'p' || event.key === 'P') {
-      var overlayToggle = document.getElementById('overlayToggle');
-      var overlayToggleChords = document.getElementById('overlayToggleChords');
-      if (overlayToggle) {
-        overlayToggle.click();
-      } else if (overlayToggleChords) {
-        overlayToggleChords.click();
+      var unifiedToggle = document.getElementById('unifiedMenuToggle');
+      if (unifiedToggle) {
+        unifiedToggle.click();
       }
     }
     // Check if the 'n' key is pressed
@@ -583,7 +612,12 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  
-  // Window resize event for string height synchronization
+  // Function to sync the height of the lowest string div with spacing-top
+  // Function definition moved to global scope
+
+  // Initial sync removed - now handled by unified_menu.js after config is applied
+
+  // Sync again on window resize
   window.addEventListener('resize', syncLowestStringHeight);
+
 });

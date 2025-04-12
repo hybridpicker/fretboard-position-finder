@@ -1,15 +1,130 @@
-<!-- templates/analysis/container_chords.html -->
 <!--- Analysis Container -->
-<div class="analysis_container" style="text-align: center;">
+<div class="analysis_container" style="text-align: center; display: none;">
     <h2>{{ root_name }} {{ selected_chord }}</h2>
-    <h3>{{ selected_root_name }} {{ selected_notes_name }}</h3>
-
-    Type: <b>{{ selected_type }}</b>
+    Function:
+    <b>{{ chord_function }}</b>
     <br>
-    Range: <b>{{ selected_range }}</b>
+    Notenames:
+    {% for note_name in selected_notes %}
+    <b>{{ note_name }}</b>
+    {% endfor %}
     <br>
-    Notes: <b>{% for x in selected_notes %}{{ x }} {% endfor %}</b>
+    Chord:
+    <b>{{ selected_chord }}</b>
     <br>
-    <b><button id="show_note_name_button" type="button">Show Note Names</button></b>
-
+    <b><button id="show_note_name_button" type="button" onclick="getNoteNameFromData()">Show Note Names</button></b>
 </div>
+
+<script>
+/**
+ * Show playability analysis in the debug panel
+ * This is only called from the debug panel itself now 
+ */
+function analyzeAndShowPlayability() {
+    // This function is now only used in DEBUG mode to activate
+    // the playability analysis from the debug panel
+    if (window.DEBUG_MODE && typeof analyzeChordPlayability === 'function') {
+        const results = analyzeChordPlayability();
+        
+        if (results) {
+            // Show a more detailed summary in the debug panel
+            if (typeof toggleDebugPanel === 'function') {
+                // Try to show the debug panel with playability tab active
+                toggleDebugPanel();
+                
+                // Try to activate the playability tab if it exists
+                const playabilityTab = document.getElementById('playability-tab');
+                if (playabilityTab && typeof activateTab === 'function') {
+                    activateTab('playability');
+                } else if (playabilityTab) {
+                    // Manual fallback click
+                    playabilityTab.click();
+                }
+            } else {
+                // No debug panel available, show a popup with basic info
+                alert(`Playability Score: ${results.score}/100\n\nFret stretch: ${results.fretStretch} frets\nString stretch: ${results.stringStretch} strings\nEstimated fingers: ${results.fingerCount}\n\nSuggestion: ${results.suggestions}`);
+            }
+        } else {
+            console.error("Playability analysis failed to return results");
+            alert("Playability analysis failed. Check the console for details.");
+        }
+    } else if (!window.DEBUG_MODE) {
+        console.log("Playability analysis is only available in DEBUG mode");
+    } else {
+        console.error("analyzeChordPlayability function not available");
+        alert("Playability analysis function not available");
+    }
+}
+
+// Initialize playability indicator on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we should enable debug mode (from Django's DEBUG setting)
+    // Django will have passed the DEBUG variable to the template
+    {% if DEBUG %}
+    window.DEBUG_MODE = true;
+    console.log("Debug mode enabled from Django's DEBUG setting");
+    {% else %}
+    window.DEBUG_MODE = false;
+    console.log("Debug mode disabled (production mode)");
+    {% endif %}
+    
+    // Set initial state of indicator based on first analysis
+    setTimeout(function() {
+        if (typeof analyzeChordPlayability === 'function') {
+            const results = analyzeChordPlayability();
+            if (results) {
+                updatePlayabilityUI(results);
+            }
+        }
+    }, 500); // Give the page time to initialize
+    
+    // Function to update playability UI elements
+    // This now only updates UI elements in the debug panel
+    function updatePlayabilityUI(results) {
+        // Since we've removed the indicator elements from the main UI,
+        // we'll now only update the debug panel elements, which will
+        // be available when DEBUG is true and the panel is open
+        
+        if (typeof updatePlayabilityDisplay === 'function') {
+            // Call the main playability display updater in the debug panel
+            updatePlayabilityDisplay(results);
+        }
+    }
+    
+    {% if DEBUG %}
+    // Add hidden debug panel toggle functionality in development mode
+    // The debug panel only exists in development mode (Django DEBUG=True)
+    // Hidden keyboard shortcut: Ctrl+Alt+D
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.altKey && e.key === 'd') {
+            // Check if panel exists, if not create it
+            let panel = document.getElementById('unified-debug-panel');
+            
+            if (!panel && typeof createUnifiedDebugPanel === 'function') {
+                createUnifiedDebugPanel();
+                panel = document.getElementById('unified-debug-panel');
+            }
+            
+            if (panel) {
+                // Toggle panel visibility
+                const isVisible = panel.style.display === 'block';
+                panel.style.display = isVisible ? 'none' : 'block';
+                
+                console.log(`Debug panel ${!isVisible ? 'shown' : 'hidden'}`);
+                
+                // If we just made the panel visible, update its data
+                if (!isVisible && typeof analyzeChordPlayability === 'function') {
+                    const results = analyzeChordPlayability();
+                    if (results) updatePlayabilityUI(results);
+                    
+                    // Show the playability tab by default
+                    if (typeof activateTab === 'function') {
+                        activateTab('playability');
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+});
+</script>

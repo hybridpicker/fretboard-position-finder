@@ -1,4 +1,3 @@
-# positionfinder/note_setup.py
 from django.forms.models import model_to_dict
 from .models import Notes, Root
 from .template_notes import NOTES, NOTES_SHARP, OCTAVES, SHARP_NOTES

@@ -1,0 +1,277 @@
+{% extends "fretboardbase.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/search.css' %}">
+{% endblock %}
+
+{% block heading %}
+<div class="search-header">
+  <h1>Search Results</h1>
+  {% if query %}
+  <p>Found {{ total_results }} result{{ total_results|pluralize }}</p>
+  {% else %}
+  <p>Find scales, arpeggios, and chords</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+  <!-- Enhanced Search Form -->
+  <form action="{% url 'search' %}" method="GET" class="search-form">
+    <div class="search-input-wrapper">
+      <input type="text" name="q" value="{{ query }}" placeholder="Search scales, arpeggios, chords..." class="search-input" id="searchInput" autocomplete="off">
+      <div class="autocomplete-container" id="autocompleteContainer"></div>
+      <button type="submit" class="search-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Advanced Filters -->
+    <div class="search-filters">
+      <div class="filter-group">
+        <label for="category">Category:</label>
+        <select name="category" id="category">
+          <option value="all" {% if category_filter == 'all' %}selected{% endif %}>All Categories</option>
+          <option value="scales" {% if category_filter == 'scales' %}selected{% endif %}>Scales</option>
+          <option value="arpeggios" {% if category_filter == 'arpeggios' %}selected{% endif %}>Arpeggios</option>
+          <option value="chords" {% if category_filter == 'chords' %}selected{% endif %}>Chords</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="strings">Strings:</label>
+        <select name="strings" id="strings">
+          <option value="all" {% if string_filter == 'all' %}selected{% endif %}>All Strings</option>
+          <option value="6" {% if string_filter == '6' %}selected{% endif %}>6-String</option>
+          <option value="7" {% if string_filter == '7' %}selected{% endif %}>7-String</option>
+          <option value="8" {% if string_filter == '8' %}selected{% endif %}>8-String</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="root">Root Note:</label>
+        <select name="root" id="root">
+          <option value="all" {% if root_filter == 'all' %}selected{% endif %}>All Roots</option>
+          {% for root in roots %}
+          <option value="{{ root.id }}" {% if root_filter == root.id|stringformat:"i" %}selected{% endif %}>{{ root.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <button type="submit" class="filter-button">Apply Filters</button>
+    </div>
+  </form>
+
+  {% if recent_searches %}
+  <div class="recent-searches">
+    <h3>Recent Searches</h3>
+    <div class="recent-search-tags">
+      {% for search in recent_searches %}
+      <a href="{% url 'search' %}?q={{ search }}" class="recent-search-tag">{{ search }}</a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if query %}
+  <div class="search-results">
+    {% if results %}
+      <div class="search-categories">
+        <div class="category-tabs">
+          <button class="tab-button active" data-category="all">All Results ({{ total_results }})</button>
+          {% if scale_results %}
+          <button class="tab-button" data-category="scales">Scales ({{ scale_results|length }})</button>
+          {% endif %}
+          {% if arpeggio_results %}
+          <button class="tab-button" data-category="arpeggios">Arpeggios ({{ arpeggio_results|length }})</button>
+          {% endif %}
+          {% if chord_results %}
+          <button class="tab-button" data-category="chords">Chords ({{ chord_results|length }})</button>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="result-section" id="all-section">
+        {% if scale_results %}
+        <h2>Scales</h2>
+        <ul class="result-list">
+          {% for result in scale_results %}
+          <li>
+            <a href="{{ result.url }}" class="result-item result-item-scale">
+              <div class="result-title">{{ result.note_name }}</div>
+              <div class="result-root">Root: {{ result.root_name }}</div>
+              {% if result.intervals %}
+              <div class="result-intervals">Intervals: {{ result.intervals }}</div>
+              {% endif %}
+              {% if result.description %}
+              <div class="result-description">{{ result.description }}</div>
+              {% endif %}
+              <div class="result-type">Scale</div>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if arpeggio_results %}
+        <h2>Arpeggios</h2>
+        <ul class="result-list">
+          {% for result in arpeggio_results %}
+          <li>
+            <a href="{{ result.url }}" class="result-item result-item-arpeggio">
+              <div class="result-title">{{ result.note_name }}</div>
+              <div class="result-root">Root: {{ result.root_name }}</div>
+              {% if result.intervals %}
+              <div class="result-intervals">Intervals: {{ result.intervals }}</div>
+              {% endif %}
+              {% if result.description %}
+              <div class="result-description">{{ result.description }}</div>
+              {% endif %}
+              <div class="result-type">Arpeggio</div>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if chord_results %}
+        <h2>Chords</h2>
+        <ul class="result-list">
+          {% for result in chord_results %}
+          <li>
+            <a href="{{ result.url }}" class="result-item result-item-chord">
+              <div class="result-title">{{ result.chord_name }}</div>
+              <div class="result-root">Root: {{ result.root_name }}</div>
+              <div class="result-details">
+                {% if result.type_name %}Type: {{ result.type_name }} | {% endif %}
+                {% if result.range %}Range: {{ result.range }} | {% endif %}
+                {% if result.string_count %}{{ result.string_count }}-string{% endif %}
+              </div>
+              {% if result.description %}
+              <div class="result-description">{{ result.description }}</div>
+              {% endif %}
+              <div class="result-type">Chord</div>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <div class="result-section" id="scales-section" style="display: none;">
+        <h2>Scales</h2>
+        {% if scale_results %}
+        <ul class="result-list">
+          {% for result in scale_results %}
+          <li>
+            <a href="{{ result.url }}" class="result-item result-item-scale">
+              <div class="result-title">{{ result.note_name }}</div>
+              <div class="result-root">Root: {{ result.root_name }}</div>
+              {% if result.intervals %}
+              <div class="result-intervals">Intervals: {{ result.intervals }}</div>
+              {% endif %}
+              {% if result.description %}
+              <div class="result-description">{{ result.description }}</div>
+              {% endif %}
+              <div class="result-type">Scale</div>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="no-results">No scale results found.</p>
+        {% endif %}
+      </div>
+
+      <div class="result-section" id="arpeggios-section" style="display: none;">
+        <h2>Arpeggios</h2>
+        {% if arpeggio_results %}
+        <ul class="result-list">
+          {% for result in arpeggio_results %}
+          <li>
+            <a href="{{ result.url }}" class="result-item result-item-arpeggio">
+              <div class="result-title">{{ result.note_name }}</div>
+              <div class="result-root">Root: {{ result.root_name }}</div>
+              {% if result.intervals %}
+              <div class="result-intervals">Intervals: {{ result.intervals }}</div>
+              {% endif %}
+              {% if result.description %}
+              <div class="result-description">{{ result.description }}</div>
+              {% endif %}
+              <div class="result-type">Arpeggio</div>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="no-results">No arpeggio results found.</p>
+        {% endif %}
+      </div>
+
+      <div class="result-section" id="chords-section" style="display: none;">
+        <h2>Chords</h2>
+        {% if chord_results %}
+        <ul class="result-list">
+          {% for result in chord_results %}
+          <li>
+            <a href="{{ result.url }}" class="result-item result-item-chord">
+              <div class="result-title">{{ result.chord_name }}</div>
+              <div class="result-root">Root: {{ result.root_name }}</div>
+              <div class="result-details">
+                {% if result.type_name %}Type: {{ result.type_name }} | {% endif %}
+                {% if result.range %}Range: {{ result.range }} | {% endif %}
+                {% if result.string_count %}{{ result.string_count }}-string{% endif %}
+              </div>
+              {% if result.description %}
+              <div class="result-description">{{ result.description }}</div>
+              {% endif %}
+              <div class="result-type">Chord</div>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="no-results">No chord results found.</p>
+        {% endif %}
+      </div>
+
+    {% else %}
+      <p class="no-results">No results found for "{{ query }}".</p>
+      <div class="search-suggestions">
+        <h3>Suggestions:</h3>
+        <ul>
+          <li>Check your spelling</li>
+          <li>Try more general terms</li>
+          <li>Try different keywords</li>
+          <li>Try searching for a specific scale, arpeggio, or chord type</li>
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="search-intro">
+    <h2>Search for scales, arpeggios, and chords</h2>
+    <p>Enter keywords to find scales, arpeggios, and chords across all available configurations.</p>
+    <div class="search-examples">
+      <h3>Examples:</h3>
+      <ul>
+        <li>"C major scale"</li>
+        <li>"D minor arpeggio"</li>
+        <li>"G7 chord V1"</li>
+        <li>"Eight string chords"</li>
+        <li>"Major 7 high A"</li>
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block footer %}
+<script src="{% static 'js/search.js' %}"></script>
+{% endblock %}

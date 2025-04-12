@@ -1,0 +1,144 @@
+/* Chord Page Match Arpeggios Style - Complete UI replacement */
+
+/* Hide all chord-specific UI elements that don't exist on arpeggios page */
+#chord-quality-grid,
+#string-range-selector,
+#inversion-visualizer,
+#chord-structure-display,
+#chord-diagram,
+.range-selection,
+.inversion-selection,
+.range-info-icon,
+.inversion-info-icon,
+.inversion-navigation,
+.chord-quality,
+.chord-type,
+.chord-position,
+.chord-range,
+.keyboard-shortcuts,
+.chord-voicing-indicators,
+.chord-tone-explanation,
+.chord-quality-selector,
+#hamburgerIcon {
+    display: none !important;
+}
+
+/* Hide any chord-specific detail elements */
+.chord-details {
+    display: none !important;
+}
+
+/* Only show elements that exist on arpeggios page */
+.sfbsf, .sfbsfnos, .sfbsfpos {
+    display: inline-block !important;
+}
+
+/* Match standard form layout */
+#hamburgerIcon {
+    display: block !important;
+    position: fixed;
+    z-index: 4;
+    left: 20px;
+    top: 20px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+#hamburgerIcon div {
+    width: 35px;
+    height: 5px;
+    background-color: #333;
+    margin: 6px 0;
+    transition: 0.4s;
+}
+
+/* Reset to match arpeggios styling */
+.analysis_container {
+    /* Use default styling */
+}
+
+.chord-details {
+    /* Use default styling */
+}
+
+/* Show overlay menu properly */
+.overlay {
+    display: block !important;
+    height: 0%;
+    width: 100%;
+    position: fixed;
+    z-index: 3;
+    top: 0;
+    left: 0;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0, 0.9);
+    overflow-y: hidden;
+    transition: 0.5s;
+}
+
+.overlay-content {
+    position: relative;
+    top: 25%;
+    width: 100%;
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* Style form like arpeggios page */
+#fretboard_form {
+    text-align: center;
+}
+
+/* Reset form control classes - match arpeggios exactly */
+.sfbsf, .sfbsfnos, .sfbsfpos {
+    display: inline-block;
+    position: relative;
+}
+
+/* Style buttons to match */
+#show_tension_button {
+    width: 8em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+/* Style selects to exactly match arpeggios */
+select {
+    border: 1px solid #ccc;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 4px;
+    background-color: white;
+}
+
+/* Restore cursor controls - ensure they're always visible */
+.left-cursor, .right-cursor {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 10 !important; /* Make sure they're above other elements */
+    pointer-events: auto !important; /* Ensure they can be clicked */
+}
+
+/* Fix for hamburger menu toggling */
+.open .bar1 {
+    -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+    transform: rotate(-45deg) translate(-9px, 6px);
+}
+
+.open .bar2 {
+    opacity: 0;
+}
+
+.open .bar3 {
+    -webkit-transform: rotate(45deg) translate(-8px, -8px);
+    transform: rotate(45deg) translate(-8px, -8px);
+}
+
+.open ~ .overlay {
+    height: 100%;
+}

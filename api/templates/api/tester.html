@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ted Greene V-System API Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .controls {
+            width: 400px;
+            margin-right: 20px;
+        }
+        .results {
+            flex: 1;
+        }
+        select, input, button {
+            margin-bottom: 10px;
+            padding: 8px;
+            width: 100%;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .fretboard {
+            display: table;
+            border-collapse: collapse;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .string {
+            display: table-row;
+            height: 30px;
+        }
+        .fret {
+            display: table-cell;
+            width: 40px;
+            border: 1px solid #ddd;
+            text-align: center;
+            vertical-align: middle;
+            position: relative;
+        }
+        .fret.active {
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+        .interval {
+            font-size: 10px;
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+        }
+        .fret-markers {
+            display: table-row;
+            height: 20px;
+        }
+        .fret-marker {
+            display: table-cell;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ted Greene V-System API Tester</h1>
+    <p>Use this tool to test the V-System chord voicing generator.</p>
+    
+    <div class="container">
+        <div class="controls">
+            <h2>Controls</h2>
+            
+            <label for="chord">Chord:</label>
+            <input type="text" id="chord" placeholder="e.g., Cmaj7, G7, Dm" value="G7">
+            
+            <label for="voicing-group">Voicing Group:</label>
+            <select id="voicing-group">
+                <option value="V-1">V-1 (R-3-5-7)</option>
+                <option value="V-2" selected>V-2 (R-7-3-5)</option>
+                <option value="V-3">V-3 (7-R-3-5)</option>
+                <option value="V-4">V-4 (3-5-R-7)</option>
+                <option value="V-5">V-5 (5-R-7-3)</option>
+                <option value="V-6">V-6 (R-5-7-3)</option>
+                <option value="V-7">V-7 (3-R-5-7)</option>
+                <option value="V-8">V-8 (7-3-R-5)</option>
+                <option value="V-9">V-9 (5-7-3-R)</option>
+                <option value="V-10">V-10 (R-5-3-7)</option>
+                <option value="V-11">V-11 (7-R-5-3)</option>
+                <option value="V-12">V-12 (3-7-R-5)</option>
+                <option value="V-13">V-13 (5-3-7-R)</option>
+                <option value="V-14">V-14 (R-7-5-3)</option>
+            </select>
+            
+            <label for="instrument">Instrument:</label>
+            <select id="instrument">
+                <option value="6-string">6-string Guitar</option>
+                <option value="7-string">7-string Guitar</option>
+                <option value="8-string" selected>8-string Guitar</option>
+            </select>
+            
+            <label for="string-set">String Set:</label>
+            <select id="string-set">
+                <option value="8-5">Strings 8-5 (8-string)</option>
+                <option value="7-4">Strings 7-4 (7/8-string)</option>
+                <option value="6-3" selected>Strings 6-3 (all)</option>
+                <option value="5-2">Strings 5-2 (all)</option>
+                <option value="4-1">Strings 4-1 (all)</option>
+            </select>
+            
+            <button id="generate">Generate Voicings</button>
+            
+            <div id="stats"></div>
+        </div>
+        
+        <div class="results">
+            <h2>Voicings</h2>
+            <div id="fretboard-container"></div>
+            <h3>API Response</h3>
+            <pre id="api-response">Click "Generate Voicings" to see the API response.</pre>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update string set options based on instrument
+            const instrumentSelect = document.getElementById('instrument');
+            const stringSetSelect = document.getElementById('string-set');
+            
+            instrumentSelect.addEventListener('change', function() {
+                const instrument = this.value;
+                const stringSets = {
+                    '6-string': ['6-3', '5-2', '4-1'],
+                    '7-string': ['7-4', '6-3', '5-2', '4-1'],
+                    '8-string': ['8-5', '7-4', '6-3', '5-2', '4-1']
+                };
+                
+                // Clear current options
+                stringSetSelect.innerHTML = '';
+                
+                // Add new options
+                stringSets[instrument].forEach(set => {
+                    const option = document.createElement('option');
+                    option.value = set;
+                    option.textContent = `Strings ${set} (${set.split('-')[0]}-string+)`;
+                    stringSetSelect.appendChild(option);
+                });
+            });
+            
+            // Generate voicings on button click
+            document.getElementById('generate').addEventListener('click', generateVoicings);
+            
+            function generateVoicings() {
+                const chord = document.getElementById('chord').value;
+                const voicingGroup = document.getElementById('voicing-group').value;
+                const instrument = document.getElementById('instrument').value;
+                const stringSet = document.getElementById('string-set').value;
+                
+                const apiUrl = `/api/chord-voicings/?chord=${encodeURIComponent(chord)}&voicing_group=${encodeURIComponent(voicingGroup)}&instrument=${encodeURIComponent(instrument)}&string_set=${encodeURIComponent(stringSet)}`;
+                
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Display raw API response
+                        document.getElementById('api-response').textContent = JSON.stringify(data, null, 2);
+                        
+                        // Display statistics
+                        const stats = document.getElementById('stats');
+                        if (data.voicings && data.voicings.length > 0) {
+                            stats.innerHTML = `<p>Found ${data.voicings.length} voicings for ${data.chord} (${data.voicing_group})</p>`;
+                        } else {
+                            stats.innerHTML = '<p>No voicings found for these parameters.</p>';
+                        }
+                        
+                        // Render fretboards for each voicing
+                        renderFretboards(data, instrument);
+                    })
+                    .catch(error => {
+                        document.getElementById('api-response').textContent = `Error: ${error.message}`;
+                        document.getElementById('stats').innerHTML = '<p>Error fetching voicings.</p>';
+                    });
+            }
+            
+            function renderFretboards(data, instrument) {
+                const container = document.getElementById('fretboard-container');
+                container.innerHTML = '';
+                
+                if (!data.voicings || data.voicings.length === 0) {
+                    container.innerHTML = '<p>No voicings to display.</p>';
+                    return;
+                }
+                
+                // Get number of strings based on instrument
+                const numStrings = {
+                    '6-string': 6,
+                    '7-string': 7,
+                    '8-string': 8
+                }[instrument];
+                
+                // Get tuning based on instrument
+                const tunings = {
+                    '6-string': ['E', 'B', 'G', 'D', 'A', 'E'],
+                    '7-string': ['E', 'B', 'G', 'D', 'A', 'E', 'B'],
+                    '8-string': ['E', 'B', 'G', 'D', 'A', 'E', 'B', 'F#']
+                }[instrument];
+                
+                // Maximum number of fretboards to show
+                const maxFretboards = 5;
+                const voicingsToShow = data.voicings.slice(0, maxFretboards);
+                
+                voicingsToShow.forEach((voicing, index) => {
+                    const fretboardDiv = document.createElement('div');
+                    fretboardDiv.innerHTML = `<h3>Voicing #${index + 1} (Score: ${voicing.score})</h3>`;
+                    
+                    // Determine fret range to display
+                    const activeFrets = voicing.frets.filter(f => f >= 0);
+                    const minFret = Math.max(0, Math.min(...activeFrets) - 1);
+                    const maxFret = Math.min(24, Math.max(...activeFrets) + 1);
+                    const fretRange = Math.max(5, maxFret - minFret + 1);
+                    
+                    // Create fretboard
+                    const fretboard = document.createElement('div');
+                    fretboard.className = 'fretboard';
+                    
+                    // Add fret markers (numbers)
+                    const markerRow = document.createElement('div');
+                    markerRow.className = 'fret-markers';
+                    for (let i = 0; i < fretRange; i++) {
+                        const marker = document.createElement('div');
+                        marker.className = 'fret-marker';
+                        marker.textContent = minFret + i;
+                        markerRow.appendChild(marker);
+                    }
+                    fretboard.appendChild(markerRow);
+                    
+                    // Create strings
+                    for (let s = 0; s < numStrings; s++) {
+                        const stringDiv = document.createElement('div');
+                        stringDiv.className = 'string';
+                        stringDiv.dataset.tuning = tunings[s];
+                        
+                        for (let f = 0; f < fretRange; f++) {
+                            const fretDiv = document.createElement('div');
+                            fretDiv.className = 'fret';
+                            
+                            const actualFret = minFret + f;
+                            if (voicing.frets[s] === actualFret) {
+                                fretDiv.className += ' active';
+                                fretDiv.textContent = actualFret;
+                                
+                                // Add interval marker
+                                const intervalDiv = document.createElement('div');
+                                intervalDiv.className = 'interval';
+                                intervalDiv.textContent = voicing.intervals[voicing.frets.indexOf(actualFret)];
+                                fretDiv.appendChild(intervalDiv);
+                            }
+                            
+                            stringDiv.appendChild(fretDiv);
+                        }
+                        
+                        fretboard.appendChild(stringDiv);
+                    }
+                    
+                    fretboardDiv.appendChild(fretboard);
+                    container.appendChild(fretboardDiv);
+                });
+                
+                if (data.voicings.length > maxFretboards) {
+                    const message = document.createElement('p');
+                    message.textContent = `Showing ${maxFretboards} of ${data.voicings.length} voicings. See API response for complete data.`;
+                    container.appendChild(message);
+                }
+            }
+            
+            // Generate default voicings on page load
+            generateVoicings();
+        });
+    </script>
+</body>
+</html>

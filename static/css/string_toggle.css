@@ -1,0 +1,59 @@
+/* String Configuration Styles */
+
+/* Fretboard configuration styles */
+.fretboardcontainer.six-string-config .lowBString,
+.fretboardcontainer.six-string-config .highAString,
+/* .fretboardcontainer.six-string-config .spacing-top, */ /* Removed to keep spacing-top visible for height sync */
+.fretboardcontainer.six-string-config .spacing-bottom {
+  display: none !important; /* Hide unused strings/bottom spacing in 6-string mode */
+}
+
+.fretboardcontainer.eight-string-config .lowBString,
+.fretboardcontainer.eight-string-config .highAString,
+.fretboardcontainer.eight-string-config .spacing-top,
+.fretboardcontainer.eight-string-config .spacing-bottom {
+    display: block !important;
+}
+
+/* String label visibility */
+.string-label {
+    font-weight: bold;
+    font-size: 14px;
+    padding-right: 5px;
+    color: #333;
+}
+
+/* Adjust height for 6-string mode */
+.fretboardcontainer.six-string-config {
+    height: auto;
+}
+
+/* Adjust height for 8-string mode */
+.fretboardcontainer.eight-string-config {
+    height: auto;
+}
+
+/* Ensure proper string spacing */
+.fretboardcontainer.six-string-config .fretboard {
+    grid-template-rows: repeat(6, auto); /* Removed trailing auto row */
+}
+
+.fretboardcontainer.eight-string-config .fretboard {
+    grid-template-rows: auto repeat(8, auto); /* Removed trailing auto row */
+}
+
+/* Removed SVG backgrounds - now using CSS for fretboard background */
+
+/* Adjust height for 6-string mode */
+.fretboardcontainer.six-string-config {
+    height: auto;
+}
+
+/* Ensure proper string spacing */
+.fretboardcontainer.six-string-config .fretboard {
+    grid-template-rows: repeat(6, auto); /* Removed trailing auto row */
+}
+
+.fretboardcontainer.eight-string-config .fretboard {
+    grid-template-rows: auto repeat(8, auto); /* Removed trailing auto row */
+}

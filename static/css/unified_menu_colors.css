@@ -1,0 +1,248 @@
+/* Unified Overlay Menu with Updated Minimalistic Color Scheme */
+
+/* Base overlay background */
+#unifiedOverlayMenu {
+    background-color: rgba(var(--color-dark-bg-rgb), 0.95);
+    color: var(--text-secondary);
+}
+
+/* Content container */
+#unifiedOverlayMenu .overlay-content {
+    background-color: var(--bg-secondary);
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border: none;
+}
+
+/* Step containers */
+#unifiedOverlayMenu .step {
+    border: none;
+    background-color: transparent;
+}
+
+/* Headings */
+#unifiedOverlayMenu h2 {
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(var(--color-teal-medium-rgb), 0.3);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* Mode selection buttons */
+#initialStep .mode-select-button {
+    background-color: var(--color-teal-medium);
+    color: var(--text-secondary);
+    padding: 12px 20px;
+    border-radius: 4px;
+    border: none;
+    transition: background-color 0.2s ease;
+    min-width: 120px;
+    font-weight: normal;
+}
+
+#initialStep .mode-select-button:hover {
+    background-color: var(--color-teal-light);
+}
+
+/* Grid items */
+#unifiedOverlayMenu .grid-item {
+    background-color: rgba(var(--color-dark-bg-rgb), 0.7);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 4px;
+    padding: 12px 15px;
+    transition: background-color 0.2s ease;
+}
+
+#unifiedOverlayMenu .grid-item:hover {
+    background-color: rgba(var(--color-teal-medium-rgb), 0.7);
+}
+
+#unifiedOverlayMenu .grid-item.selected {
+    background-color: var(--color-teal-medium);
+    color: var(--text-secondary);
+    font-weight: normal;
+}
+
+/* Root items */
+#unifiedOverlayMenu .root-item:hover {
+    background-color: rgba(var(--color-purple-medium-rgb), 0.7);
+}
+
+/* Scale types */
+#unifiedOverlayMenu .scale-type-item:hover {
+    background-color: rgba(var(--color-teal-medium-rgb), 0.7);
+}
+
+/* Arpeggio types */
+#unifiedOverlayMenu .arpeggio-type-item:hover {
+    background-color: rgba(var(--color-teal-medium-rgb), 0.7);
+}
+
+/* Chord types */
+#unifiedOverlayMenu .chord-type-item:hover {
+    background-color: rgba(var(--color-teal-medium-rgb), 0.7);
+}
+
+/* Chord names */
+#unifiedOverlayMenu .chord-name-item:hover {
+    background-color: rgba(var(--color-teal-medium-rgb), 0.7);
+}
+
+/* Selected chord names */
+#unifiedOverlayMenu .chord-name-item.selected {
+    background-color: var(--color-teal-medium);
+}
+
+/* Range items */
+#unifiedOverlayMenu .range-item:hover {
+    background-color: rgba(var(--color-teal-medium-rgb), 0.7);
+}
+
+/* Position items */
+#unifiedOverlayMenu .position-item:hover {
+    background-color: rgba(var(--color-teal-medium-rgb), 0.7);
+}
+
+/* Info box */
+.info-box {
+    background-color: rgba(var(--color-dark-bg-rgb), 0.5);
+    border: 1px solid rgba(var(--color-teal-medium-rgb), 0.2);
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.info-box p {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+}
+
+.info-box p:last-child {
+    margin-bottom: 0;
+}
+
+.info-box strong {
+    color: var(--color-teal-light);
+}
+
+/* Back button */
+#unifiedOverlayMenu .back-button {
+    background-color: rgba(var(--color-dark-bg-rgb), 0.7);
+    color: var(--text-secondary);
+    border-radius: 4px;
+    padding: 8px 16px;
+    border: 1px solid rgba(var(--color-teal-medium-rgb), 0.3);
+    transition: background-color 0.2s ease;
+    margin-top: 20px;
+}
+
+#unifiedOverlayMenu .back-button:hover {
+    background-color: rgba(var(--color-teal-medium-rgb), 0.2);
+}
+
+/* Close button */
+#unifiedOverlayMenu .close-button {
+    background-color: var(--color-dark-bg);
+    border: 1px solid rgba(var(--color-teal-medium-rgb), 0.3);
+}
+
+#unifiedOverlayMenu .close-button:hover {
+    background-color: var(--color-teal-medium);
+}
+
+/* Settings sections */
+.settings-section {
+    border-bottom: 1px solid rgba(var(--color-teal-medium-rgb), 0.2);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.settings-section:last-child {
+    border-bottom: none;
+}
+
+.settings-section h3 {
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    font-weight: normal;
+    font-size: 16px;
+}
+
+/* Form elements */
+.settings-item {
+    margin-bottom: 15px;
+}
+
+.settings-item label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.settings-select {
+    width: 100%;
+    padding: 8px 10px;
+    background-color: rgba(var(--color-dark-bg-rgb), 0.7);
+    border: 1px solid rgba(var(--color-teal-medium-rgb), 0.3);
+    border-radius: 4px;
+    color: var(--text-secondary);
+}
+
+.settings-apply-button {
+    background-color: var(--color-teal-medium);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
+}
+
+.settings-apply-button:hover {
+    background-color: var(--color-teal-light);
+}
+
+/* Search elements */
+.overlay-search-input {
+    background-color: rgba(var(--bg-primary-rgb), 0.9);
+    border: 1px solid rgba(var(--color-teal-medium-rgb), 0.4);
+    border-radius: 4px 0 0 4px;
+    color: var(--text-primary);
+    padding: 10px 12px;
+}
+
+.overlay-search-input:focus {
+    border-color: var(--color-teal-medium);
+    outline: none;
+}
+
+.overlay-search-button {
+    background-color: var(--color-teal-medium);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 0 4px 4px 0;
+    padding: 0 15px;
+}
+
+.overlay-search-button:hover {
+    background-color: var(--color-teal-light);
+}
+
+/* Search examples */
+.search-examples li {
+    background-color: rgba(var(--color-teal-medium-rgb), 0.15);
+    color: var(--text-secondary);
+    border: 1px solid rgba(var(--color-teal-medium-rgb), 0.2);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.search-examples li:hover {
+    background-color: rgba(var(--color-teal-medium-rgb), 0.3);
+}
