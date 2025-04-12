@@ -119,6 +119,7 @@ class TriadTestCase(TestCase):
                  # Call the function to create Basic, 1st Inv, 2nd Inv
                  create_triad_positions(chord.first_note, chord.second_note, chord.third_note, chord.id)
             else:
+                pass  # No action needed if notes are invalid
 
         return chord
 

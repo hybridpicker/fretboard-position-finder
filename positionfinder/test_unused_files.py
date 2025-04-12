@@ -99,5 +99,7 @@ class UnusedFilesTestCase(TestCase):
         if js_files or css_files:
             if js_files:
                 for file in js_files:
+                    print(f"Unused JS file found (Reminder): {file}")
             if css_files:
                 for file in css_files:
+                    print(f"Unused CSS file found (Reminder): {file}")
