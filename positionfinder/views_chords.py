@@ -138,6 +138,11 @@ class ChordView(MusicalTheoryView):
         params['chord_select_name'] = self._get_request_param(request, 'chords_options_select', 'Major') # Default from functional view was Major
         params['selected_range'] = self._get_request_param(request, 'note_range', 'e - g') # Default range
         params['position_select'] = self._get_request_param(request, 'position_select', 'Root Position') # Default from functional view
+        
+        # Check for string configuration (6 or 8 string)
+        # First try to get from cookie
+        string_config = self._get_string_config_from_cookie(request)
+        params['is_six_string'] = string_config != 'eight-string'  # True if not explicitly 'eight-string'
 
         # Ensure category_id is correctly set if coming from URL
         if 'models_select' in request.GET:
@@ -150,6 +155,16 @@ class ChordView(MusicalTheoryView):
         params['range'] = params['selected_range'] # Keep 'range' key for compatibility if needed internally
 
         return params # No separate apply_defaults needed if handled here
+    
+    def _get_string_config_from_cookie(self, request):
+        """Get string configuration from cookies"""
+        string_config = request.COOKIES.get('stringConfig', 'six-string')
+        print(f"Views - String configuration from cookie: {string_config}")
+        
+        # Also check localStorage if available via JavaScript
+        # This would require client-side interaction, we'll add debug output
+        
+        return string_config
 
     # --- Methods to fetch options (adapted from functional view / previous CBV attempts) ---
 
@@ -192,12 +207,28 @@ class ChordView(MusicalTheoryView):
              ordered_types.insert(0, 'Triads')
         return ordered_types
 
-    def get_range_options(self, type_name, chord_name):
-        """Get range options for the current chord selection, sorted like functional view"""
+    def get_range_options(self, type_name, chord_name, is_six_string=True):
+        """
+        Get range options for the current chord selection, sorted like functional view
+        
+        Args:
+            type_name: The chord type name
+            chord_name: The chord name
+            is_six_string: If True, filter out 8-string specific ranges
+        """
         range_options_queryset = ChordNotes.objects.filter(
             type_name=type_name,
             chord_name=chord_name
         ).order_by('ordering', 'range_ordering')
+        
+        # Filter out 8-string specific ranges if in 6-string mode
+        if is_six_string:
+            # Exclude ranges containing 'highA' or 'lowB'
+            range_options_queryset = range_options_queryset.exclude(
+                range__contains='highA'
+            ).exclude(
+                range__contains='lowB'
+            )
 
         def get_sort_key(range_option):
             range_value = range_option.range
@@ -306,13 +337,16 @@ class ChordView(MusicalTheoryView):
             position_options = []
             # Consider raising Http404 if essential data is missing
 
+        # Get string config mode (6 or 8 string)
+        is_six_string = params['is_six_string']
+        
         # Fetch range options based on the determined type/name
         range_options = []
         if initial_chord_object:
-             range_options = self.get_range_options(initial_chord_object.type_name, initial_chord_object.chord_name)
+             range_options = self.get_range_options(initial_chord_object.type_name, initial_chord_object.chord_name, is_six_string)
         else:
              # Attempt to get ranges based on selected type/name if initial object failed
-             range_options = self.get_range_options(type_id, chord_select_name)
+             range_options = self.get_range_options(type_id, chord_select_name, is_six_string)
 
 
         # --- Build the comprehensive chord_json_data (mirroring functional view) ---
@@ -350,8 +384,14 @@ class ChordView(MusicalTheoryView):
                 # print(f"An error occurred during note extraction: {e}") # Example logging
                 pass # Indicate that no specific action is taken here
 
-        # Determine 8-string status
-        is_eight_string = any('lowB' in option.range or 'highA' in option.range for option in range_options)
+        # Determine 8-string status based on cookie configuration rather than available ranges
+        is_eight_string = not params['is_six_string']
+        
+        # Additional safety check: if we're in 6-string mode, force-filter the range options again
+        # This ensures no 8-string ranges slip through any part of the code
+        if params['is_six_string']:
+            range_options = [option for option in range_options 
+                             if 'lowB' not in option.range and 'highA' not in option.range]
 
         # V1/V2 existence flags
         v1_data_exists = ChordNotes.objects.filter(type_name='V1').exists()

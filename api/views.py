@@ -528,6 +528,22 @@ class ChordRangesView(APIView):
         try:
             type_name = request.query_params.get('type_name', None)
             chord_name = request.query_params.get('chord_name', None)
+            
+            # Check for string configuration (6 or 8 string) from cookie and query param
+            # Try query param first (for direct testing)
+            string_mode = request.query_params.get('string_mode', None)
+            if not string_mode:
+                # Then try cookie
+                string_mode = request.COOKIES.get('stringConfig', 'eight-string')
+            
+            # Set defaults if still not found
+            if string_mode not in ['six-string', 'eight-string']:
+                string_mode = 'eight-string'
+                
+            is_six_string = string_mode == 'six-string'
+            
+            # Debug string configuration
+            print(f"API - String configuration: {string_mode}, is_six_string: {is_six_string}")
     
             if not type_name or not chord_name:
                 # Try to get valid values from database instead of returning error
@@ -634,6 +650,12 @@ class ChordRangesView(APIView):
                 
                 ranges_list = unique_ranges
                 
+                # Filter out 8-string specific ranges if in 6-string mode
+                if is_six_string:
+                    ranges_list = [r for r in ranges_list 
+                                  if not (r.get('range') and 
+                                         ('highA' in r.get('range') or 'lowB' in r.get('range')))]
+                
                 # Ensure reasonable limit (don't overwhelm the UI)
                 if len(ranges_list) > 8:
                     ranges_list = ranges_list[:8]
@@ -661,11 +683,21 @@ class ChordRangesView(APIView):
             import traceback
             
             # Always return a standard set of ranges
-            emergency_ranges = [
-                {'id': '1', 'range': 'e - g'},
-                {'id': '2', 'range': 'b - d'},
-                {'id': '3', 'range': 'g - A'}
-            ]
+            # If in 6-string mode, don't include 8-string ranges
+            if is_six_string:
+                emergency_ranges = [
+                    {'id': '1', 'range': 'e - g'},
+                    {'id': '2', 'range': 'b - d'},
+                    {'id': '3', 'range': 'g - A'}
+                ]
+            else:
+                emergency_ranges = [
+                    {'id': '1', 'range': 'e - g'},
+                    {'id': '2', 'range': 'b - d'},
+                    {'id': '3', 'range': 'g - A'},
+                    {'id': '4', 'range': 'highA - e'},
+                    {'id': '5', 'range': 'e - lowB'}
+                ]
                 
             return Response({'ranges': emergency_ranges})
 
