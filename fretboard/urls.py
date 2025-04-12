@@ -1,4 +1,4 @@
-"""fretboard URL Configuration
+fr"""fretboard URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.2/topics/http/urls/
@@ -27,13 +27,11 @@ from positionfinder.views import fretboard_unified_view, chord_search_test_view
 urlpatterns = [
     # API endpoints
     path('api/', include('api.urls', namespace='api')),
+    path('i18n/', include('django.conf.urls.i18n')),  # Add this for language switcher
 ]
 
 # Translatable URLs
 urlpatterns += i18n_patterns(
-    # i18n URLs (moved inside for testing)
-    path('i18n/', include('django.conf.urls.i18n')),
-    
     # Main unified view that handles scales, arpeggios, and chords
     path('', fretboard_unified_view, name='fretboard'),
     # Search views
