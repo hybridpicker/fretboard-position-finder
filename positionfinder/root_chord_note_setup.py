@@ -1,7 +1,8 @@
+from typing import List # Import List for type hinting
 from .models import Root
 from .template_notes import NOTES, NOTES_SHARP, OCTAVES, SHARP_NOTES
 
-def get_root_note(root: int, tonal_root: int, root_id: int) -> list[str]:
+def get_root_note(root: int, tonal_root: int, root_id: int) -> List[str]: # Use List[str] for Python < 3.9
     """
     Calculates all possible note names for a given root pitch across multiple octaves,
     considering sharp/flat preference.
