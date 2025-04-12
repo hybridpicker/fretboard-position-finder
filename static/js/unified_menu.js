@@ -128,6 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
         resetActiveSteps();
         showStep(initialStep);
         
+        // Reset display properties forcibly to ensure consistent styling
+        unifiedMenu.style.display = 'none';
+        unifiedMenu.style.opacity = '0';
+        
         // Set display first
         unifiedMenu.style.display = 'flex';
         
@@ -155,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 position: null 
             };
             resetActiveSteps();
-        }, 200);
+        }, 300); // Increased from 200 to 300 to match our CSS transition
     }
 
     function navigateToMode(mode, containerToShow, firstStepToShow) {

@@ -1,0 +1,201 @@
+/* Main Landing Page Button Styling */
+.main-nav-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+/* First row with Scales, Arpeggios, Chords */
+.main-nav-row-primary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+/* Second row with Settings button */
+.main-nav-row-secondary {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+/* Third row with About button */
+.main-nav-row-tertiary {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+  width: 100%;
+}
+
+/* Primary navigation buttons (Scales, Arpeggios, Chords) */
+.main-button-primary {
+  min-width: 200px;
+  padding: 25px 30px;
+  font-size: 1.5rem;
+  text-align: center;
+  color: white;
+  background-color: #558976; /* Teal color from your color scheme */
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+}
+
+.main-button-primary:hover {
+  background-color: #3d7876; /* Darker teal for hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Settings button */
+.main-button-settings {
+  min-width: 200px;
+  padding: 25px 30px;
+  font-size: 1.5rem;
+  text-align: center;
+  color: white;
+  background-color: #666; /* Gray for the settings button */
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+}
+
+.main-button-settings:hover {
+  background-color: #555;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* About button with icon */
+.main-button-about {
+  min-width: 200px;
+  padding: 25px 30px;
+  font-size: 1.5rem;
+  text-align: center;
+  color: white;
+  background-color: #4c8dce; /* Blue for about button */
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.main-button-about:hover {
+  background-color: #3e78b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.main-button-about i {
+  font-size: 1.3rem;
+}
+
+/* Search container styling */
+.main-search-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto 25px auto;
+}
+
+.main-search-form {
+  display: flex;
+  width: 100%;
+}
+
+.main-search-input {
+  flex: 1;
+  padding: 12px 15px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  outline: none;
+}
+
+.main-search-input:focus {
+  border-color: #3d7876;
+}
+
+.main-search-button {
+  padding: 12px 20px;
+  background-color: #666;
+  color: white;
+  border: none;
+  font-size: 16px;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.main-search-button:hover {
+  background-color: #555;
+}
+
+/* Search examples */
+.main-search-examples {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.main-search-example {
+  display: inline-block;
+  padding: 8px 15px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.main-search-example:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-nav-row-primary {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .main-button-primary,
+  .main-button-settings,
+  .main-button-about {
+    width: 100%;
+    max-width: 300px;
+    padding: 20px;
+    font-size: 1.3rem;
+  }
+  
+  .main-search-container {
+    padding: 0 15px;
+  }
+  
+  .main-search-examples {
+    justify-content: center;
+  }
+}

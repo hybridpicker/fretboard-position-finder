@@ -294,9 +294,7 @@
 
 #unifiedOverlayMenu .close-button::before,
 #unifiedOverlayMenu .close-button::after {
-    background-color: var(--text-primary);
     height: 2px;
-    transition: background-color 0.2s ease;
 }
 
 #unifiedOverlayMenu .close-button:hover::before,

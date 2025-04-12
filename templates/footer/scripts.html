@@ -7,8 +7,9 @@
 {# Removed conflicting script: <script src="{% static 'js/unified/fretboard-scales.js' %}"></script> #}
 <script src="{% static 'js/unified/fretboard-chords.js' %}"></script>
 
-{# Include the new unified menu script (unconditionally) #}
+{# Include the new unified menu scripts (unconditionally) #}
 <script src="{% static 'js/unified_menu.js' %}" defer></script>
+<script src="{% static 'js/unified_menu_init.js' %}" defer></script>
 <!-- Load cursor inversion logic (handles both scales and chords now) -->
 <script src="{% static 'js/cursor-inversion.js' %}"></script>
 

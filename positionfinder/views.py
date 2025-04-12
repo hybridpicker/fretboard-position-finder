@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.utils.datastructures import MultiValueDictKeyError
 from .views_helpers import get_common_context # Import the correct helper
+from django.urls import reverse
 # Removed import for non-existent get_initial_menu_options
 
 
@@ -69,3 +70,27 @@ def chord_search_test_view(request):
     common_context = get_common_context(request)
     context.update(common_context)
     return render(request, 'test_chords.html', context)
+
+
+def landing_page_view(request):
+    """
+    View for the optimized landing page with large buttons and search.
+    """
+    context = {
+        'show_fretboard': False,  # No fretboard needed on landing page
+    }
+    # Add common context variables
+    common_context = get_common_context(request)
+    context.update(common_context)
+    
+    # URLs for the buttons using the correct view names from urls.py
+    context.update({
+        'scale_view': reverse('fretboard') + '?models_select=1',
+        'arpeggio_view': reverse('fretboard') + '?models_select=2',
+        'chord_view': reverse('fretboard') + '?models_select=3',
+        'settings': '#',  # Will be handled by JavaScript
+        'search': reverse('search'),
+        'about': reverse('about'),
+    })
+    
+    return render(request, 'landing.html', context)
