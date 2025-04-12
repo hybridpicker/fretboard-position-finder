@@ -15,7 +15,7 @@ from .functionality_chord_tones_setup import get_functionality_note_names
 
 from .get_position_dict_chords import get_position_dict
 
-from positionfinder.views_helpers import get_menu_options
+from positionfinder.views_helpers import get_menu_options, get_string_config
 
 NOTE_MAPPING = {
     'c': 'C',
@@ -93,6 +93,7 @@ def fretboard_chords_view(request):
     ''' Select which notes '''
     category = NotesCategory.objects.all()
     menu_options = get_menu_options()
+    string_config = get_string_config(request)
     '''
     Template Variables
     '''
@@ -219,9 +220,6 @@ def fretboard_chords_view(request):
     chord_json_data = json.dumps(chord_json_data)
 
     selected_notes = extract_and_convert_notes(json.loads(chord_json_data))
-
-    # String Names for template
-    string_names = ["eString", "bString", "gString", "dString", "AString", "ELowString"]
     selected_type = selected_note_option.type_name
     
     context = {
@@ -241,12 +239,12 @@ def fretboard_chords_view(request):
         'first_range_option': first_range_option,
         'note_range': range,
         'selected_range': selected_range,
-
-        'string_names': string_names,
         'selected_type': selected_type,
         'selected_notes': selected_notes,
+        'chord_function': chord_object.function if hasattr(chord_object, 'function') else '',
     }
 
     context.update(menu_options)
+    context.update(string_config)
 
     return render(request, 'fretboard.html', context)
