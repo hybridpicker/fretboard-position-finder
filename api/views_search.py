@@ -263,7 +263,7 @@ def search_autocomplete(request):
         # Limit final results after score filtering and sorting
         results = results[:10]
 
-        logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Final results after score filtering ({min_score_threshold=}): {results}")
+        logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Final results after score filtering (min_score_threshold={min_score_threshold}): {results}")
         
         debug_info = {
             'query': query,
