@@ -1,0 +1,21 @@
+/* Ensure Menu Toggle Button Position is Preserved */
+#unifiedMenuToggle {
+    position: fixed !important;
+    top: 25px !important;
+    right: 70px !important;
+    z-index: 1001 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: transform 0.3s ease !important;
+}
+
+#unifiedMenuToggle:hover {
+    transform: scale(1.1) !important;
+}
+
+#unifiedMenuToggle img.overlay-icon {
+    width: 33px !important;
+    height: 33px !important;
+}

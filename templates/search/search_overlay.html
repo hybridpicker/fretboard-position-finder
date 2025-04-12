@@ -24,26 +24,26 @@
       </div>
     </form>
     
-    <div class="search-info-box" style="margin-bottom: 20px; padding: 15px; border-radius: 8px; background-color: rgba(var(--color-teal-medium-rgb), 0.1); border: 1px solid rgba(var(--color-teal-medium-rgb), 0.2);">
-      <p style="margin: 0; font-size: 14px;">
+    <div class="search-info-box">
+      <p>
         Search by key, scale/chord type, or use specific formats like "A minor pentatonic" or "Cmaj7 chord"
       </p>
     </div>
     
     {% if recent_searches %}
-    <div class="recent-searches" style="margin-bottom: 20px;">
-      <h3 style="font-size: 16px; margin-bottom: 10px;">Recent Searches</h3>
-      <div class="recent-search-tags" style="display: flex; flex-wrap: wrap; gap: 8px;">
+    <div class="recent-searches">
+      <h3>Recent Searches</h3>
+      <div class="recent-search-tags">
         {% for search in recent_searches %}
-        <a href="{% url 'search' %}?q={{ search }}" class="recent-search-tag" style="display: inline-block; padding: 6px 12px; background-color: rgba(var(--color-teal-medium-rgb), 0.15); border-radius: 4px; color: var(--text-primary); text-decoration: none; font-size: 14px; border: 1px solid rgba(var(--color-teal-medium-rgb), 0.2);">{{ search }}</a>
+        <a href="{% url 'search' %}?q={{ search }}" class="recent-search-tag">{{ search }}</a>
         {% endfor %}
       </div>
     </div>
     {% endif %}
     
     <div class="search-examples">
-      <h3 style="font-size: 16px; margin-bottom: 10px;">Examples:</h3>
-      <ul style="display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0;">
+      <h3>Examples:</h3>
+      <ul>
         <li data-search="C major scale">C major scale</li>
         <li data-search="E minor pentatonic">E minor pentatonic</li>
         <li data-search="Gmaj7 chord">Gmaj7 chord</li>
@@ -53,28 +53,22 @@
       </ul>
     </div>
     
-    <div id="searchResults" class="search-results" style="margin-top: 20px;">
+    <div id="searchResults" class="search-results">
       <!-- Results will be populated here by JavaScript -->
     </div>
     
     <div id="searchLoading" class="search-loading" style="display: none;">
-      <div style="width: 40px; height: 40px; border: 3px solid rgba(var(--color-teal-medium-rgb), 0.2); border-radius: 50%; border-top-color: var(--color-teal-medium); animation: spin 1s linear infinite; margin: 0 auto;"></div>
-      <p style="text-align: center; margin-top: 10px;">Searching...</p>
+      <div></div>
+      <p>Searching...</p>
     </div>
     
     <div id="searchError" class="search-error" style="display: none;">
-      <p style="text-align: center; color: var(--color-purple-medium);">An error occurred. Please try again.</p>
+      <p>An error occurred. Please try again.</p>
     </div>
     
-    <div id="noResults" class="no-results" style="display: none; text-align: center; padding: 20px; margin-top: 20px; background-color: rgba(var(--color-teal-medium-rgb), 0.05); border-radius: 4px; border: 1px solid rgba(var(--color-teal-medium-rgb), 0.2);">
-      <h3 style="color: var(--color-teal-medium); margin-bottom: 10px;">No matches found</h3>
+    <div id="noResults" class="no-results" style="display: none;">
+      <h3>No matches found</h3>
       <p>Try different keywords or check out our examples above</p>
     </div>
   </div>
 </div>
-
-<style>
-  @keyframes spin { 
-    to { transform: rotate(360deg); } 
-  }
-</style>

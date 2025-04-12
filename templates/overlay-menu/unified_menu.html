@@ -1,12 +1,12 @@
 {% load static %}
 
-<div id="unifiedOverlayMenu" class="overlay-menu" style="display: none; opacity: 0;">
+<div id="unifiedOverlayMenu" class="overlay-menu">
     <div class="overlay-content">
         {# Initial Step: Choose Mode #}
         <div id="initialStep" class="step active-step">
             <h2>Guitar Positions Explorer</h2>
             
-            <div class="mode-buttons" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-top: 20px;">
+            <div class="mode-buttons">
                 <button id="selectModeScale" class="mode-select-button">Scales</button>
                 <button id="selectModeArpeggio" class="mode-select-button">Arpeggios</button>
                 <button id="selectModeChord" class="mode-select-button">Chords</button>
@@ -14,7 +14,7 @@
                 <a href="/about" class="mode-select-button about-button">About</a>
             </div>
             
-            <div class="search-box-container" style="margin-top: 25px;">
+            <div class="search-box-container">
                 <form class="overlay-search-form">
                     <div class="search-input-wrapper">
                         <input type="text" id="overlaySearchInput" class="overlay-search-input" placeholder="Search for scales, chords, or arpeggios...">
@@ -22,8 +22,8 @@
                     </div>
                 </form>
                 
-                <div class="search-examples" style="margin-top: 10px; text-align: center;">
-                    <ul style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; list-style: none; padding: 0;">
+                <div class="search-examples">
+                    <ul>
                         <li data-search="C major scale">C major scale</li>
                         <li data-search="A minor pentatonic">A minor pentatonic</li>
                         <li data-search="E minor 7 chord">Em7 chord</li>
