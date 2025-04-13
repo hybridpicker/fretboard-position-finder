@@ -103,11 +103,11 @@ class TestSearchInternationalization(TestCase):
         from django.urls import reverse
         try:
             # First try with language-prefixed URL
-            url = reverse("search")
+            url = reverse("unified_search")
             print(f"URL reversed successfully: {url}")
             return url
         except Exception as e:
-            print(f"Error reversing 'search' URL: {str(e)}")
+            print(f"Error reversing 'unified_search' URL: {str(e)}")
             # Fallback to hardcoded URL pattern if reverse fails
             if language:
                 return f"/{language}/search/"
