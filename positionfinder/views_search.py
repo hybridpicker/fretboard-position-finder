@@ -23,6 +23,60 @@ def log_debug_info(message, data=None):
     else:
         print(f"DEBUG: {message}")
 
+def search_json(request):
+    """
+    JSON API endpoint for search results across chords, scales, and arpeggios.
+    Returns results in a standardized JSON format for API consumers.
+    """
+    # Get search parameters
+    query = request.GET.get('q', '')
+    search_type = request.GET.get('search_type', 'all')
+    
+    # Format conversion for empty strings to None for proper filtering
+    if not query.strip():
+        return JsonResponse({
+            'query': '',
+            'total_results': 0,
+            'chord_results': [],
+            'scale_results': [],
+            'arpeggio_results': []
+        })
+    
+    results = {
+        'chord_results': [],
+        'scale_results': [],
+        'arpeggio_results': []
+    }
+    
+    # Search based on type filter
+    if search_type in ['all', 'chords']:
+        chord_queryset = search_chords(query)
+        results['chord_results'] = process_chord_results(chord_queryset)
+        
+    if search_type in ['all', 'scales']:
+        scale_queryset = search_scales(query)
+        results['scale_results'] = process_scale_results(scale_queryset)
+        
+    if search_type in ['all', 'arpeggios']:
+        arpeggio_queryset = search_arpeggios(query)
+        results['arpeggio_results'] = process_arpeggio_results(arpeggio_queryset)
+    
+    # Calculate total results
+    total_results = (
+        len(results['chord_results']) + 
+        len(results['scale_results']) + 
+        len(results['arpeggio_results'])
+    )
+    
+    # Return formatted response
+    return JsonResponse({
+        'query': query,
+        'total_results': total_results,
+        'chord_results': results['chord_results'],
+        'scale_results': results['scale_results'],
+        'arpeggio_results': results['arpeggio_results']
+    })
+
 def unified_search_view(request):
     """
     A unified search view that can search across chords, scales, and arpeggios

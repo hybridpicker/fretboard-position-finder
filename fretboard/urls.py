@@ -36,7 +36,7 @@ urlpatterns += i18n_patterns(
     # Main unified view that handles scales, arpeggios, and chords
     path('', fretboard_unified_view, name='fretboard'),
     # Search views
-    path('search/', positionfinder.views_search.unified_search_view, name='search'),
+    path('search/', positionfinder.views_search.unified_search_view, name='unified_search'),
     path('search/json/', search_json, name='search_json'),
     
     # Testing route

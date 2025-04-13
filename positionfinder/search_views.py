@@ -298,7 +298,7 @@ def search_by_note_and_type(note_query, type_query):
             
             for note_type in types:
                 # Check if this combination exists as a scale
-                scale = Notes.objects.filter(root_id=root.id, category_id=note_type.id).first() # Use category_id
+                scale = Notes.objects.filter(tonal_root=root.id, category_id=note_type.id).first() # Use category_id
                 
                 if scale:
                     note_name = f"{root.name} {note_type.category_name}" # Use category_name
@@ -325,7 +325,7 @@ def search_by_note_and_type(note_query, type_query):
             
             for note_type in types:
                 # Check if this combination exists as a arpeggio
-                arpeggio = Notes.objects.filter(root_id=root.id, category_id=note_type.id).first() # Use category_id
+                arpeggio = Notes.objects.filter(tonal_root=root.id, category_id=note_type.id).first() # Use category_id
                 
                 if arpeggio:
                     note_name = f"{root.name} {note_type.category_name}" # Use category_name
@@ -387,7 +387,7 @@ def search_by_note_only(note_query):
             
             for scale_type in scale_types: # scale_type is a NotesCategory
                 # Find the specific Notes instance for this root and category
-                scale_note = Notes.objects.filter(root_id=root.id, category_id=scale_type.id).first() # Use category_id
+                scale_note = Notes.objects.filter(tonal_root=root.id, category_id=scale_type.id).first() # Use category_id
                 if scale_note:
                     note_name = f"{root.name} {scale_type.category_name}" # Use category_name
                     
@@ -406,7 +406,7 @@ def search_by_note_only(note_query):
             
             for arpeggio_type in arpeggio_types: # arpeggio_type is a NotesCategory
                 # Find the specific Notes instance for this root and category
-                arpeggio_note = Notes.objects.filter(root_id=root.id, category_id=arpeggio_type.id).first() # Use category_id
+                arpeggio_note = Notes.objects.filter(tonal_root=root.id, category_id=arpeggio_type.id).first() # Use category_id
                 if arpeggio_note:
                     note_name = f"{root.name} {arpeggio_type.category_name}" # Use category_name
                     
@@ -461,7 +461,7 @@ def search_by_type_only(type_query):
         for scale_type in scale_types:
             for root in common_roots[:3]:  # Limit to 3 common roots
                 # Find the specific Notes instance for this root and category
-                scale_note = Notes.objects.filter(root_id=root.id, category_id=scale_type.id).first() # Use category_id
+                scale_note = Notes.objects.filter(tonal_root=root.id, category_id=scale_type.id).first() # Use category_id
                 if scale_note:
                     note_name = f"{root.name} {scale_type.category_name}" # Use category_name
                     
@@ -483,7 +483,7 @@ def search_by_type_only(type_query):
         for arpeggio_type in arpeggio_types:
             for root in common_roots[:2]:  # Limit to 2 common roots
                 # Find the specific Notes instance for this root and category
-                arpeggio_note = Notes.objects.filter(root_id=root.id, category_id=arpeggio_type.id).first() # Use category_id
+                arpeggio_note = Notes.objects.filter(tonal_root=root.id, category_id=arpeggio_type.id).first() # Use category_id
                 if arpeggio_note:
                     note_name = f"{root.name} {arpeggio_type.category_name}" # Use category_name
                     
