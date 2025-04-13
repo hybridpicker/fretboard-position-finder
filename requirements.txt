@@ -65,3 +65,8 @@ wcwidth
 webencodings
 widgetsnbextension
 zipp
+pytest
+pytest-django
+pytest-cov
+factory-boy==3.3.3
+coverage

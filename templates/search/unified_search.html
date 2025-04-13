@@ -229,19 +229,19 @@
             
             <!-- Tabs for different result types -->
             <div class="section-tabs">
-                <div class="section-tab {% if results.chords and search_type == 'all' or search_type == 'chords' %}active{% endif %}" data-target="chords-results">
+                <div class="section-tab {% if search_type == 'chords' or search_type == 'all' %}active{% endif %}" data-target="chords-results">
                     Chords <span class="result-badge badge-chord">{{ results.chords|length }}</span>
                 </div>
-                <div class="section-tab {% if results.scales and search_type == 'scales' %}active{% endif %}" data-target="scales-results">
+                <div class="section-tab {% if search_type == 'scales' or search_type == 'all' %}active{% endif %}" data-target="scales-results">
                     Scales <span class="result-badge badge-scale">{{ results.scales|length }}</span>
                 </div>
-                <div class="section-tab {% if results.arpeggios and search_type == 'arpeggios' %}active{% endif %}" data-target="arpeggios-results">
+                <div class="section-tab {% if search_type == 'arpeggios' or search_type == 'all' %}active{% endif %}" data-target="arpeggios-results">
                     Arpeggios <span class="result-badge badge-arpeggio">{{ results.arpeggios|length }}</span>
                 </div>
             </div>
             
             <!-- Chords Results Section -->
-            <div id="chords-results" class="section-content {% if results.chords and search_type == 'all' or search_type == 'chords' %}active{% endif %}">
+            <div id="chords-results" class="section-content {% if search_type == 'chords' or search_type == 'all' %}active{% endif %}">
                 {% if results.chords %}
                     <table class="result-table">
                         <thead>
@@ -285,7 +285,7 @@
             </div>
             
             <!-- Scales Results Section -->
-            <div id="scales-results" class="section-content {% if results.scales and search_type == 'scales' %}active{% endif %}">
+            <div id="scales-results" class="section-content {% if search_type == 'scales' or search_type == 'all' %}active{% endif %}">
                 {% if results.scales %}
                     <table class="result-table">
                         <thead>
@@ -319,7 +319,7 @@
             </div>
             
             <!-- Arpeggios Results Section -->
-            <div id="arpeggios-results" class="section-content {% if results.arpeggios and search_type == 'arpeggios' %}active{% endif %}">
+            <div id="arpeggios-results" class="section-content {% if search_type == 'arpeggios' or search_type == 'all' %}active{% endif %}">
                 {% if results.arpeggios %}
                     <table class="result-table">
                         <thead>

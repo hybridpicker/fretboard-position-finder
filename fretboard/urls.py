@@ -20,8 +20,9 @@ import positionfinder.views_scale
 import positionfinder.views_arpeggio
 import positionfinder.views_chords
 import positionfinder.views
-import positionfinder.search_views
+import positionfinder.views_search
 from positionfinder.views import fretboard_unified_view, chord_search_test_view
+from positionfinder.views_search import unified_search_view, search_json
 
 # Non-translatable URLs
 urlpatterns = [
@@ -35,8 +36,8 @@ urlpatterns += i18n_patterns(
     # Main unified view that handles scales, arpeggios, and chords
     path('', fretboard_unified_view, name='fretboard'),
     # Search views
-    path('search/', positionfinder.search_views.search_view, name='search'),
-    path('search/json/', positionfinder.search_views.search_json, name='search_json'),
+    path('search/', positionfinder.views_search.unified_search_view, name='search'),
+    path('search/json/', search_json, name='search_json'),
     
     # Testing route
     path('test/chords/', chord_search_test_view, name='test_chords'),
