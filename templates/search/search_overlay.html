@@ -11,7 +11,7 @@
       </button>
     </div>
     
-    <form action="{% url 'search' %}" method="GET" class="search-overlay-form">
+    <form action="{% url 'unified_search' %}" method="GET" class="search-overlay-form">
       <div class="search-input-wrapper">
         <input type="text" name="q" placeholder="Search scales, chords, or arpeggios..." class="search-input" id="overlaySearchInput" autocomplete="off">
         <div class="autocomplete-container" id="overlayAutocompleteContainer"></div>
@@ -35,7 +35,7 @@
       <h3>Recent Searches</h3>
       <div class="recent-search-tags">
         {% for search in recent_searches %}
-        <a href="{% url 'search' %}?q={{ search }}" class="recent-search-tag">{{ search }}</a>
+        <a href="{% url 'unified_search' %}?q={{ search }}" class="recent-search-tag">{{ search }}</a>
         {% endfor %}
       </div>
     </div>
