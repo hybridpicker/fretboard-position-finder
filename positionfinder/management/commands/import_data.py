@@ -14,11 +14,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Your Code
-        #RESET all Data
-        Notes.objects.all().delete();
-        NotesPosition.objects.all().delete();
-        ChordNotes.objects.all().delete();
-        ChordPosition.objects.all().delete();
+        # Flush the database to remove all data, including content types
+        self.stdout.write("Flushing the database...")
+        call_command('flush', '--noinput')
+        self.stdout.write("Database flushed.")
         #Load Fixtures
         call_command('loaddata', 'positionfinder/fixtures/databasedump.json')
         result = {'message': "Successfully Loading initial data"}
