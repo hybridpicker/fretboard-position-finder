@@ -93,15 +93,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         setTimeout(function() {
                             const rangeGrid = document.querySelector('#chordRangeStep .grid-container');
                             if (rangeGrid) {
-                                // Check if any 8-string ranges are already present
-                                const hasEightStringRanges = Array.from(rangeGrid.querySelectorAll('.grid-item'))
-                                    .some(item => {
-                                        const range = item.getAttribute('data-value');
-                                        return range && (range.includes('highA') || range.includes('lowB'));
-                                    });
-                                
-                                if (!hasEightStringRanges) {
-                                    console.log("No 8-string ranges found, reloading...");
+                                // Check if any ranges were loaded at all after the API call
+                                const hasAnyRangesLoaded = rangeGrid.querySelectorAll('.grid-item').length > 0;
+
+                                // If no ranges were populated into the grid, assume there's an issue and reload.
+                                // This covers cases where the API might return empty for a valid mode, 
+                                // or if the population logic failed.
+                                if (!hasAnyRangesLoaded) {
+                                    console.log("No ranges found in grid, reloading fallback...");
                                     
                                     // Force reload by going back and forward
                                     const backButton = document.querySelector('#chordRangeStep .back-button');
