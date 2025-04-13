@@ -143,18 +143,20 @@
                  <div class="info-box">
                      <p><strong>Triads</strong>: Basic three-note chords played on adjacent strings.</p>
                      <p><strong>Spread Triads</strong>: Three-note chords with notes distributed across non-adjacent strings.</p>
-                     <p><strong>V1 / V2</strong>: Specific 4-note voicings for 7th chords designed for ergonomic playing.</p>
+                     <p><strong>V-System Voicings</strong>: Specific 4-note voicings for 7th chords following Ted Greene's system.</p>
                  </div>
                  <div class="grid-container">
-                     {# Hard-code these options instead of using the loop to ensure no duplicates #}
+                     {# Standard types can still be listed explicitly or looped if preferred #}
                      <div class="grid-item chord-type-item" data-value="Spread Triads">Spread Triads</div>
                      <div class="grid-item chord-type-item" data-value="Triads">Triads</div>
-                     {% if v1_data_exists %}
-                     <div class="grid-item chord-type-item" data-value="V1">V1 Chords</div>
-                     {% endif %}
-                     {% if v2_data_exists %}
-                     <div class="grid-item chord-type-item" data-value="V2">V2 Chords</div>
-                     {% endif %}
+                    
+                    {# Dynamically add V-System types from the context #}
+                    {% for v_type in unified_menu_chord_type_options.v_system_types %} {# <-- Changed variable name here #}
+                        <div class="grid-item chord-type-item" data-value="{{ v_type }}">{{ v_type }} Chords</div>
+                    {% empty %}
+                        <!-- Optional: Message if no V-System types are found in the database -->
+                        {# <p>No V-System chord types found.</p> #} 
+                    {% endfor %}
                  </div>
                  <button class="back-button" data-target="chordRootStep">Back</button>
             </div>

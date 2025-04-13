@@ -16,6 +16,8 @@ from .note_validation import validate_and_filter_note_positions # Import validat
 from .views_helpers import get_common_context # Use current helper function
 from .views_base import MusicalTheoryView # Import base class
 
+import re # Import regex for natural sorting
+
 # Constants (Keep from functional view)
 NOTE_MAPPING = {
     'c': 'C', 'cs': 'C#', 'd': 'D', 'ds': 'D#', 'e': 'E', 'f': 'F',
@@ -190,22 +192,44 @@ class ChordView(MusicalTheoryView):
         ).order_by('chord_ordering').distinct()
 
     def get_type_options(self):
-        """Get available chord type options, ordered like functional view"""
-        all_type_names = ChordNotes.objects.values_list('type_name', flat=True).distinct()
-        ordered_types = []
-        # Add standard types in specific order
-        if 'Triads' in all_type_names: ordered_types.append('Triads')
-        if 'Spread Triads' in all_type_names: ordered_types.append('Spread Triads')
-        if 'V1' in all_type_names: ordered_types.append('V1')
-        if 'V2' in all_type_names: ordered_types.append('V2')
-        # Add remaining types
+        """Get available chord type options, separated into standard and V-System."""
+        # Fetch all distinct type names for category 3 (Chords)
+        all_type_names = ChordNotes.objects.filter(category=3).values_list('type_name', flat=True).distinct()
+
+        standard_types = []
+        v_system_types = []
+
+        # Separate types
         for t in all_type_names:
-            if t not in ordered_types:
-                ordered_types.append(t)
-        # Ensure Triads is present even if not in DB initially (as fallback)
-        if 'Triads' not in ordered_types:
-             ordered_types.insert(0, 'Triads')
-        return ordered_types
+            if t in ['Triads', 'Spread Triads']:
+                standard_types.append(t)
+            elif t.startswith('V') and t[1:].isdigit(): # Check if it looks like a V-System type
+                v_system_types.append(t)
+            # else: # Handle other potential types if needed
+            #     pass
+
+        # Ensure standard types have a specific order
+        ordered_standard_types = []
+        if 'Triads' in standard_types: ordered_standard_types.append('Triads')
+        if 'Spread Triads' in standard_types: ordered_standard_types.append('Spread Triads')
+
+        # Ensure Triads is present even if not in DB initially (as fallback for UI?)
+        if 'Triads' not in ordered_standard_types:
+            ordered_standard_types.insert(0, 'Triads')
+
+        # Ensure uniqueness before sorting, just in case the distinct query didn't work as expected
+        unique_v_system_types = list(set(v_system_types))
+        def natural_sort_key(s):
+            return [int(text) if text.isdigit() else text.lower()
+                    for text in re.split('([0-9]+)', s)]
+
+        v_system_types_sorted = sorted(unique_v_system_types, key=natural_sort_key)
+        print(f"[DEBUG] UNIQUE V-System types sorted in get_type_options: {v_system_types_sorted}") # DEBUG
+
+        return {
+            'standard_types': ordered_standard_types,
+            'v_system_types': v_system_types_sorted
+        }
 
     def get_range_options(self, type_name, chord_name, is_six_string=True):
         """
@@ -393,10 +417,6 @@ class ChordView(MusicalTheoryView):
             range_options = [option for option in range_options 
                              if 'lowB' not in option.range and 'highA' not in option.range]
 
-        # V1/V2 existence flags
-        v1_data_exists = ChordNotes.objects.filter(type_name='V1').exists()
-        v2_data_exists = ChordNotes.objects.filter(type_name='V2').exists()
-
         # Chord function generation (simplified example, needs full logic from functional view)
         # TODO: Integrate the full chord function generation logic here if needed
         chord_function = "R-..." # Placeholder
@@ -412,7 +432,7 @@ class ChordView(MusicalTheoryView):
             'category': category_objects,
             'position_options': position_options, # Pass the list of position objects
             'range_options': range_options,
-            'type_options': type_options,
+            'chord_type_options': type_options, # Use the key expected by the template
             'chord_json_data': json.dumps(final_chord_json_data),
             'chord_options': chord_options,
             'selected_type': type_id,
@@ -424,8 +444,6 @@ class ChordView(MusicalTheoryView):
             'selected_notes': selected_notes,
             'selected_position': selected_position_name, # Pass the position name from params
             'chord_function': chord_function, # Add generated function
-            'v1_data_exists': v1_data_exists,
-            'v2_data_exists': v2_data_exists,
             'is_eight_string': is_eight_string, # Add flag
             'DEBUG': settings.DEBUG # Use Django settings DEBUG
         }
@@ -433,6 +451,11 @@ class ChordView(MusicalTheoryView):
         # Add common context from helper
         common_context_data = get_common_context(request)
         context.update(common_context_data)
+
+        if 'chord_type_options' in context and 'v_system_types' in context['chord_type_options']:
+            print(f"[DEBUG] Final v_system_types in context: {context['chord_type_options']['v_system_types']}")
+        else:
+            print("[DEBUG] chord_type_options or v_system_types not found in final context")
 
         return context
 
