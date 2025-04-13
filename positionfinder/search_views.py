@@ -294,22 +294,22 @@ def search_by_note_and_type(note_query, type_query):
         
         for root in roots:
             # Find matching types
-            types = NotesCategory.objects.filter(Q(type__icontains=type_query) | Q(scale_name__icontains=type_query))
+            types = NotesCategory.objects.filter(Q(category_name__icontains=type_query)) # Use category_name
             
             for note_type in types:
                 # Check if this combination exists as a scale
-                scale = Notes.objects.filter(root_id=root, note_id=note_type).first()
+                scale = Notes.objects.filter(root_id=root.id, category_id=note_type.id).first() # Use category_id
                 
                 if scale:
-                    note_name = f"{root.name} {note_type.type}"
+                    note_name = f"{root.name} {note_type.category_name}" # Use category_name
                     
                     # Build the URL for the scale
                     url = reverse('fretboard') + f'?models_select={note_type.id}&notes_options_select={scale.id}&root={root.id}'
                     
                     scale_results.append({
                         'note_name': note_name,
-                        'description': note_type.scale_name,
-                        'intervals': note_type.intervals,
+                        'description': note_type.category_name, # Use category_name
+                        'intervals': scale.intervals if scale else '', # Get intervals from Notes object
                         'url': url
                     })
     except Exception as e:
@@ -321,22 +321,22 @@ def search_by_note_and_type(note_query, type_query):
         
         for root in roots:
             # Find arpeggio types
-            types = NotesCategory.objects.filter(Q(type__icontains=type_query), Q(category='arpeggio'))
+            types = NotesCategory.objects.filter(Q(category_name__icontains=type_query), Q(category_name='arpeggio')) # Filter by category_name='arpeggio'
             
             for note_type in types:
                 # Check if this combination exists as a arpeggio
-                arpeggio = Notes.objects.filter(root_id=root, note_id=note_type).first()
+                arpeggio = Notes.objects.filter(root_id=root.id, category_id=note_type.id).first() # Use category_id
                 
                 if arpeggio:
-                    note_name = f"{root.name} {note_type.type}"
+                    note_name = f"{root.name} {note_type.category_name}" # Use category_name
                     
                     # Build the URL for the arpeggio
                     url = reverse('fretboard') + f'?models_select={note_type.id}&notes_options_select={arpeggio.id}&root={root.id}'
                     
                     arpeggio_results.append({
                         'note_name': note_name,
-                        'description': note_type.scale_name,
-                        'intervals': note_type.intervals,
+                        'description': note_type.category_name, # Use category_name
+                        'intervals': arpeggio.intervals if arpeggio else '', # Get intervals from Notes object
                         'url': url
                     })
     except Exception as e:
@@ -348,10 +348,10 @@ def search_by_note_and_type(note_query, type_query):
         
         for root in roots:
             # Find matching chord types
-            chord_matches = ChordNotes.objects.filter(Q(chord_type__icontains=type_query))
+            chord_matches = ChordNotes.objects.filter(Q(type_name__icontains=type_query)) # Use type_name instead of non-existent chord_type
             
             for chord_match in chord_matches:
-                chord_name = f"{root.name}{chord_match.chord_type}"
+                chord_name = f"{root.name}{chord_match.type_name}" # Use type_name
                 
                 # Build the URL for the chord
                 url = reverse('fretboard') + f'?models_select=3&notes_options_select={chord_match.id}'
@@ -383,42 +383,48 @@ def search_by_note_only(note_query):
         
         for root in roots:
             # For scales - get common scales for this root
-            scale_types = NotesCategory.objects.filter(category='scale')[:5]  # Limit to 5 common scales
+            scale_types = NotesCategory.objects.filter(category_name='scale')[:5]  # Filter by category_name
             
-            for scale_type in scale_types:
-                note_name = f"{root.name} {scale_type.type}"
-                
-                # Build the URL for the scale
-                url = reverse('fretboard') + f'?models_select={scale_type.id}&notes_options_select={scale_type.id}&root={root.id}'
-                
-                scale_results.append({
-                    'note_name': note_name,
-                    'description': scale_type.scale_name,
-                    'intervals': scale_type.intervals,
-                    'url': url
+            for scale_type in scale_types: # scale_type is a NotesCategory
+                # Find the specific Notes instance for this root and category
+                scale_note = Notes.objects.filter(root_id=root.id, category_id=scale_type.id).first() # Use category_id
+                if scale_note:
+                    note_name = f"{root.name} {scale_type.category_name}" # Use category_name
+                    
+                    # Build the URL using the Notes object ID
+                    url = reverse('fretboard') + f'?models_select={scale_type.id}&notes_options_select={scale_note.id}&root={root.id}'
+                    
+                    scale_results.append({
+                        'note_name': note_name,
+                        'description': scale_type.category_name, # Use category_name
+                        'intervals': scale_note.intervals, # Get intervals from Notes object
+                        'url': url
                 })
             
             # For arpeggios - get common arpeggios for this root
-            arpeggio_types = NotesCategory.objects.filter(category='arpeggio')[:3]  # Limit to 3 common arpeggios
+            arpeggio_types = NotesCategory.objects.filter(category_name='arpeggio')[:3]  # Filter by category_name
             
-            for arpeggio_type in arpeggio_types:
-                note_name = f"{root.name} {arpeggio_type.type}"
-                
-                # Build the URL for the arpeggio
-                url = reverse('fretboard') + f'?models_select={arpeggio_type.id}&notes_options_select={arpeggio_type.id}&root={root.id}'
-                
-                arpeggio_results.append({
-                    'note_name': note_name,
-                    'description': arpeggio_type.scale_name,
-                    'intervals': arpeggio_type.intervals,
-                    'url': url
+            for arpeggio_type in arpeggio_types: # arpeggio_type is a NotesCategory
+                # Find the specific Notes instance for this root and category
+                arpeggio_note = Notes.objects.filter(root_id=root.id, category_id=arpeggio_type.id).first() # Use category_id
+                if arpeggio_note:
+                    note_name = f"{root.name} {arpeggio_type.category_name}" # Use category_name
+                    
+                    # Build the URL using the Notes object ID
+                    url = reverse('fretboard') + f'?models_select={arpeggio_type.id}&notes_options_select={arpeggio_note.id}&root={root.id}'
+                    
+                    arpeggio_results.append({
+                        'note_name': note_name,
+                        'description': arpeggio_type.category_name, # Use category_name
+                        'intervals': arpeggio_note.intervals, # Get intervals from Notes object
+                        'url': url
                 })
             
             # For chords - get common chords for this root
             chord_types = ChordNotes.objects.all()[:5]  # Limit to 5 common chord types
             
             for chord_type in chord_types:
-                chord_name = f"{root.name}{chord_type.chord_type}"
+                chord_name = f"{root.name}{chord_type.type_name}" # Use type_name
                 
                 # Build the URL for the chord
                 url = reverse('fretboard') + f'?models_select=3&notes_options_select={chord_type.id}'
@@ -447,55 +453,59 @@ def search_by_type_only(type_query):
     try:
         # Find matching scale types
         scale_types = NotesCategory.objects.filter(
-            Q(type__icontains=type_query) | 
-            Q(scale_name__icontains=type_query)
-        ).filter(category='scale')
+            Q(category_name__icontains=type_query) # Use category_name
+        ).filter(category_name='scale') # Filter by category_name
         
         common_roots = Root.objects.filter(name__in=['C', 'A', 'G', 'E', 'D'])  # Common root notes
         
         for scale_type in scale_types:
             for root in common_roots[:3]:  # Limit to 3 common roots
-                note_name = f"{root.name} {scale_type.type}"
-                
-                # Build the URL for the scale
-                url = reverse('fretboard') + f'?models_select={scale_type.id}&notes_options_select={scale_type.id}&root={root.id}'
-                
-                scale_results.append({
-                    'note_name': note_name,
-                    'description': scale_type.scale_name,
-                    'intervals': scale_type.intervals,
-                    'url': url
+                # Find the specific Notes instance for this root and category
+                scale_note = Notes.objects.filter(root_id=root.id, category_id=scale_type.id).first() # Use category_id
+                if scale_note:
+                    note_name = f"{root.name} {scale_type.category_name}" # Use category_name
+                    
+                    # Build the URL using the Notes object ID
+                    url = reverse('fretboard') + f'?models_select={scale_type.id}&notes_options_select={scale_note.id}&root={root.id}'
+                    
+                    scale_results.append({
+                        'note_name': note_name,
+                        'description': scale_type.category_name, # Use category_name
+                        'intervals': scale_note.intervals, # Get intervals from Notes object
+                        'url': url
                 })
         
         # Find matching arpeggio types
         arpeggio_types = NotesCategory.objects.filter(
-            Q(type__icontains=type_query) | 
-            Q(scale_name__icontains=type_query)
-        ).filter(category='arpeggio')
+            Q(category_name__icontains=type_query) # Use category_name
+        ).filter(category_name='arpeggio') # Filter by category_name
         
         for arpeggio_type in arpeggio_types:
             for root in common_roots[:2]:  # Limit to 2 common roots
-                note_name = f"{root.name} {arpeggio_type.type}"
-                
-                # Build the URL for the arpeggio
-                url = reverse('fretboard') + f'?models_select={arpeggio_type.id}&notes_options_select={arpeggio_type.id}&root={root.id}'
-                
-                arpeggio_results.append({
-                    'note_name': note_name,
-                    'description': arpeggio_type.scale_name,
-                    'intervals': arpeggio_type.intervals,
-                    'url': url
-                })
+                # Find the specific Notes instance for this root and category
+                arpeggio_note = Notes.objects.filter(root_id=root.id, category_id=arpeggio_type.id).first() # Use category_id
+                if arpeggio_note:
+                    note_name = f"{root.name} {arpeggio_type.category_name}" # Use category_name
+                    
+                    # Build the URL using the Notes object ID
+                    url = reverse('fretboard') + f'?models_select={arpeggio_type.id}&notes_options_select={arpeggio_note.id}&root={root.id}'
+                    
+                    arpeggio_results.append({
+                        'note_name': note_name,
+                        'description': arpeggio_type.category_name, # Use category_name
+                        'intervals': arpeggio_note.intervals, # Get intervals from Notes object
+                        'url': url
+                    })
         
         # Find matching chord types
         chord_types = ChordNotes.objects.filter(
-            Q(chord_type__icontains=type_query) | 
+            Q(type_name__icontains=type_query) | # Use type_name instead of non-existent chord_type
             Q(chord_name__icontains=type_query)
         )
         
         for chord_type in chord_types:
             for root in common_roots[:3]:  # Limit to 3 common roots
-                chord_name = f"{root.name}{chord_type.chord_type}"
+                chord_name = f"{root.name}{chord_type.type_name}" # Use type_name
                 
                 # Build the URL for the chord
                 url = reverse('fretboard') + f'?models_select=3&notes_options_select={chord_type.id}'
