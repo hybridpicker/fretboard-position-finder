@@ -240,23 +240,26 @@ def emergency_positions(request):
         
         # If this looks like a chord_names request
         if type_name and not chord_name:
-            # Return chord names for the given type
-            if 'Triads' in type_name:
+            # Try to get chord names from database
+            try:
+                db_chord_names = ChordNotes.objects.filter(type_name=type_name)\
+                                              .values_list('chord_name', flat=True)\
+                                              .distinct()
+                
+                if db_chord_names.exists():
+                    # Convert to the format expected by the UI
+                    chord_names = [{'chord_name': name} for name in db_chord_names]
+                    return JsonResponse({'chord_names': chord_names})
+            except Exception:
+                pass  # Continue to fallback if database query fails
+            
+            # Fallback values if database query failed
+            if 'Triads' in type_name or 'Spread' in type_name:
                 return JsonResponse({'chord_names': [
                     {'chord_name': 'Major'},
                     {'chord_name': 'Minor'},
                     {'chord_name': 'Diminished'},
-                    {'chord_name': 'Augmented'},
-                    {'chord_name': 'Sus2'},
-                    {'chord_name': 'Sus4'}
-                ]})
-            elif 'Spread' in type_name:
-                return JsonResponse({'chord_names': [
-                    {'chord_name': 'Major'},
-                    {'chord_name': 'Minor'},
-                    {'chord_name': 'Diminished'},
-                    {'chord_name': 'Sus2'},
-                    {'chord_name': 'Sus4'}
+                    {'chord_name': 'Augmented'}
                 ]})
             else:
                 return JsonResponse({'chord_names': [
@@ -388,17 +391,16 @@ class ChordNamesView(APIView):
                         cursor.execute(f"SELECT type_name, chord_name, COUNT(*) FROM positionfinder_chordnotes GROUP BY type_name, chord_name ORDER BY COUNT(*) DESC LIMIT 10")
                         duplicates = cursor.fetchall()
                     
-                    # Use the emergency endpoint's hardcoded data for Triads
-                    if type_name == 'Triads':
-                        chord_names_list = [
-                            {'chord_name': 'Major'},
-                            {'chord_name': 'Minor'},
-                            {'chord_name': 'Diminished'},
-                            {'chord_name': 'Augmented'},
-                            {'chord_name': 'Sus2'},
-                            {'chord_name': 'Sus4'}
-                        ]
-                    else:
+                    # Get chord names from database for the selected type
+                    db_chord_names = ChordNotes.objects.filter(type_name=type_name)\
+                                                    .values_list('chord_name', flat=True)\
+                                                    .distinct()\
+                                                    .order_by('chord_name')
+                    
+                    # Convert the db_chord_names to objects with 'chord_name' property
+                    chord_names_list = [{'chord_name': name} for name in db_chord_names]
+                    
+                    if not chord_names_list:
                         # Try to get chord names from database
                         db_chord_names = ChordNotes.objects.filter(type_name=type_name)\
                                                         .values_list('chord_name', flat=True)\
@@ -484,17 +486,24 @@ class ChordNamesView(APIView):
         except Exception as e:
             import traceback
             
-            # Return hardcoded response for known chord types
-            if type_name == 'Triads':
-                emergency_chord_names = [
-                    {'chord_name': 'Major'},
-                    {'chord_name': 'Minor'},
-                    {'chord_name': 'Diminished'},
-                    {'chord_name': 'Augmented'},
-                    {'chord_name': 'Sus2'},
-                    {'chord_name': 'Sus4'}
-                ]
-            else:
+            # Try to get chord names from database first
+            try:
+                db_chord_names = ChordNotes.objects.filter(type_name=type_name)\
+                                                .values_list('chord_name', flat=True)\
+                                                .distinct()\
+                                                .order_by('chord_name')
+                
+                if db_chord_names.exists():
+                    emergency_chord_names = [{'chord_name': name} for name in db_chord_names]
+                else:
+                    # Fallback to basic chord types that exist in our database
+                    emergency_chord_names = [
+                        {'chord_name': 'Major'},
+                        {'chord_name': 'Minor'},
+                        {'chord_name': 'Diminished'},
+                        {'chord_name': 'Augmented'}
+                    ]
+            except Exception:
                 # Try to get from database, fallback to defaults if that fails
                 try:
                     all_chord_names = ChordNotes.objects.values_list('chord_name', flat=True).distinct().order_by('chord_name')[:10]
