@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',  # Add locale middleware
+    # Locale middleware removed
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -98,25 +98,13 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
-USE_I18N = True
+USE_I18N = False  # Disable internationalization
 
 USE_L10N = True
 
 USE_TZ = True
 
-# Available languages
-from django.utils.translation import gettext_lazy as _
-LANGUAGES = [
-    ('en', _('English')),
-    ('de', _('German')),
-    ('fr', _('French')),
-    ('es', _('Spanish')),
-]
-
-# Location of translation files
-LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'locale'),
-]
+# Language settings removed
 
 
 # Static files (CSS, JavaScript, Images)
