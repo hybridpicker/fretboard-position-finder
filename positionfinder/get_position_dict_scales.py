@@ -14,8 +14,14 @@ def get_transposable_positions(position_options, position):
         transposition = []
         for string in STRINGS:
             try:
-                lowest_tone = actual_position[string][0]['tones'][0]
-                actual_tones = actual_position[string][0]['tones']
+                if 'tones' in actual_position[string][0] and actual_position[string][0]['tones']:
+                    lowest_tone = actual_position[string][0]['tones'][0]
+                else:
+                    continue  # Skip this string if there are no tones
+                if 'tones' in actual_position[string][0] and actual_position[string][0]['tones']:
+                    actual_tones = actual_position[string][0]['tones']
+                else:
+                    continue  # Skip this string if there are no tones
                 for tone in actual_tones:
                     # Delete Range
                     x = tone[:-1]
@@ -34,17 +40,22 @@ def get_transposable_positions(position_options, position):
                 transposition_positions.append(i)
     return transposition_positions
 
+# Add a helper to extract tones from a Notes object
+def get_tones_from_notes(notes_obj):
+    note_fields = [
+        'first_note', 'second_note', 'third_note', 'fourth_note', 'fifth_note',
+        'sixth_note', 'seventh_note', 'eigth_note', 'ninth_note', 'tenth_note',
+        'eleventh_note', 'twelth_note'
+    ]
+    return [getattr(notes_obj, f) for f in note_fields if getattr(notes_obj, f) is not None]
+
 def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, selected_root_name):
     scale_note = Notes.objects.get(note_name=scale_name)
 
     POSITION_DICT = {}
 
-    SCALE_NOTES = [scale_note.first_note, scale_note.second_note,
-                   scale_note.third_note, scale_note.fourth_note,
-                   scale_note.fifth_note, scale_note.sixth_note,
-                   scale_note.seventh_note, scale_note.eigth_note,
-                   scale_note.ninth_note, scale_note.tenth_note,
-                   scale_note.eleventh_note, scale_note.twelth_note]
+    # Use the helper to extract scale notes
+    SCALE_NOTES = get_tones_from_notes(scale_note)
 
     NOTES_LIST = []
     for x in SCALE_NOTES:
@@ -110,6 +121,7 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
                 STRING_NOTE_OPTION_STRING[key] = [TONE_NOTE_OPTION_DICT]
             POSITION_DICT[str(position.position_order)] = STRING_NOTE_OPTION_STRING
     return POSITION_DICT
+
 def transpose_position(y):
     y_trans = []
     for x in y:
@@ -121,19 +133,40 @@ def transpose_position(y):
 def transpose_actual_position(position, transposable_position):
     for x in transposable_position:
         for string in STRINGS:
-            y = position[str(x)][string][0]['tones']
-            y = transpose_position(y)
-            position[str(x)][string][0]['tones'] = y
+            if 'tones' in position[str(x)][string][0]:
+                y = position[str(x)][string][0]['tones']
+                y = transpose_position(y)
+                position[str(x)][string][0]['tones'] = y
+            else:
+                # Skip this string if there are no tones
+                continue
     return position
 
 def ordering_positions(position):
     score_board = {}
     for i in range(1, len(position)):
         score_list = []
-        for pos in position[str(i)]['eString'][0]['tones']:
-            score = NOTES_SCORE[pos[0]] + (int(pos[-1]) * 12)
-            score_list.append(score)
-        score_board[i] = sum(score_list) / len(score_list)
+        # Check if 'tones' key exists and is not empty
+        if 'eString' in position[str(i)] and position[str(i)]['eString'] and 'tones' in position[str(i)]['eString'][0]:
+            tones = position[str(i)]['eString'][0]['tones']
+            for pos in tones:
+                # Make sure the position is valid
+                if pos and len(pos) > 1:
+                    try:
+                        score = NOTES_SCORE[pos[0]] + (int(pos[-1]) * 12)
+                        score_list.append(score)
+                    except (KeyError, ValueError):
+                        # Skip this position if we can't calculate a score
+                        pass
+        
+        if score_list:  # Only calculate if we have scores
+            score_board[i] = sum(score_list) / len(score_list)
+        else:
+            score_board[i] = 0  # Default score for empty positions
+    
+    if not score_board:  # If there are no positions to order, return empty OrderedDict
+        return OrderedDict()
+        
     ordered_score = OrderedDict(sorted(score_board.items(), key=lambda t: t[1]))
     return ordered_score
 
