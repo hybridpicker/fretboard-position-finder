@@ -1,11 +1,18 @@
 #!/bin/bash
-# Pre-commit hook to check for unused files
+# Pre-commit hook to check for unused files and always dump the latest database data
 # Install this hook by running:
 # cp utils/git-hooks/pre-commit .git/hooks/pre-commit
 # chmod +x .git/hooks/pre-commit
 
 # Set the working directory to the project root
 cd "$(git rev-parse --show-toplevel)"
+
+# Always dump the latest data before every commit
+python3 manage.py dumpdata --natural-foreign --natural-primary --indent 2 > positionfinder/fixtures/databasedump.json
+if [ $? -ne 0 ]; then
+    echo -e "\n❌ Commit prevented: Could not dump database data."
+    exit 1
+fi
 
 # Check for conda environment first
 if command -v conda &> /dev/null; then
