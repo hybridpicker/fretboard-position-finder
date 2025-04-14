@@ -68,5 +68,5 @@ zipp
 pytest
 pytest-django
 pytest-cov
-factory-boy==3.3.3
+factory-boy==3.2.1
 coverage
