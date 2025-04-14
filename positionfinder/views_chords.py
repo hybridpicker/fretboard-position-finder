@@ -417,9 +417,8 @@ class ChordView(MusicalTheoryView):
             range_options = [option for option in range_options 
                              if 'lowB' not in option.range and 'highA' not in option.range]
 
-        # Chord function generation (simplified example, needs full logic from functional view)
-        # TODO: Integrate the full chord function generation logic here if needed
-        chord_function = "R-..." # Placeholder
+        # Chord function generation
+        chord_function = self.generate_chord_function(chord_select_name)
 
         # Build the final context dictionary, matching functional view keys
         context = {
@@ -481,6 +480,71 @@ class ChordView(MusicalTheoryView):
 
 
 # Keep the simple view function that uses the class
+    def generate_chord_function(self, chord_name):
+        """
+        Generate chord function notation based on chord name.
+        For example:
+        - Major 7 -> R - 3 - 5 - 7
+        - Minor 7 -> R - b3 - 5 - b7
+        - etc.
+        """
+        # Basic chord functions based on common chord types
+        chord_functions = {
+            # Triads
+            'Major': 'R - 3 - 5',
+            'Minor': 'R - b3 - 5',
+            'Diminished': 'R - b3 - b5',
+            'Augmented': 'R - 3 - #5',
+            'Sus2': 'R - 2 - 5',
+            'Sus4': 'R - 4 - 5',
+            
+            # 7th chords
+            'Major 7': 'R - 3 - 5 - 7',
+            'Dominant 7': 'R - 3 - 5 - b7',
+            'Minor 7': 'R - b3 - 5 - b7',
+            'Minor Major 7': 'R - b3 - 5 - 7',
+            'Diminished 7': 'R - b3 - b5 - bb7',
+            'Half-Diminished 7': 'R - b3 - b5 - b7',
+            'Augmented 7': 'R - 3 - #5 - b7',
+            'Augmented Major 7': 'R - 3 - #5 - 7',
+            
+            # 6th chords
+            'Major 6': 'R - 3 - 5 - 6',
+            'Minor 6': 'R - b3 - 5 - 6',
+            
+            # 9th chords
+            'Major 9': 'R - 3 - 5 - 7 - 9',
+            'Dominant 9': 'R - 3 - 5 - b7 - 9',
+            'Minor 9': 'R - b3 - 5 - b7 - 9',
+            
+            # 11th chords
+            'Major 11': 'R - 3 - 5 - 7 - 9 - 11',
+            'Dominant 11': 'R - 3 - 5 - b7 - 9 - 11',
+            'Minor 11': 'R - b3 - 5 - b7 - 9 - 11',
+            
+            # 13th chords
+            'Major 13': 'R - 3 - 5 - 7 - 9 - 11 - 13',
+            'Dominant 13': 'R - 3 - 5 - b7 - 9 - 11 - 13',
+            'Minor 13': 'R - b3 - 5 - b7 - 9 - 11 - 13',
+            
+            # Altered chords
+            'Major 7(#5)': 'R - 3 - #5 - 7',
+            'Major 7(b5)': 'R - 3 - b5 - 7',
+            'Dominant 7(#5)': 'R - 3 - #5 - b7',
+            'Dominant 7(b5)': 'R - 3 - b5 - b7',
+            'Dominant 7(b9)': 'R - 3 - 5 - b7 - b9',
+            'Dominant 7(#9)': 'R - 3 - 5 - b7 - #9',
+            'Dominant 7(#11)': 'R - 3 - 5 - b7 - #11',
+            'Dominant 7(b13)': 'R - 3 - 5 - b7 - b13',
+            
+            # Add chords
+            'Add9': 'R - 3 - 5 - 9',
+            'Minor Add9': 'R - b3 - 5 - 9'
+        }
+        
+        # Return the function for the given chord name, or a default if not found
+        return chord_functions.get(chord_name, 'R - ...')
+
 def fretboard_chords_view(request: HttpRequest):
     """
     View function for displaying chords on the fretboard using ChordView.
