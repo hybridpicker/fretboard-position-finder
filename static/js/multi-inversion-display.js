@@ -247,12 +247,7 @@ function addInversionDisplayStyle() {
                 filter: none !important;
                 border: 2px dashed #AA5500 !important; 
                 box-shadow: 0 0 3px rgba(200, 100, 0, 0.3) !important;
-            }
-            
-            /* Ensure primary active note name is bold */
-            .note.active:not(.inversion-note) .notename {
-                font-weight: bold;
-            }
+            } 
         `;
         document.head.appendChild(style);
     }

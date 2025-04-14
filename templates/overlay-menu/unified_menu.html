@@ -226,52 +226,9 @@
                     <button id="applySettings" class="settings-apply-button">Apply Settings</button>
                 </div>
                 
-                <!-- Add language switcher section here -->
-                <div class="settings-section">
-                    <h3>Language Settings</h3>
-                    
-                    <div class="settings-item">
-                        <label for="language-select">Interface Language:</label>
-                        <div class="settings-control">
-                            {% load i18n %}
-                            <form action="{% url 'set_language' %}" method="post" class="language-form">
-                                {% csrf_token %}
-                                <input name="next" type="hidden" value="{{ request.path }}">
-                                <select name="language" id="language-select" class="settings-select" onchange="this.form.submit()">
-                                    {% get_available_languages as LANGUAGES %}
-                                    {% get_language_info_list for LANGUAGES as languages %}
-                                    {% for language in languages %}
-                                        <option value="{{ language.code }}"{% if language.code == LANGUAGE_CODE %} selected{% endif %}>
-                                            {{ language.name_local }} ({{ language.code }})
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </form>
-                        </div>
-                    </div>
-                    
-                    <div class="settings-info">
-                        <p>Select your preferred language for the user interface.</p>
-                    </div>
-                </div>
+                <!-- Language settings section removed -->
                 
                 <div class="settings-section">
-                    <h3>Appearance</h3>
-                    
-                    <div class="settings-item">
-                        <label for="note-size">Note Display Size:</label>
-                        <div class="settings-control">
-                            <select id="note-size" class="settings-select">
-                                <option value="default" selected>Default</option>
-                                <option value="large">Large</option>
-                                <option value="small">Small</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="settings-info">
-                        <p>Customize the display size of notes on the fretboard.</p>
-                    </div>
                     
                     <button id="applyAppearance" class="settings-apply-button">Apply Settings</button>
                 </div>

@@ -23,7 +23,6 @@
 }
 
 .settings-section {
-    background-color: #444;
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 20px;
@@ -42,7 +41,6 @@
     align-items: center;
     margin-bottom: 15px;
     padding: 10px;
-    background-color: #3a3a3a;
     border-radius: 6px;
 }
 
@@ -74,10 +72,9 @@
 .settings-info {
     margin-top: 15px;
     padding: 10px;
-    background-color: #3a3a3a;
     border-radius: 6px;
     font-size: 14px;
-    color: #ccc;
+    color: #3a3a3a;
 }
 
 .settings-info p {
