@@ -267,33 +267,23 @@ class VoicingSystem:
                 raise
             
     def generate_all_roots_v1(self, chord_type="Major 7", string_set_key="e-b"):
-        """Generate V-1 voicings for all root notes of a given chord type.
-        
-        Args:
-            chord_type (str): Type of chord (e.g., "Major 7", "Dominant 7")
-            string_set_key (str): Key for the string set to use (default: "e-b")
-            
-        Returns:
-            list: List of created ChordNotes objects
-        """
+        """Generate V-1 voicings for all root notes of a given chord type, covering C0 to D4."""
         chords = []
-        for root in range(12):  # 0-11 for all chromatic notes
+        # MIDI note for C0 is 12, D4 is 62. We want to cover all roots from C0 to D4.
+        for midi_note in range(12, 63):  # 12 to 62 inclusive
+            root = midi_note % 12  # 0-11 for chromatic root
+            octave = midi_note // 12
+            # Optionally, you can store octave info if needed
             chord = self.generate_v1_voicing(root, chord_type, string_set_key)
             chords.append(chord)
         return chords
-        
+
     def generate_all_roots_v2(self, chord_type="Major 7", string_set_key="e-b"):
-        """Generate V-2 voicings for all root notes of a given chord type.
-        
-        Args:
-            chord_type (str): Type of chord (e.g., "Major 7", "Dominant 7")
-            string_set_key (str): Key for the string set to use (default: "e-b")
-            
-        Returns:
-            list: List of created ChordNotes objects
-        """
+        """Generate V-2 voicings for all root notes of a given chord type, covering C0 to D4."""
         chords = []
-        for root in range(12):  # 0-11 for all chromatic notes
+        for midi_note in range(12, 63):  # 12 to 62 inclusive
+            root = midi_note % 12
+            octave = midi_note // 12
             chord = self.generate_v2_voicing(root, chord_type, string_set_key)
             chords.append(chord)
         return chords
