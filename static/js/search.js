@@ -122,57 +122,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Intercept search form submissions to redirect to fretboard directly
+    // Intercept search form submissions to redirect or show results using Django's /search_json/ endpoint
     const searchForms = document.querySelectorAll('.search-overlay-form, .search-form');
     if (searchForms.length > 0) {
         searchForms.forEach(form => {
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const query = form.querySelector('input[name="q"]').value.trim();
-                
                 if (query) {
-                    // Fetch search results to get the first match
-                    fetch(`/api/search/direct-match/?q=${encodeURIComponent(query)}`)
-                        .then(response => {
-                            // Log the raw text first
-                            return response.text().then(text => {
-                                console.log('Raw API response text:', text);
-                                try {
-                                    return JSON.parse(text); // Manually parse JSON
-                                } catch (e) {
-                                    console.error('Error parsing JSON:', e, text);
-                                    return { url: null, debug: { error: 'JSON parse error' } }; // Return a default object on error
-                                }
-                            });
-                        })
+                    // Call Django's search_json endpoint
+                    fetch(`/search_json/?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
                         .then(data => {
-                            console.log('Parsed data object:', data); // Log the whole parsed object
-                            if (data && data.debug) {
-                                console.log('Direct match API debug info:', data.debug); // Log the debug part separately
+                            console.log('Search results from /search_json/:', data);
+                            // Example: Redirect to the first result's URL if available (customize as needed)
+                            if (data.chord_results && data.chord_results.length > 0 && data.chord_results[0].url) {
+                                window.location.href = data.chord_results[0].url;
+                            } else if (data.scale_results && data.scale_results.length > 0 && data.scale_results[0].url) {
+                                window.location.href = data.scale_results[0].url;
+                            } else if (data.arpeggio_results && data.arpeggio_results.length > 0 && data.arpeggio_results[0].url) {
+                                window.location.href = data.arpeggio_results[0].url;
                             } else {
-                                console.log('No data or data.debug found.');
-                            }
-
-                            if (data && data.url) {
-                                // Redirect to the matched URL
-                                window.location.href = data.url;
-                            } else {
-                                // Fall back to autocomplete if no direct match
-                                fetch(`/api/search/autocomplete/?q=${encodeURIComponent(query)}`)
-                                    .then(response => response.json())
-                                    .then(autocompleteData => {
-                                        if (autocompleteData.results && autocompleteData.results.length > 0) {
-                                            // Use the first result's URL
-                                            window.location.href = autocompleteData.results[0].url;
-                                        } else {
-                                            // If no matches, go to the homepage
-                                            window.location.href = '/';
-                                        }
-                                    });
+                                // No results: Optionally show a message or fallback
+                                alert('No results found for your search.');
                             }
                         })
                         .catch(error => {
-                            console.error('Error fetching or processing search results:', error);
+                            console.error('Error fetching search results:', error);
+                            alert('There was an error processing your search.');
                         });
                 }
             });

@@ -12,6 +12,19 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+# --- DEBUG PRINT MIDDLEWARE FOR ALL REQUESTS ---
+class PrintRequestDebugMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+    def __call__(self, request):
+        print("\n[DEBUG][MIDDLEWARE] Incoming request:")
+        print(f"  Path: {request.path}")
+        print(f"  Method: {request.method}")
+        print(f"  GET: {dict(request.GET)}")
+        print(f"  POST: {dict(request.POST)}")
+        response = self.get_response(request)
+        return response
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -40,6 +53,7 @@ INSTALLED_APPS = [
     ]
 
 MIDDLEWARE = [
+    'fretboard.settings.PrintRequestDebugMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     # Locale middleware removed

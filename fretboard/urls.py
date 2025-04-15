@@ -32,6 +32,7 @@ urlpatterns_non_i18n = [
     path('admin/', admin.site.urls),
     # JSON search endpoint (likely doesn't need i18n)
     path('search/json/', search_json, name='search_json'),
+    path('search_json/', search_json, name='search_json_alt'),
     # Testing route
     path('test/chords/', chord_search_test_view, name='test_chords'),
 ]
