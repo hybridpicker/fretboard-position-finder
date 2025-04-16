@@ -5,3 +5,53 @@
   border: none !important;
   box-shadow: none !important;
 }
+
+/* Small dots between fretboard and nofret */
+.dots-between-fretboard-nofret {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 14px; /* Adjust as needed for spacing */
+  margin-bottom: 0;
+}
+
+.fretboard-dot-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 18px;
+  margin-bottom: 2px;
+}
+
+.fret-label {
+  display: block;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.nofret {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 28px;
+  min-height: 38px;
+}
+
+.fretboard-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #444;
+  border-radius: 50%;
+  margin: 0 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.13);
+}
+
+.fretboard-dot.double-dot {
+  margin-left: 2px;
+  margin-right: 2px;
+}
