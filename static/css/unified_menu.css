@@ -18,7 +18,7 @@
 }
 
 #unifiedOverlayMenu .overlay-content {
-    position: relative;
+    position: absolute;
     max-width: 750px; /* Wider to fit more options */
     width: 90%;
     margin: 0 auto; /* For non-flex browsers */
