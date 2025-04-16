@@ -23,44 +23,64 @@
   <meta name="twitter:image" content="{% static 'thumbnail/twitter/thumb_24.jpg' %}">
   <meta name="twitter:card" content="summary_large_image">
 
+  <link rel="stylesheet" href="{% static 'css/about-page.css' %}">
 </head>
 <body>
   {% include "sidebar/sidebar.html" %}
   
-<div class="mbs">
-   
-<h1>About</h1>
+  <!-- Back to Positions button at the top -->
+  <a href="/" class="back-to-positions-arrow" title="Back to Positions">←</a>
+  
+  <div class="about-main-wrapper">
+    <!-- Styled About section -->
+    <div class="about-section">
+      <h1>About</h1>
+      <p>This web app was born out of a passion for supporting guitarists of all levels in expanding their skills and developing a deeper understanding of their instrument. As a guitar teacher and musician, it was my heartfelt desire to create a tool that would not only support my students but also assist me in my daily practice.</p>
+      <p>Guitar-positions.org generates all possible fingerings for guitarists in all keys and positions. Our app is organized into categories to make navigation easier:</p>
+      <ul>
+        <li><strong>Scales:</strong> From pentatonic scales to melodic minor scales and symmetrical scales.</li>
+        <li><strong>Arpeggios:</strong> Triads- and Seventh Chord-Arpeggios.</li>
+        <li><strong>Chords:</strong> Triads and Seventh Chords.</li>
+      </ul>
+      <p>Whether you are looking for simple triads, spread triads, or more complex chords, our app provides you with a comprehensive collection of fretboard diagrams and positions to help you find and master all the notes on the guitar fretboard.</p>
+      <p>Our app is ideal for students who want to improve their technique as well as advanced guitarists seeking new challenges. With guitar-positions.org, you can take your musical journey to the next level.</p>
+      <p>This app is an open-source project. We welcome anyone who wishes to contribute to the code or provide feedback. You can reach us anytime at <a href="mailto:lukas@schoensgibl.com">lukas@schoensgibl.com</a>.</p>
+      <p style="font-weight: bold; margin-bottom: 0;">Enjoy practicing and discovering!</p>
+    </div>
 
-<p>This web app was born out of a passion for supporting guitarists of all levels in expanding their skills and developing a deeper understanding of their instrument. As a guitar teacher and musician, it was my heartfelt desire to create a tool that would not only support my students but also assist me in my daily practice.</p>
+    <!-- Donation importance section -->
+    <div class="donation-importance">
+      <h2>Why Your Donation Matters ❤️</h2>
+      <p>This app is <strong>completely ad-free</strong> and dedicated to providing the best possible experience for guitarists everywhere. Your donation directly supports ongoing development, helps cover server costs, and ensures the app stays free from intrusive ads. Every contribution—no matter the size—makes a meaningful difference and helps me keep improving the app for everyone.<br><br>
+        <strong>If you find value in this project, please consider donating. Your support keeps this resource alive and growing!</strong>
+      </p>
+    </div>
 
-<p>Guitar-positions.org generates all possible fingerings for guitarists in all keys and positions. Our app is organized into categories to make navigation easier:</p>
-<ul>
-    <li><strong>Scales:</strong> From pentatonic scales to melodic minor scales and symmetrical scales.</li>
-    <li><strong>Arpeggios:</strong> Triads- and Seventh Chord-Arpeggios.</li>
-    <li><strong>Chords:</strong> Triads and Seventh Chords.</li>
-</ul>
+    <!-- Search Logic section -->
+    <div class="search-logic-section">
+      <h2>How the Search Works</h2>
+      <p>The search feature is designed to help you quickly find the exact scales, chords, or arpeggios you need on the guitar fretboard. When you enter a query, the app intelligently matches your input against a comprehensive database of fingerings and positions for all keys and categories. It supports partial names, synonyms, and even common abbreviations—so you can search for "maj7", "minor pentatonic", or "C7" and get relevant results instantly.<br><br>
+        The search logic prioritizes clarity and speed, filtering results in real-time as you type. It also recognizes enharmonic equivalents (like C# and Db) and offers suggestions if your query is ambiguous. This ensures you always find the position or diagram that fits your musical needs, whether you're exploring new scales or looking for a specific chord voicing.
+      </p>
+    </div>
 
-<p>Whether you are looking for simple triads, spread triads, or more complex chords, our app provides you with a comprehensive collection of fretboard diagrams and positions to help you find and master all the notes on the guitar fretboard.</p>
+    <!-- Keyboard Shortcuts section -->
+    <div class="keyboard-shortcuts-section">
+      <h2>Keyboard Shortcuts</h2>
+      <p>Feel free to use the following keyboard shortcuts for faster navigation and control:</p>
+      <ul>
+        <li><strong>Escape:</strong> Close overlay windows.</li>
+        <li><strong>I:</strong> Toggle information display.</li>
+        <li><strong>Left Arrow:</strong> Navigate to the previous position.</li>
+        <li><strong>Right Arrow:</strong> Navigate to the next position.</li>
+        <li><strong>Up Arrow:</strong> Increase root note one half step.</li>
+        <li><strong>Down Arrow:</strong> Decrease root note one half step.</li>
+      </ul>
+    </div>
 
-<p>Our app is ideal for students who want to improve their technique as well as advanced guitarists seeking new challenges. With guitar-positions.org, you can take your musical journey to the next level.</p>
-
-<p>This app is an open-source project. We welcome anyone who wishes to contribute to the code or provide feedback. You can reach us anytime at <a href="mailto:lukas@schoensgibl.com">lukas@schoensgibl.com</a>.</p>
-
-<p>Enjoy practicing and discovering!</p>
-
-<h2>Keyboard Shortcuts</h2>
-<p>Feel free to use the following keyboard shortcuts:</p>
-<ul>
-    <li><strong>Escape:</strong> Close overlay windows.</li>
-    <li><strong>I:</strong> Toggle information display.</li>
-    <li><strong>Left Arrow:</strong> Navigate to the previous position.</li>
-    <li><strong>Right Arrow:</strong> Navigate to the next position.</li>
-    <li><strong>Up Arrow:</strong> Increase root note one half step.</li>
-    <li><strong>Down Arrow:</strong> Decrease root note one half step.</li>
-    <li><strong>P:</strong> Overlay Menu for Postions.</li>
-</ul>
-
-</div>
+    <!-- Back to Positions button at the bottom -->
+    <a href="/" class="back-to-positions-arrow" title="Back to Positions">←</a>
+  </div>
 
 <footer>
     {% include "footer/scripts.html" %}

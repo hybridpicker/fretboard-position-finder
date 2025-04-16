@@ -12,6 +12,7 @@
                 <button id="selectModeChord" class="mode-select-button">Chords</button>
                 <button id="selectModeSettings" class="mode-select-button settings-button">Settings</button>
                 <a href="/about" class="mode-select-button about-button">About</a>
+                <a href="https://buy.stripe.com/4gw3dX93jcIecXm6op" target="_blank" class="mode-select-button donate-link">Donate ❤️</a>
             </div>
             
         </div>
@@ -134,7 +135,7 @@
                      <div class="grid-item chord-type-item" data-value="Triads">Triads</div>
                     
                     {# Dynamically add V-System types from the context #}
-                    {% for v_type in unified_menu_chord_type_options.v_system_types %} {# <-- Changed variable name here #}
+                    {% for v_type in unified_menu_chord_type_options.v_system_types %} 
                         <div class="grid-item chord-type-item" data-value="{{ v_type }}">{{ v_type }} Chords</div>
                     {% empty %}
                         <!-- Optional: Message if no V-System types are found in the database -->
