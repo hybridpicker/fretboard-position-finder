@@ -115,8 +115,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 48px; /* Match unified menu height */
+  height: 48px;
   font-size: 2rem;
   color: #558976;
   background: none;
@@ -149,8 +149,8 @@
     font-size: 1.3rem;
   }
   .back-to-positions-arrow {
-    width: 34px;
-    height: 34px;
+    width: 42px;
+    height: 42px;
     font-size: 1.7rem;
     margin: 16px 0 0 0;
   }

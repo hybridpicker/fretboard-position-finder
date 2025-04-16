@@ -14,9 +14,4 @@
   transform: scale(1.05) !important;
 }
 
-/* Add icon to about button */
-.about-button:before {
-  content: 'ℹ';
-  margin-right: 8px;
-  font-size: 1.1em;
-}
+/* Removed .about-button:before for icon-only rendering in HTML */

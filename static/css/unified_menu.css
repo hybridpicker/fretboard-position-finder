@@ -592,3 +592,64 @@
   border-bottom: 1px solid #444;
   padding-bottom: 8px;
 }
+
+/* --- Improved Unified Button Styling for Consistent Height and Alignment --- */
+#unifiedOverlayMenu .mode-select-button,
+#unifiedOverlayMenu .about-button,
+#unifiedOverlayMenu .donate-link {
+    min-height: 48px !important;
+    height: 48px !important;
+    line-height: 1.2 !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.1em !important;
+    padding: 0 32px !important;
+    border-radius: 12px !important;
+    font-family: inherit !important;
+    font-weight: 500 !important;
+    margin: 10px !important;
+    border: none !important;
+    text-align: center !important;
+    text-decoration: none !important;
+}
+#unifiedOverlayMenu .about-button {
+    background: #3498db !important;
+    color: #fff !important;
+}
+#unifiedOverlayMenu .donate-link {
+    background: #f6c343 !important;
+    color: #333 !important;
+}
+#unifiedOverlayMenu .donate-link:hover {
+    background: #f4b400 !important;
+    color: #fff !important;
+}
+#unifiedOverlayMenu .mode-select-button {
+    background: #427c78 !important;
+    color: #fff !important;
+}
+#unifiedOverlayMenu .mode-select-button.settings-button {
+    background: #636363 !important;
+}
+#unifiedOverlayMenu .mode-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 20px !important;
+    justify-items: center !important;
+    align-items: center !important;
+    margin-bottom: 0 !important;
+    width: 100% !important;
+    max-width: 540px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    flex-wrap: unset !important;
+    flex-direction: unset !important;
+}
+#unifiedOverlayMenu .mode-buttons + .mode-buttons {
+    margin-top: 0;
+}
+#unifiedOverlayMenu #initialStep {
+    padding-bottom: 0;
+}

@@ -108,8 +108,7 @@
 }
 
 .mode-buttons {
-  display: flex; 
-  flex-wrap: wrap; 
+  display: initial; 
   justify-content: center; 
   gap: 15px; 
   margin-top: 25px;
