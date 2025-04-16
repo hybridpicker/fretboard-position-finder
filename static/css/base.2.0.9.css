@@ -461,14 +461,15 @@ footer div {
   position: relative !important; /* Ensure relative positioning for absolute children */
 }
 @media only screen and (max-width: 400px) and (orientation: portrait) {
+  .position-indicators{
+    display: none !important;
+  }
   .fretboard {
-    width: auto;
-    padding-left: 10px;
+    margin: 0 !important;
+    width: unset !important;
     rotate: 90deg;
-    transform-origin: top;
     position: absolute;
-    top: 45vh;
-    left: -14vw;
+    margin-top: 18vw !important;
   }
   #fretboardcontainer {
     margin: 0;
