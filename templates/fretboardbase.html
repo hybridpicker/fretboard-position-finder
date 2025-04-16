@@ -27,12 +27,15 @@
   
   <!-- Info Button Position Override -->
   <link rel="stylesheet" href="{% static 'css/info-button-position.css' %}">
-  
+
   <!-- 3D Fretboard Styling -->
   <link rel="stylesheet" href="{% static 'css/3d-fretboard.css' %}">
   <link rel="stylesheet" href="{% static 'css/3d-notes.css' %}">
   <link rel="stylesheet" href="{% static 'css/3d-strings.css' %}">
-  
+
+  <!-- Fretboard Inlay Debug CSS (for marker debugging) -->
+  <link rel="stylesheet" href="{% static 'css/fretboard-inlay-debug.css' %}">
+
   <!-- Meta Tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="title" content="Fretboard-Position-Finder">
@@ -165,5 +168,8 @@
 
   {% block footer %}
   {% endblock %}
+  
+  <!-- At the end of body, include fretboard inlays JS -->
+  <script src="{% static 'js/fretboard-inlays.js' %}?v=20230416_final5"></script>
 </body>
 </html>

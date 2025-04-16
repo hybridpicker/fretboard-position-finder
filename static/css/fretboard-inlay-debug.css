@@ -1,0 +1,7 @@
+.fretboard { position: relative !important; }
+.inlay-container { pointer-events: none; z-index: 10; }
+.fret-inlay {
+  /* Remove red border, keep minimal styling for production */
+  border: none !important;
+  box-shadow: none !important;
+}
