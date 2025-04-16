@@ -1,9 +1,11 @@
+// FRETMarker: Script loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Get all the fret cells
     const fretCells = document.querySelectorAll('.fretboard .fret');
     
     // Find the fretboard container
     const fretboard = document.querySelector('.fretboard');
+    const fretboardContainer = document.getElementById('fretboardcontainer');
     
     // Create a container for the inlays
     const inlayContainer = document.createElement('div');
@@ -16,131 +18,282 @@ document.addEventListener('DOMContentLoaded', function() {
     inlayContainer.style.pointerEvents = 'none';
     inlayContainer.style.zIndex = '1';
     
-    // Functions to add inlays
-    function addInlay(fretNumber, position) {
-        // Find the fret cell
-        let targetFret = null;
+    // Enhanced minimalistic fret markers for 6- and 8-string guitars
+    // Fret numbers: III, V, VII, IX, XII, XV, XVII
+    // Compatible with both 6- and 8-string visualizations
+    const FRET_MARKERS = [3, 5, 7, 9, 12, 15, 17];
+    // Map fret numbers to class names used in your HTML
+    const FRET_CLASS_MAP = {
+        3: 'three',
+        5: 'five',
+        7: 'seven',
+        9: 'nine',
+        12: 'twelve',
+        15: 'fifteen',
+        17: 'seventeen'
+    };
+
+    // Find all fret cells for the relevant string
+    function getStringCells(stringName) {
+        return Array.from(fretCells).filter(cell => cell.className.split(' ').includes(stringName));
+    }
+
+    // Get all string names based on the fret cells in the DOM
+    function getStringNames() {
+        const stringNames = Array.from(new Set(
+            Array.from(fretCells)
+                .map(cell => {
+                    // Find the string class (ends with 'String')
+                    return (cell.className.split(' ').find(cls => cls.endsWith('String')));
+                })
+                .filter(Boolean)
+        ));
+        return stringNames;
+    }
+
+    // Determine if we're in 6-string or 8-string mode based on container class
+    function getStringMode() {
+        // Check the fretboardcontainer class
+        let isEightString = false;
         
-        // Find G string cells by checking if it has 'gString' in class name
-        let gStringCells = Array.from(fretCells).filter(cell => 
-            cell.className.includes('gString')
-        );
-        
-        // Find the right fret on G string
-        if (gStringCells.length > 0) {
-            targetFret = gStringCells.find(cell => 
-                cell.className.includes(fretNumber)
-            );
+        if (fretboardContainer) {
+            // Primary check: Does the container have the eight-string-config class?
+            isEightString = fretboardContainer.classList.contains('eight-string-config');
+            
+            // Or check if six-string-config class is missing (default is 8-string)
+            if (!isEightString && !fretboardContainer.classList.contains('six-string-config')) {
+                // Secondary check: check cookie or localstorage for configuration
+                try {
+                    // Check cookie for config
+                    const configCookie = document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('stringConfig='));
+                    
+                    if (configCookie) {
+                        isEightString = configCookie.split('=')[1] === 'eight-string';
+                    } else if (localStorage.getItem('stringConfig')) {
+                        // Check localStorage
+                        isEightString = localStorage.getItem('stringConfig') === 'eight-string';
+                    }
+                } catch (e) {
+                    // In case of errors, fall back to string count
+                    const stringNames = getStringNames();
+                    isEightString = stringNames.length >= 8;
+                }
+            }
+        } else {
+            // Fallback: if container not found, check string count
+            const stringNames = getStringNames();
+            isEightString = stringNames.length >= 8;
         }
         
-        if (targetFret) {
-            // Create inlay dot
-            const inlay = document.createElement('div');
-            inlay.className = 'fret-inlay';
-            inlay.style.position = 'absolute';
-            inlay.style.width = '8px';
-            inlay.style.height = '8px';
-            inlay.style.backgroundColor = '#cacbcb';
-            inlay.style.borderRadius = '50%';
+        // Get all string names for reference
+        const stringNames = getStringNames();
+        
+        return {
+            isEightString,
+            numStrings: isEightString ? 8 : 6,
+            stringNames
+        };
+    }
+
+    // Helper to get the vertical center of the fretboard container
+    function getPlayableVerticalCenter() {
+        // Try to find the top of the first string and center of the last string
+        let firstStringFret = fretboard.querySelector('.fret.one.ELowString') || fretboard.querySelector('.fret.one.lowBString');
+        let lastStringFret = fretboard.querySelector('.fret.one.eString');
+        const boardRect = fretboard.getBoundingClientRect();
+        const NUDGE_UP = 6; // px, tweak as needed
+
+        if (firstStringFret && lastStringFret) {
+            const firstRect = firstStringFret.getBoundingClientRect();
+            const lastRect = lastStringFret.getBoundingClientRect();
+            // Top of first string relative to fretboard
+            const firstTop = firstRect.top - boardRect.top;
+            // Center of last string relative to fretboard
+            const lastCenter = lastRect.top - boardRect.top + (lastRect.height / 2);
+            // Midpoint between first string top and last string center, nudged upward
+            return firstTop + ((lastCenter - firstTop) * 0.5) - NUDGE_UP;
+        }
+        // Fallback: use visual center of fretboard
+        return boardRect.height / 2 - NUDGE_UP;
+    }
+
+    function addMinimalisticInlay(fretNumber) {
+        const { isEightString, numStrings } = getStringMode();
+        const yCenter = getPlayableVerticalCenter();
+        const markerColor = 'var(--color-cream)';
+        const markerSize = 13;
+        
+        // Use appropriate offsets for double dot markers based on guitar type
+        // 70px for 8-string, 35px for 6-string
+        const xiiOffset = isEightString ? 70 : 35;
+        
+        // Find the middle string for placing markers
+        const stringNames = getStringNames();
+        const middleStringIndex = Math.floor(stringNames.length / 2);
+        let midString = stringNames[middleStringIndex];
+        
+        if (fretNumber === 12) {
+            // Place two markers: one above and one below the playable center
+            let targetFrets = getStringCells(midString).filter(cell => 
+                cell.className.includes(FRET_CLASS_MAP[fretNumber])
+            );
             
-            // Position the inlay relative to the targetFret
-            const rect = targetFret.getBoundingClientRect();
-            const boardRect = fretboard.getBoundingClientRect();
+            if (targetFrets.length > 0) {
+                // Use the first found fret cell as reference
+                const refCell = targetFrets[0];
+                const rect = refCell.getBoundingClientRect();
+                const boardRect = fretboard.getBoundingClientRect();
+                
+                // Place two dots: one above, one below center (relative to fretboard)
+                [yCenter - xiiOffset, yCenter + xiiOffset].forEach((cy, i) => {
+                    const inlay = document.createElement('div');
+                    inlay.className = 'fret-inlay';
+                    inlay.style.position = 'absolute';
+                    inlay.style.width = `${markerSize}px`;
+                    inlay.style.height = `${markerSize}px`;
+                    inlay.style.backgroundColor = markerColor;
+                    inlay.style.opacity = '0.85';
+                    inlay.style.borderRadius = '50%';
+                    inlay.style.left = `${rect.left - boardRect.left + rect.width / 2}px`;
+                    inlay.style.top = `${cy}px`;
+                    inlay.style.transform = 'translate(-50%, -50%)';
+                    inlay.title = 'XII marker';
+                    inlayContainer.appendChild(inlay);
+                });
+            } else {
+                // Try with another string as fallback
+                const fallbackString = isEightString ? 'gString' : 'dString';
+                targetFrets = getStringCells(fallbackString).filter(cell => 
+                    cell.className.includes(FRET_CLASS_MAP[fretNumber])
+                );
+                
+                if (targetFrets.length > 0) {
+                    const refCell = targetFrets[0];
+                    const rect = refCell.getBoundingClientRect();
+                    const boardRect = fretboard.getBoundingClientRect();
+                    
+                    [yCenter - xiiOffset, yCenter + xiiOffset].forEach((cy, i) => {
+                        const inlay = document.createElement('div');
+                        inlay.className = 'fret-inlay';
+                        inlay.style.position = 'absolute';
+                        inlay.style.width = `${markerSize}px`;
+                        inlay.style.height = `${markerSize}px`;
+                        inlay.style.backgroundColor = markerColor;
+                        inlay.style.opacity = '0.85';
+                        inlay.style.borderRadius = '50%';
+                        inlay.style.left = `${rect.left - boardRect.left + rect.width / 2}px`;
+                        inlay.style.top = `${cy}px`;
+                        inlay.style.transform = 'translate(-50%, -50%)';
+                        inlay.title = 'XII marker';
+                        inlayContainer.appendChild(inlay);
+                    });
+                }
+            }
+        } else {
+            // Single dot: playable vertical center
+            let targetFret = getStringCells(midString).find(cell => 
+                cell.className.includes(FRET_CLASS_MAP[fretNumber])
+            );
             
-            inlay.style.left = `${rect.left - boardRect.left + rect.width/2}px`;
-            inlay.style.top = `${rect.top - boardRect.top + rect.height/2}px`;
-            inlay.style.transform = 'translate(-50%, -50%)';
-            
-            // Add the inlay to the container
-            inlayContainer.appendChild(inlay);
+            if (targetFret) {
+                const rect = targetFret.getBoundingClientRect();
+                const boardRect = fretboard.getBoundingClientRect();
+                const inlay = document.createElement('div');
+                inlay.className = 'fret-inlay';
+                inlay.style.position = 'absolute';
+                inlay.style.width = `${markerSize}px`;
+                inlay.style.height = `${markerSize}px`;
+                inlay.style.backgroundColor = markerColor;
+                inlay.style.opacity = '0.7';
+                inlay.style.borderRadius = '50%';
+                inlay.style.left = `${rect.left - boardRect.left + rect.width / 2}px`;
+                inlay.style.top = `${yCenter}px`;
+                inlay.style.transform = 'translate(-50%, -50%)';
+                inlay.title = `${fretNumber} marker`;
+                inlayContainer.appendChild(inlay);
+            } else {
+                // Try with another string as fallback
+                const fallbackString = isEightString ? 'gString' : 'dString';
+                targetFret = getStringCells(fallbackString).find(cell => 
+                    cell.className.includes(FRET_CLASS_MAP[fretNumber])
+                );
+                
+                if (targetFret) {
+                    const rect = targetFret.getBoundingClientRect();
+                    const boardRect = fretboard.getBoundingClientRect();
+                    const inlay = document.createElement('div');
+                    inlay.className = 'fret-inlay';
+                    inlay.style.position = 'absolute';
+                    inlay.style.width = `${markerSize}px`;
+                    inlay.style.height = `${markerSize}px`;
+                    inlay.style.backgroundColor = markerColor;
+                    inlay.style.opacity = '0.7';
+                    inlay.style.borderRadius = '50%';
+                    inlay.style.left = `${rect.left - boardRect.left + rect.width / 2}px`;
+                    inlay.style.top = `${yCenter}px`;
+                    inlay.style.transform = 'translate(-50%, -50%)';
+                    inlay.title = `${fretNumber} marker`;
+                    inlayContainer.appendChild(inlay);
+                }
+            }
         }
     }
+
+    // Remove old inlays if any
+    inlayContainer.innerHTML = '';
     
-    function addDoubleDot(fretNumber) {
-        // Find D string for upper dot
-        let dStringCells = Array.from(fretCells).filter(cell => 
-            cell.className.includes('dString')
-        );
-        
-        // Find the right fret on D string
-        let upperTargetFret = null;
-        if (dStringCells.length > 0) {
-            upperTargetFret = dStringCells.find(cell => 
-                cell.className.includes(fretNumber)
-            );
-        }
-        
-        // Find A string for lower dot
-        let aStringCells = Array.from(fretCells).filter(cell => 
-            cell.className.includes('AString')
-        );
-        
-        // Find the right fret on A string
-        let lowerTargetFret = null;
-        if (aStringCells.length > 0) {
-            lowerTargetFret = aStringCells.find(cell => 
-                cell.className.includes(fretNumber)
-            );
-        }
-        
-        if (upperTargetFret) {
-            // Create upper inlay dot
-            const upperInlay = document.createElement('div');
-            upperInlay.className = 'fret-inlay';
-            upperInlay.style.position = 'absolute';
-            upperInlay.style.width = '8px';
-            upperInlay.style.height = '8px';
-            upperInlay.style.backgroundColor = '#cacbcb';
-            upperInlay.style.borderRadius = '50%';
-            
-            // Position the inlay
-            const rect = upperTargetFret.getBoundingClientRect();
-            const boardRect = fretboard.getBoundingClientRect();
-            
-            upperInlay.style.left = `${rect.left - boardRect.left + rect.width/2}px`;
-            upperInlay.style.top = `${rect.top - boardRect.top + rect.height/2}px`;
-            upperInlay.style.transform = 'translate(-50%, -50%)';
-            
-            // Add the inlay to the container
-            inlayContainer.appendChild(upperInlay);
-        }
-        
-        if (lowerTargetFret) {
-            // Create lower inlay dot
-            const lowerInlay = document.createElement('div');
-            lowerInlay.className = 'fret-inlay';
-            lowerInlay.style.position = 'absolute';
-            lowerInlay.style.width = '8px';
-            lowerInlay.style.height = '8px';
-            lowerInlay.style.backgroundColor = '#cacbcb';
-            lowerInlay.style.borderRadius = '50%';
-            
-            // Position the inlay
-            const rect = lowerTargetFret.getBoundingClientRect();
-            const boardRect = fretboard.getBoundingClientRect();
-            
-            lowerInlay.style.left = `${rect.left - boardRect.left + rect.width/2}px`;
-            lowerInlay.style.top = `${rect.top - boardRect.top + rect.height/2}px`;
-            lowerInlay.style.transform = 'translate(-50%, -50%)';
-            
-            // Add the inlay to the container
-            inlayContainer.appendChild(lowerInlay);
-        }
-    }
-    
+    // Add new inlays with appropriate timeout
+    setTimeout(() => {
+        FRET_MARKERS.forEach(fret => {
+            addMinimalisticInlay(fret);
+        });
+    }, 300);
+
     // Add the inlay container to the fretboard
     if (fretboard) {
         fretboard.appendChild(inlayContainer);
-        
-        // Add the inlays
+    }
+
+    // Handle window resize and orientation changes
+    window.addEventListener('resize', updateInlays);
+    window.addEventListener('orientationchange', updateInlays);
+    
+    // Listen for changes in the string configuration
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'attributes' && 
+                mutation.attributeName === 'class' && 
+                fretboardContainer === mutation.target) {
+                // Class changed on fretboard container - likely string config change
+                updateInlays();
+            }
+        });
+    });
+    
+    if (fretboardContainer) {
+        observer.observe(fretboardContainer, { attributes: true });
+    }
+    
+    // Function to update inlays
+    function updateInlays() {
+        // Clear existing inlays
+        inlayContainer.innerHTML = '';
+        // Add new inlays with recalculated positions
         setTimeout(() => {
-            addInlay('three', 'middle');
-            addInlay('five', 'middle');
-            addInlay('seven', 'middle');
-            addInlay('nine', 'middle');
-            addDoubleDot('twelve');
-            addInlay('fifteen', 'middle');
-            addInlay('seventeen', 'middle');
-        }, 100); // Small delay to ensure the DOM is fully rendered
+            FRET_MARKERS.forEach(fret => {
+                addMinimalisticInlay(fret);
+            });
+        }, 300);
+    }
+    
+    // Also update inlays when the string toggle is used (if that feature exists)
+    const stringToggle = document.getElementById('string-toggle-button');
+    if (stringToggle) {
+        stringToggle.addEventListener('click', function() {
+            // Wait a bit longer to ensure DOM updates are complete
+            setTimeout(updateInlays, 500);
+        });
     }
 });
