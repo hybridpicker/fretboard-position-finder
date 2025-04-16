@@ -7,329 +7,6 @@ from .chord_position_choices import ChordInversionChoicesField
 from .string_range_choices import StringRangeChoicesField
 from .notes_choices import NotesChoicesField, ChordChoicesField
 
-def create_other_ranges(chord_id):
-    """
-    Create appropriate additional ranges for a chord, based on its type.
-    
-    For V1 chords, this includes creating all five required ranges:
-    - highA-g: for 8-string high register
-    - e-d: standard high register
-    - b-A: middle register
-    - g-E: low register
-    - d-lowB: for 8-string low register
-    
-    Args:
-        chord_id: ID of the chord to create ranges for
-    """
-    chord = ChordNotes.objects.get(id=chord_id)
-    
-    # For V1 chords, create all five ranges
-    if chord.type_name == 'V1':
-        # Start with base validation - only proceed if we have proper notes defined
-        if not None in (chord.first_note, chord.second_note, chord.third_note, chord.fourth_note):
-            # Print for debugging
-            
-            # For each range, we need consistent string assignments across all ranges
-            # These assignments follow the V-System's close position voicing requirements
-            
-            # For e-d range (high register - standard 6-string)
-            # Make sure the original e-d range is properly set up 
-            if chord.range == 'e - d':
-                # Ensure all 4 notes are defined
-                chord.first_note_string = 'dString'
-                chord.second_note_string = 'gString'
-                chord.third_note_string = 'bString'
-                chord.fourth_note_string = 'eString'
-                chord.save()
-                
-                # Create positions if they don't already exist
-                positions_count = ChordPosition.objects.filter(notes_name_id=chord.id).count()
-                if positions_count == 0:
-                    create_base_position(chord.id)
-            
-            # Create or get the highA-g range (high register - 8-string)
-            highA_g, created_highA_g = ChordNotes.objects.get_or_create(
-                category_id=chord.category.id,
-                type_name=chord.type_name,
-                chord_name=chord.chord_name,
-                range='highA - g',
-                tonal_root=chord.tonal_root,
-                defaults={
-                    'first_note': chord.first_note,
-                    'first_note_string': 'gString',
-                    'second_note': chord.second_note,
-                    'second_note_string': 'bString',
-                    'third_note': chord.third_note,
-                    'third_note_string': 'eString', 
-                    'fourth_note': chord.fourth_note,
-                    'fourth_note_string': 'highAString',
-                    'range_ordering': chord.range_ordering if hasattr(chord, 'range_ordering') else None,
-                    'ordering': chord.ordering if hasattr(chord, 'ordering') else None,
-                    'chord_ordering': chord.chord_ordering if hasattr(chord, 'chord_ordering') else None
-                }
-            )
-            # Make sure we update all fields, not just on creation
-            if not created_highA_g:
-                highA_g.first_note = chord.first_note
-                highA_g.first_note_string = 'gString'
-                highA_g.second_note = chord.second_note
-                highA_g.second_note_string = 'bString'
-                highA_g.third_note = chord.third_note
-                highA_g.third_note_string = 'eString'
-                highA_g.fourth_note = chord.fourth_note
-                highA_g.fourth_note_string = 'highAString'
-                highA_g.save()
-                
-                # Check if positions exist
-                positions_count = ChordPosition.objects.filter(notes_name_id=highA_g.id).count()
-                if positions_count == 0:
-                    create_base_position(highA_g.id)
-            else:
-                create_base_position(highA_g.id)
-                
-            # Create or get the b-A range (middle register)
-            b_A, created_b_A = ChordNotes.objects.get_or_create(
-                category_id=chord.category.id,
-                type_name=chord.type_name,
-                chord_name=chord.chord_name,
-                range='b - A',
-                tonal_root=chord.tonal_root,
-                defaults={
-                    'first_note': chord.first_note,
-                    'first_note_string': 'AString',
-                    'second_note': chord.second_note,
-                    'second_note_string': 'dString',
-                    'third_note': chord.third_note,
-                    'third_note_string': 'gString',
-                    'fourth_note': chord.fourth_note,
-                    'fourth_note_string': 'bString',
-                    'range_ordering': chord.range_ordering if hasattr(chord, 'range_ordering') else None,
-                    'ordering': chord.ordering if hasattr(chord, 'ordering') else None,
-                    'chord_ordering': chord.chord_ordering if hasattr(chord, 'chord_ordering') else None
-                }
-            )
-            # Make sure we update all fields, not just on creation
-            if not created_b_A:
-                b_A.first_note = chord.first_note
-                b_A.first_note_string = 'AString'
-                b_A.second_note = chord.second_note
-                b_A.second_note_string = 'dString'
-                b_A.third_note = chord.third_note  
-                b_A.third_note_string = 'gString'
-                b_A.fourth_note = chord.fourth_note
-                b_A.fourth_note_string = 'bString'
-                b_A.save()
-                
-                # Check if positions exist
-                positions_count = ChordPosition.objects.filter(notes_name_id=b_A.id).count()
-                if positions_count == 0:
-                    create_base_position(b_A.id)
-            else:
-                create_base_position(b_A.id)
-
-            # Create or get the g-E range (low register - standard 6-string)
-            g_E, created_g_E = ChordNotes.objects.get_or_create(
-                category_id=chord.category.id,
-                type_name=chord.type_name,
-                chord_name=chord.chord_name,
-                range='g - E',
-                tonal_root=chord.tonal_root,
-                defaults={
-                    'first_note': chord.first_note,
-                    'first_note_string': 'ELowString',
-                    'second_note': chord.second_note,
-                    'second_note_string': 'AString',
-                    'third_note': chord.third_note,
-                    'third_note_string': 'dString',
-                    'fourth_note': chord.fourth_note,
-                    'fourth_note_string': 'gString',
-                    'range_ordering': chord.range_ordering if hasattr(chord, 'range_ordering') else None,
-                    'ordering': chord.ordering if hasattr(chord, 'ordering') else None,
-                    'chord_ordering': chord.chord_ordering if hasattr(chord, 'chord_ordering') else None
-                }
-            )
-            # Make sure we update all fields, not just on creation
-            if not created_g_E:
-                g_E.first_note = chord.first_note
-                g_E.first_note_string = 'ELowString'
-                g_E.second_note = chord.second_note
-                g_E.second_note_string = 'AString'
-                g_E.third_note = chord.third_note
-                g_E.third_note_string = 'dString'
-                g_E.fourth_note = chord.fourth_note
-                g_E.fourth_note_string = 'gString'
-                g_E.save()
-                
-                # Check if positions exist
-                positions_count = ChordPosition.objects.filter(notes_name_id=g_E.id).count()
-                if positions_count == 0:
-                    create_base_position(g_E.id)
-            else:
-                create_base_position(g_E.id)
-                
-            # Create or get the d-lowB range (low register - 8-string)
-            d_lowB, created_d_lowB = ChordNotes.objects.get_or_create(
-                category_id=chord.category.id,
-                type_name=chord.type_name,
-                chord_name=chord.chord_name,
-                range='d - lowB',
-                tonal_root=chord.tonal_root,
-                defaults={
-                    'first_note': chord.first_note,
-                    'first_note_string': 'lowBString',
-                    'second_note': chord.second_note,
-                    'second_note_string': 'ELowString',
-                    'third_note': chord.third_note,
-                    'third_note_string': 'AString',
-                    'fourth_note': chord.fourth_note,
-                    'fourth_note_string': 'dString',
-                    'range_ordering': chord.range_ordering if hasattr(chord, 'range_ordering') else None,
-                    'ordering': chord.ordering if hasattr(chord, 'ordering') else None,
-                    'chord_ordering': chord.chord_ordering if hasattr(chord, 'chord_ordering') else None
-                }
-            )
-            # Make sure we update all fields, not just on creation
-            if not created_d_lowB:
-                d_lowB.first_note = chord.first_note
-                d_lowB.first_note_string = 'lowBString'
-                d_lowB.second_note = chord.second_note
-                d_lowB.second_note_string = 'ELowString'  
-                d_lowB.third_note = chord.third_note
-                d_lowB.third_note_string = 'AString'
-                d_lowB.fourth_note = chord.fourth_note
-                d_lowB.fourth_note_string = 'dString'
-                d_lowB.save()
-                
-                # Check if positions exist
-                positions_count = ChordPosition.objects.filter(notes_name_id=d_lowB.id).count()
-                if positions_count == 0:
-                    create_base_position(d_lowB.id)
-            else:
-                create_base_position(d_lowB.id)
-    
-    # For standard V1 or V2 chords with e-d range, create b-A and g-E ranges
-    elif chord.range == 'e - d' and not None in (chord.first_note, chord.second_note, chord.third_note, chord.fourth_note):
-        if chord.type_name in ['V1', 'V2']:
-            b_A, created_b_A = ChordNotes.objects.get_or_create(
-                category_id=chord.category.id,
-                type_name=chord.type_name,
-                chord_name=chord.chord_name,
-                range='b - A',
-                tonal_root=chord.tonal_root,
-                defaults={
-                    'first_note': chord.first_note,
-                    'first_note_string': 'AString',
-                    'second_note': chord.second_note,
-                    'second_note_string': 'bString',
-                    'third_note': chord.third_note,
-                    'third_note_string': 'dString',
-                    'fourth_note': chord.fourth_note,
-                    'fourth_note_string': 'gString'
-                }
-            )
-            if created_b_A:
-                create_base_position(b_A.id)
-
-            g_E, created_g_E = ChordNotes.objects.get_or_create(
-                category_id=chord.category.id,
-                type_name=chord.type_name,
-                chord_name=chord.chord_name,
-                range='g - E',
-                tonal_root=chord.tonal_root,
-                defaults={
-                    'first_note': chord.first_note,
-                    'first_note_string': 'ELowString',
-                    'second_note': chord.second_note,
-                    'second_note_string': 'gString',
-                    'third_note': chord.third_note,
-                    'third_note_string': 'AString',
-                    'fourth_note': chord.fourth_note,
-                    'fourth_note_string': 'dString'
-                }
-            )
-            if created_g_E:
-                create_base_position(g_E.id)
-    if chord.range == 'e - A' and not None in (chord.first_note, chord.second_note, chord.third_note, chord.fourth_note):
-        if chord.type_name == 'V3':
-            b_E, created_b_E_v3 = ChordNotes.objects.get_or_create(
-                category_id=chord.category.id,
-                type_name=chord.type_name,
-                chord_name=chord.chord_name,
-                range='b - E',
-                tonal_root=chord.tonal_root,
-                defaults={
-                    'first_note': chord.first_note,
-                    'first_note_string': 'ELowString',
-                    'second_note': chord.second_note,
-                    'second_note_string': 'AString',
-                    'third_note': chord.third_note,
-                    'third_note_string': 'bString',
-                    'fourth_note': chord.fourth_note,
-                    'fourth_note_string': 'dString'
-                }
-            )
-        elif chord.type_name == 'V4':
-            b_E, created_b_E_v4 = ChordNotes.objects.get_or_create(
-                category_id=chord.category.id,
-                type_name=chord.type_name,
-                chord_name=chord.chord_name,
-                range='b - E',
-                tonal_root=chord.tonal_root,
-                # Consider adding type_name to the query if 'b - E' range can exist for different types (V3, V4, V5) with the same root/name
-                defaults={
-                    'first_note': chord.first_note,
-                    'first_note_string': 'bString',
-                    'second_note': chord.second_note,
-                    'second_note_string': 'dString',
-                    'third_note': chord.third_note,
-                    'third_note_string': 'ELowString',
-                    'fourth_note': chord.fourth_note,
-                    'fourth_note_string': 'gString'
-                }
-            )
-        elif chord.type_name == 'V5':
-            # Note: This block seems identical to the next V5 block. If intentional, keep it.
-            # If it's a typo, remove one of the V5 blocks.
-            b_E, created_b_E_v5a = ChordNotes.objects.get_or_create(
-                category_id=chord.category.id,
-                type_name=chord.type_name,
-                chord_name=chord.chord_name,
-                range='b - E',
-                tonal_root=chord.tonal_root,
-                defaults={
-                    'first_note': chord.first_note,
-                    'first_note_string': 'ELowString',
-                    'second_note': chord.second_note,
-                    'second_note_string': 'gString',
-                    'third_note': chord.third_note,
-                    'third_note_string': 'dString',
-                    'fourth_note': chord.fourth_note,
-                    'fourth_note_string': 'bString'
-                }
-            )
-        elif chord.type_name == 'V5':
-            # Note: This block seems identical to the previous V5 block.
-            b_E, created_b_E_v5b = ChordNotes.objects.get_or_create(
-                category_id=chord.category.id,
-                type_name=chord.type_name,
-                chord_name=chord.chord_name,
-                range='b - E',
-                tonal_root=chord.tonal_root,
-                defaults={
-                    'first_note': chord.first_note,
-                    'first_note_string': 'ELowString',
-                    'second_note': chord.second_note,
-                    'second_note_string': 'gString',
-                    'third_note': chord.third_note,
-                    'third_note_string': 'dString',
-                    'fourth_note': chord.fourth_note,
-                    'fourth_note_string': 'bString'
-                }
-            )
-        else:
-            pass
-
-# Create 8-string specific ranges
 def create_eight_string_ranges(chord_id):
     chord = ChordNotes.objects.get(id=chord_id)
 
@@ -417,7 +94,7 @@ def create_eight_string_ranges(chord_id):
                 'first_note': chord.first_note,
                 'first_note_string': 'lowBString',
                 'second_note': chord.second_note,
-                'second_note_string': 'ELowString',
+                'second_note_string': 'ELowString',  
                 'third_note': chord.third_note,
                 'third_note_string': 'bString',
                 'fourth_note': chord.fourth_note,
@@ -977,103 +654,9 @@ class ChordNotes(models.Model):
         if is_new:
             # Always create the base position (inversions) for the current chord/range
             create_base_position(self.id)
-
-            # For 4-note chords, create inversions for all string sets
-            if is_four_note_chord:
-                
-                # Store the original range to reference later
-                original_range = self.range
-                
-                # Define the string sets we need to create for
-                string_sets = [
-                    # Current range is already created above with create_base_position
-                    {'range': 'highA - g', 'strings': ['gString', 'bString', 'eString', 'highAString']},
-                    {'range': 'b - A', 'strings': ['AString', 'dString', 'gString', 'bString']},
-                    {'range': 'g - E', 'strings': ['ELowString', 'AString', 'dString', 'gString']},
-                    {'range': 'd - lowB', 'strings': ['lowBString', 'ELowString', 'AString', 'dString']}
-                ]
-                
-                # Create chord notes for each string set
-                for string_set in string_sets:
-                    # Skip if this is the original range (already created above)
-                    if string_set['range'] == original_range:
-                        continue
-                    
-                    # Create chord notes for this string set with all inversions
-                    chord_set, created = ChordNotes.objects.get_or_create(
-                        category_id=self.category.id,
-                        type_name=self.type_name,
-                        chord_name=self.chord_name,
-                        range=string_set['range'],
-                        tonal_root=self.tonal_root,
-                        defaults={
-                            'first_note': self.first_note,
-                            'first_note_string': string_set['strings'][0],
-                            'second_note': self.second_note,
-                            'second_note_string': string_set['strings'][1],
-                            'third_note': self.third_note,
-                            'third_note_string': string_set['strings'][2],
-                            'fourth_note': self.fourth_note,
-                            'fourth_note_string': string_set['strings'][3],
-                            'range_ordering': self.range_ordering if hasattr(self, 'range_ordering') else None,
-                            'ordering': self.ordering if hasattr(self, 'ordering') else None,
-                            'chord_ordering': self.chord_ordering if hasattr(self, 'chord_ordering') else None
-                        }
-                    )
-                    
-                    # Update existing chord if found
-                    if not created:
-                        chord_set.first_note = self.first_note
-                        chord_set.first_note_string = string_set['strings'][0]
-                        chord_set.second_note = self.second_note
-                        chord_set.second_note_string = string_set['strings'][1]
-                        chord_set.third_note = self.third_note
-                        chord_set.third_note_string = string_set['strings'][2]
-                        chord_set.fourth_note = self.fourth_note
-                        chord_set.fourth_note_string = string_set['strings'][3]
-                        chord_set.save()
-                    
-                    # Create base position (which handles all inversions) for this new chord
-                    create_base_position(chord_set.id)
-                    
-            else:
-                # Only create other qualities/ranges if it's NOT a 4-note chord (original logic)
-                # Create other chord qualities
-                create_chord(self.id)
-
-                # Handle V1 specific range creation
-                if self.type_name == 'V1' and self.range == 'e - d':
-                    # Create the 4 other V1 ranges manually
-                    # 1. highA - g
-                    highA_g, created_highA_g = ChordNotes.objects.get_or_create(
-                        category_id=self.category.id, type_name=self.type_name, chord_name=self.chord_name, range='highA - g', tonal_root=self.tonal_root,
-                        defaults={'first_note': self.first_note, 'first_note_string': 'gString', 'second_note': self.second_note, 'second_note_string': 'bString', 'third_note': self.third_note, 'third_note_string': 'eString', 'fourth_note': self.fourth_note, 'fourth_note_string': 'highAString', 'range_ordering': self.range_ordering, 'ordering': self.ordering, 'chord_ordering': self.chord_ordering}
-                    )
-                    if created_highA_g: create_base_position(highA_g.id)
-                    # 2. b - A
-                    b_A, created_b_A = ChordNotes.objects.get_or_create(
-                        category_id=self.category.id, type_name=self.type_name, chord_name=self.chord_name, range='b - A', tonal_root=self.tonal_root,
-                        defaults={'first_note': self.first_note, 'first_note_string': 'AString', 'second_note': self.second_note, 'second_note_string': 'dString', 'third_note': self.third_note, 'third_note_string': 'gString', 'fourth_note': self.fourth_note, 'fourth_note_string': 'bString', 'range_ordering': self.range_ordering, 'ordering': self.ordering, 'chord_ordering': self.chord_ordering}
-                    )
-                    if created_b_A: create_base_position(b_A.id)
-                    # 3. g - E
-                    g_E, created_g_E = ChordNotes.objects.get_or_create(
-                        category_id=self.category.id, type_name=self.type_name, chord_name=self.chord_name, range='g - E', tonal_root=self.tonal_root,
-                        defaults={'first_note': self.first_note, 'first_note_string': 'ELowString', 'second_note': self.second_note, 'second_note_string': 'AString', 'third_note': self.third_note, 'third_note_string': 'dString', 'fourth_note': self.fourth_note, 'fourth_note_string': 'gString', 'range_ordering': self.range_ordering, 'ordering': self.ordering, 'chord_ordering': self.chord_ordering}
-                    )
-                    if created_g_E: create_base_position(g_E.id)
-                    # 4. d - lowB
-                    d_lowB, created_d_lowB = ChordNotes.objects.get_or_create(
-                        category_id=self.category.id, type_name=self.type_name, chord_name=self.chord_name, range='d - lowB', tonal_root=self.tonal_root,
-                        defaults={'first_note': self.first_note, 'first_note_string': 'lowBString', 'second_note': self.second_note, 'second_note_string': 'ELowString', 'third_note': self.third_note, 'third_note_string': 'AString', 'fourth_note': self.fourth_note, 'fourth_note_string': 'dString', 'range_ordering': self.range_ordering, 'ordering': self.ordering, 'chord_ordering': self.chord_ordering}
-                    )
-                    if created_d_lowB: create_base_position(d_lowB.id)
-                else:
-                    # Standard range creation logic for other V1 ranges or non-V1 chords
-                    create_other_ranges(self.id)
-                    create_eight_string_ranges(self.id)
-
-        # Logic for updated chords (not new)
+            # If needed, still generate chord variants (Dominant7, Minor7, etc.) for THIS range only
+            if should_generate_variants:
+                self._generate_chord_variants()
         else:
             # Check if any relevant note fields have changed compared to initial data
             changed_fields = [field for field, initial_value in initial_data.items()
@@ -1085,10 +668,6 @@ class ChordNotes(models.Model):
                 # Recreate positions based on new notes for the current range only
                 create_base_position(self.id)
                 
-        # If we should generate variants, do so now
-        if should_generate_variants:
-            self._generate_chord_variants()
-            
     def _generate_chord_variants(self):
         """
         Generates related chord variants from a Major7 chord.
@@ -1127,8 +706,6 @@ class ChordNotes(models.Model):
             
             if created_dom7:
                 create_base_position(dominant7.id)
-                # Create all string ranges for the new dominant7
-                create_other_ranges(dominant7.id)
             else:
                 # Update existing chord if needed
                 dominant7.fourth_note = (self.fourth_note - 1) % 12
@@ -1158,8 +735,6 @@ class ChordNotes(models.Model):
             
             if created_min7:
                 create_base_position(minor7.id)
-                # Create all string ranges for the new minor7
-                create_other_ranges(minor7.id)
             else:
                 # Update existing chord if needed
                 minor7.second_note = (self.second_note - 1) % 12
@@ -1190,8 +765,6 @@ class ChordNotes(models.Model):
             
             if created_min7b5:
                 create_base_position(minor7b5.id)
-                # Create all string ranges for the new minor7b5
-                create_other_ranges(minor7b5.id)
             else:
                 # Update existing chord if needed
                 minor7b5.second_note = (self.second_note - 1) % 12
