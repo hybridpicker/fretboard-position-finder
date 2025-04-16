@@ -78,6 +78,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'positionfinder.context_processors.unified_menu_context',
+                'positionfinder.context_stripe.stripe_url_context',
             ],
         },
     },
@@ -167,3 +168,6 @@ USE_OPTIMIZED_CHORD_VIEW = True
 
 if os.path.isfile(os.path.join(BASE_DIR, 'local_settings.py')):
     from local_settings import *
+    STRIPE_DONATE_URL = locals().get('STRIPE_DONATE_URL', None)
+else:
+    STRIPE_DONATE_URL = None
