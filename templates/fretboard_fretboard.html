@@ -54,7 +54,17 @@
 
     <!-- No-String -->
     {% for i in 17|times %}
-      <div class="nofret">{{ i|to_roman }}</div>
+      <div class="nofret">
+        <div class="fretboard-dot-wrapper">
+          {% if i == 12 %}
+            <span class="fretboard-dot double-dot"></span>
+            <span class="fretboard-dot double-dot"></span>
+          {% elif i == 3 or i == 5 or i == 7 or i == 9 or i == 15 or i == 17 %}
+            <span class="fretboard-dot"></span>
+          {% endif %}
+        </div>
+        <span class="fret-label">{{ i|to_roman }}</span>
+      </div>
     {% endfor %}
   </div>
 </div>
