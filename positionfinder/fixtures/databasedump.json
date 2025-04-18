@@ -85,6 +85,14 @@
 },
 {
   "model": "sessions.session",
+  "pk": "9qbgbs52eq15s9j2ly484n4r1mbtvqam",
+  "fields": {
+    "session_data": ".eJxVjEsOwjAMBe-SNYrqpk5iluw5Q-TULimgVOpnhbg7VOoCtm9m3ssk3taStkXnNIo5GzCn3y1z_9C6A7lzvU22n-o6j9nuij3oYq-T6PNyuH8HhZfyrZE8aMuKMChL20SULiiji5G4ieyH1onHAECYSToIgkScXYCeHTXm_QHXnTdP:1u5TX6:jX3Rhc6YAk7u_wvGY3iLqpDDjGZ0KOXOH8NZYmZFYTI",
+    "expire_date": "2025-05-01T18:00:16.679Z"
+  }
+},
+{
+  "model": "sessions.session",
   "pk": "c1nj3d8nivv5p47q25vmrrbjpf36gfco",
   "fields": {
     "session_data": ".eJxVjEsOwjAMBe-SNYrqpk5iluw5Q-TULimgVOpnhbg7VOoCtm9m3ssk3taStkXnNIo5GzCn3y1z_9C6A7lzvU22n-o6j9nuij3oYq-T6PNyuH8HhZfyrZE8aMuKMChL20SULiiji5G4ieyH1onHAECYSToIgkScXYCeHTXm_QHXnTdP:1u4kHa:HuKAyY9L6OE62Q03C0pxh7kX3QBZ6xqciGyDFJcSZhQ",
@@ -53824,7 +53832,7 @@
   "model": "auth.user",
   "fields": {
     "password": "pbkdf2_sha256$1000000$jr6VdrfYBnwC474yRqUQ4O$7A4fX20T6c9jdd/x/3FsT1UWcQcVPok+n+yYXuk4AZM=",
-    "last_login": "2025-04-15T17:41:14.202Z",
+    "last_login": "2025-04-17T18:00:16.677Z",
     "is_superuser": true,
     "username": "Schoensgibl",
     "first_name": "",
