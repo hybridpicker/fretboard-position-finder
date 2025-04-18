@@ -10,7 +10,10 @@ from collections import OrderedDict
 def get_transposable_positions(position_options, position):
     transposition_positions = []
     for i in range(1, position_options):
-        actual_position = position[str(i)]
+        key = str(i)
+        if key not in position:
+            continue
+        actual_position = position[key]
         transposition = []
         for string in STRINGS:
             try:
@@ -50,76 +53,48 @@ def get_tones_from_notes(notes_obj):
     return [getattr(notes_obj, f) for f in note_fields if getattr(notes_obj, f) is not None]
 
 def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, selected_root_name):
+    # Retrieve scale and build base note list
     scale_note = Notes.objects.get(note_name=scale_name)
-
-    POSITION_DICT = {}
-
-    # Use the helper to extract scale notes
     SCALE_NOTES = get_tones_from_notes(scale_note)
-
     NOTES_LIST = []
-    for x in SCALE_NOTES:
-        if x is not None:
-            y = x + root_pitch
-            if y >= 12:
-                y -= 12
-            if root_pitch in SHARP_NOTES or '#' in selected_root_name:
-                NOTES_LIST.append(NOTES_SHARP[y])
-            else:
-                NOTES_LIST.append(NOTES[y])
-
+    for interval in SCALE_NOTES:
+        if interval is None:
+            continue
+        step = (interval + root_pitch) % 12
+        NOTES_LIST.append(NOTES_SHARP[step] if root_pitch in SHARP_NOTES or '#' in selected_root_name else NOTES[step])
+    # Fetch available positions
     available_positions = NotesPosition.objects.filter(notes_name_id=scale_note.id)
-    
-    # First Create All_Notes_Position
-    STRING_NOTE_OPTION_STRING = {}
-    for key in STRING_NOTE_OPTIONS:
-        TONE_DICT = []
-        TONE_NOTE_OPTION_DICT = {}
-        added_tones = set()
-        y = 0
-        for x in NOTES_LIST:
-            index = SCALE_NOTES[y]
-            if STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0] not in added_tones:
-                TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0])
-                added_tones.add(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0])
-            if len(STRING_NOTE_OPTIONS[key][0][x][0]['tone']) > 1 and STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1] not in added_tones:
-                TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1])
-                added_tones.add(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1])
-            TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
-            y += 1
-        STRING_NOTE_OPTION_STRING[key] = [TONE_NOTE_OPTION_DICT]
-    POSITION_DICT['0'] = STRING_NOTE_OPTION_STRING
-
-    # Loop through every available position
-    for position in available_positions:
-        STRING_NOTE_OPTION_STRING = {}
-        for key in STRING_NOTE_OPTIONS:
-            TONE_DICT = []
-            TONE_NOTE_OPTION_DICT = {}
-            added_tones = set()
-            y = 0
-            for x in NOTES_LIST:
-                index = SCALE_NOTES[y]
-                position_loop_dict = get_notes_position(position.id, root_pitch)
-                check_position_one = STRING_NOTE_OPTIONS[key][0][x][0]['fret'][0]
-                try:
-                    check_position_two = STRING_NOTE_OPTIONS[key][0][x][0]['fret'][1]
-                except IndexError:
-                    check_position_two = False
-                if check_position_one in position_loop_dict:
-                    if STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0] not in added_tones:
-                        TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0])
-                        added_tones.add(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][0])
-                    TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
-                    y += 1
-                if check_position_two in position_loop_dict:
-                    if len(STRING_NOTE_OPTIONS[key][0][x][0]['tone']) > 1 and STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1] not in added_tones:
-                        TONE_DICT.append(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1])
-                        added_tones.add(STRING_NOTE_OPTIONS[key][0][x][0]['tone'][1])
-                    TONE_NOTE_OPTION_DICT['tones'] = TONE_DICT
-                    y += 1
-                STRING_NOTE_OPTION_STRING[key] = [TONE_NOTE_OPTION_DICT]
-            POSITION_DICT[str(position.position_order)] = STRING_NOTE_OPTION_STRING
+    POSITION_DICT = {}
+    # Position '0': open strings
+    base_dict = {}
+    for string in STRING_NOTE_OPTIONS:
+        cell = STRING_NOTE_OPTIONS[string][0]
+        tones = []
+        for note in NOTES_LIST:
+            info = cell.get(note, [{}])[0]
+            for tone in info.get('tone', []):
+                if tone not in tones:
+                    tones.append(tone)
+        base_dict[string] = [{'tones': tones}]
+    POSITION_DICT['0'] = base_dict
+    # Fretted positions
+    for pos in available_positions:
+        fretted = {}
+        pos_list = get_notes_position(pos.id, root_pitch)
+        for string in STRING_NOTE_OPTIONS:
+            cell = STRING_NOTE_OPTIONS[string][0]
+            tones = []
+            for note in NOTES_LIST:
+                info = cell.get(note, [{}])[0]
+                frets = info.get('fret', [])
+                tone_opts = info.get('tone', [])
+                for idx, fret in enumerate(frets):
+                    if idx < len(tone_opts) and fret in pos_list:
+                        tone = tone_opts[idx]
+                        if tone not in tones:
+                            tones.append(tone)
+            fretted[string] = [{'tones': tones}]
+        POSITION_DICT[str(pos.position_order)] = fretted
     return POSITION_DICT
 
 def transpose_position(y):

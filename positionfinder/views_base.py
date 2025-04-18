@@ -165,7 +165,9 @@ class MusicalTheoryView:
         
         # Get DB objects
         notes_options = Notes.objects.filter(category_id=category_id)
-        root_pitch = Root.objects.get(pk=root_id).pitch
+        root_obj = Root.objects.get(pk=root_id)
+        root_pitch = root_obj.pitch
+        print(f"[ROOT DEBUG] Context root_id={root_id} -> Root: {root_obj} (pitch={root_pitch})")
         position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
 
         # Check if the requested position_id exists within the available options for the selected notes
@@ -182,8 +184,8 @@ class MusicalTheoryView:
         
         # Common metadata
         selected_category_name = NotesCategory.objects.get(pk=category_id).category_name
-        selected_root_name = Root.objects.get(pk=root_id).name
-        selected_root_id = Root.objects.get(pk=root_id).id
+        selected_root_name = root_obj.name
+        selected_root_id = root_obj.id
         
         # Format position name
         if position_id != '0':

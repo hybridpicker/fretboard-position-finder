@@ -9,9 +9,12 @@ import json
 from thefuzz import process, fuzz 
 from urllib.parse import urlencode 
 import re
+from positionfinder.search_utils import parse_query, get_root_id_from_name, ROOT_NAME_TO_ID
 
-# Set up a logger for debugging
+# Reduce logging to WARNING or ERROR for search logic bugfixing
+import logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 MIN_SCORE_THRESHOLD = 80
 
@@ -28,18 +31,36 @@ def search_autocomplete(request):
             logger.debug("[SEARCH_AUTOCOMPLETE_FUZZY] Query too short, returning empty results")
             return JsonResponse({'results': [], 'debug': 'Query too short'})
 
-        # Normalize the query to handle common notations
+        # Extract root note BEFORE normalization
+        root_match = re.search(r'^([a-gA-G][#b]?)\s', query)
+        root_note = None
+        root_pk = None
+        if root_match:
+            root_note = root_match.group(1).capitalize().replace('♯', '#').replace('♭', 'b')
+            root_pk = get_root_id_from_name(root_note)
+            logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Extracted root note: '{root_note}' -> ID: {root_pk}")
+            if root_pk:
+                # Find the canonical spelling from the mapping
+                for name, pk in ROOT_NAME_TO_ID.items():
+                    if pk == root_pk:
+                        logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Canonical root name for ID {root_pk}: '{name}'")
+                        break
+            else:
+                logger.warning(f"[SEARCH_AUTOCOMPLETE_FUZZY] No root ID found for '{root_note}' using custom mapping.")
+        
+        # Normalize the query to handle common notations (but NOT the root)
         normalized_query = normalize_search_term(query)
         logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Normalized query: '{normalized_query}'")
 
-        # --- Build the list of potential search targets --- 
-        all_items = [] 
+        # Intent filtering: parse the query to determine the user's intent
+        note, type_, quality, position, inversion = parse_query(query)
+
+        all_items = []
         roots = Root.objects.all()
-        scale_types = NotesCategory.objects.filter(category_name__icontains='scale') 
-        arpeggio_types = NotesCategory.objects.filter(category_name__icontains='arpeggio') 
+        scales = Notes.objects.filter(category__category_name__icontains='scale').order_by('note_name')
+        arpeggio_types = NotesCategory.objects.filter(category_name__icontains='arpeggio')
         chord_types = ChordNotes.objects.all()
 
-        # Base URL for the unified view
         try:
             base_fretboard_url = reverse('fretboard')
         except Exception as e:
@@ -47,245 +68,77 @@ def search_autocomplete(request):
             base_fretboard_url = '/'
 
         # 1. Scales
-        for root in roots:
-            for scale_type in scale_types:
-                name = f"{root.name} {scale_type.category_name}"
-                params = {'root': root.pk, 'models_select': 1, 'notes_options_select': scale_type.pk, 'position_select': 0}
+        if type_ == 'scale' or type_ == 'all':
+            for scale in scales:
+                name = scale.note_name
+                # Use extracted root if available, else fallback to scale.tonal_root
+                if root_pk is not None:
+                    used_root_pk = root_pk
+                    logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Assigned root param: {used_root_pk} (custom mapping)")
+                else:
+                    root_obj2 = Root.objects.filter(pitch=scale.tonal_root).first()
+                    used_root_pk = root_obj2.pk if root_obj2 else scale.tonal_root
+                    logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Fallback root param: {used_root_pk} -> {root_obj2.name if root_obj2 else 'UNKNOWN'}")
+                params = {'root': used_root_pk, 'models_select': 1, 'notes_options_select': scale.pk, 'position_select': 0}
                 url = f"{base_fretboard_url}?{urlencode(params)}"
                 all_items.append({
                     'name': name,
+                    'normalized_name': normalize_search_term(name),
                     'type': 'scale',
-                    'url': url,
-                    'search_key': name 
+                    'url': url
                 })
-
         # 2. Arpeggios
-        for root in roots:
-            for arpeggio_type in arpeggio_types:
-                name = f"{root.name} {arpeggio_type.category_name}"
-                params = {'root': root.pk, 'models_select': 2, 'notes_options_select': arpeggio_type.pk, 'position_select': 0}
-                url = f"{base_fretboard_url}?{urlencode(params)}"
+        if type_ == 'arpeggio' or type_ == 'all':
+            for arpeggio_cat in arpeggio_types:
+                name = arpeggio_cat.category_name
+                url = f"{base_fretboard_url}?models_select=2&notes_options_select={arpeggio_cat.pk}"
                 all_items.append({
                     'name': name,
+                    'normalized_name': normalize_search_term(name),
                     'type': 'arpeggio',
-                    'url': url,
-                    'search_key': name
+                    'url': url
+                })
+        # 3. Chords (only if intent is not scale-specific)
+        if type_ == 'chord' or type_ == 'all':
+            # Only suggest chords if the query does not indicate a pentatonic/scale intent
+            if not ("pentatonic" in quality.lower() or type_ == 'scale'):
+                for chord in chord_types:
+                    # --- PATCH: Use both root and chord_name for normalized display ---
+                    # If chord_name is e.g. 'Dominant 7' and root is G, display as 'G Dominant 7'
+                    root_obj = None
+                    if hasattr(chord, 'tonal_root'):
+                        root_obj = Root.objects.filter(pitch=chord.tonal_root).first()
+                    root_name = root_obj.name if root_obj else None
+                    # If chord_name already starts with a root, don't prepend
+                    display_name = normalize_search_term(f"{root_name} {chord.chord_name}" if root_name else chord.chord_name)
+                    url = f"{base_fretboard_url}?models_select=3&notes_options_select={chord.pk}"
+                    all_items.append({
+                        'name': display_name,  # Use display name for results!
+                        'normalized_name': display_name,
+                        'type': 'chord',
+                        'url': url
+                    })
+
+        # Fuzzy match the query against all_items (using normalized names)
+        from thefuzz import process as fuzz_process
+        normalized_names = [item['normalized_name'] for item in all_items]
+        matches = fuzz_process.extract(normalized_query, normalized_names, limit=10)
+        suggestions = []
+        for match, score in matches:
+            if score >= MIN_SCORE_THRESHOLD:
+                idx = normalized_names.index(match)
+                # Return the original name
+                suggestions.append({
+                    'name': all_items[idx]['name'],
+                    'type': all_items[idx]['type'],
+                    'url': all_items[idx]['url']
                 })
 
-        # 3. Chords 
-        for root in roots:
-            for chord_type in chord_types:
-                name = f"{root.name} {chord_type.chord_name}" 
-                params = {'root': root.pk, 'models_select': 3, 'notes_options_select': chord_type.pk, 'position_select': 0}
-                url = f"{base_fretboard_url}?{urlencode(params)}"
-                all_items.append({
-                    'name': name,
-                    'type': 'chord',
-                    'url': url,
-                    'search_key': name
-                })
-
-        # Add chord aliases for common notations
-        # For example, add "G7" as an alias for "G Dominant 7"
-        chord_aliases = []
-        for item in all_items:
-            if item['type'] == 'chord':
-                parts = item['name'].split(' ', 1)  # Split only on first space
-                if len(parts) == 2:
-                    root, chord_type = parts
-                    
-                    # Create aliases based on chord type
-                    if chord_type == "Dominant 7":
-                        alias = f"{root}7"
-                        chord_aliases.append({
-                            'name': alias,
-                            'display_name': item['name'],  # Keep original name for display
-                            'type': 'chord',
-                            'url': item['url'],
-                            'search_key': alias
-                        })
-                    elif chord_type == "Major 7":
-                        alias = f"{root}maj7"
-                        chord_aliases.append({
-                            'name': alias,
-                            'display_name': item['name'],
-                            'type': 'chord',
-                            'url': item['url'],
-                            'search_key': alias
-                        })
-                    elif chord_type == "Minor 7":
-                        alias = f"{root}m7"
-                        chord_aliases.append({
-                            'name': alias,
-                            'display_name': item['name'],
-                            'type': 'chord',
-                            'url': item['url'],
-                            'search_key': alias
-                        })
-                    elif chord_type == "Minor":
-                        alias = f"{root}m"
-                        chord_aliases.append({
-                            'name': alias,
-                            'display_name': item['name'],
-                            'type': 'chord',
-                            'url': item['url'],
-                            'search_key': alias
-                        })
-        
-        # Add aliases to the main items list
-        all_items.extend(chord_aliases)
-
-        logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Built {len(all_items)} potential search targets (including aliases).")
-        
-        # Check if there are any items to search against
-        if not all_items:
-            logger.debug("[SEARCH_AUTOCOMPLETE_FUZZY] No items to search against, returning empty results")
-            return JsonResponse({'results': [], 'debug': 'No search targets found'})
-
-        # First check for exact matches with both original and normalized query
-        exact_matches = []
-        for item in all_items:
-            # Check against original query (case insensitive)
-            if item['name'].lower() == query.lower():
-                exact_matches.append(item)
-                logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Found exact match for original query: {item['name']}")
-            # Also check against normalized query if different
-            elif normalized_query != query and item['name'].lower() == normalized_query.lower():
-                exact_matches.append(item)
-                logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Found exact match for normalized query: {item['name']}")
-        
-        # If we have exact matches, prioritize them
-        if exact_matches:
-            logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Using {len(exact_matches)} exact matches")
-            results = []
-            for item in exact_matches[:10]:  # Limit to top 10
-                # Use display_name if available (for aliases)
-                display_name = item.get('display_name', item['name'])
-                results.append({
-                    'name': display_name,
-                    'type': item['type'],
-                    'url': item['url'],
-                    'score': 100  # Perfect score for exact matches
-                })
-            
-            debug_info = {
-                'query': query,
-                'normalized_query': normalized_query,
-                'total_potential_targets': len(all_items),
-                'match_method': 'exact_match',
-                'final_result_count': len(results)
-            }
-            
-            return JsonResponse({'results': results, 'debug': debug_info})
-
-        # --- Perform Fuzzy Matching for queries without exact matches ---
-        # Try with both original and normalized queries
-        queries_to_try = [query]
-        if normalized_query != query:
-            queries_to_try.append(normalized_query)
-        
-        best_matches = []
-        best_score = 0
-        
-        # Try each query variant
-        for current_query in queries_to_try:
-            logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Trying fuzzy match with query: '{current_query}'")
-            
-            # Try both the original spelling and a normalized version with spaces removed
-            processed_query = current_query.lower().replace(" ", "")
-            
-            # Create processed choices for better matching
-            processed_choices = []
-            processed_to_original = {}
-            
-            for item in all_items:
-                original_key = item['search_key']
-                processed_key = original_key.lower().replace(" ", "")
-                processed_choices.append(processed_key)
-                processed_to_original[processed_key] = original_key
-            
-            # Try matching with WRatio (weighted) which handles word order differences well
-            current_matches = process.extract(processed_query, 
-                                      processed_choices, 
-                                      scorer=fuzz.token_set_ratio,  # Better for cases like "Minor Pentatonic A" vs "A Minor Pentatonic"
-                                      limit=15)  # Get a few extra to filter by score
-            
-            # Find the highest score from these matches
-            current_best_score = max([match[1] for match in current_matches]) if current_matches else 0
-            
-            # If this query variant gave better matches, use those instead
-            if current_best_score > best_score:
-                best_matches = current_matches
-                best_score = current_best_score
-            
-        # Use the best matches we found across all query variants
-        matches = best_matches
-        logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Best fuzzy matches (score={best_score}): {matches}")
-
-        # --- Format Results --- 
-        results = []
-        min_score_threshold = 50  # Lower threshold to catch more results with normalized queries
-
-        # Create a map from both original and processed search_key to item for lookup
-        search_key_map = {item['search_key']: item for item in all_items}
-        processed_key_map = {item['search_key'].lower().replace(" ", ""): item for item in all_items}
-        
-        # Process matches directly without needing to use indices
-        potential_results = []
-        for match in matches:
-            if len(match) >= 2 and match[1] >= min_score_threshold:
-                processed_key = match[0]
-                score = match[1]
-                
-                # Try to find the item using processed key
-                if processed_key in processed_key_map:
-                    item = processed_key_map[processed_key]
-                    # Add both the item and its score to our results list
-                    potential_results.append((item, score))
-                elif processed_key in search_key_map:  # Fallback to regular key
-                    item = search_key_map[processed_key]
-                    potential_results.append((item, score))
-        
-        # Sort by score descending
-        potential_results.sort(key=lambda x: x[1], reverse=True)
-        
-        # Build the final results list
-        for item, score in potential_results:
-            # Use display_name if available (for aliases)
-            display_name = item.get('display_name', item['name'])
-            results.append({
-                'name': display_name,
-                'type': item['type'],
-                'url': item['url'],
-                'score': score
-            })
-            
-        # Limit final results after score filtering and sorting
-        results = results[:10]
-
-        logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Final results after score filtering (min_score_threshold={min_score_threshold}): {results}")
-        
-        debug_info = {
-            'query': query,
-            'normalized_query': normalized_query,
-            'total_potential_targets': len(all_items),
-            'raw_match_count': len(matches),
-            'final_result_count': len(results),
-            'min_score_threshold': min_score_threshold
-        }
-        
-        # Debug: Log the first few results being sent
-        if results:
-            log_limit = min(3, len(results))
-            print(f"[SEARCH_AUTOCOMPLETE_FUZZY] Sending top {log_limit} result URLs:")
-            for i in range(log_limit):
-                print(f"  - {results[i].get('name', 'N/A')}: {results[i].get('url', 'N/A')}")
-
-        return JsonResponse({'results': results, 'debug': debug_info})
-
+        logger.debug(f"[SEARCH_AUTOCOMPLETE_FUZZY] Returning {len(suggestions)} filtered results.")
+        return JsonResponse({'results': suggestions})
     except Exception as e:
-        logger.error(f"[SEARCH_AUTOCOMPLETE_FUZZY] Error: {e}\n{traceback.format_exc()}")
-        return JsonResponse({'error': 'An internal server error occurred'}, status=500)
+        logger.error(f"[SEARCH_AUTOCOMPLETE_FUZZY] Exception: {e}\n{traceback.format_exc()}")
+        return JsonResponse({'results': [], 'error': str(e)})
 
 def direct_match(request):
     query = request.GET.get('q', '').strip()
@@ -301,57 +154,64 @@ def direct_match(request):
             # Extract the root note
             root_match = re.search(r'^([a-gA-G][#b]?)\s', query)
             if root_match:
-                root_note = root_match.group(1).upper()
+                root_note = root_match.group(1).capitalize().replace('♯', '#').replace('♭', 'b')
                 print(f"[DM_TRACE] Extracted root note: '{root_note}'")
                 
                 # Find root ID
-                root_obj = Root.objects.filter(name__iexact=root_note).first()
-                if root_obj:
-                    root_pk = root_obj.pk
-                    
-                    # Look for the Minor Pentatonic scale, not the Major Pentatonic
-                    try:
-                        # Try to find Minor Pentatonic by name
-                        print(f"[DM_TRACE] Searching for 'Minor Pentatonic' in Notes table...")
-                        pentatonic_scales = list(Notes.objects.filter(note_name__icontains='pentatonic'))
-                        for scale in pentatonic_scales:
-                            print(f"[DM_TRACE] Found scale: ID={scale.pk}, Name={scale.note_name}")
-                            # If we find a scale with 'minor' and 'pentatonic', use that
-                            if 'minor' in scale.note_name.lower() and 'pentatonic' in scale.note_name.lower():
-                                print(f"[DM_TRACE] Found Minor Pentatonic: ID={scale.pk}")
-                                pentatonic_pk = scale.pk
-                                break
-                        else:
-                            # Fallback to ID 49 which you mentioned should be Minor Pentatonic
-                            print(f"[DM_TRACE] No Minor Pentatonic found, using fallback ID=49")
-                            # Note: If 49 is a hardcoded PK, this remains the same. 
-                            # If it refers to a specific Notes object, it should ideally be fetched by a stable identifier.
-                            pentatonic_pk = 49 # Assuming 49 is a specific PK
-                    except Exception as e:
-                        print(f"[DM_TRACE] Error searching for Minor Pentatonic: {str(e)}")
-                        # Fallback to ID 49
+                root_pk = get_root_id_from_name(root_note)
+                print(f"[DM_TRACE] Extracted root note: '{root_note}' -> ID: {root_pk}")
+                if root_pk:
+                    # Find the canonical spelling from the mapping
+                    for name, pk in ROOT_NAME_TO_ID.items():
+                        if pk == root_pk:
+                            print(f"[DM_TRACE] Canonical root name for ID {root_pk}: '{name}'")
+                            break
+                else:
+                    print(f"[DM_TRACE] No root ID found for '{root_note}' using custom mapping.")
+                
+                # Look for the Minor Pentatonic scale, not the Major Pentatonic
+                try:
+                    # Try to find Minor Pentatonic by name
+                    print(f"[DM_TRACE] Searching for 'Minor Pentatonic' in Notes table...")
+                    pentatonic_scales = list(Notes.objects.filter(note_name__icontains='pentatonic'))
+                    for scale in pentatonic_scales:
+                        print(f"[DM_TRACE] Found scale: ID={scale.pk}, Name={scale.note_name}")
+                        # If we find a scale with 'minor' and 'pentatonic', use that
+                        if 'minor' in scale.note_name.lower() and 'pentatonic' in scale.note_name.lower():
+                            print(f"[DM_TRACE] Found Minor Pentatonic: ID={scale.pk}")
+                            pentatonic_pk = scale.pk
+                            break
+                    else:
+                        # Fallback to ID 49 which you mentioned should be Minor Pentatonic
+                        print(f"[DM_TRACE] No Minor Pentatonic found, using fallback ID=49")
+                        # Note: If 49 is a hardcoded PK, this remains the same. 
+                        # If it refers to a specific Notes object, it should ideally be fetched by a stable identifier.
                         pentatonic_pk = 49 # Assuming 49 is a specific PK
-                        
-                    print(f"[DM_TRACE] Using pentatonic_pk={pentatonic_pk}")
+                except Exception as e:
+                    print(f"[DM_TRACE] Error searching for Minor Pentatonic: {str(e)}")
+                    # Fallback to ID 49
+                    pentatonic_pk = 49 # Assuming 49 is a specific PK
                     
-                    # Create direct URL
-                    params = {
-                        'root': root_pk,
-                        'models_select': 1,  # Scale
-                        'notes_options_select': pentatonic_pk,
-                        'position_select': 0
+                print(f"[DM_TRACE] Using pentatonic_pk={pentatonic_pk}")
+                
+                # Create direct URL
+                params = {
+                    'root': root_pk,
+                    'models_select': 1,  # Scale
+                    'notes_options_select': pentatonic_pk,
+                    'position_select': 0
+                }
+                
+                url = f"{reverse('fretboard')}?{urlencode(params)}"
+                print(f"[DM_TRACE] DIRECT PENTATONIC URL OVERRIDE: {url}")
+                
+                # Return the URL in both formats to ensure the frontend gets it
+                return JsonResponse({
+                    'url': url,  # This is what the frontend is looking for
+                    'debug': {
+                        'matched_url': url
                     }
-                    
-                    url = f"{reverse('fretboard')}?{urlencode(params)}"
-                    print(f"[DM_TRACE] DIRECT PENTATONIC URL OVERRIDE: {url}")
-                    
-                    # Return the URL in both formats to ensure the frontend gets it
-                    return JsonResponse({
-                        'url': url,  # This is what the frontend is looking for
-                        'debug': {
-                            'matched_url': url
-                        }
-                    })
+                })
         except Exception as e:
             print(f"[DM_TRACE] Error in direct pentatonic override: {str(e)}")
             # Continue with regular matching if the override fails
@@ -360,6 +220,23 @@ def direct_match(request):
         return JsonResponse({'error': 'Query parameter is required.'}, status=400)
 
     try:
+        # Extract root note BEFORE normalization
+        root_match = re.search(r'^([a-gA-G][#b]?)\s', query)
+        root_note = None
+        root_pk = None
+        if root_match:
+            root_note = root_match.group(1).capitalize().replace('♯', '#').replace('♭', 'b')
+            root_pk = get_root_id_from_name(root_note)
+            print(f"[DM_TRACE] Extracted root note: '{root_note}' -> ID: {root_pk}")
+            if root_pk:
+                # Find the canonical spelling from the mapping
+                for name, pk in ROOT_NAME_TO_ID.items():
+                    if pk == root_pk:
+                        print(f"[DM_TRACE] Canonical root name for ID {root_pk}: '{name}'")
+                        break
+            else:
+                print(f"[DM_TRACE] No root ID found for '{root_note}' using custom mapping.")
+        
         # Normalize the query using our expanded normalize_search_term function
         normalized_query = normalize_search_term(query)
         print(f"[DM_TRACE] Normalized query: '{normalized_query}'")
@@ -378,7 +255,14 @@ def direct_match(request):
         for root in roots:
             for scale_type in scale_types:
                 name = f"{root.name} {scale_type.category_name}"
-                params = {'root': root.pk, 'models_select': 1, 'notes_options_select': scale_type.pk, 'position_select': 0}
+                # Use extracted root if available, else fallback to root.pk
+                if root_pk is not None:
+                    used_root_pk = root_pk
+                    print(f"[DM_TRACE] Assigned root param: {used_root_pk} (custom mapping)")
+                else:
+                    used_root_pk = root.pk
+                    print(f"[DM_TRACE] Fallback root param: {used_root_pk} -> {root.name}")
+                params = {'root': used_root_pk, 'models_select': 1, 'notes_options_select': scale_type.pk, 'position_select': 0}
                 url = f"{reverse('fretboard')}?{urlencode(params)}"
                 all_items.append({'name': name, 'type': 'scale', 'url': url, 'search_key': name})
 
@@ -473,7 +357,7 @@ def direct_match(request):
             # Extract the root note
             root_match = re.search(r'^([a-gA-G][#b]?)\s', query)
             if root_match:
-                root_note = root_match.group(1).upper()
+                root_note = root_match.group(1).capitalize().replace('♯', '#').replace('♭', 'b')
                 print(f"[DM_TRACE] Extracted root note: '{root_note}'")
                 
                 try:
@@ -761,24 +645,26 @@ def direct_match(request):
                 # Extract the root note
                 root_match = re.search(r'^([a-gA-G][#b]?)\s', query)
                 if root_match:
-                    root_note = root_match.group(1).upper()
+                    root_note = root_match.group(1).capitalize().replace('♯', '#').replace('♭', 'b')
                     # Find root ID
-                    root_obj = Root.objects.filter(name__iexact=root_note).first()
-                    if root_obj:
-                        root_pk = root_obj.pk
-                        # Now look for Minor Pentatonic note
-                        pent_note = Notes.objects.filter(note_name__icontains='minor pentatonic').first()
-                        if pent_note:
-                            print(f"[DM_TRACE] EMERGENCY FIX: Found Minor Pentatonic with ID={pent_note.pk}")
-                            # Create emergency URL
-                            emergency_params = {
-                                'root': root_pk,
-                                'models_select': 1,  # Scale
-                                'notes_options_select': pent_note.pk,
-                                'position_select': 0
-                            }
-                            matched_url = f"{reverse('fretboard')}?{urlencode(emergency_params)}"
-                            print(f"[DM_TRACE] EMERGENCY PENTATONIC URL: {matched_url}")
+                    root_pk = get_root_id_from_name(root_note)
+                    print(f"[DM_TRACE] Extracted root note: '{root_note}' -> ID: {root_pk}")
+                    if root_pk is None:
+                        print(f"[DM_TRACE] No root ID found for '{root_note}' using custom mapping.")
+                    
+                    # Now look for Minor Pentatonic note
+                    pent_note = Notes.objects.filter(note_name__icontains='minor pentatonic').first()
+                    if pent_note:
+                        print(f"[DM_TRACE] EMERGENCY FIX: Found Minor Pentatonic with ID={pent_note.pk}")
+                        # Create emergency URL
+                        emergency_params = {
+                            'root': root_pk,
+                            'models_select': 1,  # Scale
+                            'notes_options_select': pent_note.pk,
+                            'position_select': 0
+                        }
+                        matched_url = f"{reverse('fretboard')}?{urlencode(emergency_params)}"
+                        print(f"[DM_TRACE] EMERGENCY PENTATONIC URL: {matched_url}")
             except Exception as e:
                 print(f"[DM_TRACE] Error in emergency pentatonic check: {str(e)}")
         

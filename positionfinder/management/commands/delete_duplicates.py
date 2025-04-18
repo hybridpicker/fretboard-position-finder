@@ -5,15 +5,13 @@ class Command(BaseCommand):
     help = 'Deletes duplicate entries in ChordNotes and ChordPosition'
 
     def handle(self, *args, **kwargs):
-        # Deleting duplicates in ChordNotes
+        # Deleting duplicates in ChordNotes (using only type_name, chord_name, and range)
         unique_chords = set()
         duplicates_chords = []
 
         for chord in ChordNotes.objects.all():
             identifier = (
-                chord.category_id, chord.type_name, chord.chord_name, chord.range,
-                chord.tonal_root, chord.first_note, chord.second_note, chord.third_note,
-                chord.fourth_note, chord.fifth_note, chord.sixth_note
+                chord.type_name, chord.chord_name, chord.range
             )
             if identifier in unique_chords:
                 duplicates_chords.append(chord.id)
@@ -21,7 +19,13 @@ class Command(BaseCommand):
                 unique_chords.add(identifier)
 
         ChordNotes.objects.filter(id__in=duplicates_chords).delete()
-        self.stdout.write(self.style.SUCCESS(f"Deleted {len(duplicates_chords)} duplicate chord(s)."))
+        self.stdout.write(self.style.SUCCESS(f"Deleted {len(duplicates_chords)} duplicate chord(s) (by type_name, chord_name, range)."))
+
+        # Delete every V2 chord that is not Maj7
+        v2_nonmaj7 = ChordNotes.objects.filter(type_name="V2").exclude(chord_name__iexact="Major 7")
+        count_v2_nonmaj7 = v2_nonmaj7.count()
+        v2_nonmaj7.delete()
+        self.stdout.write(self.style.SUCCESS(f"Deleted {count_v2_nonmaj7} V2 chords that are not Major 7."))
 
         # Deleting duplicates in ChordPosition
         unique_positions = set()

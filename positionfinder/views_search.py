@@ -11,7 +11,7 @@ from django.views.decorators.http import require_http_methods
 from .models import Root, NotesCategory, Notes
 from .models_chords import ChordNotes, ChordPosition
 from .views_helpers import get_common_context
-from .search_utils import parse_query
+from .search_utils import parse_query, best_fuzzy_match, resolve_root, NOTES as NOTE_NAMES, ROOT_NAME_TO_ID
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -19,10 +19,10 @@ logger = logging.getLogger(__name__)
 def log_debug_info(message, data=None):
     """Helper to output debug information consistently"""
     if data:
-        print(f"DEBUG: {message}")
-        print(f"DATA: {json.dumps(data) if isinstance(data, (dict, list)) else data}")
+        logger.debug(f"DEBUG: {message}")
+        logger.debug(f"DATA: {json.dumps(data) if isinstance(data, (dict, list)) else data}")
     else:
-        print(f"DEBUG: {message}")
+        logger.debug(f"DEBUG: {message}")
 
 def search_json(request):
     """
@@ -34,12 +34,12 @@ def search_json(request):
         query = request.GET.get('q', '')
         search_type = request.GET.get('search_type', 'all')
 
-        print("[DEBUG] Raw query:", query)
-        print("[DEBUG] Search type:", search_type)
+        logger.debug(f"[DEBUG] Raw query: {query}")
+        logger.debug(f"[DEBUG] Search type: {search_type}")
 
         # Format conversion for empty strings to None for proper filtering
         if not query.strip():
-            print("[DEBUG] Empty query string received. Returning empty results.")
+            logger.debug("[DEBUG] Empty query string received. Returning empty results.")
             return JsonResponse({
                 'query': '',
                 'total_results': 0,
@@ -50,10 +50,10 @@ def search_json(request):
 
         # --- Enhanced parsing and normalization ---
         note, type_, quality, position, inversion = parse_query(query)
-        print(f"[DEBUG] Parsed query -> note: {note}, type: {type_}, quality: {quality}, position: {position}, inversion: {inversion}")
+        logger.debug(f"[DEBUG] Parsed query -> note: {note}, type: {type_}, quality: {quality}, position: {position}, inversion: {inversion}")
         # Compose normalized query for downstream search functions
         normalized_query = f"{note} {quality}".strip()
-        print(f"[DEBUG] Normalized query for search: '{normalized_query}'")
+        logger.debug(f"[DEBUG] Normalized query for search: '{normalized_query}'")
 
         results = {
             'chord_results': [],
@@ -61,25 +61,34 @@ def search_json(request):
             'arpeggio_results': []
         }
 
-        # Search based on type filter, using normalized query
-        if search_type in ['all', 'chords']:
-            # Use the original query for chord search to support queries like 'Major7 V2'
+        # Only run the search for the type indicated by parse_query (or explicit search_type)
+        if search_type == 'chords' or (search_type == 'all' and type_ == 'chord'):
             chord_results = search_chords(query)
-            print(f"[DEBUG] Chord queryset count: {len(chord_results)}")
+            logger.debug(f"[DEBUG] Chord queryset count: {len(chord_results)}")
             results['chord_results'] = chord_results
-            print(f"[DEBUG] Processed chord results: {results['chord_results']}")
-
-        if search_type in ['all', 'scales']:
+            logger.debug(f"[DEBUG] Processed chord results: {results['chord_results']}")
+        if search_type == 'scales' or (search_type == 'all' and type_ == 'scale'):
             scale_results = search_scales(normalized_query)
-            print(f"[DEBUG] Scale queryset count: {len(scale_results)}")
+            logger.debug(f"[DEBUG] Scale queryset count: {len(scale_results)}")
+            # Patch: Generate URLs using the blueprint scale id (`notes_options_select`) for dynamic scales
+            for item in scale_results:
+                if item.get('id') is None and note and quality:
+                    from .search_utils import get_root_id_from_name
+                    root_id = get_root_id_from_name(note)
+                    # Look up blueprint scale record for this quality
+                    blueprint = Notes.objects.filter(
+                        category__category_name__icontains='scale',
+                        note_name__icontains=quality
+                    ).first()
+                    notes_options_select = blueprint.pk if blueprint else ''
+                    item['url'] = f"/?root={root_id}&models_select=1&notes_options_select={notes_options_select}&position_select=0"
             results['scale_results'] = scale_results
-            print(f"[DEBUG] Processed scale results: {results['scale_results']}")
-
-        if search_type in ['all', 'arpeggios']:
+            logger.debug(f"[DEBUG] Processed scale results: {results['scale_results']}")
+        if search_type == 'arpeggios' or (search_type == 'all' and type_ == 'arpeggio'):
             arpeggio_results = search_arpeggios(normalized_query)
-            print(f"[DEBUG] Arpeggio queryset count: {len(arpeggio_results)}")
+            logger.debug(f"[DEBUG] Arpeggio queryset count: {len(arpeggio_results)}")
             results['arpeggio_results'] = arpeggio_results
-            print(f"[DEBUG] Processed arpeggio results: {results['arpeggio_results']}")
+            logger.debug(f"[DEBUG] Processed arpeggio results: {results['arpeggio_results']}")
 
         # Calculate total results
         total_results = (
@@ -87,10 +96,10 @@ def search_json(request):
             len(results['scale_results']) + 
             len(results['arpeggio_results'])
         )
-        print(f"[DEBUG] Total results: {total_results}")
+        logger.debug(f"[DEBUG] Total results: {total_results}")
 
         # Return formatted response
-        print(f"[DEBUG] Final JSON response: {{'query': query, 'total_results': total_results, ...}}")
+        logger.debug(f"[DEBUG] Final JSON response: {{'query': query, 'total_results': total_results, ...}}")
         return JsonResponse({
             'query': query,
             'total_results': total_results,
@@ -99,37 +108,36 @@ def search_json(request):
             'arpeggio_results': results['arpeggio_results']
         })
     except Exception as e:
-        import traceback
         tb = traceback.format_exc()
-        print(f"[ERROR] Exception in search_json: {e}\n{tb}")
+        logger.error(f"[ERROR] Exception in search_json: {e}\n{tb}")
         return JsonResponse({'error': str(e), 'traceback': tb}, status=500)
 
 def unified_search_view(request):
     """
     A unified search view that can search across chords, scales, and arpeggios
     """
-    print("\n" + "="*80)
-    print("UNIFIED SEARCH INITIATED")
-    print(f"REQUEST METHOD: {request.method}")
-    print(f"REQUEST PATH: {request.path}")
-    print("="*80)
+    logger.debug("\n" + "="*80)
+    logger.debug("UNIFIED SEARCH INITIATED")
+    logger.debug(f"REQUEST METHOD: {request.method}")
+    logger.debug(f"REQUEST PATH: {request.path}")
+    logger.debug("="*80)
     
     # Get search parameters
     search_query = request.GET.get('search_query', '')
     search_type = request.GET.get('search_type', 'all')  # all, chords, scales, or arpeggios
-    print(f"[DEBUG] search_query: {search_query}")
-    print(f"[DEBUG] search_type: {search_type}")
+    logger.debug(f"[DEBUG] search_query: {search_query}")
+    logger.debug(f"[DEBUG] search_type: {search_type}")
     
     # Format conversion for empty strings to None for proper filtering
     if not search_query.strip():
-        print("[DEBUG] Empty search_query string received. Returning empty results.")
+        logger.debug("[DEBUG] Empty search_query string received. Returning empty results.")
         search_query = None
     
     # Parse and normalize the query using parse_query
     note, type_, quality, position, inversion = parse_query(search_query or "")
-    print(f"[DEBUG] Parsed query -> note: {note}, type: {type_}, quality: {quality}, position: {position}, inversion: {inversion}")
+    logger.debug(f"[DEBUG] Parsed query -> note: {note}, type: {type_}, quality: {quality}, position: {position}, inversion: {inversion}")
     normalized_query = f"{note} {quality}".strip()
-    print(f"[DEBUG] Normalized query for search: '{normalized_query}'")
+    logger.debug(f"[DEBUG] Normalized query for search: '{normalized_query}'")
 
     results = {
         'chords': [],
@@ -182,215 +190,175 @@ def unified_search_view(request):
     common_context = get_common_context(request)
     context.update(common_context)
     
-    print(f"[DEBUG] Results summary: {{'total_count': total_count, 'search_query': search_query, 'search_type': search_type, 'results': results}}")
+    logger.debug(f"[DEBUG] Results summary: {{'total_count': total_count, 'search_query': search_query, 'search_type': search_type, 'results': results}}")
     log_debug_info("Unified Search: Rendering HTML template", {'total_count': total_count, 'search_query': search_query, 'search_type': search_type})
     return render(request, 'search/unified_search.html', context)
 
 def search_chords(search_query):
     """Search for chords matching the query, supporting combined type and position queries like 'Major7 V2' and common synonyms."""
-    log_debug_info(f"Entering search_chords with query: '{search_query}'")
+    logger.debug(f"Entering search_chords with query: '{search_query}'")
     try:
-        # Split query for type and position (e.g., 'Major7 V2')
-        tokens = search_query.strip().split()
-        chord_name = None
-        type_name = None
-        if len(tokens) == 2:
-            chord_name, type_name = tokens[0], tokens[1]
-        elif len(tokens) == 1:
-            chord_name = tokens[0]
-
-        def chord_variants(name):
-            variants = set()
-            if not name:
-                return variants
-            base = name.lower().replace('-', '').replace(' ', '')
-            variants.add(name)
-            variants.add(name.replace(' ', ''))
-            variants.add(name.replace(' ', '-'))
-            variants.add(name.replace('-', ''))
-            variants.add(name.replace('-', ' '))
-            if base == 'major7':
-                variants.update(['Maj7', 'Major 7'])
-            if base == 'min7':
-                variants.update(['m7', 'Min7', 'Minor 7'])
-            if base == 'dom7':
-                variants.update(['7', 'Dom7', 'Dominant 7'])
-            return list(variants)
-
-        def type_variants(name):
-            variants = set()
-            if not name:
-                return variants
-            base = name.lower().replace('-', '').replace(' ', '')
-            variants.add(name)
-            variants.add(name.replace(' ', ''))
-            variants.add(name.replace(' ', '-'))
-            variants.add(name.replace('-', ''))
-            variants.add(name.replace('-', ' '))
-            if base.startswith('v') and len(base) > 1:
-                vnum = base[1:]
-                variants.add(f"V-{vnum}")
-                variants.add(f"V {vnum}")
-                variants.add(f"v{vnum}")
-                variants.add(f"v-{vnum}")
-                variants.add(f"v {vnum}")
-            return list(variants)
-
-        # Try all chord_name and type_name variants
-        filters = Q()
+        from .search_utils import parse_query
+        note, _, quality, _, _ = parse_query(search_query)
+        chord_options = list(ChordNotes.objects.values_list('chord_name', flat=True).distinct())
+        type_options = list(ChordNotes.objects.values_list('type_name', flat=True).distinct())
+        matched_chord = best_fuzzy_match(search_query, chord_options, cutoff=0.7, case_sensitive=False)
+        matched_type = best_fuzzy_match(search_query, type_options, cutoff=0.7, case_sensitive=False)
         found = False
-        if chord_name and type_name:
-            chord_variants_list = chord_variants(chord_name)
-            type_variants_list = type_variants(type_name)
-            for cn in chord_variants_list:
-                for tn in type_variants_list:
+        if matched_chord and matched_type:
+            for cn in [matched_chord]:
+                for tn in [matched_type]:
                     matches = ChordNotes.objects.filter(Q(chord_name__icontains=cn) & Q(type_name__icontains=tn))
                     if matches.exists():
                         found = True
-                        log_debug_info(f"search_chords: Found {len(matches)} matches for chord_name='{cn}', type_name='{tn}'.")
-                        return process_chord_results(matches)
-        elif chord_name:
-            for cn in chord_variants(chord_name):
-                matches = ChordNotes.objects.filter(Q(chord_name__icontains=cn) | Q(type_name__icontains=cn))
+                        logger.debug(f"search_chords: Found {len(matches)} matches for chord_name='{cn}', type_name='{tn}'.")
+                        # Filter for root note if present
+                        filtered = matches.filter(tonal_root=ROOT_NAME_TO_ID.get(note)) if note else matches
+                        return process_chord_results(filtered, root_note=note)
+        elif matched_chord:
+            for cn in [matched_chord]:
+                matches = ChordNotes.objects.filter(chord_name__icontains=cn)
                 if matches.exists():
                     found = True
-                    log_debug_info(f"search_chords: Found {len(matches)} matches for chord_name='{cn}'.")
-                    return process_chord_results(matches)
-        elif type_name:
-            for tn in type_variants(type_name):
-                matches = ChordNotes.objects.filter(Q(type_name__icontains=tn))
+                    logger.debug(f"search_chords: Found {len(matches)} matches for chord_name='{cn}'.")
+                    filtered = matches.filter(tonal_root=ROOT_NAME_TO_ID.get(note)) if note else matches
+                    return process_chord_results(filtered, root_note=note)
+        elif matched_type:
+            for tn in [matched_type]:
+                matches = ChordNotes.objects.filter(type_name__icontains=tn)
                 if matches.exists():
                     found = True
-                    log_debug_info(f"search_chords: Found {len(matches)} matches for type_name='{tn}'.")
-                    return process_chord_results(matches)
+                    logger.debug(f"search_chords: Found {len(matches)} matches for type_name='{tn}'.")
+                    filtered = matches.filter(tonal_root=ROOT_NAME_TO_ID.get(note)) if note else matches
+                    return process_chord_results(filtered, root_note=note)
         if not found:
-            log_debug_info(f"search_chords: No matches found for chord_name='{chord_name}', type_name='{type_name}', including variants.")
+            logger.debug(f"search_chords: No matches found for chord_name='{matched_chord}', type_name='{matched_type}', including variants.")
             return []
     except Exception as e:
-        print(f"Error searching chords: {str(e)}")
-        traceback.print_exc()
-        log_debug_info(f"search_chords: Error occurred - {str(e)}")
+        logger.error(f"Error searching chords: {str(e)}")
+        logger.error(traceback.format_exc())
+        logger.debug(f"search_chords: Error occurred - {str(e)}")
         return []
 
-def search_scales(search_query):
-    """Search for scales matching the query using the Notes model."""
-    log_debug_info(f"Entering search_scales with query: '{search_query}'")
-    try:
-        from .models import Notes
-        # Try to parse root and scale type
-        tokens = search_query.strip().split()
-        if len(tokens) >= 2:
-            root = tokens[0].capitalize()
-            scale_type = ' '.join(tokens[1:]).replace('scale', '').strip().capitalize()
-        else:
-            root = search_query.capitalize()
-            scale_type = ''
-        # Try to match note_name and category
-        results = Notes.objects.filter(note_name__icontains=scale_type)
-        if root:
-            results = results.filter(category__category_name__icontains='scale')
-        if results.exists():
-            log_debug_info(f"search_scales: Found {len(results)} matches for root='{root}', type='{scale_type}'.")
-            return process_scale_results(results)
-        # fallback: try original query in note_name or category
-        fallback = Notes.objects.filter(
-            Q(note_name__icontains=search_query) |
-            Q(category__category_name__icontains=search_query)
-        )
-        if fallback.exists():
-            log_debug_info(f"search_scales: Fallback found {len(fallback)} matches.")
-            return process_scale_results(fallback)
-        # If still nothing, return empty
-        log_debug_info(f"search_scales: No results found for '{search_query}'.")
-        return []
-    except Exception as e:
-        print(f"Error searching scales: {str(e)}")
-        traceback.print_exc()
-        log_debug_info(f"search_scales: Error occurred - {str(e)}")
-        return [{
-            'error': str(e),
-            'query': search_query
-        }]
-
-def search_arpeggios(search_query):
-    """Search for arpeggios matching the query"""
-    log_debug_info(f"Entering search_arpeggios with query: '{search_query}'")
-    try:
-        # For arpeggios, we'll filter the Scale model with arpeggio types
-        arpeggio_types = ['Major Triad', 'Minor Triad', 'Diminished Triad', 'Augmented Triad', 
-                         'Major 7', 'Minor 7', 'Dominant 7', 'Minor 7b5', 'Diminished 7']
-        
-        # First try exact match with arpeggio types
-        exact_matches = ChordNotes.objects.filter(
-            Q(chord_name__iexact=search_query) & 
-            Q(type_name__in=arpeggio_types)
-        )
-        
-        if exact_matches.exists():
-            log_debug_info(f"search_arpeggios: Found {len(exact_matches)} exact matches.")
-            return process_arpeggio_results(exact_matches)
-        
-        # Then try startswith match
-        startswith_matches = ChordNotes.objects.filter(
-            Q(chord_name__istartswith=search_query) & 
-            Q(type_name__in=arpeggio_types)
-        )
-        
-        if startswith_matches.exists():
-            log_debug_info(f"search_arpeggios: Found {len(startswith_matches)} startswith matches.")
-            return process_arpeggio_results(startswith_matches)
-        
-        # Finally, fallback to contains match
-        contains_matches = ChordNotes.objects.filter(
-            Q(chord_name__icontains=search_query) & 
-            Q(type_name__in=arpeggio_types)
-        )
-        
-        log_debug_info(f"search_arpeggios: Found {len(contains_matches)} contains matches.")
-        return process_arpeggio_results(contains_matches)
-    except Exception as e:
-        print(f"Error searching arpeggios: {str(e)}")
-        traceback.print_exc()
-        log_debug_info(f"search_arpeggios: Error occurred - {str(e)}")
-        return []
-
-def process_chord_results(queryset):
+def process_chord_results(queryset, root_note=None):
     """Process chord query results into a standardized format"""
-    log_debug_info(f"Entering process_chord_results with {len(queryset)} items.")
+    logger.debug(f"Entering process_chord_results with {len(queryset)} items.")
+    # Filter for correct root first, then prioritize e-string voicings
+    chords_to_process = list(queryset)
+    if root_note:
+        root_id = ROOT_NAME_TO_ID.get(root_note)
+        if root_id is not None:
+            chords_to_process = [ch for ch in chords_to_process if getattr(ch, 'tonal_root', None) == root_id]
+    # Now prioritize e-string voicings among filtered chords
+    prioritized = [ch for ch in chords_to_process if 'e' in getattr(ch, 'range', '') and 'E' not in getattr(ch, 'range', '')]
+    if prioritized:
+        chords_to_process = prioritized
     processed_results = []
-    
-    for chord in queryset:
-        # Get positions (inversions)
+    for chord in chords_to_process:
         positions = list(ChordPosition.objects.filter(notes_name=chord).values_list('inversion_order', flat=True))
-        
-        # Extract notes
         notes = []
         for note_attr in ['first_note', 'second_note', 'third_note', 'fourth_note', 'fifth_note', 'sixth_note']:
             note_value = getattr(chord, note_attr, None)
             if note_value is not None:
                 notes.append(note_value)
-        
-        # Build URL as: /?root=<tonal_root+1>&models_select=3&type_options_select=<type_name>&chords_options_select=<chord_name>&note_range=<range>&position_select=Root+Position
-        url = f"/?root={getattr(chord, 'tonal_root', 1) + 1}&models_select=3&type_options_select={chord.type_name}&chords_options_select={chord.chord_name}&note_range={chord.range}&position_select=Root+Position"
+        # Compose name with root if not present
+        name = chord.chord_name
+        if root_note and not name.lower().startswith(root_note.lower()):
+            name = f"{root_note} {name}"
+        url = f"/?root={ROOT_NAME_TO_ID.get(root_note, getattr(chord, 'tonal_root', 1))}&models_select=3&type_options_select={chord.type_name}&chords_options_select={chord.chord_name}&note_range={chord.range}&position_select=Root+Position"
         chord_result = {
             'id': chord.id,
-            'name': chord.chord_name,
+            'name': name,
             'type': chord.type_name,
             'category': getattr(chord.category, 'category_name', None) if hasattr(chord, 'category') else None,
             'positions': positions,
             'notes': notes,
             'url': url
         }
-        
-        log_debug_info(f"process_chord_results: Processed chord ID {chord.id}", chord_result)
+        logger.debug(f"process_chord_results: Processed chord ID {chord.id}", chord_result)
         processed_results.append(chord_result)
-    
-    log_debug_info(f"Exiting process_chord_results with {len(processed_results)} processed items.")
+    logger.debug(f"Exiting process_chord_results with {len(processed_results)} processed items.")
     return processed_results
+
+def search_scales(search_query):
+    """Search for scales by root and scale type (quality)."""
+    logger.debug(f"Entering search_scales with query: '{search_query}'")
+    # Parse canonical note and quality
+    note, _, quality, _, _ = parse_query(search_query)
+    from .search_utils import resolve_root
+    root_obj = resolve_root(note)
+    logger.debug(f"search_scales: Resolved root '{note}' to DB object: {root_obj}")
+    if not root_obj:
+        logger.debug(f"search_scales: No valid root found for '{note}', aborting search.")
+        return []
+    quality_opts = list(Notes.objects.filter(category__category_name__icontains='scale').values_list('note_name', flat=True).distinct())
+    db_qual = best_fuzzy_match(quality, quality_opts, cutoff=0.7, case_sensitive=False) or quality
+    logger.debug(f"search_scales: db_qual='{db_qual}' (from quality='{quality}')")
+    # Define intervals for dynamic scale generation, including modes and common scales
+    intervals_map = {
+        'minor pentatonic': [0, 3, 5, 7, 10],
+        'major pentatonic': [0, 2, 4, 7, 9],
+        'pentatonic': [0, 2, 4, 7, 9],
+        'major': [0, 2, 4, 5, 7, 9, 11],         # Ionian
+        'minor': [0, 2, 3, 5, 7, 8, 10],        # Aeolian
+        'dorian': [0, 2, 3, 5, 7, 9, 10],       # Dorian mode
+        'phrygian': [0, 1, 3, 5, 7, 8, 10],     # Phrygian
+        'lydian': [0, 2, 4, 6, 7, 9, 11],       # Lydian
+        'mixolydian': [0, 2, 4, 5, 7, 9, 10],   # Mixolydian
+        'aeolian': [0, 2, 3, 5, 7, 8, 10],      # Aeolian
+        'locrian': [0, 1, 3, 5, 6, 8, 10],      # Locrian
+        'harmonic minor': [0, 2, 3, 5, 7, 8, 11], # Harmonic Minor
+        'harmonic major': [0, 2, 4, 5, 7, 8, 11], # Harmonic Major
+        'melodic minor': [0, 2, 3, 5, 7, 9, 11]  # Melodic Minor
+    }
+    intervals = intervals_map.get(db_qual.lower())
+    logger.debug(f"search_scales: intervals for db_qual='{db_qual.lower()}': {intervals}")
+    if intervals:
+        exists = Notes.objects.filter(
+            category__category_name__icontains='scale',
+            tonal_root=ROOT_NAME_TO_ID.get(note),
+            note_name__icontains=db_qual
+        ).exists()
+        logger.debug(f"search_scales: Notes exists for root={ROOT_NAME_TO_ID.get(note)}, db_qual='{db_qual}': {exists}")
+        if not exists:
+            notes_vals = [(ROOT_NAME_TO_ID.get(note) + iv) % 12 for iv in intervals]
+            tension_map = {0: 'R', 3: 'b3', 5: '11', 7: '5', 10: 'b7', 2: '2', 4: '3', 9: '6'}
+            tensions = [tension_map.get(iv, str(iv)) for iv in intervals]
+            notenames = [NOTE_NAMES[nv] for nv in notes_vals]
+            logger.debug(f"search_scales: Returning dynamic pentatonic result for {note} {quality}")
+            return [{
+                'id': None,
+                'name': f"{note} {quality}".strip().title(),
+                'type': 'Scales',
+                'notes': notes_vals,
+                'tensions': tensions,
+                'notenames': notenames
+            }]
+    try:
+        qs = Notes.objects.filter(category__category_name__icontains='scale')
+        if search_query.isdigit():
+            qs = qs.filter(pk=int(search_query))
+        else:
+            qs = qs.filter(tonal_root=ROOT_NAME_TO_ID.get(note))
+            qs = qs.filter(note_name__icontains=quality)
+        logger.debug(f"search_scales: Final queryset count: {qs.count()}")
+        if qs.exists():
+            results = process_scale_results(qs)
+            display = f"{note} {quality}".strip().title()
+            for item in results:
+                item['name'] = display
+            return results
+        logger.debug(f"search_scales: No results found for '{search_query}'.")
+        return []
+    except Exception as e:
+        logger.error(f"Error searching scales: {str(e)}")
+        logger.error(traceback.format_exc())
+        logger.debug(f"search_scales: Error occurred - {str(e)}")
+        return []
 
 def process_scale_results(queryset):
     """Process scale query results into a standardized format"""
-    log_debug_info(f"Entering process_scale_results with {len(queryset)} items.")
+    logger.debug(f"Entering process_scale_results with {len(queryset)} items.")
     processed_results = []
     for scale in queryset:
         notes = []
@@ -400,8 +368,28 @@ def process_scale_results(queryset):
                 note_value = getattr(scale, note_attr, None)
                 if note_value is not None:
                     notes.append(note_value)
-        # Build URL as: /?root=<tonal_root+1>&models_select=1&notes_options_select=<scale.id>&position_select=0
-        url = f"/?root={getattr(scale, 'tonal_root', 1) + 1}&models_select=1&notes_options_select={scale.id}&position_select=0"
+        # Use resolve_root to get the correct Root object
+        from .search_utils import resolve_root
+        # Try to get the note name from scale.tonal_root
+        root_obj = None
+        if hasattr(scale, 'tonal_root'):
+            try:
+                pitch_val = int(scale.tonal_root)
+                note_name = NOTE_NAMES[pitch_val % 12]
+                root_obj = resolve_root(note_name)
+            except Exception as e:
+                logger.debug(f"process_scale_results: Could not resolve root from tonal_root {scale.tonal_root}: {e}")
+        # Fallback: try by pitch if resolve_root fails
+        if not root_obj and hasattr(scale, 'tonal_root'):
+            try:
+                root_obj = Root.objects.filter(pitch=scale.tonal_root).first()
+            except Exception as e:
+                logger.debug(f"process_scale_results: Fallback by pitch failed for tonal_root {scale.tonal_root}: {e}")
+        root_pk = root_obj.pk if root_obj else None
+        if root_pk is None:
+            logger.error(f"process_scale_results: Could not resolve root for tonal_root={getattr(scale, 'tonal_root', None)} (scale id={scale.id})")
+            root_pk = 1  # Final fallback; consider None or raise
+        url = f"/?root={root_pk}&models_select=1&notes_options_select={scale.pk}&position_select=0"
         scale_result = {
             'id': scale.id,
             'name': scale.note_name,
@@ -409,42 +397,80 @@ def process_scale_results(queryset):
             'notes': notes,
             'url': url
         }
-        log_debug_info(f"process_scale_results: Processed scale ID {scale.id}", scale_result)
+        logger.debug(f"process_scale_results: Processed scale ID {scale.id}", scale_result)
         processed_results.append(scale_result)
-    log_debug_info(f"Exiting process_scale_results with {len(processed_results)} processed items.")
+    logger.debug(f"Exiting process_scale_results with {len(processed_results)} processed items.")
     return processed_results
 
-def process_arpeggio_results(queryset):
+def search_arpeggios(search_query):
+    """Search for arpeggios matching the query"""
+    logger.debug(f"Entering search_arpeggios with query: '{search_query}'")
+    try:
+        from .search_utils import parse_query, best_fuzzy_match
+        note, _, quality, _, _ = parse_query(search_query)
+        # Try multiple spellings for arpeggio
+        arpeggio_keywords = ["arpeggio", "arpegio", "arp"]
+        arpeggio_type = None
+        for keyword in arpeggio_keywords:
+            match = best_fuzzy_match(search_query, [keyword], cutoff=0.4, case_sensitive=False)
+            if match:
+                arpeggio_type = match
+                break
+        qs = ChordNotes.objects.filter(category__category_name__icontains='arpeggio')
+        # Filter by root if present
+        root_obj = Root.objects.filter(name__iexact=note).first()
+        if root_obj:
+            qs = qs.filter(tonal_root=ROOT_NAME_TO_ID.get(note))
+        # Filter by arpeggio type if present
+        if arpeggio_type:
+            qs = qs.filter(type_name__icontains=arpeggio_type)
+        # Fallback: if no results, return any arpeggio
+        if not qs.exists():
+            qs = ChordNotes.objects.filter(category__category_name__icontains='arpeggio')
+        if qs.exists():
+            return process_arpeggio_results(qs, root_note=note)
+        logger.debug(f"search_arpeggios: No results found for '{search_query}'.")
+        return []
+    except Exception as e:
+        logger.error(f"Error searching arpeggios: {str(e)}")
+        logger.error(traceback.format_exc())
+        logger.debug(f"search_arpeggios: Error occurred - {str(e)}")
+        return []
+
+def process_arpeggio_results(queryset, root_note=None):
     """Process arpeggio query results into a standardized format"""
-    log_debug_info(f"Entering process_arpeggio_results with {len(queryset)} items.")
+    logger.debug(f"Entering process_arpeggio_results with {len(queryset)} items.")
     processed_results = []
-    
     for arpeggio in queryset:
-        # Get notes
         notes = []
-        # Assuming arpeggios have note fields similar to chords
-        for note_attr in ['first_note', 'second_note', 'third_note', 'fourth_note', 'fifth_note', 
-                         'sixth_note', 'seventh_note']:
+        for note_attr in ['first_note', 'second_note', 'third_note', 'fourth_note', 'fifth_note', 'sixth_note', 'seventh_note']:
             if hasattr(arpeggio, note_attr):
                 note_value = getattr(arpeggio, note_attr, None)
                 if note_value is not None:
                     notes.append(note_value)
-        
-        # Create a result object
+        # Compose name with root if not present
+        name = arpeggio.chord_name
+        if root_note and not name.lower().startswith(root_note.lower()):
+            name = f"{root_note} {name}"
+        # Always set type to include 'Arpeggio' (robust to DB)
+        type_base = arpeggio.type_name.strip()
+        if not type_base:
+            type_str = "Arpeggio"
+        elif "arpeggio" in type_base.lower():
+            type_str = type_base
+        else:
+            type_str = f"{type_base} Arpeggio"
         arpeggio_result = {
             'id': arpeggio.id,
-            'name': arpeggio.chord_name,
-            'type': arpeggio.type_name,
+            'name': name,
+            'type': type_str,
             'notes': notes,
             'url': f"/en/?models_select=2&root_note_chord={arpeggio.chord_name}&chord_options_select={arpeggio.type_name}"
         }
-        
-        log_debug_info(f"process_arpeggio_results: Processed arpeggio ID {arpeggio.id}", arpeggio_result)
+        logger.debug(f"process_arpeggio_results: Processed arpeggio ID {arpeggio.id}", arpeggio_result)
         processed_results.append(arpeggio_result)
-    
-    log_debug_info(f"Exiting process_arpeggio_results with {len(processed_results)} processed items.")
+    logger.debug(f"Exiting process_arpeggio_results with {len(processed_results)} processed items.")
     return processed_results
-
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
@@ -453,17 +479,17 @@ def chord_search_view(request):
     View for searching chords with detailed debug output
     Supports both GET and POST methods
     """
-    log_debug_info("="*80)
-    log_debug_info("CHORD SEARCH VIEW INITIATED")
-    log_debug_info(f"REQUEST METHOD: {request.method}")
-    log_debug_info(f"REQUEST PATH: {request.path}")
-    log_debug_info("="*80)
+    logger.debug("="*80)
+    logger.debug("CHORD SEARCH VIEW INITIATED")
+    logger.debug(f"REQUEST METHOD: {request.method}")
+    logger.debug(f"REQUEST PATH: {request.path}")
+    logger.debug("="*80)
     
     # Detailed request debugging
-    log_debug_info("\nREQUEST DETAILS:")
-    log_debug_info(f"Content Type: {request.content_type}")
-    log_debug_info(f"Encoding: {request.encoding}")
-    log_debug_info(f"Headers: {dict(request.headers.items())}")
+    logger.debug("\nREQUEST DETAILS:")
+    logger.debug(f"Content Type: {request.content_type}")
+    logger.debug(f"Encoding: {request.encoding}")
+    logger.debug(f"Headers: {dict(request.headers.items())}")
     
     # Get search parameters
     if request.method == 'POST':
@@ -475,14 +501,14 @@ def chord_search_view(request):
                     search_query = data.get('search_query', '')
                     chord_type = data.get('chord_type', '')
                     note_range = data.get('note_range', '')
-                    log_debug_info(f"POST JSON request received", {
+                    logger.debug(f"POST JSON request received", {
                         'query': search_query,
                         'type': chord_type,
                         'range': note_range,
                         'full_data': data
                     })
                 except Exception as e:
-                    log_debug_info(f"Error parsing JSON: {str(e)}")
+                    logger.debug(f"Error parsing JSON: {str(e)}")
                     search_query = ''
                     chord_type = ''
                     note_range = ''
@@ -490,14 +516,14 @@ def chord_search_view(request):
                 search_query = request.POST.get('search_query', '')
                 chord_type = request.POST.get('chord_type', '')
                 note_range = request.POST.get('note_range', '')
-                log_debug_info(f"POST form request received", {
+                logger.debug(f"POST form request received", {
                     'query': search_query,
                     'type': chord_type,
                     'range': note_range,
                     'all_post_data': dict(request.POST)
                 })
         except Exception as e:
-            log_debug_info(f"Exception in POST processing: {str(e)}")
+            logger.debug(f"Exception in POST processing: {str(e)}")
             traceback.print_exc()
             search_query = ''
             chord_type = ''
@@ -507,51 +533,51 @@ def chord_search_view(request):
             search_query = request.GET.get('search_query', '')
             chord_type = request.GET.get('chord_type', '')
             note_range = request.GET.get('note_range', '')
-            log_debug_info(f"GET request received", {
+            logger.debug(f"GET request received", {
                 'query': search_query,
                 'type': chord_type,
                 'range': note_range,
                 'all_get_params': dict(request.GET)
             })
         except Exception as e:
-            log_debug_info(f"Exception in GET processing: {str(e)}")
+            logger.debug(f"Exception in GET processing: {str(e)}")
             traceback.print_exc()
             search_query = ''
             chord_type = ''
             note_range = ''
     
-    log_debug_info("\nSEARCH PARAMETERS BEFORE PROCESSING:")
-    log_debug_info(f"search_query: '{search_query}' (type: {type(search_query)})")
-    log_debug_info(f"chord_type: '{chord_type}' (type: {type(chord_type)})")
-    log_debug_info(f"note_range: '{note_range}' (type: {type(note_range)})")
+    logger.debug("\nSEARCH PARAMETERS BEFORE PROCESSING:")
+    logger.debug(f"search_query: '{search_query}' (type: {type(search_query)})")
+    logger.debug(f"chord_type: '{chord_type}' (type: {type(chord_type)})")
+    logger.debug(f"note_range: '{note_range}' (type: {type(note_range)})")
     
     # Format conversion for empty strings to None for proper filtering
     if not search_query or (isinstance(search_query, str) and not search_query.strip()):
         search_query = None
-        log_debug_info("Empty search query converted to None")
+        logger.debug("Empty search query converted to None")
     if not chord_type or (isinstance(chord_type, str) and not chord_type.strip()):
         chord_type = None
-        log_debug_info("Empty chord type converted to None")
+        logger.debug("Empty chord type converted to None")
     if not note_range or (isinstance(note_range, str) and not note_range.strip()):
         note_range = None
-        log_debug_info("Empty note range converted to None")
+        logger.debug("Empty note range converted to None")
         
-    log_debug_info("\nSEARCH PARAMETERS AFTER PROCESSING:")
-    log_debug_info(f"search_query: '{search_query}' (type: {type(search_query).__name__})")
-    log_debug_info(f"chord_type: '{chord_type}' (type: {type(chord_type).__name__})")
-    log_debug_info(f"note_range: '{note_range}' (type: {type(note_range).__name__})")
+    logger.debug("\nSEARCH PARAMETERS AFTER PROCESSING:")
+    logger.debug(f"search_query: '{search_query}' (type: {type(search_query).__name__})")
+    logger.debug(f"chord_type: '{chord_type}' (type: {type(chord_type).__name__})")
+    logger.debug(f"note_range: '{note_range}' (type: {type(note_range).__name__})")
     
     # Build the query
-    log_debug_info("Building search query...")
+    logger.debug("Building search query...")
     
     try:
         # Count total chords available to compare with filtered results
         total_chords = ChordNotes.objects.count()
-        log_debug_info(f"Total chords in database: {total_chords}")
+        logger.debug(f"Total chords in database: {total_chords}")
         
         # Print some sample records to verify data retrieval
         sample_chords = list(ChordNotes.objects.all()[:5])
-        log_debug_info("Sample chord records:", 
+        logger.debug("Sample chord records:", 
                       [{'id': c.id, 'name': c.chord_name, 'type': c.type_name, 'range': c.range} 
                        for c in sample_chords])
         
@@ -559,13 +585,13 @@ def chord_search_view(request):
         
         # Apply filters if parameters are provided
         if search_query:
-            log_debug_info(f"Adding filter for search query: '{search_query}'")
+            logger.debug(f"Adding filter for search query: '{search_query}'")
             
             # Check what fields might match the search query for debugging
             name_matches = list(ChordNotes.objects.filter(chord_name__icontains=search_query).values_list('id', 'chord_name')[:10])
             type_matches = list(ChordNotes.objects.filter(type_name__icontains=search_query).values_list('id', 'type_name')[:10])
-            log_debug_info("Potential name matches:", name_matches)
-            log_debug_info("Potential type matches:", type_matches)
+            logger.debug("Potential name matches:", name_matches)
+            logger.debug("Potential type matches:", type_matches)
             
             # Enhanced search with prioritization:
             # 1. First try exact match
@@ -574,7 +600,7 @@ def chord_search_view(request):
             exact_matches_count = len(exact_name_matches) + len(exact_type_matches)
             
             if exact_matches_count > 0:
-                log_debug_info(f"Found {exact_matches_count} exact matches")
+                logger.debug(f"Found {exact_matches_count} exact matches")
                 query = query.filter(
                     Q(chord_name__iexact=search_query) | 
                     Q(type_name__iexact=search_query)
@@ -588,7 +614,7 @@ def chord_search_view(request):
                 )
                 
                 if word_boundary_matches.exists():
-                    log_debug_info("Found word boundary matches")
+                    logger.debug("Found word boundary matches")
                     query = query.filter(
                         Q(chord_name__iregex=word_boundary_query) | 
                         Q(type_name__iregex=word_boundary_query)
@@ -601,60 +627,60 @@ def chord_search_view(request):
                     )
                     
                     if startswith_matches.exists():
-                        log_debug_info("Found startswith matches")
+                        logger.debug("Found startswith matches")
                         query = query.filter(
                             Q(chord_name__istartswith=search_query) | 
                             Q(type_name__istartswith=search_query)
                         )
                     else:
                         # 4. Finally, fallback to contains match
-                        log_debug_info("Using contains matches (fallback)")
+                        logger.debug("Using contains matches (fallback)")
                         query = query.filter(
                             Q(chord_name__icontains=search_query) | 
                             Q(type_name__icontains=search_query)
                         )
             
-            log_debug_info(f"After search query filter, count: {len(query)}")
+            logger.debug(f"After search query filter, count: {len(query)}")
         
         if chord_type:
-            log_debug_info(f"Adding filter for chord type: '{chord_type}'")
+            logger.debug(f"Adding filter for chord type: '{chord_type}'")
             # Show all available chord types for debugging
             all_types = list(ChordNotes.objects.values_list('type_name', flat=True).distinct())
-            log_debug_info("Available chord types:", all_types)
+            logger.debug("Available chord types:", all_types)
             
             # Get closest matching type
             # Check for exact match first
             if ChordNotes.objects.filter(type_name__iexact=chord_type).exists():
-                log_debug_info(f"Found exact match for type '{chord_type}'")
+                logger.debug(f"Found exact match for type '{chord_type}'")
                 query = query.filter(type_name__iexact=chord_type)
             else:
                 # Check for partial matches when exact match not found
                 similar_types = [t for t in all_types if chord_type.lower() in t.lower()]
-                log_debug_info(f"Similar types found: {similar_types}")
+                logger.debug(f"Similar types found: {similar_types}")
                 
                 if similar_types:
                     # Sort by string length to find closest match
                     similar_types.sort(key=len)
                     closest_match = similar_types[0]
-                    log_debug_info(f"Using closest match type: '{closest_match}'")
+                    logger.debug(f"Using closest match type: '{closest_match}'")
                     query = query.filter(type_name=closest_match)
                 else:
                     # No match found, use original filter
-                    log_debug_info(f"No similar types found for '{chord_type}', using exact filter")
+                    logger.debug(f"No similar types found for '{chord_type}', using exact filter")
                     query = query.filter(type_name=chord_type)
             
-            log_debug_info(f"After chord type filter, count: {len(query)}")
+            logger.debug(f"After chord type filter, count: {len(query)}")
         
         if note_range:
-            log_debug_info(f"Adding filter for note range: '{note_range}'")
+            logger.debug(f"Adding filter for note range: '{note_range}'")
             # Show all available ranges for debugging
             all_ranges = list(ChordNotes.objects.values_list('range', flat=True).distinct())
-            log_debug_info("Available note ranges:", all_ranges)
+            logger.debug("Available note ranges:", all_ranges)
             
             # Get closest matching range
             # Check for exact match first
             if ChordNotes.objects.filter(range__iexact=note_range).exists():
-                log_debug_info(f"Found exact match for range '{note_range}'")
+                logger.debug(f"Found exact match for range '{note_range}'")
                 query = query.filter(range__iexact=note_range)
             else:
                 # Check for similar ranges when exact match not found
@@ -669,79 +695,79 @@ def chord_search_view(request):
                     if normalized_search in normalized_range or normalized_range in normalized_search:
                         similar_ranges.append(r)
                 
-                log_debug_info(f"Similar ranges found: {similar_ranges}")
+                logger.debug(f"Similar ranges found: {similar_ranges}")
                 
                 if similar_ranges:
                     # Sort by length difference to find closest match
                     similar_ranges.sort(key=lambda x: abs(len(x) - len(note_range)))
                     closest_match = similar_ranges[0]
-                    log_debug_info(f"Using closest match range: '{closest_match}'")
+                    logger.debug(f"Using closest match range: '{closest_match}'")
                     query = query.filter(range=closest_match)
                 else:
                     # No match found, use original filter
-                    log_debug_info(f"No similar ranges found for '{note_range}', using exact filter")
+                    logger.debug(f"No similar ranges found for '{note_range}', using exact filter")
                     query = query.filter(range=note_range)
             
-            log_debug_info(f"After note range filter, count: {len(query)}")
+            logger.debug(f"After note range filter, count: {len(query)}")
         
         # Ordering
-        log_debug_info("Applying ordering by 'type_name', 'chord_ordering', 'range_ordering'")
+        logger.debug("Applying ordering by 'type_name', 'chord_ordering', 'range_ordering'")
         query = query.order_by('type_name', 'chord_ordering', 'range_ordering')
         
         # Execute query
-        log_debug_info("Executing query...")
+        logger.debug("Executing query...")
         try:
             # Get the SQL to be executed
             sql_query = str(query.query)
-            log_debug_info("Generated SQL:", sql_query)
+            logger.debug("Generated SQL:", sql_query)
             
             # Execute and get results
             results = list(query)
-            log_debug_info(f"Query returned {len(results)} results")
+            logger.debug(f"Query returned {len(results)} results")
             
             # Check first few results
             if results:
                 sample_results = results[:min(5, len(results))]
-                log_debug_info("Sample results:", 
+                logger.debug("Sample results:", 
                             [{'id': r.id, 'name': r.chord_name, 'type': r.type_name, 'range': r.range} 
                             for r in sample_results])
             else:
-                log_debug_info("No results returned from query")
+                logger.debug("No results returned from query")
         except Exception as e:
-            log_debug_info(f"Error executing query: {str(e)}")
+            logger.debug(f"Error executing query: {str(e)}")
             traceback.print_exc()
             results = []
     except Exception as e:
-        log_debug_info(f"Error building or executing query: {str(e)}")
+        logger.debug(f"Error building or executing query: {str(e)}")
         traceback.print_exc()
         results = []
     
     # Log the SQL query (for debugging)
-    log_debug_info("\nSQL QUERY INFORMATION:")
+    logger.debug("\nSQL QUERY INFORMATION:")
     try:
         last_query = connection.queries[-1]['sql'] if connection.queries else "No query executed"
-        log_debug_info("SQL Query:", last_query)
+        logger.debug("SQL Query:", last_query)
         
         # Display query time if available
         if connection.queries and 'time' in connection.queries[-1]:
             query_time = connection.queries[-1]['time']
-            log_debug_info(f"Query execution time: {query_time} seconds")
+            logger.debug(f"Query execution time: {query_time} seconds")
     except Exception as e:
-        log_debug_info(f"Error retrieving SQL query: {str(e)}")
+        logger.debug(f"Error retrieving SQL query: {str(e)}")
         traceback.print_exc()
     
     # Process results for display
     processed_results = []
     
-    log_debug_info("\n" + "-"*50)
-    log_debug_info(f"Processing {len(results)} search results for chord_search_view...")
-    log_debug_info("-"*50)
+    logger.debug("\n" + "-"*50)
+    logger.debug(f"Processing {len(results)} search results for chord_search_view...")
+    logger.debug("-"*50)
     
     for i, chord in enumerate(results):
-        log_debug_info(f"\nProcessing chord {i+1}/{len(results)} (ID: {chord.id}):")
-        log_debug_info(f"  Name: {chord.chord_name}")
-        log_debug_info(f"  Type: {chord.type_name}")
-        log_debug_info(f"  Range: {chord.range}")
+        logger.debug(f"\nProcessing chord {i+1}/{len(results)} (ID: {chord.id}):")
+        logger.debug(f"  Name: {chord.chord_name}")
+        logger.debug(f"  Type: {chord.type_name}")
+        logger.debug(f"  Range: {chord.range}")
         
         # Get root category
         root_category = None
@@ -749,13 +775,13 @@ def chord_search_view(request):
             if hasattr(chord, 'category'):
                 if chord.category:
                     root_category = chord.category.category_name
-                    log_debug_info(f"  Category: {root_category}")
+                    logger.debug(f"  Category: {root_category}")
                 else:
-                    log_debug_info("  Category: None (chord.category is None)")
+                    logger.debug("  Category: None (chord.category is None)")
             else:
-                log_debug_info("  Category: Not available (no category attribute)")
+                logger.debug("  Category: Not available (no category attribute)")
         except Exception as e:
-            log_debug_info(f"  Error retrieving category: {str(e)}")
+            logger.debug(f"  Error retrieving category: {str(e)}")
             traceback.print_exc()
         
         # Get positions (inversions)
@@ -763,16 +789,16 @@ def chord_search_view(request):
         try:
             position_query = ChordPosition.objects.filter(notes_name=chord)
             position_count = len(position_query)
-            log_debug_info(f"  Found {position_count} positions/inversions")
+            logger.debug(f"  Found {position_count} positions/inversions")
             
             if position_count > 0:
                 position_details = list(position_query.values('id', 'inversion_order'))
-                log_debug_info(f"  Position details: {position_details}")
+                logger.debug(f"  Position details: {position_details}")
                 
             positions = list(position_query.values_list('inversion_order', flat=True))
-            log_debug_info(f"  Position values: {positions}")
+            logger.debug(f"  Position values: {positions}")
         except Exception as e:
-            log_debug_info(f"  Error retrieving positions: {str(e)}")
+            logger.debug(f"  Error retrieving positions: {str(e)}")
             traceback.print_exc()
         
         # Extract notes
@@ -785,10 +811,10 @@ def chord_search_view(request):
                     notes.append(note_value)
                     note_details[note_attr] = note_value
             
-            log_debug_info(f"  Notes: {notes}")
-            log_debug_info(f"  Note details: {note_details}")
+            logger.debug(f"  Notes: {notes}")
+            logger.debug(f"  Note details: {note_details}")
         except Exception as e:
-            log_debug_info(f"  Error extracting notes: {str(e)}")
+            logger.debug(f"  Error extracting notes: {str(e)}")
             traceback.print_exc()
         
         # Create a chord result object
@@ -804,23 +830,23 @@ def chord_search_view(request):
             }
             
             processed_results.append(chord_result)
-            log_debug_info(f"  Added to processed results. Total now: {len(processed_results)}")
+            logger.debug(f"  Added to processed results. Total now: {len(processed_results)}")
         except Exception as e:
-            log_debug_info(f"  Error creating chord result object: {str(e)}")
+            logger.debug(f"  Error creating chord result object: {str(e)}")
             traceback.print_exc()
     
-    log_debug_info("\n" + "-"*50)
-    log_debug_info(f"Finished processing {len(processed_results)} chord results for chord_search_view")
-    log_debug_info("-"*50)
+    logger.debug("\n" + "-"*50)
+    logger.debug(f"Finished processing {len(processed_results)} chord results for chord_search_view")
+    logger.debug("-"*50)
     
-    log_debug_info("\nPREPARING RESPONSE for chord_search_view:")
+    logger.debug("\nPREPARING RESPONSE for chord_search_view:")
     # Check if JSON response is requested
     try:
         is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        log_debug_info(f"AJAX Request? {is_ajax}")
+        logger.debug(f"AJAX Request? {is_ajax}")
         
         if is_ajax:
-            log_debug_info("Returning JSON response")
+            logger.debug("Returning JSON response")
             response_data = {
                 'results': processed_results,
                 'count': len(processed_results),
@@ -830,29 +856,29 @@ def chord_search_view(request):
                     'range': note_range
                 }
             }
-            log_debug_info(f"JSON Response keys: {response_data.keys()}")
-            log_debug_info(f"Results count: {len(processed_results)}")
+            logger.debug(f"JSON Response keys: {response_data.keys()}")
+            logger.debug(f"Results count: {len(processed_results)}")
             return JsonResponse(response_data)
         
         # Prepare context for template rendering
-        log_debug_info("Preparing template context")
+        logger.debug("Preparing template context")
         
         # Get all available chord types for dropdown
         try:
             chord_types = list(ChordNotes.objects.values_list('type_name', flat=True).distinct())
             chord_types.sort()
-            log_debug_info(f"Available chord types ({len(chord_types)}): {chord_types[:20]}...") # Log first 20
+            logger.debug(f"Available chord types ({len(chord_types)}): {chord_types[:20]}...") # Log first 20
         except Exception as e:
-            log_debug_info(f"Error retrieving chord types: {str(e)}")
+            logger.debug(f"Error retrieving chord types: {str(e)}")
             chord_types = []
         
         # Get all available note ranges for dropdown
         try:
             note_ranges = list(ChordNotes.objects.values_list('range', flat=True).distinct())
             note_ranges.sort()
-            log_debug_info(f"Available note ranges ({len(note_ranges)}): {note_ranges}")
+            logger.debug(f"Available note ranges ({len(note_ranges)}): {note_ranges}")
         except Exception as e:
-            log_debug_info(f"Error retrieving note ranges: {str(e)}")
+            logger.debug(f"Error retrieving note ranges: {str(e)}")
             note_ranges = []
         
         # Prepare template context
@@ -872,26 +898,26 @@ def chord_search_view(request):
             try:
                 common_context = get_common_context(request)
                 context.update(common_context)
-                log_debug_info(f"Added common context keys: {list(common_context.keys())}")
+                logger.debug(f"Added common context keys: {list(common_context.keys())}")
             except Exception as e:
-                log_debug_info(f"Error getting common context: {str(e)}")
+                logger.debug(f"Error getting common context: {str(e)}")
                 traceback.print_exc()
             
             # Final context summary
-            log_debug_info(f"Final context keys: {list(context.keys())}")
-            log_debug_info(f"Final result count: {context['result_count']}")
+            logger.debug(f"Final context keys: {list(context.keys())}")
+            logger.debug(f"Final result count: {context['result_count']}")
             
-            log_debug_info("Rendering template 'chord_search.html'")
-            log_debug_info("="*80 + "\n")
+            logger.debug("Rendering template 'chord_search.html'")
+            logger.debug("="*80 + "\n")
             
             return render(request, 'chord_search.html', context)
         except Exception as e:
-            log_debug_info(f"Error preparing context: {str(e)}")
+            logger.debug(f"Error preparing context: {str(e)}")
             traceback.print_exc()
-            log_debug_info("Rendering chord_search.html with error message.")
+            logger.debug("Rendering chord_search.html with error message.")
             return render(request, 'chord_search.html', {'error': str(e)})
     except Exception as e:
-        log_debug_info(f"Error preparing response: {str(e)}")
+        logger.debug(f"Error preparing response: {str(e)}")
         traceback.print_exc()
-        log_debug_info("Rendering chord_search.html with error message due to response preparation failure.")
+        logger.debug("Rendering chord_search.html with error message due to response preparation failure.")
         return render(request, 'chord_search.html', {'error': str(e)})
