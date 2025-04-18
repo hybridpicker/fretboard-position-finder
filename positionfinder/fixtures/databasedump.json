@@ -1296,7 +1296,7 @@
   "pk": 49,
   "fields": {
     "category": 1,
-    "note_name": "Minor Penatonic",
+    "note_name": "Minor Pentatonic",
     "ordering": 0,
     "chords": null,
     "tonal_root": 0,
