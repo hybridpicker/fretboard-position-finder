@@ -131,13 +131,17 @@ class MusicalTheoryView:
             selected_root_name
         )
         
-        # Process position data if we have more than one position
-        if len(position_json_data) > 1:
-            x = Notes.objects.get(id=notes_options_id).note_name
-            y = len(NotesPosition.objects.all().filter(notes_name__note_name=x))
-            transposable_position = get_transposable_positions(y, position_json_data)
-            position_json_data = transpose_actual_position(position_json_data, transposable_position)
-            position_json_data = re_ordering_positions(position_json_data)
+        # Process position data if we have more than one position and it's not an arpeggio
+        if len(position_json_data) > 1 and self.category_id != 2:
+            try:
+                x = Notes.objects.get(id=notes_options_id).note_name
+                y = len(NotesPosition.objects.all().filter(notes_name__note_name=x))
+                transposable_position = get_transposable_positions(y, position_json_data)
+                position_json_data = transpose_actual_position(position_json_data, transposable_position)
+                position_json_data = re_ordering_positions(position_json_data)
+            except Notes.DoesNotExist:
+                # Skip position processing for arpeggios or if notes don't exist
+                pass
         
         # Add metadata to position data
         selected_root_options = get_root_note(root_pitch, tonal_root, selected_root_id)
@@ -164,16 +168,24 @@ class MusicalTheoryView:
         notes_options_id = params['notes_options_id']
         
         # Get DB objects
-        notes_options = Notes.objects.filter(category_id=category_id)
         root_obj = Root.objects.get(pk=root_id)
         root_pitch = root_obj.pitch
         print(f"[ROOT DEBUG] Context root_id={root_id} -> Root: {root_obj} (pitch={root_pitch})")
-        position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
-
-        # Check if the requested position_id exists within the available options for the selected notes
-        # Fallback to 'All Notes' ('0') if the specific position doesn't exist to prevent DoesNotExist error
-        if position_id != '0' and not position_options.filter(pk=position_id).exists():
-            position_id = '0'
+        
+        # For arpeggios (category_id=2), use ChordNotes
+        if int(category_id) == 2:
+            from .models_chords import ChordNotes
+            notes_options = ChordNotes.objects.filter(category_id=category_id)
+            position_options = []  # TODO: implement arpeggio positions
+        else:
+            # For scales and chords, use Notes
+            notes_options = Notes.objects.filter(category_id=category_id)
+            position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
+            
+            # Check if the requested position_id exists within the available options for the selected notes
+            # Fallback to 'All Notes' ('0') if the specific position doesn't exist to prevent DoesNotExist error
+            if position_id != '0' and not position_options.filter(pk=position_id).exists():
+                position_id = '0'
         
         # Calculate data for template
         tonal_root = 0  # Default tonal root
@@ -194,7 +206,19 @@ class MusicalTheoryView:
         else:
             selected_position_name = 'All Notes'
             
-        selected_notes_name = Notes.objects.get(pk=notes_options_id).note_name
+        # Get the name of the selected notes
+        if int(category_id) == 2:  # Arpeggios
+            from .models_chords import ChordNotes
+            try:
+                chord_notes = ChordNotes.objects.get(pk=notes_options_id)
+                selected_notes_name = chord_notes.chord_name
+            except ChordNotes.DoesNotExist:
+                selected_notes_name = "Unknown Arpeggio"
+        else:  # Scales or Chords
+            try:
+                selected_notes_name = Notes.objects.get(pk=notes_options_id).note_name
+            except Notes.DoesNotExist:
+                selected_notes_name = "Unknown"
         
         # Prepare functionality data
         note_names = get_functionality_note_names(notes_options_id, root_pitch, tonal_root, root_id)

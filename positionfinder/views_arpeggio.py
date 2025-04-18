@@ -1,5 +1,5 @@
 from django.http import HttpRequest
-
+from .models_chords import ChordNotes
 from .views_base import MusicalTheoryView
 
 
@@ -25,7 +25,13 @@ class ArpeggioView(MusicalTheoryView):
         """
         # Default values for arpeggios
         if params['notes_options_id'] is None:
-            params['notes_options_id'] = '2'  # Default arpeggio
+            # Try to get first ChordNotes with category_id=2 (arpeggios)
+            first_arpeggio = ChordNotes.objects.filter(category_id=2).first()
+            if first_arpeggio:
+                params['notes_options_id'] = str(first_arpeggio.id)
+            else:
+                # Fallback to default value
+                params['notes_options_id'] = '2105'  # A minor pentatonic arpeggio
             
         return params
 
@@ -54,8 +60,8 @@ def arpeggio_list(request: HttpRequest):
     Returns:
         Rendered template response with arpeggio list
     """
-    from .models import Notes
     from django.shortcuts import render
+    from .models_chords import ChordNotes
     
-    arpeggios = Notes.objects.filter(category_id=2)  # ID 2 = Arpeggios
+    arpeggios = ChordNotes.objects.filter(category_id=2)  # ID 2 = Arpeggios
     return render(request, 'arpeggio_list.html', {'arpeggios': arpeggios})

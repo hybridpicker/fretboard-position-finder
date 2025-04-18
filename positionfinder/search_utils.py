@@ -142,14 +142,20 @@ def parse_query(user_query):
     # Fuzzy match for inversion
     inversion = best_fuzzy_match(joined, INVERSIONS, cutoff=0.7, case_sensitive=False) or "basic position"
 
-    # Override type_ for scale-specific qualities
+    # Check if "arpeggio" is explicitly mentioned in the query
+    if 'arpeggio' in joined:
+        type_ = "arpeggio"
+        
+    # Override type_ for scale-specific qualities (but respect arpeggio overriding)
     scale_terms = {"pentatonic","minor pentatonic","major pentatonic","harmonic minor","harmonic major","melodic minor","dorian","phrygian","lydian","mixolydian","locrian","augmented","diminished"}
-    if quality.lower() in scale_terms or 'pentatonic' in quality.lower():
+    if (quality.lower() in scale_terms or 'pentatonic' in quality.lower()) and type_ != "arpeggio":
         type_ = "scale"
-    # Override type_ for chord-specific qualities
+        
+    # Override type_ for chord-specific qualities (but respect arpeggio overriding)
     chord_terms = {"maj7","min7","dominant 7","dim7","m7b5"}
-    if quality.lower() in chord_terms:
+    if quality.lower() in chord_terms and type_ != "arpeggio":
         type_ = "chord"
+        
     return note, type_, quality, position, inversion
 
 

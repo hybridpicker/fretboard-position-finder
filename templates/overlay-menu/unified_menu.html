@@ -121,18 +121,9 @@
                     <p>The root note sets the tonal center of your chord.</p>
                 </div>
                 <div class="grid-container">
-                    <div class="grid-item root-item" data-value="1">C</div>
-                    <div class="grid-item root-item" data-value="2">C#/Db</div>
-                    <div class="grid-item root-item" data-value="3">D</div>
-                    <div class="grid-item root-item" data-value="4">D#/Eb</div>
-                    <div class="grid-item root-item" data-value="5">E</div>
-                    <div class="grid-item root-item" data-value="6">F</div>
-                    <div class="grid-item root-item" data-value="7">F#/Gb</div>
-                    <div class="grid-item root-item" data-value="8">G</div>
-                    <div class="grid-item root-item" data-value="9">G#/Ab</div>
-                    <div class="grid-item root-item" data-value="10">A</div>
-                    <div class="grid-item root-item" data-value="11">A#/Bb</div>
-                    <div class="grid-item root-item" data-value="12">B</div>
+                    {% for option in unified_menu_root_options %}
+                    <div class="grid-item root-item" data-value="{{ option.id }}">{{ option.name }}</div>
+                    {% endfor %}
                 </div>
                 <button class="back-button" data-target="initialStep">Back</button>
             </div>
