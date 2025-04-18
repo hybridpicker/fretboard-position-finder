@@ -54,7 +54,37 @@ def get_tones_from_notes(notes_obj):
 
 def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, selected_root_name):
     # Retrieve scale and build base note list
-    scale_note = Notes.objects.get(note_name=scale_name)
+    try:
+        # First try to get the scale by ID (for arpeggios/scales selected from the search)
+        # Try to convert scale_name to an integer if it's a numeric string (likely an ID)
+        scale_id = None
+        try:
+            if isinstance(scale_name, str) and scale_name.isdigit():
+                scale_id = int(scale_name)
+        except (ValueError, TypeError):
+            pass
+        
+        if scale_id:
+            scale_note = Notes.objects.get(id=scale_id)
+        else:
+            # Try by exact name if not found by ID
+            scale_note = Notes.objects.get(note_name=scale_name)
+    except Notes.DoesNotExist:
+        # If exact match fails, try case-insensitive contains match
+        matching_notes = Notes.objects.filter(note_name__icontains=scale_name)
+        if not matching_notes.exists():
+            # If still not found, try just the last part of the name (e.g., "Minor Triad" from "A Minor Triad")
+            parts = scale_name.split()
+            if len(parts) > 1:
+                # Try with the latter part(s) of the name
+                search_term = ' '.join(parts[1:])
+                matching_notes = Notes.objects.filter(note_name__icontains=search_term)
+        
+        if matching_notes.exists():
+            scale_note = matching_notes.first()
+        else:
+            raise Notes.DoesNotExist(f"Cannot find Notes with name: {scale_name}")
+    
     SCALE_NOTES = get_tones_from_notes(scale_note)
     NOTES_LIST = []
     for interval in SCALE_NOTES:

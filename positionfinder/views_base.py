@@ -172,10 +172,14 @@ class MusicalTheoryView:
         root_pitch = root_obj.pitch
         print(f"[ROOT DEBUG] Context root_id={root_id} -> Root: {root_obj} (pitch={root_pitch})")
         
-        # For arpeggios (category_id=2), use ChordNotes
+        # For arpeggios (category_id=2), use Notes model with arpeggio category
         if int(category_id) == 2:
-            from .models_chords import ChordNotes
-            notes_options = ChordNotes.objects.filter(category_id=category_id)
+            # Find arpeggio category
+            arpeggio_category = NotesCategory.objects.filter(category_name__icontains='arpeggio').first()
+            if arpeggio_category:
+                notes_options = Notes.objects.filter(category=arpeggio_category)
+            else:
+                notes_options = Notes.objects.none()
             position_options = []  # TODO: implement arpeggio positions
         else:
             # For scales and chords, use Notes
@@ -206,18 +210,14 @@ class MusicalTheoryView:
         else:
             selected_position_name = 'All Notes'
             
-        # Get the name of the selected notes
-        if int(category_id) == 2:  # Arpeggios
-            from .models_chords import ChordNotes
-            try:
-                chord_notes = ChordNotes.objects.get(pk=notes_options_id)
-                selected_notes_name = chord_notes.chord_name
-            except ChordNotes.DoesNotExist:
-                selected_notes_name = "Unknown Arpeggio"
-        else:  # Scales or Chords
-            try:
-                selected_notes_name = Notes.objects.get(pk=notes_options_id).note_name
-            except Notes.DoesNotExist:
+        # Get the name of the selected notes - Use Notes model for all categories
+        try:
+            selected_notes_name = Notes.objects.get(pk=notes_options_id).note_name
+        except Notes.DoesNotExist:
+            # For arpeggios, try to lookup by ID directly in the get_scale_position_dict function
+            if int(category_id) == 2:
+                selected_notes_name = str(notes_options_id)  # Pass the ID directly to get_scale_position_dict
+            else:
                 selected_notes_name = "Unknown"
         
         # Prepare functionality data

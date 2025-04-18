@@ -4,6 +4,7 @@ from .notes_choices import ChordChoicesField
 
 class Root(models.Model):
     name = models.CharField(max_length=30)
+    display_name = models.CharField(max_length=30, null=True, blank=True)
     pitch = models.IntegerField()
     def __str__(self):
         return str(self.name)
