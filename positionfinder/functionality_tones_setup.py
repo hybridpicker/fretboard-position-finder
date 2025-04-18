@@ -1,4 +1,5 @@
 from .models import Notes, Root
+from .models_chords import ChordNotes
 from .note_setup import build_notes
 from .template_notes import TENSIONS, TENSIONS_OPTIONAL, NOTE_NAMES
 from .template_notes import HEPTATONIC_BASE_NOTES
@@ -9,10 +10,26 @@ from .template_notes import NOTES_SCORE
 def find_tone(tone, lst):
     return any(tone in x for x in lst)
 
+def get_notes_object(notes_options_id):
+    """
+    Try to get notes from Notes or ChordNotes model
+    """
+    try:
+        return Notes.objects.get(pk=notes_options_id)
+    except Notes.DoesNotExist:
+        try:
+            return ChordNotes.objects.get(pk=notes_options_id)
+        except ChordNotes.DoesNotExist:
+            return None
+
 def get_functionality_tones(notes_options_id, root):
     ALL_NOTES = [x for x in TENSIONS]
     ALL_NOTES_OPTIONAL = [x for x in TENSIONS_OPTIONAL]
-    notes = Notes.objects.get(pk=notes_options_id)
+    
+    notes = get_notes_object(notes_options_id)
+    if not notes:
+        return []
+        
     NOTES_NOTES = build_notes(notes)
     '''
     Picking out every note of range
@@ -32,7 +49,11 @@ def get_functionality_tones(notes_options_id, root):
 def get_functionality_pitches(notes_options_id, root):
     ALL_NOTES = [x for x in TENSIONS]
     ALL_NOTES_OPTIONAL = [x for x in TENSIONS_OPTIONAL]
-    notes = Notes.objects.get(pk=notes_options_id)
+    
+    notes = get_notes_object(notes_options_id)
+    if not notes:
+        return []
+        
     NOTES_NOTES = build_notes(notes)
     '''
     Picking out every note of range
@@ -78,9 +99,13 @@ def get_all_notes_functionality_optional(root, root_id):
 def get_functionality_note_names(notes_options_id, root, tonal_root, root_id):
     ALL_NOTES = get_all_notes_functionality(root, root_id)
     ALL_NOTES_OPTIONAL = get_all_notes_functionality_optional(root, root_id)
-    tonal_root =+ root
+    tonal_root += root
     selected_root_name = Root.objects.get(pk=root_id).name
-    notes = Notes.objects.get(pk=notes_options_id)
+    
+    notes = get_notes_object(notes_options_id)
+    if not notes:
+        return []
+        
     NOTES_NOTES = build_notes(notes)
     ALL_NOTES_NOTES = [x for x in NOTES_NOTES]
     TENSION_NOTE_FINAL = get_tension_final_list(tonal_root, ALL_NOTES_NOTES, ALL_NOTES, NOTES_NOTES, ALL_NOTES_OPTIONAL)
