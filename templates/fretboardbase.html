@@ -31,7 +31,9 @@
   <!-- 3D Fretboard Styling -->
   <link rel="stylesheet" href="{% static 'css/3d-fretboard.css' %}">
   <link rel="stylesheet" href="{% static 'css/3d-notes.css' %}">
-  <link rel="stylesheet" href="{% static 'css/3d-strings.css' %}">
+  <!-- <link rel="stylesheet" href="{% static 'css/3d-strings.css' %}"> -->
+  <!-- Minimalistic strings with variable thickness -->
+  <link rel="stylesheet" href="{% static 'css/minimalistic-strings.css' %}">
 
   <!-- Fretboard Inlay Debug CSS (for marker debugging) -->
   <link rel="stylesheet" href="{% static 'css/fretboard-inlay-debug.css' %}">
@@ -171,5 +173,8 @@
   
   <!-- At the end of body, include fretboard inlays JS -->
   <script src="{% static 'js/fretboard-inlays.js' %}?v=20230416_final5"></script>
+  
+  <!-- String interaction effects -->
+  <script src="{% static 'js/string-interaction.js' %}"></script>
 </body>
 </html>
