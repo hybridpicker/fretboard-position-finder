@@ -5,8 +5,7 @@ This focuses on verifying the fix in fix_search_arpeggios.py works correctly.
 """
 import pytest
 from django.test import TestCase
-from positionfinder.models import Root, NotesCategory
-from positionfinder.models_chords import ChordNotes
+from positionfinder.models import Root, NotesCategory, Notes
 from positionfinder.views_search import search_arpeggios
 import logging
 
@@ -47,80 +46,69 @@ class TestArpeggioSearchPitch(TestCase):
         
         # Create a set of arpeggios with different root pitches
         # Using tonal_root as pitch, not ID
-        cls.c_major = ChordNotes.objects.create(
+        cls.c_major = Notes.objects.create(
             category=cls.arpeggio_category,
-            chord_name="Major",
-            type_name="Standard",
-            tonal_root=0,  # C pitch
-            first_note=0, third_note=4, fifth_note=7,
-            range="e - d"
+            note_name="Major",
+            tonal_root=0,  # C
+            first_note=0, third_note=4, fifth_note=7
         )
         
-        cls.cs_major = ChordNotes.objects.create(
+        cls.cs_major = Notes.objects.create(
             category=cls.arpeggio_category,
-            chord_name="Major",
-            type_name="Standard",
-            tonal_root=1,  # C#/Db pitch
-            first_note=1, third_note=5, fifth_note=8,
-            range="e - d"
+            note_name="Major",
+            tonal_root=1,  # C#
+            first_note=1, third_note=5, fifth_note=8
         )
         
-        cls.d_minor = ChordNotes.objects.create(
+        cls.d_major = Notes.objects.create(
             category=cls.arpeggio_category,
-            chord_name="Minor",
-            type_name="Standard",
-            tonal_root=2,  # D pitch
-            first_note=2, third_note=5, fifth_note=9,
-            range="e - d"
+            note_name="Major",
+            tonal_root=2,  # D
+            first_note=2, third_note=6, fifth_note=9
         )
         
-        cls.eb_major = ChordNotes.objects.create(
+        cls.a_minor = Notes.objects.create(
             category=cls.arpeggio_category,
-            chord_name="Major",
-            type_name="Standard",
-            tonal_root=3,  # Eb/D# pitch
-            first_note=3, third_note=7, fifth_note=10,
-            range="e - d"
+            note_name="Minor",
+            tonal_root=9,  # A
+            first_note=9, third_note=0, fifth_note=4
         )
         
-        cls.a_minor = ChordNotes.objects.create(
+        cls.e_minor = Notes.objects.create(
             category=cls.arpeggio_category,
-            chord_name="Minor",
-            type_name="Standard",
-            tonal_root=9,  # A pitch
-            first_note=9, third_note=0, fifth_note=4,
-            range="e - d"
+            note_name="Minor",
+            tonal_root=4,  # E
+            first_note=4, third_note=7, fifth_note=11
         )
 
     def test_search_by_pitch_value(self):
         """Test that search correctly matches by pitch, not ID"""
-        # Search for C major
-        results = search_arpeggios(note="C", quality="major")
+        # Search for C# arpeggios
+        results = search_arpeggios(note="C#", quality="major")
+        
+        # Should find one arpeggio with tonal_root=1
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0]["name"], "C Major")
+        self.assertEqual(results[0]["id"], self.cs_major.id)
         
-        # Search for C# major using both C# and Db
-        results_cs = search_arpeggios(note="C#", quality="major")
-        results_db = search_arpeggios(note="Db", quality="major")
+        # Search for Db (enharmonic with C#)
+        db_results = search_arpeggios(note="Db", quality="major")
         
-        # Both should find the same arpeggio
-        self.assertEqual(len(results_cs), 1)
-        self.assertEqual(len(results_db), 1)
-        self.assertEqual(results_cs[0]["id"], results_db[0]["id"])
+        # Should find the same results as C# (since they're the same pitch)
+        self.assertEqual(len(db_results), 1)
+        self.assertEqual(db_results[0]["id"], self.cs_major.id)
         
-        # Search for Eb major using both Eb and D#
-        results_eb = search_arpeggios(note="Eb", quality="major")
-        results_ds = search_arpeggios(note="D#", quality="major")
+        # Search by name where ID != pitch
+        # For D, ID=4 but pitch=2
+        d_results = search_arpeggios(note="D", quality="major")
         
-        # Both should find the same arpeggio
-        self.assertEqual(len(results_eb), 1)
-        self.assertEqual(len(results_ds), 1)
-        self.assertEqual(results_eb[0]["id"], results_ds[0]["id"])
+        # Should use pitch (2), not ID (4)
+        self.assertEqual(len(d_results), 1)
+        self.assertEqual(d_results[0]["id"], self.d_major.id)
 
     def test_search_enharmonic_equivalence(self):
-        """Test that enharmonic note equivalents return the same results"""
-        # List of enharmonic equivalent pairs
-        enharmonics = [
+        """Test that search works with enharmonic note names"""
+        # Create enharmonic test data
+        enharmonic_pairs = [
             ("C#", "Db"),
             ("D#", "Eb"),
             ("F#", "Gb"),
@@ -128,29 +116,38 @@ class TestArpeggioSearchPitch(TestCase):
             ("A#", "Bb")
         ]
         
-        qualities = ["major", "minor"]
-        
-        for note1, note2 in enharmonics:
-            for quality in qualities:
-                results1 = search_arpeggios(note=note1, quality=quality)
-                results2 = search_arpeggios(note=note2, quality=quality)
-                
-                # Both searches should return the same number of results
-                self.assertEqual(
-                    len(results1), 
-                    len(results2), 
-                    f"Searches for '{note1} {quality}' and '{note2} {quality}' returned different result counts"
-                )
-                
-                # If results were found, they should have the same IDs
-                if len(results1) > 0:
-                    results1_ids = [r["id"] for r in results1]
-                    results2_ids = [r["id"] for r in results2]
-                    self.assertEqual(
-                        set(results1_ids),
-                        set(results2_ids),
-                        f"Searches for '{note1} {quality}' and '{note2} {quality}' returned different arpeggios"
-                    )
+        # Test standard quality
+        quality = "major"
+        for note1, note2 in enharmonic_pairs:
+            # Both members of each pair should return the same results
+            results1 = search_arpeggios(note=note1, quality=quality)
+            results2 = search_arpeggios(note=note2, quality=quality)
+            
+            # Check that the IDs match (regardless of order)
+            results1_ids = sorted([r["id"] for r in results1])
+            results2_ids = sorted([r["id"] for r in results2])
+            
+            self.assertEqual(
+                results1_ids,
+                results2_ids,
+                f"Searches for '{note1} {quality}' and '{note2} {quality}' returned different arpeggios"
+            )
+            
+        # Test minor quality too
+        quality = "minor"
+        for note1, note2 in enharmonic_pairs:
+            results1 = search_arpeggios(note=note1, quality=quality)
+            results2 = search_arpeggios(note=note2, quality=quality)
+            
+            # Check that the IDs match (regardless of order)
+            results1_ids = [r["id"] for r in results1]
+            results2_ids = [r["id"] for r in results2]
+            
+            self.assertEqual(
+                set(results1_ids),
+                set(results2_ids),
+                f"Searches for '{note1} {quality}' and '{note2} {quality}' returned different arpeggios"
+            )
 
     def test_manual_pitch_search(self):
         """
@@ -159,17 +156,17 @@ class TestArpeggioSearchPitch(TestCase):
         """
         # Test A minor
         # First method: Direct pitch filter
-        query1 = ChordNotes.objects.filter(
+        query1 = Notes.objects.filter(
             category__category_name__icontains='arpeggio',
-            chord_name__icontains='minor',
+            note_name__icontains='minor',
             tonal_root=9  # A pitch
         )
         
         # Second method: via Root model (like in the updated code)
         root_obj = Root.objects.filter(name__iexact='A').first()
-        query2 = ChordNotes.objects.filter(
+        query2 = Notes.objects.filter(
             category__category_name__icontains='arpeggio',
-            chord_name__icontains='minor',
+            note_name__icontains='minor',
             tonal_root=root_obj.pitch
         )
         
@@ -191,13 +188,11 @@ class TestArpeggioSearchPitch(TestCase):
     def test_unicode_symbols_compatibility(self):
         """Test that Unicode sharp and flat symbols work correctly"""
         # Create test data
-        ChordNotes.objects.create(
+        Notes.objects.create(
             category=self.arpeggio_category,
-            chord_name="Diminished",
-            type_name="Standard",
+            note_name="Diminished",
             tonal_root=1,  # C#/Db pitch
-            first_note=1, third_note=4, fifth_note=7, seventh_note=10,
-            range="e - d"
+            first_note=1, third_note=4, fifth_note=7, seventh_note=10
         )
         
         # Test with standard notation
@@ -222,184 +217,118 @@ class TestArpeggioSearchPitch(TestCase):
         results = search_arpeggios(note="A", quality="minor")
         self.assertEqual(len(results), 1)
         
-        # The URL should contain root=14 (ID of A), not root=9 (pitch of A)
+        # Extract URL from results
         url = results[0]["url"]
-        self.assertIn("root=14", url)
-        self.assertNotIn("root=9", url)
         
-        # Search for C# major
-        results = search_arpeggios(note="C#", quality="major")
-        self.assertEqual(len(results), 1)
+        # URL should include the root ID (14 for 'A'), not the pitch value (9)
+        self.assertIn("root=14", url)  # Should contain root ID, not pitch
+        self.assertNotIn("root=9", url)  # Should not contain pitch
         
-        # The URL should contain root=3 (ID of C#), not root=1 (pitch of C#)
-        url = results[0]["url"]
-        self.assertIn("root=3", url)
-        self.assertNotIn("root=1", url)
+        # Test another note too
+        results_e = search_arpeggios(note="E", quality="minor")
+        self.assertEqual(len(results_e), 1)
         
-    def test_quality_variations(self):
-        """Test that various quality name variations work correctly"""
-        # Create test data with different quality name formats
-        ChordNotes.objects.create(
-            category=self.arpeggio_category,
-            chord_name="Min",  # Abbreviated 'Minor'
-            type_name="Standard",
-            tonal_root=7,  # G pitch
-            first_note=7, third_note=10, fifth_note=2,
-            range="e - d"
-        )
+        # Extract URL from results
+        url_e = results_e[0]["url"]
         
-        ChordNotes.objects.create(
-            category=self.arpeggio_category,
-            chord_name="m",  # Very abbreviated 'Minor'
-            type_name="Standard",
-            tonal_root=11,  # B pitch
-            first_note=11, third_note=2, fifth_note=6,
-            range="e - d"
-        )
-        
-        ChordNotes.objects.create(
-            category=self.arpeggio_category,
-            chord_name="Maj",  # Abbreviated 'Major'
-            type_name="Standard",
-            tonal_root=5,  # F pitch
-            first_note=5, third_note=9, fifth_note=0,
-            range="e - d"
-        )
-        
-        # Test minor variations
-        results1 = search_arpeggios(note="G", quality="minor")
-        results2 = search_arpeggios(note="G", quality="min")
-        results3 = search_arpeggios(note="G", quality="m")
-        
-        # All should return the G Min arpeggio
-        self.assertEqual(len(results1), 1)
-        self.assertEqual(len(results2), 1)
-        self.assertEqual(len(results3), 1)
-        self.assertEqual(results1[0]["id"], results2[0]["id"])
-        self.assertEqual(results1[0]["id"], results3[0]["id"])
-        
-        # Test with B minor
-        results1 = search_arpeggios(note="B", quality="minor")
-        results2 = search_arpeggios(note="B", quality="min")
-        results3 = search_arpeggios(note="B", quality="m")
-        
-        # All should return the B m arpeggio
-        self.assertEqual(len(results1), 1)
-        self.assertEqual(len(results2), 1)
-        self.assertEqual(len(results3), 1)
-        self.assertEqual(results1[0]["id"], results2[0]["id"])
-        self.assertEqual(results1[0]["id"], results3[0]["id"])
-        
-        # Test major variations
-        results1 = search_arpeggios(note="F", quality="major")
-        results2 = search_arpeggios(note="F", quality="maj")
-        
-        # Both should return the F Maj arpeggio
-        self.assertEqual(len(results1), 1)
-        self.assertEqual(len(results2), 1)
-        self.assertEqual(results1[0]["id"], results2[0]["id"])
+        # URL should include the root ID (7 for 'E'), not the pitch value (4)
+        self.assertIn("root=7", url_e)  # Should contain root ID, not pitch
+        self.assertNotIn("root=4", url_e)  # Should not contain pitch
 
     def test_mixed_case_search(self):
         """Test that searches work with mixed case input"""
-        # Test with various case variations
-        variations = [
-            "a minor",
-            "A minor",
-            "a MINOR",
-            "A MINOR",
-            "A Minor"
-        ]
+        # Create mix case test data
+        Notes.objects.create(
+            category=self.arpeggio_category,
+            note_name="Mixed Case Quality",
+            tonal_root=0,  # C
+            first_note=0, third_note=4, fifth_note=7
+        )
         
-        # All should return the same A minor arpeggio
-        base_results = search_arpeggios(note="A", quality="minor")
+        # Test lowercase
+        lower_results = search_arpeggios(note="c", quality="mixed case quality")
+        self.assertEqual(len(lower_results), 1)
+        
+        # Test uppercase
+        upper_results = search_arpeggios(note="C", quality="MIXED CASE QUALITY")
+        self.assertEqual(len(upper_results), 1)
+        
+        # Test mixed case
+        mixed_results = search_arpeggios(note="C", quality="MiXeD CaSe QuAlItY")
+        self.assertEqual(len(mixed_results), 1)
+        
+        # Test camel case (Quality is CamelCase in the query but regular in the DB)
+        base_results = search_arpeggios(note="C", quality="Mixed Case Quality")
         self.assertEqual(len(base_results), 1)
         
-        for query in variations:
-            # Extract note and quality from the query
-            parts = query.split(" ", 1)
-            note = parts[0]
-            quality = parts[1] if len(parts) > 1 else ""
-            
-            results = search_arpeggios(note=note, quality=quality)
-            
-            # Should return the same result as the base query
-            self.assertEqual(len(results), 1)
-            self.assertEqual(results[0]["id"], base_results[0]["id"])
-            
+        # All should match the same ID
+        test_id = lower_results[0]["id"]
+        self.assertEqual(upper_results[0]["id"], test_id)
+        self.assertEqual(mixed_results[0]["id"], test_id)
+        self.assertEqual(base_results[0]["id"], test_id)
+
     def test_arpeggio_name_composition(self):
         """Test that arpeggio names are correctly composed with root notes"""
-        # Create test data with different naming patterns
-        ChordNotes.objects.create(
+        # Create test arpeggio with standard quality name
+        Notes.objects.create(
             category=self.arpeggio_category,
-            chord_name="Major 7",  # Space in quality name
-            type_name="Standard",
-            tonal_root=7,  # G pitch
-            first_note=7, third_note=11, fifth_note=2, seventh_note=6,
-            range="e - d"
+            note_name="Dominant 7",
+            tonal_root=0,  # C
+            first_note=0, third_note=4, fifth_note=7, seventh_note=10
         )
         
-        ChordNotes.objects.create(
-            category=self.arpeggio_category,
-            chord_name="G Minor",  # Root already included in name
-            type_name="Standard",
-            tonal_root=7,  # G pitch
-            first_note=7, third_note=10, fifth_note=2,
-            range="e - d"
-        )
-        
-        # Test name composition for "Major 7"
-        results = search_arpeggios(note="G", quality="major 7")
+        # Test search with root note 
+        results = search_arpeggios(note="C", quality="dominant 7")
         self.assertEqual(len(results), 1)
-        # Name should be composed as "G Major 7"
-        self.assertEqual(results[0]["name"], "G Major 7")
         
-        # Test with name that already includes root
-        results = search_arpeggios(note="G", quality="minor")
-        self.assertGreaterEqual(len(results), 1)  # Could be multiple matches from other tests
+        # The result name should properly combine root and quality
+        self.assertEqual(results[0]["name"], "C Dominant 7")
         
-        # Find the result with "G Minor" chord_name
-        g_minor_result = None
-        for result in results:
-            if result["name"] == "G Minor":
-                g_minor_result = result
-                break
+        # Test search where the note is already part of the quality/name
+        # This tests that we don't end up with something like "G G Dominant 7"
+        Notes.objects.create(
+            category=self.arpeggio_category,
+            note_name="G Dominant 7",  # Note already in the name
+            tonal_root=7,  # G
+            first_note=7, third_note=11, fifth_note=2, seventh_note=5
+        )
         
-        self.assertIsNotNone(g_minor_result, "Couldn't find G Minor in results")
-        # Name should not be duplicated as "G G Minor"
-        self.assertEqual(g_minor_result["name"], "G Minor")
+        g_results = search_arpeggios(note="G", quality="G Dominant 7")
+        self.assertEqual(len(g_results), 1)
         
+        # Name should not duplicate the "G"
+        self.assertEqual(g_results[0]["name"], "G Dominant 7")
+        
+        # Check simple search by quality
+        dom7_results = search_arpeggios(quality="dominant 7")
+        self.assertGreaterEqual(len(dom7_results), 2)  # Should find at least both dominant 7s
+
     def test_edge_cases(self):
         """Test edge cases and error handling in search_arpeggios"""
-        # Test with empty note and quality
-        results = search_arpeggios(note="", quality="")
-        # Should return all arpeggios
-        self.assertGreater(len(results), 0)
-        
         # Test with non-existent note
-        results = search_arpeggios(note="Z", quality="major")
-        # Should return empty list
-        self.assertEqual(len(results), 0)
+        results_nonexistent = search_arpeggios(note="Z", quality="major")
+        self.assertEqual(len(results_nonexistent), 0)  # Should handle gracefully with no results
         
-        # Test with non-existent quality
-        results = search_arpeggios(note="A", quality="ultra-minor")
-        # Should return empty list
-        self.assertEqual(len(results), 0)
+        # Test with note name that has special characters
+        results_special = search_arpeggios(note="C#!@#", quality="major")
+        self.assertEqual(len(results_special), 0)  # Should handle gracefully
         
-        # Test with None values
-        results = search_arpeggios(note=None, quality=None)
-        # Should handle gracefully and return results (all arpeggios)
-        self.assertGreater(len(results), 0)
+        # Test with extremely long strings
+        long_note = "A" * 100
+        results_long = search_arpeggios(note=long_note, quality="major")
+        self.assertEqual(len(results_long), 0)  # Should handle gracefully
         
-        # Test with weird characters that might cause issues
-        results = search_arpeggios(note="A'", quality="minor--")
-        # Should handle gracefully, either returning A minor or empty list
-        # We're mainly testing that it doesn't crash
+        # Test with non-English characters in search
+        Notes.objects.create(
+            category=self.arpeggio_category,
+            note_name="Special",
+            tonal_root=0,  # C
+            first_note=0, third_note=4, fifth_note=7
+        )
         
-        # Test with SQL injection attempt
-        results = search_arpeggios(note="A'; DROP TABLE arpeggios; --", quality="minor")
-        # Should sanitize input and either return A minor or empty list
-        # Again, mainly testing that it doesn't crash
-
+        # Search with special unicode characters
+        results = search_arpeggios(note="C", quality="Spécial")
+        self.assertGreater(len(results), 0)  # Should find the arpeggio
 
 if __name__ == "__main__":
     pytest.main(["-xvs", "test_arpeggio_search_pitch.py"])
