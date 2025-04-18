@@ -162,9 +162,9 @@ def unified_search_view(request):
         total_count += len(scale_results)
         log_debug_info(f"Unified Search: Found {len(scale_results)} scales", scale_results[:5]) # Log first 5 results
     
-    # Search for arpeggios if requested
+    # Search for arpeggios if requested - FIXED: Pass parsed components instead of raw query
     if search_type in ['all', 'arpeggios'] and search_query:
-        arpeggio_results = search_arpeggios(search_query)
+        arpeggio_results = search_arpeggios(note=note, quality=quality, type_=type_)
         results['arpeggios'] = arpeggio_results
         total_count += len(arpeggio_results)
         log_debug_info(f"Unified Search: Found {len(arpeggio_results)} arpeggios", arpeggio_results[:5]) # Log first 5 results
@@ -409,67 +409,94 @@ def search_arpeggios(note=None, quality=None, type_=None):
     try:
         # Need best_fuzzy_match here if using it for quality
         from .search_utils import best_fuzzy_match
+        from .models import Notes, NotesCategory, Root
 
-        # Start with base arpeggio query
-        qs = ChordNotes.objects.filter(category__category_name__icontains='arpeggio')
-
-        # Filter by root note if provided
+        # Start with base arpeggio query - Use Notes model with arpeggio category
+        arpeggio_category = NotesCategory.objects.filter(category_name__icontains='arpeggio').first()
+        
+        if not arpeggio_category:
+            logger.error("No arpeggio category found in NotesCategory model.")
+            return []
+            
+        qs = Notes.objects.filter(category=arpeggio_category)
+        
+        # Store the root information for later use in result processing
+        # but don't filter by it since arpeggios are stored as templates with tonal_root=0
+        root_obj = None
+        root_id = None
+        
         if note:
-            from .models import Root
-            # First try to find the note by name
+            # Get root object for later URL generation, but don't filter query by it
             root_obj = Root.objects.filter(name__iexact=note).first()
+            if not root_obj:
+                # Try alternate lookup
+                from .search_utils import ROOT_NAME_TO_ID
+                root_id = ROOT_NAME_TO_ID.get(note)
+                if root_id:
+                    root_obj = Root.objects.filter(id=root_id).first()
             
             if root_obj:
-                # Use the pitch value for filtering (not the ID)
-                root_pitch = root_obj.pitch
-                logger.debug(f"Filtering arpeggios by root_pitch: {root_pitch} (for note: {note}, ID: {root_obj.id})")
-                qs = qs.filter(tonal_root=root_pitch)
+                logger.debug(f"Found root_obj for '{note}': ID={root_obj.id}, pitch={root_obj.pitch}")
+                # For arpeggios, we might want to filter by tonal_root if they have specific root assignments
+                # qs = qs.filter(tonal_root=root_obj.pitch)
             else:
-                # Fall back to the old method if note isn't found
-                root_id = ROOT_NAME_TO_ID.get(note)
-                if root_id is not None:
-                    # Get the corresponding pitch for this ID
-                    root_obj = Root.objects.filter(id=root_id).first()
-                    if root_obj:
-                        root_pitch = root_obj.pitch
-                        logger.debug(f"Filtering arpeggios by root_pitch: {root_pitch} (from ID: {root_id} for note: {note})")
-                        qs = qs.filter(tonal_root=root_pitch)
-                    else:
-                        logger.debug(f"Filtering arpeggios by root_id: {root_id} (for note: {note})")
-                        qs = qs.filter(tonal_root=root_id)
-                else:
-                    logger.warning(f"Could not find root_id or pitch for note: {note}. Skipping root filter.")
+                logger.warning(f"Could not find root for note: {note}")
 
-        # Filter by quality if provided
+        # If quality is provided, find arpeggios that match this quality
         if quality:
-            # Use Q object for more flexible quality matching (e.g., 'minor', 'Min', 'm')
+            # Define quality mappings to improve search precision
+            quality_terms = {
+                'minor': ['Minor', 'minor', 'Min', 'm'],
+                'major': ['Major', 'major', 'Maj', 'M'],
+                'diminished': ['Diminished', 'diminished', 'Dim', 'dim', 'o'],
+                'augmented': ['Augmented', 'augmented', 'Aug', 'aug', '+'],
+                'dominant': ['Dominant', 'dominant', 'Dom', 'dom']
+            }
+            
+            # Find which quality group the search term belongs to
+            search_quality_group = None
+            for group, terms in quality_terms.items():
+                if quality.lower() in [t.lower() for t in terms]:
+                    search_quality_group = group
+                    break
+            
+            # Apply quality filtering with priority for exact matches
             quality_filters = Q()
-            # Add common variations - adjust these based on your actual data patterns
-            variations = [quality, quality.capitalize(), quality.lower()]
-            if quality.lower() == 'minor':
-                variations.extend(['Min', 'm', 'minor pentatonic', 'Minor Pentatonic'])
-            elif quality.lower() == 'major':
-                 variations.extend(['Maj', 'major pentatonic', 'Major Pentatonic']) # Add other variations if needed
-
-            # Build Q object for OR conditions
-            for var in set(variations): # Use set to avoid duplicate checks
-                 quality_filters |= Q(chord_name__icontains=var)
-
-            logger.debug(f"Applying flexible quality filters for '{quality}': {quality_filters}")
-            qs = qs.filter(quality_filters)
+            if search_quality_group:
+                # Add exact match terms for the identified quality group
+                for term in quality_terms.get(search_quality_group, []):
+                    quality_filters |= Q(note_name__icontains=term)
+                logger.debug(f"Applying quality filters for '{quality}': {quality_filters}")
+                qs = qs.filter(quality_filters)
+            else:
+                # If quality doesn't match any known group, use it directly
+                logger.debug(f"Applying direct quality filter for '{quality}'")
+                qs = qs.filter(note_name__icontains=quality)
+            
+            # Sort results by relevance (exact matches first)
+            # This ensures Minor arpeggios appear before Major when searching for "minor"
+            if search_quality_group:
+                results_list = list(qs)
+                # Move exact matches to the front
+                results_list.sort(key=lambda x: (search_quality_group.lower() not in x.note_name.lower()))
+                # Convert back to a QuerySet-like list
+                qs = results_list
         else:
-             logger.debug("No quality provided, skipping quality filter.")
+            logger.debug("No quality provided, skipping quality filter.")
 
-        # Note: Filtering by type_ (e.g., 'arpeggio') against type_name might be redundant
-        # if category filter is already applied, but can be added for robustness if needed.
+        # Handle pentatonic type if specified
         if type_ and type_.lower() == 'pentatonic':
-            qs = qs.filter(type_name__icontains='pentatonic')
+            # If we've sorted, filter in Python
+            if isinstance(qs, list):
+                qs = [item for item in qs if 'pentatonic' in item.note_name.lower()]
+            else:
+                qs = qs.filter(note_name__icontains='pentatonic')
 
-        logger.debug(f"search_arpeggios: Final queryset count before processing: {qs.count()}")
+        logger.debug(f"search_arpeggios: Final queryset count before processing: {len(qs) if isinstance(qs, list) else qs.count()}")
 
-        if qs.exists():
-            # Pass the original parsed note to the processing function for display name consistency
-            return process_arpeggio_results(qs, root_note=note)
+        if qs:
+            # Pass the root information to the processing function
+            return process_arpeggio_results(qs, root_note=note, root_obj=root_obj, quality=quality)
         else:
             # If specific search yields no results, consider a broader fallback (optional)
             # For now, return empty if specific filters match nothing.
@@ -482,61 +509,74 @@ def search_arpeggios(note=None, quality=None, type_=None):
         logger.debug(f"search_arpeggios: Error occurred - {str(e)}")
         return []
 
-def process_arpeggio_results(queryset, root_note=None):
+def process_arpeggio_results(queryset, root_note=None, root_obj=None, quality=None):
     """Process arpeggio query results into a standardized format"""
-    logger.debug(f"Entering process_arpeggio_results with {len(queryset)} items.")
-    processed_results = []
+    # Handle both QuerySet and list objects
+    count = len(queryset) if isinstance(queryset, list) else queryset.count()
+    logger.debug(f"Process arpeggio results for {count} items, root_note={root_note}")
+    
+    results = []
+    base_url = "/"
+    from .models import Root
+    
     for arpeggio in queryset:
-        notes = []
-        for note_attr in ['first_note', 'second_note', 'third_note', 'fourth_note', 'fifth_note', 'sixth_note', 'seventh_note']:
-            if hasattr(arpeggio, note_attr):
+        try:
+            # Extract notes for this arpeggio 
+            notes = []
+            for i in range(1, 13):  # Assuming up to 12 notes
+                note_attr = f'{"first" if i == 1 else "second" if i == 2 else "third" if i == 3 else "fourth" if i == 4 else "fifth" if i == 5 else "sixth" if i == 6 else "seventh" if i == 7 else "eigth" if i == 8 else "ninth" if i == 9 else "tenth" if i == 10 else "eleventh" if i == 11 else "twelth"}_note'
                 note_value = getattr(arpeggio, note_attr, None)
                 if note_value is not None:
                     notes.append(note_value)
-        # Compose name with root if not present
-        name = arpeggio.chord_name
-        if root_note and not name.lower().startswith(root_note.lower()):
-            name = f"{root_note} {name}"
-        
-        # Get root ID for URL generation
-        from .models import Root
-        root_id = None
-        if root_note:
-            # Try to find root by name
-            root_obj = Root.objects.filter(name__iexact=root_note).first()
-            if root_obj:
-                root_id = root_obj.id
-        else:
-            # Try to find root from arpeggio.tonal_root
-            root_obj = Root.objects.filter(pitch=arpeggio.tonal_root).first()
-            if root_obj:
-                root_id = root_obj.id
-        
-        # Fallback if no root found
-        if not root_id:
-            # Use a default or log warning
-            root_id = 14  # Default to A if no root found
-            logger.warning(f"Could not find root ID for arpeggio {arpeggio.id}, using default ID 14")
-        
-        # Always set type to include 'Arpeggio' (robust to DB)
-        type_base = arpeggio.type_name.strip()
-        if not type_base:
-            type_str = "Arpeggio"
-        elif "arpeggio" in type_base.lower():
-            type_str = type_base
-        else:
-            type_str = f"{type_base} Arpeggio"
+                    
+            # Compose name with root if not present
+            name = arpeggio.note_name
+            if root_note and not name.lower().startswith(root_note.lower()):
+                name = f"{root_note} {name}"
             
-        arpeggio_result = {
-            'id': arpeggio.id,
-            'name': name,
-            'type': type_str,
-            'notes': notes,
-            'url': f"/?root={root_id}&models_select=2&notes_options_select={arpeggio.id}&position_select=0"
-        }
-        
-        logger.debug(f"process_arpeggio_results: Processed arpeggio ID {arpeggio.id}", arpeggio_result)
-        processed_results.append(arpeggio_result)
+            # Get the root ID for URL generation
+            root_id = None
+            if root_obj:
+                root_id = root_obj.id
+            elif root_note:
+                # Try to find root by name
+                root_obj = Root.objects.filter(name__iexact=root_note).first()
+                if root_obj:
+                    root_id = root_obj.id
+                else:
+                    # Try lookup in mapping
+                    from .search_utils import ROOT_NAME_TO_ID
+                    root_id = ROOT_NAME_TO_ID.get(root_note)
+            
+            if not root_id:
+                # Default to A if all else fails
+                logger.warning(f"Could not find root ID for arpeggio {arpeggio.id}, using default ID 14")
+                root_id = 14  # Default to A
+            
+            # Always set type to include 'Arpeggio'
+            type_str = "Arpeggio"
+            
+            # Generate URL for this arpeggio - include models_select=2 for arpeggios
+            # Use the specific arpeggio ID in the URL
+            url_params = {
+                'root': root_id,
+                'models_select': 2,  # Code for arpeggios
+                'notes_options_select': arpeggio.id,
+                'position_select': 0
+            }
+            
+            url = f"{base_url}?root={root_id}&models_select=2&notes_options_select={arpeggio.id}&position_select=0"
+            
+            results.append({
+                'id': arpeggio.id,
+                'name': name,
+                'type': type_str,
+                'notes': notes,
+                'url': url
+            })
+            
+        except Exception as e:
+            logger.error(f"Error processing arpeggio {getattr(arpeggio, 'id', 'unknown')}: {str(e)}")
+            logger.error(traceback.format_exc())
     
-    logger.debug(f"Exiting process_arpeggio_results with {len(processed_results)} processed items.")
-    return processed_results
+    return results

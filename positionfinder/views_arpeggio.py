@@ -1,5 +1,5 @@
 from django.http import HttpRequest
-from .models_chords import ChordNotes
+from .models import Notes, NotesCategory
 from .views_base import MusicalTheoryView
 
 
@@ -25,13 +25,19 @@ class ArpeggioView(MusicalTheoryView):
         """
         # Default values for arpeggios
         if params['notes_options_id'] is None:
-            # Try to get first ChordNotes with category_id=2 (arpeggios)
-            first_arpeggio = ChordNotes.objects.filter(category_id=2).first()
-            if first_arpeggio:
-                params['notes_options_id'] = str(first_arpeggio.id)
+            # Get arpeggio category
+            arpeggio_category = NotesCategory.objects.filter(category_name__icontains='arpeggio').first()
+            if arpeggio_category:
+                # Try to get first Notes object with arpeggio category
+                first_arpeggio = Notes.objects.filter(category=arpeggio_category).first()
+                if first_arpeggio:
+                    params['notes_options_id'] = str(first_arpeggio.id)
+                else:
+                    # Fallback to default value
+                    params['notes_options_id'] = '13'  # Minor 7 arpeggio
             else:
-                # Fallback to default value
-                params['notes_options_id'] = '2105'  # A minor pentatonic arpeggio
+                # Fallback to default value if category not found
+                params['notes_options_id'] = '13'  # Minor 7 arpeggio
             
         return params
 
@@ -61,7 +67,13 @@ def arpeggio_list(request: HttpRequest):
         Rendered template response with arpeggio list
     """
     from django.shortcuts import render
-    from .models_chords import ChordNotes
+    from .models import Notes, NotesCategory
     
-    arpeggios = ChordNotes.objects.filter(category_id=2)  # ID 2 = Arpeggios
+    # Find arpeggio category
+    arpeggio_category = NotesCategory.objects.filter(category_name__icontains='arpeggio').first()
+    if arpeggio_category:
+        arpeggios = Notes.objects.filter(category=arpeggio_category)
+    else:
+        arpeggios = []
+    
     return render(request, 'arpeggio_list.html', {'arpeggios': arpeggios})
