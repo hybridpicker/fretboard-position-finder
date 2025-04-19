@@ -309,6 +309,7 @@ function updateNoteAnalysis() {
     
     // Create table header
     const headerRow = document.createElement('tr');
+    
     const stringHeader = document.createElement('th');
     stringHeader.textContent = 'String';
     stringHeader.style.textAlign = 'left';
@@ -323,14 +324,15 @@ function updateNoteAnalysis() {
     
     // Add rows for each string
     for (let i = 0; i < stringNames.length; i++) {
+        const stringName = stringNames[i];
         const row = document.createElement('tr');
         
         const stringCell = document.createElement('td');
-        stringCell.textContent = stringNames[i];
+        stringCell.textContent = stringName;
         row.appendChild(stringCell);
         
         const countCell = document.createElement('td');
-        countCell.textContent = notesByString[stringNames[i]] || 0;
+        countCell.textContent = notesByString[stringName] || 0;
         countCell.style.textAlign = 'right';
         row.appendChild(countCell);
         
@@ -885,12 +887,4 @@ function listenForScaleArpeggioEvents() {
             logScaleArpeggioEvent(`Selection changed: ${this.name} = ${this.value}`);
         });
     });
-    
-    // Listen for note name display button
-    const showNoteNameButton = document.getElementById('show_note_name_button');
-    if (showNoteNameButton) {
-        showNoteNameButton.addEventListener('click', function() {
-            logScaleArpeggioEvent('Show note names button clicked');
-        });
-    }
 }

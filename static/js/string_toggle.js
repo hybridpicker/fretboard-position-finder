@@ -343,9 +343,6 @@ function refreshFretboardDisplay() {
     // If there's a getToneNameFromDataChords function, use it for chords
     if (typeof window.getToneNameFromDataChords === 'function') {
         window.getToneNameFromDataChords();
-    } else if (typeof window.getNoteNameFromData === 'function') {
-        // For scales/arpeggios
-        window.getNoteNameFromData();
     }
     
     // Trigger a redraw of the fretboard

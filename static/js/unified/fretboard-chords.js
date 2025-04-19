@@ -9,6 +9,65 @@
 
 console.log('DEBUGGING: fretboard-chords.js loaded at', new Date().toISOString());
 
+const NOTE_CANONICAL_MAPPING = {
+  "C": { id: 1, class: "c" },
+  "Db": { id: 2, class: "db" },
+  "C#": { id: 3, class: "cs" },
+  "D": { id: 4, class: "d" },
+  "Eb": { id: 5, class: "eb" },
+  "D#": { id: 6, class: "ds" },
+  "E": { id: 7, class: "e" },
+  "F": { id: 8, class: "f" },
+  "Gb": { id: 9, class: "gb" },
+  "F#": { id: 10, class: "fs" },
+  "G": { id: 11, class: "g" },
+  "Ab": { id: 12, class: "ab" },
+  "G#": { id: 13, class: "gs" },
+  "A": { id: 14, class: "a" },
+  "Bb": { id: 15, class: "bb" },
+  "A#": { id: 16, class: "as" },
+  "B": { id: 17, class: "b" }
+};
+
+// Mapping from fret word to number
+const FRET_WORD_TO_NUMBER = {
+  'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4,
+  'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9,
+  'ten': 10, 'eleven': 11, 'twelve': 12, 'thirteen': 13,
+  'fourteen': 14, 'fifteen': 15, 'sixteen': 16, 'seventeen': 17,
+  'eighteen': 18, 'nineteen': 19, 'twenty': 20
+};
+
+// Enhanced fret number extraction to handle both numeric and word-based classes
+function getFretNumberFromClassList(classList) {
+  // Try numeric first (e.g., fret11)
+  let fretClass = Array.from(classList).find(cls => cls.startsWith('fret'));
+  console.log('[FretParse] classList:', Array.from(classList));
+  if (!fretClass) {
+    console.warn('[FretParse] No class starting with "fret" found.', Array.from(classList));
+    return -1;
+  }
+  // Try to extract number at the end (fret11)
+  let num = parseInt(fretClass.replace('fret', ''));
+  if (!isNaN(num)) {
+    console.log('[FretParse] Parsed numeric fret:', num, 'from', fretClass);
+    return num;
+  }
+  // If not numeric, check for word (fret eleven)
+  if (fretClass === 'fret') {
+    // Look for the next class that is a fret word
+    for (const cls of classList) {
+      if (FRET_WORD_TO_NUMBER.hasOwnProperty(cls)) {
+        console.log('[FretParse] Parsed word fret:', FRET_WORD_TO_NUMBER[cls], 'from', cls);
+        return FRET_WORD_TO_NUMBER[cls];
+      }
+    }
+    console.warn('[FretParse] No matching fret word found in classList.', Array.from(classList));
+  }
+  console.warn('[FretParse] Could not parse fret number from classList.', Array.from(classList));
+  return -1;
+}
+
 class ChordFretboardController extends FretboardCore {
   constructor(options = {}) {
     // Call the parent constructor with merged options
@@ -384,6 +443,9 @@ class ChordFretboardController extends FretboardCore {
     // IMPORTANT: Clear active notes to prevent accumulation
     this.state.activeNotes.clear();
     
+    // Clear previous root markers before activating new notes
+    this._clearAllRootMarkers();
+    
     // IMPROVED DATA STRUCTURE HANDLING
     let positionData = null;
     
@@ -592,8 +654,45 @@ class ChordFretboardController extends FretboardCore {
       ([string, notes]) => `${string}: ${[...notes.entries()].map(([key, value]) => `${key}: ${value.noteName} (${value.noteFunction})`).join(', ')}`
     ));
     
+    // Check for multiple root notes
+    setTimeout(() => {
+      console.log('[RootCheck] All elements with .root class after activation:');
+      document.querySelectorAll('.root').forEach(el => {
+        console.log(el, el.className, el.getAttribute('data-note-name'), el.getAttribute('data-is-root'));
+      });
+    }, 0);
+    
     this.performance.end('getTonesFromDataChords');
     return this;
+  }
+  
+  /**
+   * Remove all root markers from the fretboard before activating new notes
+   * Ensures only the current root is marked
+   */
+  _clearAllRootMarkers() {
+    // Remove 'root' class and related attributes from all .tone images
+    const rootImgs = document.querySelectorAll('img.tone.root');
+    rootImgs.forEach(img => {
+      img.classList.remove('root');
+      if (img.getAttribute('src') === '/static/media/circle-root.svg') {
+        img.setAttribute('src', '/static/media/circle.svg');
+      }
+      img.removeAttribute('data-is-root');
+      img.removeAttribute('data-note-name');
+      img.removeAttribute('data-note-class');
+      img.removeAttribute('data-note-id');
+      img.removeAttribute('data-canonical-name');
+    });
+    // Remove 'root' class from all .note elements (in case it was applied there)
+    document.querySelectorAll('.note.root').forEach(note => {
+      note.classList.remove('root');
+      note.removeAttribute('data-is-root');
+      note.removeAttribute('data-note-name');
+      note.removeAttribute('data-note-class');
+      note.removeAttribute('data-note-id');
+      note.removeAttribute('data-canonical-name');
+    });
   }
   
   /**
@@ -630,46 +729,51 @@ class ChordFretboardController extends FretboardCore {
     
     // Special styling for root notes
     if (noteFunction === 'R') {
+      // --- LOGGING: root note logic start ---
+      console.log('[RootMarking] Attempting to mark root:', {noteName, element, img});
+      const canonicalInfo = getCanonicalNoteInfo(noteName);
+      let canonicalClass = canonicalInfo ? canonicalInfo.class : null;
+      let canonicalId = canonicalInfo ? canonicalInfo.id : null;
+      let canonicalName = canonicalInfo ? canonicalInfo.canonical : null;
+      console.log('[RootMarking] canonicalInfo:', {noteName, canonicalInfo});
+      if (!canonicalInfo) {
+        console.warn('[RootMarking] No canonical mapping found for noteName:', noteName);
+      }
       img.classList.add('root');
       img.setAttribute('src', '/static/media/circle-root.svg');
-      
-      // Add extra attributes to help external root marking systems
       img.setAttribute('data-is-root', 'true');
       img.setAttribute('data-note-name', noteName);
+      if (canonicalClass) img.setAttribute('data-note-class', canonicalClass);
+      if (canonicalId) img.setAttribute('data-note-id', canonicalId);
+      if (canonicalName) img.setAttribute('data-canonical-name', canonicalName);
       img.style.opacity = '1';
-      
-      // Dispatch an event to notify other systems
       const rootMarkedEvent = new CustomEvent('rootNoteMarked', {
-        detail: { element: img, noteName: noteName }
+        detail: { element: img, noteName, canonicalClass, canonicalId, canonicalName }
       });
       document.dispatchEvent(rootMarkedEvent);
+      console.log('[RootMarking] Finished marking root:', {noteName, canonicalClass, canonicalId, canonicalName, img});
     }
+
+    // --- LOGGING: all note activations ---
+    console.log('[NoteActivation] Activating note:', {noteName, noteFunction, element, img});
     
     // Add note to active notes map using a unique key
     try {
       const fretElement = element.closest('.fret');
       if (fretElement) {
         const fretNum = this._getFretNumber(fretElement);
-        let stringName = null;
-        // Find the string name from the fret element's class list
-        for (const className of fretElement.classList) {
-          if (this.state.stringArray.includes(className)) {
-            stringName = className;
-            break;
-          }
+        const stringName = Array.from(fretElement.classList).find(cls => cls.endsWith('String'));
+        console.log('[NoteActivation] fretElement:', fretElement, 'classList:', Array.from(fretElement.classList), 'fretNum:', fretNum, 'stringName:', stringName);
+        if (!stringName || fretNum === -1) {
+          console.warn('[NoteActivation] Could not determine stringName or fretNum for key in _activateNote', element, Array.from(fretElement.classList));
         }
-
-        if (stringName && fretNum !== -1) {
-          const noteKey = `${stringName}-${fretNum}`;
-          // Ensure the map for this string exists
-          if (!this.state.activeNotes.has(stringName)) {
-             this.state.activeNotes.set(stringName, new Map());
-          }
-          this.state.activeNotes.get(stringName).set(noteKey, { noteName: noteName, noteFunction: noteFunction });
-          
-        } else {
-          console.warn(`Could not determine stringName (${stringName}) or fretNum (${fretNum}) for key in _activateNote`, element, fretElement.classList);
+        // ...rest of logic
+        const noteKey = `${stringName}-${fretNum}`;
+        // Ensure the map for this string exists
+        if (!this.state.activeNotes.has(stringName)) {
+           this.state.activeNotes.set(stringName, new Map());
         }
+        this.state.activeNotes.get(stringName).set(noteKey, { noteName: noteName, noteFunction: noteFunction });
       } else {
          console.warn(`Could not find parent .fret for element in _activateNote`, element);
       }
@@ -686,14 +790,7 @@ class ChordFretboardController extends FretboardCore {
    */
   _getFretNumber(fretEl) {
     if (!fretEl) return -1;
-    
-    const fretClass = Array.from(fretEl.classList)
-      .find(cls => cls.startsWith('fret'));
-    
-    if (!fretClass) return -1;
-    
-    const fretNum = parseInt(fretClass.replace('fret', ''));
-    return isNaN(fretNum) ? -1 : fretNum;
+    return getFretNumberFromClassList(fretEl.classList);
   }
   
   /**
@@ -830,6 +927,40 @@ class ChordFretboardController extends FretboardCore {
     
     return score;
   }
+  
+  /**
+   * Helper function to escape special characters in CSS selectors
+   * Specifically escapes '#' for use in class names.
+   * @param {string} note - The note name (e.g., 'cs3', 'bb2')
+   * @returns {string} Escaped note name suitable for CSS class selectors
+   */
+  escapeNoteForCss(note) {
+    if (typeof note !== 'string') return '';
+    // Only escape '#' as '\#'. Do not escape 'b'.
+    return note.replace(/#/g, '\\#');
+  }
+}
+
+// Utility: Normalize note name to canonical mapping (preserve original accidental)
+function getCanonicalNoteInfo(noteName) {
+  // Remove octave if present
+  const match = noteName.match(/^([a-gA-G][b#]?)/);
+  if (!match) return null;
+  let base = match[1].toUpperCase().replace('S', '#');
+  if (NOTE_CANONICAL_MAPPING[base]) {
+    return { ...NOTE_CANONICAL_MAPPING[base], canonical: base };
+  }
+  // Only use enharmonic equivalents if the original is not present
+  if (base.endsWith('B')) { // e.g., Db
+    const sharp = base[0] + '#';
+    if (NOTE_CANONICAL_MAPPING[sharp]) return { ...NOTE_CANONICAL_MAPPING[sharp], canonical: base };
+  }
+  if (base.endsWith('#')) { // e.g., C#
+    const nextChar = String.fromCharCode(base.charCodeAt(0) + 1);
+    const flat = nextChar + 'b';
+    if (NOTE_CANONICAL_MAPPING[flat]) return { ...NOTE_CANONICAL_MAPPING[flat], canonical: base };
+  }
+  return null;
 }
 
 // Initialize the chord fretboard controller when DOM is loaded

@@ -186,8 +186,12 @@ function deactivateActiveNotes(string, toneName) {
 /* IMPORTANT */
 function getToneNameFromDataChords() {
   var button = document.getElementById('show_tension_button')
-  button.setAttribute('onclick','show_tension_notes_chords()')
-  button.innerHTML = 'Show Tensions';
+  if (button) {
+    button.setAttribute('onclick','show_tension_notes_chords()')
+    button.innerHTML = 'Show Tensions';
+  } else {
+    console.warn('[getToneNameFromDataChords] show_tension_button not found in DOM when trying to set onclick');
+  }
   var pos_val = document.getElementById('position_select').value
   var note_range = document.getElementById('note_range').value
   getTonesFromDataChords(pos_val, note_range)
@@ -213,8 +217,12 @@ function getNoteNameFromData(){
     }
   }
   var button = document.getElementById('show_note_name_button')
-  button.setAttribute('onclick','getNotePicFromData()')
-  button.innerHTML = 'Only Tones';
+  if (button) {
+    button.setAttribute('onclick','getNotePicFromData()')
+    button.innerHTML = 'Only Tones';
+  } else {
+    console.warn('[getNoteNameFromData] show_note_name_button not found in DOM when trying to set onclick');
+  }
 }
  // Function For Getting Note Names on Dots
  function getNoteNameFromData() {
@@ -228,57 +236,28 @@ function getNoteNameFromData(){
     }
   });
   var button = document.getElementById('show_note_name_button');
-  button.setAttribute('onclick', 'hideNoteNames()');
-  button.innerHTML = 'Only Tones';
-}
-
-// Function For Hiding Note Names on Dots
-function hideNoteNames() {
-  var notenames = document.querySelectorAll('.notename.active');
-  notenames.forEach(function(n) {
-    n.classList.remove('active');
-    n.style.visibility = 'hidden'; // Hide visibility
-  });
-  var button = document.getElementById('show_note_name_button');
-  button.setAttribute('onclick', 'getNoteNameFromData()');
-  button.innerHTML = 'Show Note Names';
-}
-
-/* Function For Deleting Note Names */
-function getNotePicFromData(){
-  /* x sets the id of inversions */
-  var notename_elements = document.querySelectorAll('.notename');
-  if (notename_elements != undefined){
-    for (var i=0; i<notename_elements.length; i++) {
-      notename_elements[i].classList.remove('active');
-    }
-  }
-  var button = document.getElementById('show_note_name_button')
-  button.setAttribute('onclick','getNoteNameFromData()')
-  button.innerHTML = 'Show Note Names';
-}
-
-function closeAllSelect(elmnt) {
-  /*  Close all select boxes in the document,
-  except the current select box: */
-  var x, y, i, arrNo = [];
-  x = document.getElementsByClassName('slit');
-  y = document.getElementsByClassName('sese');
-  for (i = 0; i < y.length; i++) {
-    if (elmnt == y[i]) {
-      arrNo.push(i)
-    } else {
-      y[i].classList.remove('slar-active');
-    }
-  }
-  for (i = 0; i < x.length; i++) {
-    if (arrNo.indexOf(i)) {
-      x[i].classList.add('sehi');
-    }
+  if (button) {
+    button.setAttribute('onclick', 'hideNoteNames()');
+    button.innerHTML = 'Only Tones';
+  } else {
+    console.warn('[getNoteNameFromData] show_note_name_button not found in DOM when trying to set onclick');
   }
 }
 
-/* Save Scroll Position when Refreshing Page */
+// Function For Deleting Note Names
+function deleteNoteNames() {
+    var notenames = document.querySelectorAll('.notename');
+    notenames.forEach(function(n) {
+        n.classList.remove('active');
+        n.style.visibility = 'hidden';
+    });
+}
+
+// --- BEGIN REMOVE SHOW NOTENAME LOGIC ---
+// Removed: getNoteNameFromData, hideNoteNames, getNotePicFromData, and all button logic for show_note_name_button
+// --- END REMOVE SHOW NOTENAME LOGIC ---
+
+// Save Scroll Position when Refreshing Page
 document.addEventListener('DOMContentLoaded', function(event) {
     var scrollpos = localStorage.getItem('scrollpos');
     if (scrollpos) window.scrollTo(0, scrollpos);
@@ -508,46 +487,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.cookie = name + '=; Max-Age=-99999999; path=/; SameSite=Lax';
   }
 
-  // Function For Getting Note Names on Dots
-  function getNoteNameFromData() {
-    var noteNames = document.querySelectorAll('.note .notename');
-    noteNames.forEach(function(noteName) {
-      var parentNote = noteName.closest('.note');
-      var activeImage = parentNote.querySelector('img.active');
-      if (activeImage) {
-        noteName.classList.add('active');
-        noteName.style.visibility = 'visible'; // Ensure visibility
-      }
-    });
-    document.body.classList.add('show-notes');
-    var button = document.getElementById('show_note_name_button');
-    button.setAttribute('onclick', 'hideNoteNames()');
-    button.innerHTML = 'Only Tones';
-  }
-
-  // Function For Hiding Note Names on Dots
-  function hideNoteNames() {
-    var notenames = document.querySelectorAll('.notename.active');
-    notenames.forEach(function(n) {
-      n.classList.remove('active');
-      n.style.visibility = 'hidden'; // Hide visibility
-    });
-    document.body.classList.remove('show-notes');
-    var button = document.getElementById('show_note_name_button');
-    button.setAttribute('onclick', 'getNoteNameFromData()');
-    button.innerHTML = 'Show Note Names';
-  }
-
-  // Check if the 'showNoteName' cookie is set to 'true' AND the button state allows it
-  // NOTE: Removing the automatic call based on cookie for scale/arpeggio views.
-  // The button state should be the source of truth after initial load.
-  /*
-  if (getCookie('showNoteName') === 'true') {
-     // Check button state before activating? Might be complex due to timing.
-     // Let's disable automatic activation for now. User can click the button.
-     // getNoteNameFromData();
-  }
-  */
   // Event listener for keydown events
   document.addEventListener('keydown', function(event) {
     // Check if the 'Escape' key is pressed
@@ -589,29 +528,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // Check if the 'n' key is pressed
     if (event.key === 'n' || event.key === 'N') {
-      if (document.body.classList.contains('show-notes')) {
-        hideNoteNames();
-        eraseCookie('showNoteName');
-      } else {
-        getNoteNameFromData();
-        setCookie('showNoteName', 'true', 7); // Set cookie to remember the state for 7 days
-      }
+      // Removed logic for toggling note names
     }
   });
 
-  // Add click event listener to the button
-  var showNoteNameButton = document.getElementById('show_note_name_button');
-  if (showNoteNameButton) {
-    showNoteNameButton.addEventListener('click', function() {
-      if (document.body.classList.contains('show-notes')) {
-        hideNoteNames();
-        eraseCookie('showNoteName');
-      } else {
-        getNoteNameFromData();
-        setCookie('showNoteName', 'true', 7); // Set cookie to remember the state for 7 days
-      }
-    });
-  }
   // Function to sync the height of the lowest string div with spacing-top
   // Function definition moved to global scope
 
