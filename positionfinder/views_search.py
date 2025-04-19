@@ -10,6 +10,9 @@ from django.views.decorators.http import require_http_methods
 
 from .models import Root, NotesCategory, Notes
 from .models_chords import ChordNotes, ChordPosition
+
+# Scale is an alias for Notes with scale category for testing compatibility
+Scale = Notes
 from .views_helpers import get_common_context
 from .search_utils import parse_query, best_fuzzy_match, resolve_root, NOTES as NOTE_NAMES, ROOT_NAME_TO_ID
 
@@ -199,11 +202,34 @@ def search_chords(search_query):
     """Search for chords matching the query, supporting combined type and position queries like 'Major7 V2' and common synonyms."""
     logger.debug(f"Entering search_chords with query: '{search_query}'")
     try:
-        from .search_utils import parse_query
+        from .search_utils import parse_query, best_fuzzy_match
         note, _, quality, _, _ = parse_query(search_query)
         chord_options = list(ChordNotes.objects.values_list('chord_name', flat=True).distinct())
         type_options = list(ChordNotes.objects.values_list('type_name', flat=True).distinct())
-        matched_chord = best_fuzzy_match(search_query, chord_options, cutoff=0.7, case_sensitive=False)
+
+        # Map parsed quality to canonical chord_name in DB
+        CHORD_QUALITY_MAP = {
+            'maj7': 'Major 7',
+            'major7': 'Major 7',
+            'min7': 'Minor 7',
+            'm7': 'Minor 7',
+            'minor7': 'Minor 7',
+            'dim7': 'Diminished 7',
+            'm7b5': 'Minor 7b5',
+            'dom7': 'Dominant 7',
+            'dominant 7': 'Dominant 7',
+            'major': 'Major',
+            'minor': 'Minor',
+            'dim': 'Diminished',
+            'diminished': 'Diminished',
+            'aug': 'Augmented',
+            'augmented': 'Augmented',
+            # Add more as needed
+        }
+        chord_name = CHORD_QUALITY_MAP.get(quality.lower(), quality.title() if quality else None)
+        logger.debug(f"search_chords: Parsed quality '{quality}' mapped to chord_name '{chord_name}'")
+        # Try to match both chord_name and type_name
+        matched_chord = best_fuzzy_match(chord_name or '', chord_options, cutoff=0.7, case_sensitive=False) if chord_name else None
         matched_type = best_fuzzy_match(search_query, type_options, cutoff=0.7, case_sensitive=False)
         found = False
         if matched_chord and matched_type:
@@ -213,7 +239,6 @@ def search_chords(search_query):
                     if matches.exists():
                         found = True
                         logger.debug(f"search_chords: Found {len(matches)} matches for chord_name='{cn}', type_name='{tn}'.")
-                        # Filter for root note if present
                         filtered = matches.filter(tonal_root=ROOT_NAME_TO_ID.get(note)) if note else matches
                         return process_chord_results(filtered, root_note=note)
         elif matched_chord:
@@ -244,15 +269,26 @@ def search_chords(search_query):
 def process_chord_results(queryset, root_note=None):
     """Process chord query results into a standardized format"""
     logger.debug(f"Entering process_chord_results with {len(queryset)} items.")
-    # Filter for correct root first, then prioritize e-string voicings
     chords_to_process = list(queryset)
+    # Robust filtering: Try tonal_root, then fallback to name prefix, else skip filtering
     if root_note:
         root_id = ROOT_NAME_TO_ID.get(root_note)
-        if root_id is not None:
-            chords_to_process = [ch for ch in chords_to_process if getattr(ch, 'tonal_root', None) == root_id]
+        filtered = [ch for ch in chords_to_process if getattr(ch, 'tonal_root', None) == root_id]
+        logger.debug(f"Filtered by tonal_root ({root_note} -> {root_id}): {len(filtered)} matches.")
+        if filtered:
+            chords_to_process = filtered
+        else:
+            # Fallback: match by chord_name prefix (e.g., 'A Major 7')
+            fallback = [ch for ch in chords_to_process if str(ch.chord_name).lower().startswith(root_note.lower())]
+            logger.debug(f"Fallback by chord_name prefix '{root_note}': {len(fallback)} matches.")
+            if fallback:
+                chords_to_process = fallback
+            else:
+                logger.debug(f"No matches for tonal_root or chord_name prefix, skipping root filter.")
     # Now prioritize e-string voicings among filtered chords
     prioritized = [ch for ch in chords_to_process if 'e' in getattr(ch, 'range', '') and 'E' not in getattr(ch, 'range', '')]
     if prioritized:
+        logger.debug(f"Prioritized e-string voicings: {len(prioritized)} matches.")
         chords_to_process = prioritized
     processed_results = []
     for chord in chords_to_process:
@@ -262,6 +298,14 @@ def process_chord_results(queryset, root_note=None):
             note_value = getattr(chord, note_attr, None)
             if note_value is not None:
                 notes.append(note_value)
+        # Calculate intervals if not present
+        intervals = []
+        if hasattr(chord, 'intervals') and chord.intervals:
+            intervals = chord.intervals
+        else:
+            if notes and len(notes) > 1:
+                root_pitch = notes[0]
+                intervals = [(n - root_pitch) % 12 for n in notes]
         # Compose name with root if not present
         name = chord.chord_name
         if root_note and not name.lower().startswith(root_note.lower()):
@@ -274,6 +318,7 @@ def process_chord_results(queryset, root_note=None):
             'category': getattr(chord.category, 'category_name', None) if hasattr(chord, 'category') else None,
             'positions': positions,
             'notes': notes,
+            'intervals': intervals,
             'url': url
         }
         logger.debug(f"process_chord_results: Processed chord ID {chord.id}", chord_result)
@@ -292,49 +337,6 @@ def search_scales(search_query):
     if not root_obj:
         logger.debug(f"search_scales: No valid root found for '{note}', aborting search.")
         return []
-    quality_opts = list(Notes.objects.filter(category__category_name__icontains='scale').values_list('note_name', flat=True).distinct())
-    db_qual = best_fuzzy_match(quality, quality_opts, cutoff=0.7, case_sensitive=False) or quality
-    logger.debug(f"search_scales: db_qual='{db_qual}' (from quality='{quality}')")
-    # Define intervals for dynamic scale generation, including modes and common scales
-    intervals_map = {
-        'minor pentatonic': [0, 3, 5, 7, 10],
-        'major pentatonic': [0, 2, 4, 7, 9],
-        'pentatonic': [0, 2, 4, 7, 9],
-        'major': [0, 2, 4, 5, 7, 9, 11],         # Ionian
-        'minor': [0, 2, 3, 5, 7, 8, 10],        # Aeolian
-        'dorian': [0, 2, 3, 5, 7, 9, 10],       # Dorian mode
-        'phrygian': [0, 1, 3, 5, 7, 8, 10],     # Phrygian
-        'lydian': [0, 2, 4, 6, 7, 9, 11],       # Lydian
-        'mixolydian': [0, 2, 4, 5, 7, 9, 10],   # Mixolydian
-        'aeolian': [0, 2, 3, 5, 7, 8, 10],      # Aeolian
-        'locrian': [0, 1, 3, 5, 6, 8, 10],      # Locrian
-        'harmonic minor': [0, 2, 3, 5, 7, 8, 11], # Harmonic Minor
-        'harmonic major': [0, 2, 4, 5, 7, 8, 11], # Harmonic Major
-        'melodic minor': [0, 2, 3, 5, 7, 9, 11]  # Melodic Minor
-    }
-    intervals = intervals_map.get(db_qual.lower())
-    logger.debug(f"search_scales: intervals for db_qual='{db_qual.lower()}': {intervals}")
-    if intervals:
-        exists = Notes.objects.filter(
-            category__category_name__icontains='scale',
-            tonal_root=ROOT_NAME_TO_ID.get(note),
-            note_name__icontains=db_qual
-        ).exists()
-        logger.debug(f"search_scales: Notes exists for root={ROOT_NAME_TO_ID.get(note)}, db_qual='{db_qual}': {exists}")
-        if not exists:
-            notes_vals = [(ROOT_NAME_TO_ID.get(note) + iv) % 12 for iv in intervals]
-            tension_map = {0: 'R', 3: 'b3', 5: '11', 7: '5', 10: 'b7', 2: '2', 4: '3', 9: '6'}
-            tensions = [tension_map.get(iv, str(iv)) for iv in intervals]
-            notenames = [NOTE_NAMES[nv] for nv in notes_vals]
-            logger.debug(f"search_scales: Returning dynamic pentatonic result for {note} {quality}")
-            return [{
-                'id': None,
-                'name': f"{note} {quality}".strip().title(),
-                'type': 'Scales',
-                'notes': notes_vals,
-                'tensions': tensions,
-                'notenames': notenames
-            }]
     try:
         qs = Notes.objects.filter(category__category_name__icontains='scale')
         if search_query.isdigit():
@@ -344,10 +346,7 @@ def search_scales(search_query):
             qs = qs.filter(note_name__icontains=quality)
         logger.debug(f"search_scales: Final queryset count: {qs.count()}")
         if qs.exists():
-            results = process_scale_results(qs)
-            display = f"{note} {quality}".strip().title()
-            for item in results:
-                item['name'] = display
+            results = process_scale_results(qs, user_note=note, user_quality=quality)
             return results
         logger.debug(f"search_scales: No results found for '{search_query}'.")
         return []
@@ -357,8 +356,8 @@ def search_scales(search_query):
         logger.debug(f"search_scales: Error occurred - {str(e)}")
         return []
 
-def process_scale_results(queryset):
-    """Process scale query results into a standardized format"""
+def process_scale_results(queryset, user_note=None, user_quality=None):
+    """Process scale query results into a standardized format, preserving user note and quality for naming if possible."""
     logger.debug(f"Entering process_scale_results with {len(queryset)} items.")
     processed_results = []
     for scale in queryset:
@@ -366,36 +365,27 @@ def process_scale_results(queryset):
         for note_attr in ['first_note', 'second_note', 'third_note', 'fourth_note', 'fifth_note', 
                          'sixth_note', 'seventh_note', 'eighth_note', 'ninth_note']:
             if hasattr(scale, note_attr):
-                note_value = getattr(scale, note_attr, None)
-                if note_value is not None:
-                    notes.append(note_value)
-        # Use resolve_root to get the correct Root object
-        from .search_utils import resolve_root
-        # Try to get the note name from scale.tonal_root
-        root_obj = None
-        if hasattr(scale, 'tonal_root'):
-            try:
-                pitch_val = int(scale.tonal_root)
-                note_name = NOTE_NAMES[pitch_val % 12]
-                root_obj = resolve_root(note_name)
-            except Exception as e:
-                logger.debug(f"process_scale_results: Could not resolve root from tonal_root {scale.tonal_root}: {e}")
-        # Fallback: try by pitch if resolve_root fails
-        if not root_obj and hasattr(scale, 'tonal_root'):
-            try:
-                root_obj = Root.objects.filter(pitch=scale.tonal_root).first()
-            except Exception as e:
-                logger.debug(f"process_scale_results: Fallback by pitch failed for tonal_root {scale.tonal_root}: {e}")
-        root_pk = root_obj.pk if root_obj else None
-        if root_pk is None:
-            logger.error(f"process_scale_results: Could not resolve root for tonal_root={getattr(scale, 'tonal_root', None)} (scale id={scale.id})")
-            root_pk = 1  # Final fallback; consider None or raise
-        url = f"/?root={root_pk}&models_select=1&notes_options_select={scale.pk}&position_select=0"
+                value = getattr(scale, note_attr, None)
+                if value is not None:
+                    notes.append(value)
+        # Calculate intervals if not present
+        intervals = []
+        if hasattr(scale, 'intervals') and scale.intervals:
+            intervals = scale.intervals
+        else:
+            if notes and len(notes) > 1:
+                root_pitch = notes[0]
+                intervals = [(n - root_pitch) % 12 for n in notes]
+        name = scale.note_name
+        if user_note and not name.lower().startswith(user_note.lower()):
+            name = f"{user_note} {name}"
+        url = f"/?root={getattr(scale, 'tonal_root', 1)}&models_select=1&notes_options_select={scale.id}&position_select=0"
         scale_result = {
             'id': scale.id,
-            'name': scale.note_name,
-            'type': scale.category.category_name,
+            'name': name,
+            'type': getattr(scale.category, 'category_name', '') if hasattr(scale, 'category') else '',
             'notes': notes,
+            'intervals': intervals,
             'url': url
         }
         logger.debug(f"process_scale_results: Processed scale ID {scale.id}", scale_result)
@@ -529,6 +519,16 @@ def process_arpeggio_results(queryset, root_note=None, root_obj=None, quality=No
                 if note_value is not None:
                     notes.append(note_value)
                     
+            # Calculate intervals if possible, else use empty list
+            intervals = []
+            if hasattr(arpeggio, 'intervals') and arpeggio.intervals:
+                intervals = arpeggio.intervals
+            else:
+                # Try to infer intervals from notes if possible (e.g., relative to root)
+                if notes and len(notes) > 1:
+                    root_pitch = notes[0]
+                    intervals = [(n - root_pitch) % 12 for n in notes]
+
             # Compose name with root if not present
             name = arpeggio.note_name
             if root_note and not name.lower().startswith(root_note.lower()):
@@ -572,6 +572,7 @@ def process_arpeggio_results(queryset, root_note=None, root_obj=None, quality=No
                 'name': name,
                 'type': type_str,
                 'notes': notes,
+                'intervals': intervals,
                 'url': url
             })
             

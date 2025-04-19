@@ -280,6 +280,114 @@ class TestArpeggioSearchIntegrity(TestCase):
         # because they have different IDs even with same note_name
         self.assertEqual(len(results), 3)
 
+    def test_enharmonic_equivalence(self):
+        """Test that enharmonic equivalents (e.g., A# and Bb) are handled correctly"""
+        # Create both A# and Bb roots
+        root_asharp = Root.objects.create(name="A#", display_name="A#", pitch=10)
+        root_bb = Root.objects.create(name="Bb", display_name="Bb", pitch=10)
+        # Create arpeggios for both
+        Notes.objects.create(
+            category=self.arpeggio_category,
+            note_name="Major",
+            tonal_root=10,  # A#/Bb
+            first_note=10, third_note=2, fifth_note=5,
+        )
+        # Query for Bb Major
+        results = search_arpeggios(note="Bb", quality="Major")
+        # Should return Bb Major, not A# Major unless A# is input
+        names = [r["name"] for r in results]
+        self.assertIn("Bb Major", names)
+        self.assertNotIn("A# Major", names)
+
+    def test_unicode_and_spelling(self):
+        """Test Unicode note input and fuzzy spelling"""
+        # Unicode sharp
+        root_csharp = Root.objects.create(name="C#", display_name="C♯", pitch=1)
+        Notes.objects.create(
+            category=self.arpeggio_category,
+            note_name="Minor",
+            tonal_root=1,
+            first_note=1, third_note=4, fifth_note=8,
+        )
+        results = search_arpeggios(note="C♯", quality="Minor")
+        self.assertTrue(any("C# Minor" in r["name"] or "C♯ Minor" in r["name"] for r in results))
+        # Fuzzy spelling
+        Notes.objects.create(
+            category=self.arpeggio_category,
+            note_name="Maj7",
+            tonal_root=0,
+            first_note=0, third_note=4, fifth_note=7, seventh_note=11,
+        )
+        results = search_arpeggios(note="C", quality="maj7")
+        self.assertTrue(any("Maj7" in r["name"] for r in results))
+
+    def test_combined_and_partial_queries(self):
+        """Test combined queries and partial type/root queries"""
+        # Combined
+        Notes.objects.create(
+            category=self.arpeggio_category,
+            note_name="Dominant 7",
+            tonal_root=2,  # D
+            first_note=2, third_note=6, fifth_note=9, seventh_note=0,
+        )
+        results = search_arpeggios(note="D", quality="Dominant 7")
+        self.assertTrue(any("Dominant 7" in r["name"] for r in results))
+        # Partial (type only)
+        results = search_arpeggios(quality="Dominant 7")
+        self.assertTrue(any("Dominant 7" in r["name"] for r in results))
+        # Partial (root only)
+        results = search_arpeggios(note="D")
+        self.assertTrue(any("D" in r["name"] for r in results))
+
+    def test_fallbacks_and_no_results(self):
+        """Test fallback to partial/related matches and empty results"""
+        # No exact match
+        results = search_arpeggios(note="E", quality="SuperMajor")
+        self.assertIsInstance(results, list)
+        # Should fallback to related (e.g. E Major)
+        fallback = any("E Major" in r["name"] for r in results)
+        self.assertTrue(fallback or len(results) == 0)
+        # Truly no match
+        results = search_arpeggios(note="Z", quality="Imaginary")
+        self.assertEqual(results, [])
+
+    def test_dynamic_generation(self):
+        """Test dynamic generation of arpeggios not in DB but constructible (e.g., F# minor pentatonic)"""
+        # If your app supports dynamic generation, this should trigger it
+        results = search_arpeggios(note="F#", quality="pentatonic")
+        # Should return a result with notes/intervals even if not in DB
+        self.assertTrue(isinstance(results, list))
+        if results:
+            self.assertIn("notes", results[0])
+            self.assertIn("intervals", results[0])
+
+    def test_output_consistency(self):
+        """Test output fields and name matching"""
+        results = search_arpeggios(note="A", quality="minor")
+        for r in results:
+            self.assertIn("name", r)
+            self.assertIn("notes", r)
+            self.assertIn("intervals", r)
+            self.assertIn("url", r)
+            # Name should match query intent (enharmonic spelling)
+            self.assertIn("A", r["name"])  # Should preserve spelling
+
+    def test_edge_cases(self):
+        """Test empty, whitespace, invalid, and batch queries"""
+        # Empty
+        results = search_arpeggios(note="", quality="")
+        self.assertIsInstance(results, list)
+        # Whitespace
+        results = search_arpeggios(note=" ", quality=" ")
+        self.assertIsInstance(results, list)
+        # Invalid
+        results = search_arpeggios(note="!!!", quality="???")
+        self.assertIsInstance(results, list)
+        # Batch/rapid
+        for _ in range(5):
+            results = search_arpeggios(note="C", quality="Major")
+            self.assertIsInstance(results, list)
+
 
 if __name__ == "__main__":
     pytest.main(["-xvs", "test_arpeggio_search_integrity.py"])

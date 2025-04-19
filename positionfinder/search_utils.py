@@ -1,5 +1,6 @@
 import difflib
 import logging
+import re
 
 # Reduce logging to WARNING or ERROR for search logic bugfixing
 logger = logging.getLogger(__name__)
@@ -127,35 +128,44 @@ def parse_query(user_query):
     tokens = user_query.lower().replace('-', ' ').split()
     joined = " ".join(tokens)
 
-    # Fuzzy match for note (single tokens only)
-    note = next((fuzzy_find(t.capitalize(), NOTES) for t in tokens if fuzzy_find(t.capitalize(), NOTES)), "C")
-
+    # Try to extract compact root+quality tokens (e.g., Gmaj7, Abmin7, F#dim7)
+    chord_regex = re.compile(r"^([a-gA-G][b#]?)(maj7|min7|m7b5|dim7|m7|7|sus4|sus2|add9|6|9|11|13|aug|dim|maj|min|m)?$")
+    note = None
+    quality = None
+    for t in tokens:
+        m = chord_regex.match(t)
+        if m:
+            note = m.group(1).capitalize()
+            raw_qual = m.group(2) or ''
+            # Map short forms to canonical
+            qual_map = {
+                'm': 'minor', 'min': 'minor', 'maj': 'major', 'dim': 'diminished', 'aug': 'augmented',
+                'maj7': 'maj7', 'min7': 'min7', 'm7': 'min7', 'dim7': 'dim7', 'm7b5': 'm7b5',
+            }
+            quality = qual_map.get(raw_qual.lower(), raw_qual.lower()) if raw_qual else None
+            break
+    # Fallback to fuzzy matching if not found by regex
+    if not note:
+        note = next((fuzzy_find(t.capitalize(), NOTES) for t in tokens if fuzzy_find(t.capitalize(), NOTES)), "C")
+    if not quality:
+        quality = best_fuzzy_match(joined, QUALITIES, cutoff=0.6, case_sensitive=False) or "major"
     # Fuzzy match for type (chord/scale/arpeggio)
     type_ = next((fuzzy_find(t, TYPES) for t in tokens if fuzzy_find(t, TYPES)), "chord")
-
-    # Fuzzy match for quality
-    quality = best_fuzzy_match(joined, QUALITIES, cutoff=0.6, case_sensitive=False) or "major"
-
     # Fuzzy match for position
     position = best_fuzzy_match(joined, POSITIONS, cutoff=0.7, case_sensitive=False) or ""
-
     # Fuzzy match for inversion
     inversion = best_fuzzy_match(joined, INVERSIONS, cutoff=0.7, case_sensitive=False) or "basic position"
-
     # Check if "arpeggio" is explicitly mentioned in the query
     if 'arpeggio' in joined:
         type_ = "arpeggio"
-        
     # Override type_ for scale-specific qualities (but respect arpeggio overriding)
     scale_terms = {"pentatonic","minor pentatonic","major pentatonic","harmonic minor","harmonic major","melodic minor","dorian","phrygian","lydian","mixolydian","locrian","augmented","diminished"}
-    if (quality.lower() in scale_terms or 'pentatonic' in quality.lower()) and type_ != "arpeggio":
+    if (quality and (quality.lower() in scale_terms or 'pentatonic' in quality.lower())) and type_ != "arpeggio":
         type_ = "scale"
-        
     # Override type_ for chord-specific qualities (but respect arpeggio overriding)
     chord_terms = {"maj7","min7","dominant 7","dim7","m7b5"}
-    if quality.lower() in chord_terms and type_ != "arpeggio":
+    if quality and quality.lower() in chord_terms and type_ != "arpeggio":
         type_ = "chord"
-        
     return note, type_, quality, position, inversion
 
 
