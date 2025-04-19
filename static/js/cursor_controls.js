@@ -53,6 +53,21 @@ function enhanceCursorClickFunctions() {
             
             // Make sure the notes display is updated
             ensureNotesUpdate();
+            
+            // Dispatch cursor navigation event
+            document.dispatchEvent(new CustomEvent('cursor-navigation-complete', {
+                detail: { direction: 'left' }
+            }));
+            
+            // Restore multi-inversion display if available
+            if (typeof window.forceCorrectInversionDisplay === 'function') {
+                // Use the force fix method - most reliable
+                setTimeout(window.forceCorrectInversionDisplay, 150);
+            } else if (typeof window.updateChordInversions === 'function') {
+                window.updateChordInversions();
+            } else if (typeof enhanceChordDisplay === 'function') {
+                setTimeout(enhanceChordDisplay, 150);
+            }
         };
     }
     
@@ -61,6 +76,21 @@ function enhanceCursorClickFunctions() {
             
             // Make sure the notes display is updated
             ensureNotesUpdate();
+            
+            // Dispatch cursor navigation event
+            document.dispatchEvent(new CustomEvent('cursor-navigation-complete', {
+                detail: { direction: 'right' }
+            }));
+            
+            // Restore multi-inversion display if available
+            if (typeof window.forceCorrectInversionDisplay === 'function') {
+                // Use the force fix method - most reliable
+                setTimeout(window.forceCorrectInversionDisplay, 150);
+            } else if (typeof window.updateChordInversions === 'function') {
+                window.updateChordInversions();
+            } else if (typeof enhanceChordDisplay === 'function') {
+                setTimeout(enhanceChordDisplay, 150);
+            }
         };
     }
     

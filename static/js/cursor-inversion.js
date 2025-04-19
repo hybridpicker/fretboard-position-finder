@@ -692,6 +692,27 @@ function fpfLeftCursorClick() { // Renamed
             }
         }
 
+        // Dispatch a navigation complete event for listeners
+        console.log(`LEFT cursor navigation: mode=${window.currentMode}, inversion=${window.currentInversion}`);
+        document.dispatchEvent(new CustomEvent('cursor-navigation-complete', {
+            detail: { 
+                direction: 'left', 
+                mode: window.currentMode,
+                inversion: window.currentInversion
+            }
+        }));
+        
+        // Restore multi-inversion display if in chords mode
+        if (window.currentMode === 'chords') {
+            if (typeof window.forceCorrectInversionDisplay === 'function') {
+                // Use the force fix for direct correction - most reliable method
+                setTimeout(window.forceCorrectInversionDisplay, 150);
+            } else if (typeof window.updateChordInversions === 'function') {
+                window.updateChordInversions();
+            } else if (typeof enhanceChordDisplay === 'function') {
+                setTimeout(enhanceChordDisplay, 150);
+            }
+        }
     } catch (e) {
         console.error("Error in fpfLeftCursorClick:", e); // Renamed log
         // Optionally try to reset UI or log error state
@@ -774,6 +795,27 @@ function fpfRightCursorClick() { // Renamed
         updateDisplay();
         updateCursorVisibility();
 
+        // Dispatch a navigation complete event for listeners
+        console.log(`RIGHT cursor navigation: mode=${window.currentMode}, inversion=${window.currentInversion}`);
+        document.dispatchEvent(new CustomEvent('cursor-navigation-complete', {
+            detail: { 
+                direction: 'right', 
+                mode: window.currentMode,
+                inversion: window.currentInversion
+            }
+        }));
+        
+        // Restore multi-inversion display if in chords mode
+        if (window.currentMode === 'chords') {
+            if (typeof window.forceCorrectInversionDisplay === 'function') {
+                // Use the force fix for direct correction - most reliable method
+                setTimeout(window.forceCorrectInversionDisplay, 150);
+            } else if (typeof window.updateChordInversions === 'function') {
+                window.updateChordInversions();
+            } else if (typeof enhanceChordDisplay === 'function') {
+                setTimeout(enhanceChordDisplay, 150);
+            }
+        }
     } catch (e) {
         console.error("Error in fpfRightCursorClick:", e); // Renamed log
         // Optionally try to reset UI or log error state
