@@ -59,7 +59,7 @@ def your_view(request):
 Replace all existing chord-related scripts with the optimized version:
 
 1. Find all `<script>` tags loading the following files:
-   - fretboard_chords.2.0.4.js
+   - fretboard_chords.2.1.0.js
    - chord-inversions-fixed.js
    - cursor_management.js
    - direct_chord_navigation.js

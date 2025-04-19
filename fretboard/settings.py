@@ -79,6 +79,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'positionfinder.context_processors.unified_menu_context',
                 'positionfinder.context_stripe.stripe_url_context',
+                'positionfinder.seo_context_processor.get_seo_metadata',
             ],
         },
     },

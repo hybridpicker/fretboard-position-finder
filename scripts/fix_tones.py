@@ -20,7 +20,7 @@ def main():
     
     # Paths for tone files and JS data
     tone_dir = base_dir / 'static' / 'media' / 'tone_sounds'
-    js_file = base_dir / 'static' / 'js' / 'base.2.0.4.js'
+    js_file = base_dir / 'static' / 'js' / 'base.2.1.0.js'
     
     if not tone_dir.exists():
         print(f"Error: Tone directory not found: {tone_dir}")

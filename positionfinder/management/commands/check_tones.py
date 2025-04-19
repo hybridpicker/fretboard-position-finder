@@ -28,7 +28,7 @@ class Command(BaseCommand):
             'dString', 'AString', 'ELowString', 'lowBString'
         ]
         
-        # Expected NOTES structure from base.2.0.4.js
+        # Expected NOTES structure from base.2.1.0.js
         # This could be read directly from the JS file but for simplicity we're defining it here
         expected_notes = {
             'eString': [['f2'], ['gb2', 'fs2'], ['g2'], ['ab2', 'gs2'], ['a2'], ['bb2', 'as2'], ['b2'], ['c3'], ['db3', 'cs3'], ['d3'], ['eb3', 'ds3'], ['e3'], ['f3'], ['gb3', 'fs3'], ['g3'], ['ab3', 'gs3'], ['a3']],

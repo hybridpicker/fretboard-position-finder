@@ -11,8 +11,8 @@ echo "Created backup directory: $BACKUP_DIR"
 
 # Files to be removed (primary files replaced by unified architecture)
 PRIMARY_FILES=(
-  "static/js/fretboard_chords.2.0.4.js"
-  "static/js/fretboard_scales.2.0.5.js"
+  "static/js/fretboard_chords.2.1.0.js"
+  "static/js/fretboard_scales.2.1.0.js"
 )
 
 # Obsolete files that were used by or extended the primary files

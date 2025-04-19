@@ -1,0 +1,89 @@
+<!-- Chord-specific structured data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MusicComposition",
+  "name": "{{ root_name }} {{ selected_chord }} Chord",
+  "musicCompositionForm": "Chord",
+  "musicalKey": "{{ root_name }}",
+  "description": "{{ root_name }} {{ selected_chord }} chord positions for guitar",
+  "composer": {
+    "@type": "Organization",
+    "name": "Guitar Positions"
+  },
+  "musicCompositionForm": "Chord",
+  "datePublished": "2025-04-19",
+  "about": {
+    "@type": "Thing",
+    "name": "Guitar Chord Voicings"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://guitar-positions.org"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Chords",
+      "item": "https://guitar-positions.org/chords/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ root_name }} Chords",
+      "item": "https://guitar-positions.org/chords/{{ root_name|lower }}/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "{{ root_name }} {{ selected_chord }} Chord",
+      "item": "https://guitar-positions.org/chords/{{ root_name|lower }}/{{ selected_chord|lower|cut:" " }}-chord/"
+    }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Play {{ root_name }} {{ selected_chord }} Chord on Guitar",
+  "description": "Learn how to play the {{ root_name }} {{ selected_chord }} chord across the guitar fretboard with multiple voicings and positions.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Understanding the {{ root_name }} {{ selected_chord }} Chord Structure",
+      "text": "The {{ root_name }} {{ selected_chord }} chord consists of the notes: {{ selected_notes|join:", " }}. The chord formula is {{ chord_function }}."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Basic {{ root_name }} {{ selected_chord }} Chord Position",
+      "text": "Start with the basic position for {{ root_name }} {{ selected_chord }} chord."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Alternative Voicings",
+      "text": "Explore multiple voicings of the {{ root_name }} {{ selected_chord }} chord across the fretboard."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Practice with Progressions",
+      "text": "Practice the {{ root_name }} {{ selected_chord }} chord in common progressions to build muscle memory and transitions."
+    }
+  ],
+  "tool": {
+    "@type": "HowToTool",
+    "name": "Guitar"
+  }
+}
+</script>

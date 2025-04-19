@@ -5,7 +5,7 @@ This document outlines the implementation of the optimized chord view controller
 ## Overview
 
 The optimized chord view controller replaces and consolidates the following files:
-- `fretboard_chords.2.0.4.js`
+- `fretboard_chords.2.1.0.js`
 - `chord-inversions-fixed.js`
 - `cursor_management.js`
 - `direct_chord_navigation.js`

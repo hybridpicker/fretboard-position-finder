@@ -2,7 +2,7 @@
 <!-- Color scheme -->
 <link rel="stylesheet" href="{% static 'css/colors.css' %}" type="text/css" media="screen">
 <!-- CSS files -->
-<link rel="stylesheet" href="{% static 'css/base.2.0.9.css' %}" type="text/css" media="screen">
+<link rel="stylesheet" href="{% static 'css/base.2.1.0.css' %}" type="text/css" media="screen">
 <link rel="stylesheet" href="{% static 'css/string-labels.css' %}" type="text/css" media="screen">
 <link rel="stylesheet" href="{% static 'css/position-indicators.css' %}" type="text/css" media="screen">
 <link rel="stylesheet" href="{% static 'css/logo.css' %}" type="text/css" media="screen">
@@ -42,9 +42,9 @@ var scale_data = {{ scale_json_data|safe }};
 
 <!-- Fretboard Scripts -->
 {% if chord_options %}
-  <script src="{% static 'js/fretboard_chords.2.0.4.js' %}"></script>
+  <script src="{% static 'js/fretboard_chords.2.1.0.js' %}"></script>
 {% elif scale_json_data %}
-  <script src="{% static 'js/fretboard_scales.2.0.5.js' %}"></script>
+  <script src="{% static 'js/fretboard_scales.2.1.0.js' %}"></script>
 {% endif %}
 
 <!-- Include search form -->
