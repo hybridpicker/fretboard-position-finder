@@ -448,7 +448,7 @@
 #unifiedMenuToggle {
     position: fixed;
     top: 25px;
-    right: 70px;
+    left: 25px; /* Changed from right to left */
     z-index: 1001;
     cursor: pointer;
     display: flex;

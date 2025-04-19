@@ -2,7 +2,7 @@
 #unifiedMenuToggle {
     position: fixed !important;
     top: 25px !important;
-    right: 70px !important;
+    left: 25px !important; /* Changed from right to left */
     z-index: 1001 !important;
     cursor: pointer !important;
     display: flex !important;
