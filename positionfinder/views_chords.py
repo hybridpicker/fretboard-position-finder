@@ -25,6 +25,14 @@ NOTE_MAPPING = {
     'db': 'Db', 'eb': 'Eb', 'gb': 'Gb', 'ab': 'Ab', 'bb': 'Bb'
 }
 NOTE_ORDER = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B']
+
+# Enharmonic equivalents
+FLAT_ENHARMONICS = {
+    'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb'
+}
+SHARP_ENHARMONICS = {
+    'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#'
+}
 NOTE_RANGE_ORDER = [
     'highA - g', 'e - d', 'b - A', 'g - E', 'd - lowB', 'highA - lowB',
     'highA - b', 'highA - e', 'a - b', 'highA - A', 'highA - E',
@@ -46,11 +54,13 @@ def extract_and_convert_notes(json_data):
     """Extract and normalize notes from chord JSON data."""
     notes = set()
     root_note = None
+    print(f"DEBUG: Processing chord data: {json_data.get('chord', 'Unknown')} in {json_data.get('type', 'Unknown')}")
 
     INVERSION_KEYS = {'Basic Position', 'First Inversion', 'Second Inversion', 'Third Inversion'}
 
     def extract_notes_from_position(positions):
         nonlocal root_note # Allow modification if root is found here
+        print(f"DEBUG: Extract notes from positions: {positions}")
         for position_data in positions: # positions is now a list containing one dict
              for string, note_info in position_data.items():
                 if not note_info or not isinstance(note_info, list) or string == 'assigned_strings':
@@ -65,21 +75,27 @@ def extract_and_convert_notes(json_data):
                 function = note_info[1] if len(note_info) > 1 else None
                 is_root_note_flag = note_info[3] if len(note_info) > 3 else False
 
+                print(f"DEBUG: Found note: {note}, function: {function}, is_root: {is_root_note_flag}")
+
                 # If this note is marked as the root, use it to establish context
                 if is_root_note_flag and not root_note:
                      root_note = NOTE_MAPPING.get(note, note.capitalize())
 
                 mapped_note = NOTE_MAPPING.get(note, note.capitalize())
                 notes.add(mapped_note)
+                print(f"DEBUG: Added note {mapped_note} to notes set")
 
     def traverse(data):
         if isinstance(data, dict):
             for key, value in data.items():
+                print(f"DEBUG: Traversing key: {key}")
                 if key in INVERSION_KEYS and isinstance(value, list): # Check if value is a list (of position dicts)
+                    print(f"DEBUG: Found inversion key: {key}")
                     extract_notes_from_position(value)
                 # Check if the key itself is a range name (like 'e - g')
                 elif isinstance(value, dict) and any(inv_key in value for inv_key in INVERSION_KEYS):
                      # If the value is a dictionary containing inversion keys, traverse it
+                     print(f"DEBUG: Found range with inversions: {key}")
                      traverse(value)
                 elif isinstance(value, (dict, list)):
                      traverse(value) # Recursively traverse other dicts/lists
@@ -94,14 +110,16 @@ def extract_and_convert_notes(json_data):
         root_note = NOTE_MAPPING.get(root_note_full, root_note_full.capitalize())
         if root_note:
              notes.add(root_note)
+             print(f"DEBUG: Added root note {root_note} from top level")
         else:
-            pass # No action needed if root_note is not found initially
+            print(f"DEBUG: Failed to process root note from top level")
 
 
     # Traverse the entire data structure to find notes within inversions
     traverse(json_data)
 
     valid_notes = {note for note in notes if note in NOTE_ORDER}
+    print(f"DEBUG: Valid notes after traversal: {valid_notes}")
 
     if root_note and root_note in NOTE_ORDER:
         note_order_list = get_note_order(root_note)
@@ -109,6 +127,169 @@ def extract_and_convert_notes(json_data):
     else:
         sorted_notes = sorted(list(valid_notes), key=lambda x: NOTE_ORDER.index(x) if x in NOTE_ORDER else float('inf'))
 
+    print(f"DEBUG: Final sorted notes: {sorted_notes}")
+    
+    # Remove enharmonic duplicates (like A# and Bb appearing together)
+    # and standardize based on chord type and root note
+    
+    # First, fix potential root note issues
+    root_candidate = None
+    for note in sorted_notes:
+        # If we find the actual root note in our list
+        if root_note and (note == root_note or 
+                          (note in FLAT_ENHARMONICS and FLAT_ENHARMONICS[note] == root_note) or
+                          (note in SHARP_ENHARMONICS and SHARP_ENHARMONICS[note] == root_note)):
+            root_candidate = note
+            break
+    
+    # Use the first note as root if we couldn't find a match
+    if not root_candidate and sorted_notes:
+        root_candidate = sorted_notes[0]
+    
+    # Handle standard note naming based on chord type
+    standardized_notes = []
+    chord_type = json_data.get('chord', '').lower()
+    
+    # Decide if we should prefer flat or sharp names
+    prefer_flats = any(term in chord_type for term in ['minor', 'min', 'dim', 'b5', 'b7', 'b9', 'b13'])
+    
+    # Clean duplicates and standardize names
+    seen = set()
+    for note in sorted_notes:
+        # Skip if we've already seen this note or its enharmonic equivalent
+        if note in seen:
+            continue
+            
+        # Mark this note and its enharmonic equivalent as seen
+        seen.add(note)
+        if note in FLAT_ENHARMONICS:
+            seen.add(FLAT_ENHARMONICS[note])
+        elif note in SHARP_ENHARMONICS:
+            seen.add(SHARP_ENHARMONICS[note])
+            
+        # Choose preferred spelling
+        if prefer_flats and note in SHARP_ENHARMONICS:
+            # Use flat name for sharps (C# -> Db)
+            standardized_notes.append(SHARP_ENHARMONICS[note])
+        elif not prefer_flats and note in FLAT_ENHARMONICS:
+            # Use sharp name for flats (Db -> C#)
+            standardized_notes.append(FLAT_ENHARMONICS[note])
+        else:
+            # Keep original spelling
+            standardized_notes.append(note)
+    
+    # Re-sort notes if needed
+    if root_note and root_note in NOTE_ORDER:
+        note_order_list = get_note_order(root_note)
+        standardized_notes.sort(key=lambda x: note_order_list.index(x) if x in note_order_list else float('inf'))
+    
+    # Use the standardized list
+    sorted_notes = standardized_notes
+    
+    # CRITICAL FIX: Special handling for problematic chords
+    chord_name = json_data.get('chord', '')
+    # Handle special case for Minor 7b5 - always force correct notes
+    if chord_name == 'Minor 7b5' or chord_name == 'Min7b5' or 'minor 7b5' in chord_name.lower():
+        if root_note:
+            print(f"DEBUG: Special handling for {chord_name} chord")
+            
+            # Always standardize root to flat version for Minor 7b5 
+            if root_note in SHARP_ENHARMONICS:
+                standardized_root = SHARP_ENHARMONICS[root_note]
+            else:
+                standardized_root = root_note
+                
+            # For standardized flat-based roots, use predefined note patterns
+            if standardized_root == 'C':
+                sorted_notes = ['C', 'Eb', 'Gb', 'Bb']
+            elif standardized_root == 'D':
+                sorted_notes = ['D', 'F', 'Ab', 'C']
+            elif standardized_root == 'E':
+                sorted_notes = ['E', 'G', 'Bb', 'D']
+            elif standardized_root == 'F':
+                sorted_notes = ['F', 'Ab', 'B', 'Eb']
+            elif standardized_root == 'G':
+                sorted_notes = ['G', 'Bb', 'Db', 'F']
+            elif standardized_root == 'A':
+                sorted_notes = ['A', 'C', 'Eb', 'G']
+            elif standardized_root == 'B':
+                sorted_notes = ['B', 'D', 'F', 'A']
+            elif standardized_root == 'Bb':
+                sorted_notes = ['Bb', 'Db', 'E', 'Ab']
+            elif standardized_root == 'Eb':
+                sorted_notes = ['Eb', 'Gb', 'A', 'Db']
+            elif standardized_root == 'Ab':
+                sorted_notes = ['Ab', 'B', 'D', 'Gb']
+            elif standardized_root == 'Db':
+                sorted_notes = ['Db', 'E', 'G', 'B']
+            elif standardized_root == 'Gb':
+                sorted_notes = ['Gb', 'A', 'C', 'E']
+            else:
+                # Generic calculation for any root
+                note_idx = NOTE_ORDER.index(root_note)
+                # Always use the flat versions (b3, b5, b7) for consistency
+                flat_notes = []
+                # Root note
+                flat_notes.append(root_note)
+                # b3 - minor third
+                if 'b' in root_note or '#' in root_note:
+                    # Specify exact notes for enharmonic roots
+                    if root_note == 'C#' or root_note == 'Db':
+                        flat_notes.append('E')
+                    elif root_note == 'D#' or root_note == 'Eb':
+                        flat_notes.append('Gb')
+                    elif root_note == 'F#' or root_note == 'Gb':
+                        flat_notes.append('A')
+                    elif root_note == 'G#' or root_note == 'Ab':
+                        flat_notes.append('B')
+                    elif root_note == 'A#' or root_note == 'Bb':
+                        flat_notes.append('Db')
+                else:
+                    # For natural notes, just use index calculation
+                    minor_third_idx = (note_idx + 3) % len(NOTE_ORDER)
+                    flat_notes.append(NOTE_ORDER[minor_third_idx])
+                
+                # b5 - diminished fifth
+                if 'b' in root_note or '#' in root_note:
+                    # Specify exact notes for enharmonic roots
+                    if root_note == 'C#' or root_note == 'Db':
+                        flat_notes.append('G')
+                    elif root_note == 'D#' or root_note == 'Eb':
+                        flat_notes.append('A')
+                    elif root_note == 'F#' or root_note == 'Gb':
+                        flat_notes.append('C')
+                    elif root_note == 'G#' or root_note == 'Ab':
+                        flat_notes.append('D')
+                    elif root_note == 'A#' or root_note == 'Bb':
+                        flat_notes.append('E')
+                else:
+                    # For natural notes, just use index calculation
+                    dim_fifth_idx = (note_idx + 6) % len(NOTE_ORDER)
+                    flat_notes.append(NOTE_ORDER[dim_fifth_idx])
+                
+                # b7 - minor seventh
+                if 'b' in root_note or '#' in root_note:
+                    # Specify exact notes for enharmonic roots
+                    if root_note == 'C#' or root_note == 'Db':
+                        flat_notes.append('B')
+                    elif root_note == 'D#' or root_note == 'Eb':
+                        flat_notes.append('Db')
+                    elif root_note == 'F#' or root_note == 'Gb':
+                        flat_notes.append('E')
+                    elif root_note == 'G#' or root_note == 'Ab':
+                        flat_notes.append('Gb')
+                    elif root_note == 'A#' or root_note == 'Bb':
+                        flat_notes.append('Ab')
+                else:
+                    # For natural notes, just use index calculation
+                    minor_seventh_idx = (note_idx + 10) % len(NOTE_ORDER)
+                    flat_notes.append(NOTE_ORDER[minor_seventh_idx])
+                
+                sorted_notes = flat_notes
+                
+            print(f"DEBUG: Fixed {chord_name} chord notes: {sorted_notes}")
+    
+    # Return only unique notes in order
     return sorted_notes
 
 
@@ -541,8 +722,11 @@ class ChordView(MusicalTheoryView):
             'Dominant 7': 'R - 3 - 5 - b7',
             'Minor 7': 'R - b3 - 5 - b7',
             'Minor Major 7': 'R - b3 - 5 - 7',
+            'MinMaj 7': 'R - b3 - 5 - 7',  # Alternative name
             'Diminished 7': 'R - b3 - b5 - bb7',
             'Half-Diminished 7': 'R - b3 - b5 - b7',
+            'Min7b5': 'R - b3 - b5 - b7',  # Alternative name
+            'Minor 7b5': 'R - b3 - b5 - b7',  # Essential - this is what your chord is
             'Augmented 7': 'R - 3 - #5 - b7',
             'Augmented Major 7': 'R - 3 - #5 - 7',
             
@@ -580,8 +764,23 @@ class ChordView(MusicalTheoryView):
             'Minor Add9': 'R - b3 - 5 - 9'
         }
         
+        print(f"DEBUG: Generating chord function for chord name: '{chord_name}'")
+        
+        # Normalize chord name - remove any spaces and convert to lowercase for more flexible matching
+        normalized_name = chord_name.lower().replace(" ", "")
+        
+        # Check for exact match first
+        if chord_name in chord_functions:
+            return chord_functions[chord_name]
+            
+        # Special case handling for Minor 7b5 which might be encoded differently
+        if normalized_name == "minor7b5" or normalized_name == "min7b5" or "minor7b5" in normalized_name:
+            return 'R - b3 - b5 - b7'
+            
         # Return the function for the given chord name, or a default if not found
-        return chord_functions.get(chord_name, 'R - ...')
+        result = chord_functions.get(chord_name, 'R - ...')
+        print(f"DEBUG: Returning chord function: '{result}' for chord: '{chord_name}'")
+        return result
 
 def fretboard_chords_view(request: HttpRequest):
     """
