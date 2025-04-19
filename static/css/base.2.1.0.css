@@ -410,6 +410,15 @@ footer div {
   text-align: center;
   margin: auto;
 }
+
+.version-info {
+  font-size: 11pt;
+  color: var(--text-muted, #888);
+  margin-top: -10px;
+  padding-bottom: 5px;
+  text-align: center;
+  opacity: 0.8;
+}
 #github:hover .st0 {
   fill: rgb(171, 173, 193);
 }

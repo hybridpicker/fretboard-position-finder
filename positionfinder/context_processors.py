@@ -2,6 +2,7 @@
 Context processors for providing data to templates globally.
 """
 import re # Needed for natural sort
+from django.conf import settings
 from positionfinder.models import Root, Notes, NotesCategory
 from positionfinder.positions import NotesPosition
 from positionfinder.models_chords import ChordNotes, ChordPosition
@@ -59,4 +60,12 @@ def unified_menu_context(request):
         'unified_menu_scale_options': scale_options,
         'unified_menu_arpeggio_options': arpeggio_options,
         'unified_menu_chord_type_options': chord_type_options_dict, # Use the new dictionary
+    }
+
+def app_version_context(request):
+    """
+    Provides the application version to templates.
+    """
+    return {
+        'APP_VERSION': getattr(settings, 'VERSION', '2.1'),
     }
