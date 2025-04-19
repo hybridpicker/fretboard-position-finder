@@ -25,7 +25,7 @@ class TestTonePlayability(TestCase):
             'dString', 'AString', 'ELowString', 'lowBString'
         ]
         
-        # Expected NOTES structure from base.2.0.4.js
+        # Expected NOTES structure from base.2.1.0.js
         self.expected_notes = {
             'eString': [['f2'], ['fs2', 'gb2'], ['g2'], ['gs2', 'ab2'], ['a2'], ['as2', 'bb2'], ['b2'], ['c3'], ['cs3', 'db3'], ['d3'], ['ds3', 'eb3'], ['e3'], ['f3'], ['fs3', 'gb3'], ['g3'], ['gs3', 'ab3'], ['a3']],
             'bString': [['c2'], ['cs2', 'db2'], ['d2'], ['ds2', 'eb2'], ['e2'], ['f2'], ['fs2', 'gb2'], ['g2'], ['gs2', 'ab2'], ['a2'], ['as2', 'bb2'], ['b2'], ['c3'], ['cs3', 'db3'], ['d3'], ['ds3', 'eb3'], ['e3']],

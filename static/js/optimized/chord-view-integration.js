@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * Sets up compatibility with the existing codebase
  */
 function setupCompatibilityLayer() {
-  // Compatibility with getTonesFromDataChords from fretboard_chords.2.0.4.js
+  // Compatibility with getTonesFromDataChords from fretboard_chords.2.1.0.js
   if (typeof getTonesFromDataChords === 'function') {
     window._originalGetTonesFromDataChords = getTonesFromDataChords;
     

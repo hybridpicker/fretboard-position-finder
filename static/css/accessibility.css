@@ -1,0 +1,33 @@
+/* 
+ * Accessibility CSS
+ * Contains styles for accessibility enhancements
+ */
+
+/* 
+ * Visually Hidden class 
+ * Hides content visually but keeps it accessible to screen readers and search engines
+ * Used primarily for SEO-friendly headings that shouldn't disrupt design
+ */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* For when visually hidden content gets focus - makes it visible for keyboard users */
+.visually-hidden:focus,
+.visually-hidden:active {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}

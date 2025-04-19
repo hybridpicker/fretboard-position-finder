@@ -425,6 +425,29 @@ class ChordView(MusicalTheoryView):
         chord_function = self.generate_chord_function(chord_select_name)
 
         # Build the final context dictionary, matching functional view keys
+        # Import SEO helper functions
+        from .views_helpers import generate_seo_data, generate_breadcrumbs
+        
+        # Generate SEO data
+        seo_data = generate_seo_data('chord', 
+            root=selected_root_name,
+            chord_type=chord_select_name,
+            chord_notes=selected_notes,
+            positions=position_options
+        )
+        
+        # Generate breadcrumbs
+        breadcrumbs_data = [
+            ('/', 'Home'),
+            ('/chords/', 'Chords'),
+            (f'/chords/{selected_root_name.lower()}/', f'{selected_root_name} Chords'),
+            (f'/chords/{selected_root_name.lower()}/{chord_select_name.lower().replace(" ", "-")}/', f'{selected_root_name} {chord_select_name}')
+        ]
+        
+        # Page title and meta description
+        page_title = f'{selected_root_name} {chord_select_name} Chord | Guitar Positions & Voicings'
+        meta_description = f'Learn to play {selected_root_name} {chord_select_name} chord on guitar with our interactive tool. Multiple positions, voicings, and fingerings across the entire fretboard.'
+        
         context = {
             'selected_chord': chord_select_name,
             'root_id': root_id,
@@ -448,7 +471,18 @@ class ChordView(MusicalTheoryView):
             'selected_position': selected_position_name, # Pass the position name from params
             'chord_function': chord_function, # Add generated function
             'is_eight_string': is_eight_string, # Add flag
-            'DEBUG': settings.DEBUG # Use Django settings DEBUG
+            'DEBUG': settings.DEBUG, # Use Django settings DEBUG
+            
+            # SEO specific context
+            'page_title': page_title,
+            'meta_description': meta_description,
+            'meta_keywords': f'{selected_root_name} {chord_select_name} chord, {chord_select_name} guitar chord, guitar chord fingerings, guitar chord positions',
+            'og_title': f'{selected_root_name} {chord_select_name} Chord | Guitar Positions',
+            'og_description': f'Complete {selected_root_name} {chord_select_name} chord positions and voicings for guitar. Interactive fretboard visualization.',
+            'twitter_title': f'{selected_root_name} {chord_select_name} Chord',
+            'twitter_description': f'All {selected_root_name} {chord_select_name} chord voicings and positions.',
+            'breadcrumbs': breadcrumbs_data,
+            'structured_data': seo_data
         }
 
         # Add common context from helper
