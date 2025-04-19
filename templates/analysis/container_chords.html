@@ -1,12 +1,12 @@
 <!--- Analysis Container -->
-<div class="analysis_container" style="text-align: center; display: none;">
+<div class="analysis_container" style="text-align: center; display: block;">
     <h2>{{ root_name }} {{ selected_chord }}</h2>
     Function:
     <b>{{ chord_function }}</b>
     <br>
     Notenames:
     {% for note_name in selected_notes %}
-    <b>{{ note_name }}</b>
+    <b>{{ note_name }}</b>{% if not forloop.last %} - {% endif %}
     {% endfor %}
     <br>
     Chord:

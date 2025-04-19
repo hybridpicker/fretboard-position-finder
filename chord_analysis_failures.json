@@ -1,0 +1,842 @@
+[
+  {
+    "root": "C#",
+    "chord_type": "Diminished",
+    "expected_notes": [
+      "Db",
+      "E",
+      "G"
+    ],
+    "extracted_notes": [
+      "C#",
+      "E",
+      "G"
+    ],
+    "expected_function": "R - b3 - b5",
+    "actual_function": "R - b3 - b5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "C#",
+    "chord_type": "Minor",
+    "expected_notes": [
+      "Db",
+      "E",
+      "Ab"
+    ],
+    "extracted_notes": [
+      "C#",
+      "E",
+      "Ab"
+    ],
+    "expected_function": "R - b3 - 5",
+    "actual_function": "R - b3 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "C#",
+    "chord_type": "Minor 7",
+    "expected_notes": [
+      "Db",
+      "E",
+      "Ab",
+      "B"
+    ],
+    "extracted_notes": [
+      "C#",
+      "E",
+      "Ab",
+      "B"
+    ],
+    "expected_function": "R - b3 - 5 - b7",
+    "actual_function": "R - b3 - 5 - b7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Db",
+    "chord_type": "Augmented",
+    "expected_notes": [
+      "C#",
+      "F",
+      "A"
+    ],
+    "extracted_notes": [
+      "Db",
+      "F",
+      "A"
+    ],
+    "expected_function": "R - 3 - #5",
+    "actual_function": "R - 3 - #5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Db",
+    "chord_type": "Dominant 7",
+    "expected_notes": [
+      "C#",
+      "F",
+      "G#",
+      "B"
+    ],
+    "extracted_notes": [
+      "Db",
+      "F",
+      "G#",
+      "B"
+    ],
+    "expected_function": "R - 3 - 5 - b7",
+    "actual_function": "R - 3 - 5 - b7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Db",
+    "chord_type": "Major",
+    "expected_notes": [
+      "C#",
+      "F",
+      "G#"
+    ],
+    "extracted_notes": [
+      "Db",
+      "F",
+      "G#"
+    ],
+    "expected_function": "R - 3 - 5",
+    "actual_function": "R - 3 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Db",
+    "chord_type": "Major 7",
+    "expected_notes": [
+      "C#",
+      "F",
+      "G#",
+      "C"
+    ],
+    "extracted_notes": [
+      "Db",
+      "F",
+      "G#",
+      "C"
+    ],
+    "expected_function": "R - 3 - 5 - 7",
+    "actual_function": "R - 3 - 5 - 7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Db",
+    "chord_type": "Sus2",
+    "expected_notes": [
+      "C#",
+      "D#",
+      "G#"
+    ],
+    "extracted_notes": [
+      "Db",
+      "D#",
+      "G#"
+    ],
+    "expected_function": "R - 2 - 5",
+    "actual_function": "R - 2 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Db",
+    "chord_type": "Sus4",
+    "expected_notes": [
+      "C#",
+      "F#",
+      "G#"
+    ],
+    "extracted_notes": [
+      "Db",
+      "F#",
+      "G#"
+    ],
+    "expected_function": "R - 4 - 5",
+    "actual_function": "R - 4 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "D#",
+    "chord_type": "Diminished",
+    "expected_notes": [
+      "Eb",
+      "Gb",
+      "A"
+    ],
+    "extracted_notes": [
+      "D#",
+      "Gb",
+      "A"
+    ],
+    "expected_function": "R - b3 - b5",
+    "actual_function": "R - b3 - b5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "D#",
+    "chord_type": "Minor",
+    "expected_notes": [
+      "Eb",
+      "Gb",
+      "Bb"
+    ],
+    "extracted_notes": [
+      "D#",
+      "Gb",
+      "Bb"
+    ],
+    "expected_function": "R - b3 - 5",
+    "actual_function": "R - b3 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "D#",
+    "chord_type": "Minor 7",
+    "expected_notes": [
+      "Eb",
+      "Gb",
+      "Bb",
+      "Db"
+    ],
+    "extracted_notes": [
+      "D#",
+      "Gb",
+      "Bb",
+      "Db"
+    ],
+    "expected_function": "R - b3 - 5 - b7",
+    "actual_function": "R - b3 - 5 - b7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Eb",
+    "chord_type": "Augmented",
+    "expected_notes": [
+      "D#",
+      "G",
+      "B"
+    ],
+    "extracted_notes": [
+      "Eb",
+      "G",
+      "B"
+    ],
+    "expected_function": "R - 3 - #5",
+    "actual_function": "R - 3 - #5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Eb",
+    "chord_type": "Dominant 7",
+    "expected_notes": [
+      "D#",
+      "G",
+      "A#",
+      "C#"
+    ],
+    "extracted_notes": [
+      "Eb",
+      "G",
+      "A#",
+      "C#"
+    ],
+    "expected_function": "R - 3 - 5 - b7",
+    "actual_function": "R - 3 - 5 - b7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Eb",
+    "chord_type": "Major",
+    "expected_notes": [
+      "D#",
+      "G",
+      "A#"
+    ],
+    "extracted_notes": [
+      "Eb",
+      "G",
+      "A#"
+    ],
+    "expected_function": "R - 3 - 5",
+    "actual_function": "R - 3 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Eb",
+    "chord_type": "Major 7",
+    "expected_notes": [
+      "D#",
+      "G",
+      "A#",
+      "D"
+    ],
+    "extracted_notes": [
+      "Eb",
+      "G",
+      "A#",
+      "D"
+    ],
+    "expected_function": "R - 3 - 5 - 7",
+    "actual_function": "R - 3 - 5 - 7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Eb",
+    "chord_type": "Sus2",
+    "expected_notes": [
+      "D#",
+      "F",
+      "A#"
+    ],
+    "extracted_notes": [
+      "Eb",
+      "F",
+      "A#"
+    ],
+    "expected_function": "R - 2 - 5",
+    "actual_function": "R - 2 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Eb",
+    "chord_type": "Sus4",
+    "expected_notes": [
+      "D#",
+      "G#",
+      "A#"
+    ],
+    "extracted_notes": [
+      "Eb",
+      "G#",
+      "A#"
+    ],
+    "expected_function": "R - 4 - 5",
+    "actual_function": "R - 4 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "F#",
+    "chord_type": "Diminished",
+    "expected_notes": [
+      "Gb",
+      "A",
+      "C"
+    ],
+    "extracted_notes": [
+      "F#",
+      "A",
+      "C"
+    ],
+    "expected_function": "R - b3 - b5",
+    "actual_function": "R - b3 - b5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "F#",
+    "chord_type": "Minor",
+    "expected_notes": [
+      "Gb",
+      "A",
+      "Db"
+    ],
+    "extracted_notes": [
+      "F#",
+      "A",
+      "Db"
+    ],
+    "expected_function": "R - b3 - 5",
+    "actual_function": "R - b3 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "F#",
+    "chord_type": "Minor 7",
+    "expected_notes": [
+      "Gb",
+      "A",
+      "Db",
+      "E"
+    ],
+    "extracted_notes": [
+      "F#",
+      "A",
+      "Db",
+      "E"
+    ],
+    "expected_function": "R - b3 - 5 - b7",
+    "actual_function": "R - b3 - 5 - b7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Gb",
+    "chord_type": "Augmented",
+    "expected_notes": [
+      "F#",
+      "A#",
+      "D"
+    ],
+    "extracted_notes": [
+      "Gb",
+      "A#",
+      "D"
+    ],
+    "expected_function": "R - 3 - #5",
+    "actual_function": "R - 3 - #5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Gb",
+    "chord_type": "Dominant 7",
+    "expected_notes": [
+      "F#",
+      "A#",
+      "C#",
+      "E"
+    ],
+    "extracted_notes": [
+      "Gb",
+      "A#",
+      "C#",
+      "E"
+    ],
+    "expected_function": "R - 3 - 5 - b7",
+    "actual_function": "R - 3 - 5 - b7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Gb",
+    "chord_type": "Major",
+    "expected_notes": [
+      "F#",
+      "A#",
+      "C#"
+    ],
+    "extracted_notes": [
+      "Gb",
+      "A#",
+      "C#"
+    ],
+    "expected_function": "R - 3 - 5",
+    "actual_function": "R - 3 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Gb",
+    "chord_type": "Major 7",
+    "expected_notes": [
+      "F#",
+      "A#",
+      "C#",
+      "F"
+    ],
+    "extracted_notes": [
+      "Gb",
+      "A#",
+      "C#",
+      "F"
+    ],
+    "expected_function": "R - 3 - 5 - 7",
+    "actual_function": "R - 3 - 5 - 7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Gb",
+    "chord_type": "Sus2",
+    "expected_notes": [
+      "F#",
+      "G#",
+      "C#"
+    ],
+    "extracted_notes": [
+      "Gb",
+      "G#",
+      "C#"
+    ],
+    "expected_function": "R - 2 - 5",
+    "actual_function": "R - 2 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Gb",
+    "chord_type": "Sus4",
+    "expected_notes": [
+      "F#",
+      "B",
+      "C#"
+    ],
+    "extracted_notes": [
+      "Gb",
+      "B",
+      "C#"
+    ],
+    "expected_function": "R - 4 - 5",
+    "actual_function": "R - 4 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Ab",
+    "chord_type": "Augmented",
+    "expected_notes": [
+      "G#",
+      "C",
+      "E"
+    ],
+    "extracted_notes": [
+      "Ab",
+      "C",
+      "E"
+    ],
+    "expected_function": "R - 3 - #5",
+    "actual_function": "R - 3 - #5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Ab",
+    "chord_type": "Dominant 7",
+    "expected_notes": [
+      "G#",
+      "C",
+      "D#",
+      "F#"
+    ],
+    "extracted_notes": [
+      "Ab",
+      "C",
+      "D#",
+      "F#"
+    ],
+    "expected_function": "R - 3 - 5 - b7",
+    "actual_function": "R - 3 - 5 - b7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Ab",
+    "chord_type": "Major",
+    "expected_notes": [
+      "G#",
+      "C",
+      "D#"
+    ],
+    "extracted_notes": [
+      "Ab",
+      "C",
+      "D#"
+    ],
+    "expected_function": "R - 3 - 5",
+    "actual_function": "R - 3 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Ab",
+    "chord_type": "Major 7",
+    "expected_notes": [
+      "G#",
+      "C",
+      "D#",
+      "G"
+    ],
+    "extracted_notes": [
+      "Ab",
+      "C",
+      "D#",
+      "G"
+    ],
+    "expected_function": "R - 3 - 5 - 7",
+    "actual_function": "R - 3 - 5 - 7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Ab",
+    "chord_type": "Sus2",
+    "expected_notes": [
+      "G#",
+      "A#",
+      "D#"
+    ],
+    "extracted_notes": [
+      "Ab",
+      "A#",
+      "D#"
+    ],
+    "expected_function": "R - 2 - 5",
+    "actual_function": "R - 2 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Ab",
+    "chord_type": "Sus4",
+    "expected_notes": [
+      "G#",
+      "C#",
+      "D#"
+    ],
+    "extracted_notes": [
+      "Ab",
+      "C#",
+      "D#"
+    ],
+    "expected_function": "R - 4 - 5",
+    "actual_function": "R - 4 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "G#",
+    "chord_type": "Diminished",
+    "expected_notes": [
+      "Ab",
+      "B",
+      "D"
+    ],
+    "extracted_notes": [
+      "G#",
+      "B",
+      "D"
+    ],
+    "expected_function": "R - b3 - b5",
+    "actual_function": "R - b3 - b5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "G#",
+    "chord_type": "Minor",
+    "expected_notes": [
+      "Ab",
+      "B",
+      "Eb"
+    ],
+    "extracted_notes": [
+      "G#",
+      "B",
+      "Eb"
+    ],
+    "expected_function": "R - b3 - 5",
+    "actual_function": "R - b3 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "G#",
+    "chord_type": "Minor 7",
+    "expected_notes": [
+      "Ab",
+      "B",
+      "Eb",
+      "Gb"
+    ],
+    "extracted_notes": [
+      "G#",
+      "B",
+      "Eb",
+      "Gb"
+    ],
+    "expected_function": "R - b3 - 5 - b7",
+    "actual_function": "R - b3 - 5 - b7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "A#",
+    "chord_type": "Diminished",
+    "expected_notes": [
+      "Bb",
+      "Db",
+      "E"
+    ],
+    "extracted_notes": [
+      "A#",
+      "Db",
+      "E"
+    ],
+    "expected_function": "R - b3 - b5",
+    "actual_function": "R - b3 - b5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "A#",
+    "chord_type": "Minor",
+    "expected_notes": [
+      "Bb",
+      "Db",
+      "F"
+    ],
+    "extracted_notes": [
+      "A#",
+      "Db",
+      "F"
+    ],
+    "expected_function": "R - b3 - 5",
+    "actual_function": "R - b3 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "A#",
+    "chord_type": "Minor 7",
+    "expected_notes": [
+      "Bb",
+      "Db",
+      "F",
+      "Ab"
+    ],
+    "extracted_notes": [
+      "A#",
+      "Db",
+      "F",
+      "Ab"
+    ],
+    "expected_function": "R - b3 - 5 - b7",
+    "actual_function": "R - b3 - 5 - b7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Bb",
+    "chord_type": "Augmented",
+    "expected_notes": [
+      "A#",
+      "D",
+      "F#"
+    ],
+    "extracted_notes": [
+      "Bb",
+      "D",
+      "F#"
+    ],
+    "expected_function": "R - 3 - #5",
+    "actual_function": "R - 3 - #5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Bb",
+    "chord_type": "Dominant 7",
+    "expected_notes": [
+      "A#",
+      "D",
+      "F",
+      "G#"
+    ],
+    "extracted_notes": [
+      "Bb",
+      "D",
+      "F",
+      "G#"
+    ],
+    "expected_function": "R - 3 - 5 - b7",
+    "actual_function": "R - 3 - 5 - b7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Bb",
+    "chord_type": "Major",
+    "expected_notes": [
+      "A#",
+      "D",
+      "F"
+    ],
+    "extracted_notes": [
+      "Bb",
+      "D",
+      "F"
+    ],
+    "expected_function": "R - 3 - 5",
+    "actual_function": "R - 3 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Bb",
+    "chord_type": "Major 7",
+    "expected_notes": [
+      "A#",
+      "D",
+      "F",
+      "A"
+    ],
+    "extracted_notes": [
+      "Bb",
+      "D",
+      "F",
+      "A"
+    ],
+    "expected_function": "R - 3 - 5 - 7",
+    "actual_function": "R - 3 - 5 - 7",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Bb",
+    "chord_type": "Sus2",
+    "expected_notes": [
+      "A#",
+      "C",
+      "F"
+    ],
+    "extracted_notes": [
+      "Bb",
+      "C",
+      "F"
+    ],
+    "expected_function": "R - 2 - 5",
+    "actual_function": "R - 2 - 5",
+    "notes_match": false,
+    "function_match": true
+  },
+  {
+    "root": "Bb",
+    "chord_type": "Sus4",
+    "expected_notes": [
+      "A#",
+      "D#",
+      "F"
+    ],
+    "extracted_notes": [
+      "Bb",
+      "D#",
+      "F"
+    ],
+    "expected_function": "R - 4 - 5",
+    "actual_function": "R - 4 - 5",
+    "notes_match": false,
+    "function_match": true
+  }
+]
