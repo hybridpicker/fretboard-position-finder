@@ -395,13 +395,6 @@ function refreshFretboardDisplay() {
             } catch (wrapError) {
                 console.error("Error wrapping getToneNameFromDataChords:", wrapError);
             }
-        } else if (typeof window.getNoteNameFromData === 'function') {
-            // For scales/arpeggios
-            try {
-                window.getNoteNameFromData();
-            } catch (error) {
-                console.error("Error in getNoteNameFromData:", error);
-            }
         }
         
         // Trigger a redraw of the fretboard

@@ -92,13 +92,6 @@ function ensureNotesUpdate() {
     if (typeof getTonesFromDataChords === 'function') {
         setTimeout(() => {
             getTonesFromDataChords(pos_val, note_range);
-            
-            // Make sure note names are shown
-            setTimeout(() => {
-                if (typeof getNoteNameFromData === 'function') {
-                    getNoteNameFromData();
-                }
-            }, 100);
         }, 50);
     }
     
@@ -109,3 +102,5 @@ function ensureNotesUpdate() {
     }
 }
 
+// Removed all logic related to getNoteNameFromData
+// (was previously called to show note names on fretboard)

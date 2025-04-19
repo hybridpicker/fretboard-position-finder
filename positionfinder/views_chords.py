@@ -395,8 +395,12 @@ class ChordView(MusicalTheoryView):
                 tonal_root, # Use the consistent tonal_root
                 selected_root_name
             )
+            # --- DEBUG: Log inversion data for this range ---
+            print(f"[VSystemDebug] Range: {current_range_value} inversion_data_for_range: {inversion_data_for_range}")
             final_chord_json_data[current_range_value] = inversion_data_for_range
 
+        # --- DEBUG: Log final chord_json_data structure ---
+        print(f"[VSystemDebug] final_chord_json_data: {json.dumps(final_chord_json_data, indent=2)}")
         # --- Extract notes and build final context ---
         selected_notes = []
         if final_chord_json_data:

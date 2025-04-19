@@ -89,19 +89,13 @@ function enhanceChordDisplay() {
     // --- Apply Styling Based on Data --- 
     availablePositions.forEach(positionKey => {
         try { // Add try block for the outer loop (each position)
-            const positionDataArray = voicing_data[currentRange][positionKey];
-            if (!positionDataArray || !Array.isArray(positionDataArray) || positionDataArray.length === 0) {
-                console.warn(`[MultiDisplayDebug] No valid data array found for position ${positionKey}, skipping.`);
-                return; // Use continue instead of return in forEach if possible, but return works here
-            }
-            
-            const positionNotesData = positionDataArray[0]; 
-            if (!positionNotesData) {
-                console.warn(`[MultiDisplayDebug] No notes data object found for position ${positionKey}, skipping.`);
+            // FIX: Use positionDataObject, not array
+            const positionDataObject = voicing_data[currentRange][positionKey];
+            if (!positionDataObject || typeof positionDataObject !== 'object') {
+                console.warn(`[MultiDisplayDebug] No valid data object found for position ${positionKey}, skipping.`);
                 return;
             }
-
-            const positionStrings = Object.keys(positionNotesData);
+            const positionStrings = Object.keys(positionDataObject);
             
             positionStrings.forEach(stringKey => {
                 // *** ADDED CHECK: Skip processing if the key is 'assigned_strings' ***
@@ -110,11 +104,10 @@ function enhanceChordDisplay() {
                 }
                 // *** END ADDED CHECK ***
                 try { // Add try block for the inner loop (each string/note)
-                     const noteInfo = positionNotesData[stringKey];
-                     if (!noteInfo) {
+                    const noteInfo = positionDataObject[stringKey];
+                    if (!noteInfo) {
                         return; // Skip this string
                     }
-
 
                     let noteName = '';
                     let isRoot = false;
@@ -139,7 +132,7 @@ function enhanceChordDisplay() {
                     const toneElements = document.querySelectorAll(`.${stringKey} img.tone.${noteName}`);
                     
                     if (noteElements.length === 0 || toneElements.length === 0) {
-                         return; // Skip if elements not found
+                        return; // Skip if elements not found
                     }
 
                     // --- Styling Logic --- 
@@ -198,7 +191,7 @@ function enhanceChordDisplay() {
                 }
             }); // End inner string loop
         } catch (outerError) {
-             console.error(`[MultiDisplayDebug] Error processing position ${positionKey}:`, outerError);
+            console.error(`[MultiDisplayDebug] Error processing position ${positionKey}:`, outerError);
         }
     }); // End outer position loop
     // --- End Apply Styling Based on Data --- 

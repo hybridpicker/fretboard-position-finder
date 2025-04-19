@@ -123,12 +123,6 @@ function overrideCursorClickFunctions() {
         if (typeof getTonesFromDataChords === 'function') {
             setTimeout(() => {
                 getTonesFromDataChords(newPosition, getCurrentRange());
-                // Make sure note names are displayed
-                setTimeout(() => {
-                    if (typeof getNoteNameFromData === 'function') {
-                        getNoteNameFromData();
-                    }
-                }, 100);
             }, 50);
         }
     };
