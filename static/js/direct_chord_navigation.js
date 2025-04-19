@@ -123,7 +123,17 @@ function overrideCursorClickFunctions() {
         if (typeof getTonesFromDataChords === 'function') {
             setTimeout(() => {
                 getTonesFromDataChords(newPosition, getCurrentRange());
+                
+                // Restore multi-inversion display after navigation
+                if (typeof enhanceChordDisplay === 'function') {
+                    setTimeout(enhanceChordDisplay, 100);
+                }
             }, 50);
+        } else {
+            // If getTonesFromDataChords isn't available, still try to restore multi-inversion display
+            if (typeof enhanceChordDisplay === 'function') {
+                setTimeout(enhanceChordDisplay, 150);
+            }
         }
     };
     
@@ -197,7 +207,17 @@ function overrideCursorClickFunctions() {
         if (typeof getTonesFromDataChords === 'function') {
             setTimeout(() => {
                 getTonesFromDataChords(newPosition, getCurrentRange());
+                
+                // Restore multi-inversion display after navigation
+                if (typeof enhanceChordDisplay === 'function') {
+                    setTimeout(enhanceChordDisplay, 100);
+                }
             }, 50);
+        } else {
+            // If getTonesFromDataChords isn't available, still try to restore multi-inversion display
+            if (typeof enhanceChordDisplay === 'function') {
+                setTimeout(enhanceChordDisplay, 150);
+            }
         }
     };
 }
@@ -461,9 +481,36 @@ function resetActiveNotes() {
  * This handles both classes and inline styles
  */
 function forceCompleteReset() {
+    console.log("--- forceCompleteReset STARTING ---");
+    
+    // Log which inversion elements will be reset
+    const inversionsBefore = document.querySelectorAll('.inversion-note, .inversion-tone');
+    console.log(`Will reset ${inversionsBefore.length} inversion elements`);
+    
     // Use a more aggressive two-phase approach to reset everything
 
     // PHASE 1: First pass - brutal reset of all relevant properties
+    
+    // Store information about inversion elements before reset
+    const inversionElements = [];
+    document.querySelectorAll('.note.inversion-note').forEach(element => {
+        const position = element.getAttribute('data-inversion');
+        const stringName = element.closest('[class*="String"]')?.className.match(/[a-zA-Z]+String/)?.[0];
+        const noteClass = Array.from(element.classList).find(cls => 
+            ['a', 'ab', 'as', 'b', 'bb', 'c', 'cs', 'db', 'd', 'ds', 'eb', 'e', 'f', 'fs', 'gb', 'g', 'gs'].includes(cls)
+        );
+        
+        if (stringName && noteClass) {
+            inversionElements.push({
+                position: position,
+                string: stringName,
+                note: noteClass,
+                selector: `.${stringName} .note.${noteClass}`
+            });
+        }
+    });
+    
+    console.log(`Stored ${inversionElements.length} inversion elements for restoration`);
     
     // Reset all note elements with a direct style override approach
     document.querySelectorAll('.note').forEach(element => {
@@ -599,6 +646,49 @@ function forceCompleteReset() {
             });
         }
         
+        // Attempt to restore inversion information
+        if (inversionElements.length > 0) {
+            console.log(`Attempting to restore ${inversionElements.length} inversion elements...`);
+            // Wait a little bit before restoration
+            setTimeout(() => {
+                try {
+                    let restoredCount = 0;
+                    
+                    // For each stored inversion element
+                    inversionElements.forEach(info => {
+                        const elements = document.querySelectorAll(info.selector);
+                        
+                        if (elements.length > 0) {
+                            // Restore the first matching element
+                            const element = elements[0];
+                            element.classList.add('inversion-note');
+                            element.setAttribute('data-inversion', info.position || '');
+                            element.style.opacity = '0.4';
+                            
+                            // Also restore the tone image
+                            const toneImg = element.querySelector('img.tone');
+                            if (toneImg) {
+                                toneImg.classList.add('inversion-tone');
+                                toneImg.setAttribute('data-inversion', info.position || '');
+                                toneImg.style.opacity = '0.4';
+                            }
+                            
+                            restoredCount++;
+                        }
+                    });
+                    
+                    console.log(`Successfully restored ${restoredCount}/${inversionElements.length} inversion elements`);
+                    
+                    // Add the style if not already present
+                    if (document.getElementById('inversion-style') === null && typeof addInversionDisplayStyle === 'function') {
+                        addInversionDisplayStyle();
+                    }
+                } catch (err) {
+                    console.error("Error restoring inversion elements:", err);
+                }
+            }, 50);
+        }
+        
         // Final check for any notenames still visible
         const visibleNotenames = document.querySelectorAll('#fretboardcontainer .notename[style*="visible"]');
         if (visibleNotenames.length > 0) {
@@ -609,9 +699,22 @@ function forceCompleteReset() {
         }
     }, 50);
     
+    // Log the current state after final cleanup
+    const resetCompletedState = {
+        activeNotes: document.querySelectorAll('.note.active').length,
+        activeTones: document.querySelectorAll('img.tone.active').length,
+        rootElements: document.querySelectorAll('img.tone.root').length,
+        inversionElements: document.querySelectorAll('.inversion-note, .inversion-tone').length
+    };
+    
+    console.log("--- forceCompleteReset COMPLETED ---", resetCompletedState);
+    
     // Dispatch an event for any listeners that need to know about this reset
     document.dispatchEvent(new CustomEvent('all-notes-reset', {
-        detail: { timestamp: Date.now() }
+        detail: { 
+            timestamp: Date.now(),
+            resetState: resetCompletedState
+        }
     }));
 }
 
@@ -672,11 +775,27 @@ document.addEventListener('DOMContentLoaded', function() {
  * Directly activate notes for a specific chord position
  */
 function activateNotesForPosition(position) {
+    console.log(`--- activateNotesForPosition STARTING: position=${position} ---`);
     
-    // Handle numeric or string position "0" consistently
-    if (position === '0' || position === 0) {
-        position = 'Root Position';
+    // Handle numeric position values consistently
+    if (/^\d+$/.test(position) || typeof position === 'number') {
+        const numPos = parseInt(position, 10);
+        const positionMap = {
+            0: 'Root Position',
+            1: 'First Inversion',
+            2: 'Second Inversion',
+            3: 'Third Inversion'
+        };
+        
+        if (positionMap[numPos]) {
+            console.log(`Numeric position ${numPos} normalized to "${positionMap[numPos]}"`);
+            position = positionMap[numPos];
+        }
     }
+    
+    // Count how many inversion notes exist before reset
+    const existingInversionsBefore = document.querySelectorAll('.inversion-note, .inversion-tone').length;
+    console.log(`Before reset: ${existingInversionsBefore} inversion notes/tones found`);
     
     // Reset all active notes first, but save root notes data
     const { existingRoots, position: oldPosition } = resetActiveNotes();
@@ -1054,6 +1173,37 @@ function activateNotesForPosition(position) {
         }
     });
     document.dispatchEvent(event);
+    
+    // After activation is complete, restore multi-inversion display
+    console.log(`activateNotesForPosition COMPLETED - activation success: ${activationSuccess}`);
+    
+    // Count active notes and classes after activation
+    const activatedElements = document.querySelectorAll('.note.active').length;
+    const inversionElements = document.querySelectorAll('.inversion-note, .inversion-tone').length;
+    console.log(`After activation: ${activatedElements} active notes, ${inversionElements} inversion elements`);
+    
+    // Get URL position for verification
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlPosition = urlParams.get('position_select') || 'Root Position';
+    
+    // Check if the activation was for the correct position
+    if (position !== urlPosition) {
+        console.warn(`Position mismatch! Activated=${position}, URL=${urlPosition}`);
+    }
+    
+    // Attempt to restore multi-inversion display
+    if (typeof window.forceCorrectInversionDisplay === 'function') {
+        console.log("Calling forceCorrectInversionDisplay for reliable opacity restoration");
+        setTimeout(window.forceCorrectInversionDisplay, 150);
+    } else if (typeof window.updateChordInversions === 'function') {
+        console.log("Calling updateChordInversions to restore opacity effect");
+        window.updateChordInversions();
+    } else if (typeof enhanceChordDisplay === 'function') {
+        console.log("Calling enhanceChordDisplay directly with delay");
+        setTimeout(enhanceChordDisplay, 100);
+    } else {
+        console.error("MISSING: No opacity restoration functions available!");
+    }
 }
 
 /**
