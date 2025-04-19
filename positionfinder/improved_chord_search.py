@@ -65,6 +65,9 @@ def improved_search_chords(search_query):
         chord_name = CHORD_QUALITY_MAP.get(quality.lower(), quality.capitalize() if quality else None)
         logger.debug(f"Mapped quality '{quality}' to chord_name '{chord_name}'")
         
+        # 3. Check for special queries like "Spread Triad"
+        is_spread_triad_query = "spread" in search_query.lower() and "triad" in search_query.lower()
+        
         # 3. Build the query filters
         filters = Q()
         
@@ -72,8 +75,12 @@ def improved_search_chords(search_query):
         if chord_name:
             filters &= Q(chord_name__icontains=chord_name)
         
+        # Handle special case for spread triads
+        if is_spread_triad_query:
+            filters &= Q(type_name__icontains="Spread")
+            logger.debug("Detected Spread Triad query, applying special filter")
         # Handle position name (e.g., V2, Spread Triads)
-        if position:
+        elif position:
             if re.match(r'V\d+', position, re.IGNORECASE):
                 position_number = position.upper()  # Normalize to uppercase for V-system
                 filters &= Q(type_name__iexact=position_number)
@@ -97,11 +104,28 @@ def improved_search_chords(search_query):
                 else:
                     logger.debug(f"No matches with root {note} (ID: {root_id}), keeping original results")
         
-        # 5. Process the matches into structured results
+        # 5. Special handling for "Spread Triad" searches if still needed
+        if is_spread_triad_query and matches.count() == 0:
+            # Try a broader search for "Spread" in type_name
+            logger.debug("No matches for Spread Triad, trying broader 'Spread' search")
+            spread_matches = ChordNotes.objects.filter(type_name__icontains="Spread")
+            
+            # Further filter by chord name if available
+            if chord_name:
+                spread_matches = spread_matches.filter(chord_name__icontains=chord_name)
+            
+            # Further filter by root if available
+            if note and root_id:
+                spread_matches = spread_matches.filter(tonal_root=root_id)
+            
+            matches = spread_matches
+            logger.debug(f"Found {matches.count()} matches with broader 'Spread' search")
+        
+        # 6. Process the matches into structured results
         results = process_improved_chord_results(matches, root_note=note)
         logger.debug(f"Processed {len(results)} final chord results")
         
-        # 6. If no matches found but we have both root and quality, try a looser search
+        # 7. If no matches found but we have both root and quality, try a looser search
         if not results and note and quality:
             logger.debug(f"No exact matches - trying looser search for {note} {quality}")
             
@@ -136,7 +160,7 @@ def process_improved_chord_results(queryset, root_note=None):
     # Import needed modules here to avoid circular imports
     from .search_utils import ROOT_NAME_TO_ID
     
-    logger.debug(f"Processing {queryset.count()} chord results")
+    logger.debug(f"Processing {queryset.count() if hasattr(queryset, 'count') else len(queryset)} chord results")
     processed_results = []
     
     for chord in queryset:
@@ -220,8 +244,12 @@ def process_improved_chord_results(queryset, root_note=None):
     
     # Sort results - prioritize V-system positions (V1, V2, etc.) and common ranges
     def sort_key(item):
-        # Sort V-system positions first, alphabetically
+        # Special handling for "Spread Triads" - give it highest priority
         type_name = item.get('type', '')
+        if "Spread" in type_name:
+            return (-1, 0)  # This will sort before everything else
+        
+        # Sort V-system positions next, alphabetically
         v_match = re.match(r'V(\d+)', type_name)
         if v_match:
             v_number = int(v_match.group(1))
