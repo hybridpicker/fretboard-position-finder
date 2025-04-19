@@ -78,6 +78,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'positionfinder.context_processors.unified_menu_context',
+                'positionfinder.context_processors.app_version_context',
                 'positionfinder.context_stripe.stripe_url_context',
                 'positionfinder.seo_context_processor.get_seo_metadata',
             ],
@@ -166,6 +167,9 @@ CACHES = {
 
 # Custom setting to enable the optimized chord view by default
 USE_OPTIMIZED_CHORD_VIEW = True
+
+# Application version
+VERSION = "2.1"
 
 if os.path.isfile(os.path.join(BASE_DIR, 'local_settings.py')):
     from local_settings import *

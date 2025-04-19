@@ -433,7 +433,7 @@ class ChordView(MusicalTheoryView):
             root=selected_root_name,
             chord_type=chord_select_name,
             chord_notes=selected_notes,
-            positions=position_options
+            positions=[{'position': p.inversion_order} for p in position_options]
         )
         
         # Generate breadcrumbs
