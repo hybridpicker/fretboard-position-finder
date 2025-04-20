@@ -68,7 +68,7 @@ FIXTURE_DIRS = [BASE_DIR / 'fixtures']
 
 ```bash
 python manage.py migrate
-python manage.py loaddata v3_v7_voicings
+python manage.py loaddata
 # or any other fixture in /fixtures
 ```
 
@@ -77,7 +77,7 @@ python manage.py loaddata v3_v7_voicings
 ```bash
 python manage.py runserver 0.0.0.0:8080
 ```
-=======
+
    - Python
    - JavaScript
    - JSON
