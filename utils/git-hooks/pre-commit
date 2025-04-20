@@ -7,13 +7,6 @@
 # Set the working directory to the project root
 cd "$(git rev-parse --show-toplevel)"
 
-# Always dump the latest data before every commit
-python3 manage.py dumpdata --natural-foreign --natural-primary --indent 2 > positionfinder/fixtures/databasedump.json
-if [ $? -ne 0 ]; then
-    echo -e "\n❌ Commit prevented: Could not dump database data."
-    exit 1
-fi
-
 # Check for conda environment first
 if command -v conda &> /dev/null; then
     # Use eval to work around potential conda initialization issues
@@ -24,8 +17,21 @@ elif [ -d "venv" ]; then
     source venv/bin/activate
 fi
 
+# Print debug info
+echo "Current working directory: $(pwd)"
+echo "PYTHONPATH: $PYTHONPATH"
+python3 -c "import sys; print('sys.path:', sys.path)"
+
+# Always dump the latest data before every commit using the new backup command
+python3 manage.py backup
+if [ $? -ne 0 ]; then
+    echo -e "\n❌ Commit prevented: Could not dump database data."
+    exit 1
+fi
+
 echo "Running unused files test..."
-python3 manage.py test positionfinder.test_unused_files.UnusedFilesTestCase.test_high_confidence_files_removed -v 1
+# Only run the specific test file to avoid import errors
+python3 manage.py test positionfinder.test_unused_files -v 1
 
 # If the test fails, prevent the commit
 if [ $? -ne 0 ]; then

@@ -12,19 +12,28 @@ mkdir -p "$DUMP_DIR"
 # Echo info
 echo "Creating database dump at $DUMP_PATH..."
 
-# Activate conda environment if available
-if command -v conda &> /dev/null && conda info --envs | grep -q "fretboard"; then
+# Try to find Python from virtualenv first
+VENV_PYTHON="$PROJECT_ROOT/venv/bin/python"
+
+if [ -f "$VENV_PYTHON" ]; then
+    echo "Using virtual environment Python"
+    PYTHON="$VENV_PYTHON"
+# Try conda as fallback
+elif command -v conda &> /dev/null && conda info --envs | grep -q "fretboard"; then
     # Source conda to ensure it's available in this script
     source "$(conda info --base)/etc/profile.d/conda.sh"
     conda activate fretboard
     echo "Activated conda environment: fretboard"
+    PYTHON="python"
 else
-    echo "Warning: Could not activate conda environment 'fretboard'"
-    echo "Proceeding with system Python. This may not work correctly."
+    echo "Warning: Could not find Python in venv or conda environment"
+    # Default to system Python
+    PYTHON="python3"
+    echo "Trying system Python: $PYTHON"
 fi
 
 # Create the database dump
-cd "$PROJECT_ROOT" && python manage.py dumpdata \
+cd "$PROJECT_ROOT" && $PYTHON manage.py dumpdata \
     --exclude auth.permission \
     --exclude contenttypes \
     --exclude admin.logentry \
