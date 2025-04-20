@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make sure analysis container is visible
     const analysisContainer = document.querySelector('.analysis_container');
     if (analysisContainer) {
-        analysisContainer.style.display = 'block';
+        analysisContainer.style.display = 'none';
         console.log('Analysis container visibility forced to: block');
     } else {
         console.warn('Analysis container not found in the DOM');
