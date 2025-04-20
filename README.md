@@ -1,6 +1,8 @@
-# Fretboard Position Finder
+![Logo_Guitar_Positions](https://github.com/user-attachments/assets/fef79724-95a0-4da6-bb31-161615622764)
+
 
 **Interactive guitar fretboard visualization for scales, chords, and arpeggios in all 12 keys**
+![mockup_devide_gp](https://github.com/user-attachments/assets/60990f6d-39a1-4e1f-bb69-85c4357e631f)
 
 ## Features
 
@@ -41,18 +43,12 @@
    ```
 2. Create and activate the Conda environment:
    ```bash
-   conda env create -f environment.yml
+   conda create --name fretboard
    conda activate fretboard
    ```
 3. Install Python dependencies:
    ```bash
    pip install -r requirements.txt
-   ```
-4. Copy and configure environment variables in `.env`:
-   ```ini
-   DJANGO_SECRET_KEY=your_secret_key
-   DATABASE_URL=postgres://user:pass@localhost:5432/fretboard6
-   EXTRA_DATABASE_URL=postgres://user:pass@localhost:5432/fretboard8
    ```
 
 ## Configuration
@@ -107,32 +103,10 @@ Example Gunicorn command:
 gunicorn fretboard.wsgi:application --bind 0.0.0.0:8080
 ```
 
-## Contributing
-
-- Create feature branches (`git checkout -b feature/xyz`).
-- Follow PEP8 and Django best practices.
-- Write tests using Django's testing framework.
-- Run `flake8` and `npm lint` (if applicable) before committing.
-
 ## License
-
 MIT License
-=======
-MEDIA_URL = '/media/'
 
-STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
-
-STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'fretboard/static_cdn')
-
-FIXTURE_DIRS = [
-    os.path.join(BASE_DIR, 'fixtures'),
-]
-```
-
+## Fixtures
 Fretboard-Position-Finder loads all fingerings, that are stored as **fixtures** with the migrate-command:
 ```python
 python manage.py migrate
