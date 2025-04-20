@@ -342,8 +342,10 @@ def search_scales(search_query):
         if search_query.isdigit():
             qs = qs.filter(pk=int(search_query))
         else:
-            qs = qs.filter(tonal_root=ROOT_NAME_TO_ID.get(note))
-            qs = qs.filter(note_name__icontains=quality)
+            # Search for specific root scales, fallback to templates (tonal_root=0)
+            qs_specific = qs.filter(tonal_root=root_obj.pitch, note_name__icontains=quality)
+            qs_template = qs.filter(tonal_root=0, note_name__icontains=quality)
+            qs = qs_specific if qs_specific.exists() else qs_template
         logger.debug(f"search_scales: Final queryset count: {qs.count()}")
         if qs.exists():
             results = process_scale_results(qs, user_note=note, user_quality=quality)
@@ -379,7 +381,8 @@ def process_scale_results(queryset, user_note=None, user_quality=None):
         name = scale.note_name
         if user_note and not name.lower().startswith(user_note.lower()):
             name = f"{user_note} {name}"
-        url = f"/?root={getattr(scale, 'tonal_root', 1)}&models_select=1&notes_options_select={scale.id}&position_select=0"
+        root_id = ROOT_NAME_TO_ID.get(user_note, 1)
+        url = f"/?root={root_id}&models_select=1&notes_options_select={scale.id}&position_select=0"
         scale_result = {
             'id': scale.id,
             'name': name,
