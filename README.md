@@ -1,57 +1,113 @@
-# Fretboard-Position-Finder
-Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys
+# Fretboard Position Finder
 
-Fretboard-Position-Finder helps guitarists from nearly all levels to show chord-, scale and arpeggio-notes on the guitar fretboard.
+**Interactive guitar fretboard visualization for scales, chords, and arpeggios in all 12 keys**
 
-## Powered with
+## Features
 
-It is based on the Framework Django. After writing the scale notes into the database, this app is able to create all possible variations with Python and renders them into a JSON file. JavaScript makes the data visible on the HTML fretboard.
+- **Interactive Fretboard Display**: Visualize notes on the fretboard using HTML, CSS, and JavaScript.
+- **Scales**: Major, Minor, Modes, Custom scales with all possible positions.
+- **Arpeggios**: Major, Minor, Seventh, Extended arpeggios with multiple voicings.
+- **Chords**:
+  - Triads and seventh chords: Maj7, Dom7, Min7, m7♭5, Dim7.
+  - V-System voicings (V3–V7, V8–V10) for 4‑note chords with fixture generation.
+- **String Configurations**:
+  - Standard 6‑string (E, A, D, G, B, E).
+  - Extended 8‑string (B, E, A, D, G, B, E, A).
+- **All 12 Keys Supported**: Generate positions for any root note.
+- **Search & Filter**:
+  - Find scales, chords, or arpeggios by name or note content.
+  - API endpoints for JSON responses.
+- **Fixtures & Management**:
+  - `generate_v_system_fixture.py` script for auto-generating chord voicings.
+  - Load data via Django fixtures (`python manage.py loaddata`).
+- **Extensible Architecture**:
+  - Modular Django apps for models, views, templates, and filters.
+  - Pluggable string and tuning configurations.
+- **Custom Template Filters**: Note naming, color coding, and display utilities.
+- **Responsive & Themed UI**: Mobile-friendly layout and CSS theming.
 
-   - Python
-   - JavaScript
-   - JSON
-   
-## Fretboard-Position-Finder in Action
-https://github.com/hybridpicker/fretboard-position-finder/assets/40589021/d23ab0b0-7ac6-43af-b8cb-4007e0994221
+## Tech Stack
 
-## Idea
-Design, Frontend and Backup-Code is made by Lukas Schönsgibl (aka hybridpicker)
+- **Backend**: Django (Python 3.8+)
+- **Frontend**: Vanilla JavaScript, HTML5, CSS3
+- **Database**: PostgreSQL (separate DBs for 6‑string and 8‑string)
+- **Data Exchange**: JSON fixtures and REST APIs
 
-## Website
-https://guitar-positions.org
+## Installation
 
-## Instructions
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/hybridpicker/fretboard-position-finder.git
+   ```
+2. Create and activate the Conda environment:
+   ```bash
+   conda env create -f environment.yml
+   conda activate fretboard
+   ```
+3. Install Python dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Copy and configure environment variables in `.env`:
+   ```ini
+   DJANGO_SECRET_KEY=your_secret_key
+   DATABASE_URL=postgres://user:pass@localhost:5432/fretboard6
+   EXTRA_DATABASE_URL=postgres://user:pass@localhost:5432/fretboard8
+   ```
 
-Need some little additions in **settings.py**:
+## Configuration
 
-For finding templates add this line into TEMPLATES:
-
+In your `settings_dev.py` (or `settings.py`), add:
 ```python
-os.path.join(BASE_DIR, 'templates')
-```
-
-Then insert this block into **settings.py**:
-
-```python
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+TEMPLATES[0]['DIRS'] += [BASE_DIR / 'templates']
+MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
-
 STATIC_URL = '/static/'
-
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
-
-STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'fretboard/static_cdn')
-
-FIXTURE_DIRS = [
-    os.path.join(BASE_DIR, 'fixtures'),
-]
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR.parent / 'fretboard' / 'static_cdn'
+FIXTURE_DIRS = [BASE_DIR / 'fixtures']
 ```
 
-Fretboard-Position-Finder loads all fingerings, that are stored as **fixtures** with the migrate-command:
-```python
+## Loading Data
+
+```bash
 python manage.py migrate
+python manage.py loaddata v3_v7_voicings
+# or any other fixture in /fixtures
 ```
+
+## Running the Development Server
+
+```bash
+python manage.py runserver 0.0.0.0:8080
+```
+
+Open http://localhost:8080 to view the app.
+
+## API Endpoints
+
+- `GET /api/scales/?name=<scale>&root=<note>`
+- `GET /api/arpeggios/?name=<type>&root=<note>`
+- `GET /api/chords/?name=<type>&root=<note>`
+- `GET /api/search/?q=<query>`
+
+## Deployment
+
+- **Server**: CentOS with Nginx & Gunicorn
+- **Port**: 8080
+
+Example Gunicorn command:
+```bash
+gunicorn fretboard.wsgi:application --bind 0.0.0.0:8080
+```
+
+## Contributing
+
+- Create feature branches (`git checkout -b feature/xyz`).
+- Follow PEP8 and Django best practices.
+- Write tests using Django's testing framework.
+- Run `flake8` and `npm lint` (if applicable) before committing.
+
+## License
+
+MIT License
