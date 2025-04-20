@@ -1,15 +1,10 @@
-<!-- Hamburger Menu Icon -->
-<div id="hamburgerIcon">
-    <div class="bar1"></div>
-    <div class="bar2"></div>
-    <div class="bar3"></div>
-</div>
+<!-- Hamburger Menu Icon removed for consistent UI -->
 
 <!-- Overlay Menu Container -->
 <div id="overlayMenu" class="overlay">
     <!-- Overlay Content -->
     <div class="overlay-content">
-        <form id="fretboard_form" action="" method="get" style="text-align: center;">
+        <form id="fretboard_form" action="/" method="get" style="text-align: center;">
             <div class="sfbsf" id="catsfbsf">
                 <select name="models_select" id="models_select">
                     {% with first_category=category|first %}
@@ -60,7 +55,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="sfbsfnr">
+            <div class="sfbsfnr range-selection">
                 <select name="note_range" id="note_range">
                     <option value="{{ first_range_option }}" {% if first_range_option == selected_range %} class="active" selected {% endif %}>{{ first_range_option }}</option>
                     {% for option in range_options %}
@@ -71,10 +66,61 @@
                     {% endif %}
                     {% endfor %}
                 </select>
+                <div class="range-info-icon" title="Choose the string range for fingering">
+                    <span>?</span>
+                </div>
             </div>
-            <div class="sfbsfpos">
+            
+            <style>
+                .range-selection {
+                    position: relative;
+                    display: inline-block;
+                }
+                
+                .range-info-icon {
+                    position: absolute;
+                    right: -25px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background-color: #007bff;
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 12px;
+                    cursor: help;
+                    font-weight: bold;
+                }
+                
+                .range-info-icon:hover::after {
+                    content: "Select which strings to use for the chord";
+                    position: absolute;
+                    right: 25px;
+                    top: 0;
+                    width: 200px;
+                    background-color: #333;
+                    color: white;
+                    padding: 5px 10px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    z-index: 1000;
+                }
+                
+                /* Improve display of range option text */
+                #note_range option {
+                    font-weight: normal;
+                }
+                
+                #note_range option:checked {
+                    font-weight: bold;
+                }
+            </style>
+            <div class="sfbsfpos inversion-selection">
                 <select name="position_select" id="position_select">
-                    <option value="Basic Position" {% if "Basic Position" == selected_position %} class="active" selected {% endif %}>Basic Position</option>
+                    <option value="Root Position" {% if "Root Position" == selected_position or "Basic Position" == selected_position %} class="active" selected {% endif %}>Root Position</option>
                     {% for option in position_options %}
                     {% if option.inversion_order == selected_position %}
                     <option value="{{ option.inversion_order }}" class="active" selected>{{ option.inversion_order }}</option>
@@ -83,8 +129,88 @@
                     {% endif %}
                     {% endfor %}
                 </select>
+                <div class="inversion-info-icon" title="Choose inversion/position - lighter notes show alternative inversions">
+                    <span>?</span>
+                </div>
+                
+                <div class="inversion-navigation">
+                    <button type="button" class="nav-button prev-inversion" title="Previous inversion">◀</button>
+                    <button type="button" class="nav-button next-inversion" title="Next inversion">▶</button>
+                </div>
             </div>
+            
+            <style>
+                .inversion-selection {
+                    position: relative;
+                    display: inline-block;
+                    margin-right: 50px;
+                }
+                
+                .inversion-info-icon {
+                    position: absolute;
+                    right: -25px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background-color: #28a745;
+                    color: white;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 12px;
+                    cursor: help;
+                    font-weight: bold;
+                }
+                
+                .inversion-info-icon:hover::after {
+                    content: "Select a chord inversion. Lighter notes show alternative inversions available for the current string set. Use the arrow buttons to navigate between inversions.";
+                    position: absolute;
+                    right: 25px;
+                    top: 0;
+                    width: 250px;
+                    background-color: #333;
+                    color: white;
+                    padding: 5px 10px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    z-index: 1000;
+                }
+                
+                .inversion-navigation {
+                    position: absolute;
+                    right: -70px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    display: flex;
+                    gap: 5px;
+                }
+                
+                .nav-button {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    border: none;
+                    background-color: #6c757d;
+                    color: white;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 12px;
+                    transition: background-color 0.2s;
+                }
+                
+                .nav-button:hover {
+                    background-color: #5a6268;
+                }
+                
+                /* Default left/right cursor elements should be visible for consistent UI */
+            </style>
             <button id="show_tension_button" type="button" onclick="show_tension_notes_chords()" style="width: 8em;">Show Tensions</button>
+            
+            <!-- V-system button removed -->
         </form>
     </div>
 </div>

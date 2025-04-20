@@ -1,0 +1,489 @@
+/* 
+ * Improved Search Overlay Styles
+ * Matching the unified overlay menu design
+ */
+
+/* Global Search Icon - Keep in top right corner */
+.global-search-icon {
+  position: fixed;
+  top: 25px;
+  right: 20px;
+  z-index: 100;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+.global-search-icon:hover {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+/* Position the search icon alongside other control icons */
+@media (max-width: 768px) {
+  .global-search-icon {
+    top: 19px;
+    right: 15px;
+    padding: 6px;
+  }
+  
+  .global-search-icon img {
+    margin-left: 10px;
+    display: inline-block;
+  }
+}
+
+/* Matching Colors with Overlay Menu */
+:root {
+  /* Colors that match the main site colors */
+  --search-bg-color: var(--bg-primary);
+  --search-text-color: var(--text-primary);
+  --search-text-secondary: var(--text-primary);
+  --search-button-bg: var(--color-teal-medium);
+  --search-button-hover: var(--color-teal-dark);
+  --search-accent: var(--color-teal-light);
+  --search-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  --search-item-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --search-item-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --search-info-border: 1px solid rgba(var(--color-teal-medium-rgb), 0.3);
+  --search-purple-accent: var(--color-purple-medium); /* For highlighting */
+}
+
+/* Base Overlay Structure */
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(var(--color-cream-rgb), 0.95); /* Match body background */
+  z-index: 1050;
+  display: none;
+  overflow-y: auto;
+  color: var(--search-text-color);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.search-overlay.active {
+  opacity: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.search-overlay-content {
+  position: relative;
+  max-width: 750px;
+  width: 90%;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: var(--bg-primary); /* Use the main background color from the site */
+  border-radius: 12px;
+  box-shadow: var(--search-shadow);
+  max-height: 85vh;
+  overflow-y: auto;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Typography */
+.search-overlay-content h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: var(--search-text-color);
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(61, 120, 118, 0.2);
+  padding-bottom: 15px;
+  letter-spacing: 0.5px;
+}
+
+.search-overlay-content h3 {
+  color: var(--search-text-color);
+  font-size: 1.2em;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+/* Search Header */
+.search-overlay-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Modern Minimalist Close Button (matching unified menu) */
+.close-overlay-button {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  position: relative;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-overlay-button:hover {
+  opacity: 1;
+  transform: rotate(90deg);
+}
+
+.close-overlay-button svg {
+  stroke: var(--search-button-bg);
+  transition: stroke 0.3s ease;
+}
+
+.close-overlay-button:hover svg {
+  stroke: var(--search-button-hover);
+}
+
+/* SVG fallback for the close button (in case svg is not rendered) */
+.close-overlay-button::before,
+.close-overlay-button::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 1px;
+  background-color: var(--search-button-bg);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  transition: all 0.3s ease;
+  display: none; /* Hidden by default, shown only if SVG fails */
+}
+
+.close-overlay-button::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.close-overlay-button:hover::before,
+.close-overlay-button:hover::after {
+  background-color: var(--search-button-hover);
+  height: 2px;
+}
+
+/* Show the fallback if SVG is not loaded correctly */
+.close-overlay-button svg:not(:visible) + .close-overlay-button::before,
+.close-overlay-button svg:not(:visible) + .close-overlay-button::after {
+  display: block;
+}
+
+/* Search Form */
+.search-overlay-form {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--search-item-shadow);
+}
+
+.search-input {
+  flex: 1;
+  padding: 15px;
+  border: 1px solid rgba(61, 120, 118, 0.2);
+  border-right: none;
+  font-size: 16px;
+  background-color: white;
+  color: var(--search-text-color);
+  outline: none;
+  border-radius: 8px 0 0 8px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: var(--search-button-bg);
+  box-shadow: 0 0 0 3px rgba(61, 120, 118, 0.1);
+}
+
+.search-button {
+  background-color: var(--search-button-bg);
+  color: white;
+  border: none;
+  padding: 0 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+  border-radius: 0 8px 8px 0;
+  margin: 0;
+}
+
+.search-button:hover {
+  background-color: var(--search-button-hover);
+}
+
+.search-button svg {
+  stroke: white;
+}
+
+/* Info Box */
+.search-info-box {
+  background-color: rgba(var(--color-teal-medium-rgb), 0.1);
+  border: 1px solid rgba(var(--color-teal-medium-rgb), 0.2);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 15px 0 20px 0;
+  color: var(--search-text-secondary);
+}
+
+.search-info-box p {
+  margin: 8px 0;
+  line-height: 1.5;
+  font-size: 0.95em;
+}
+
+/* Recent Searches */
+.recent-searches {
+  margin-bottom: 20px;
+}
+
+.recent-searches h3 {
+  color: var(--search-text-color);
+  font-size: 1rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.recent-search-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.recent-search-tag {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: rgba(61, 120, 118, 0.15);
+  border-radius: 4px;
+  color: var(--search-text-color);
+  text-decoration: none;
+  font-size: 14px;
+  border: 1px solid rgba(61, 120, 118, 0.2);
+  transition: all 0.2s ease;
+}
+
+.recent-search-tag:hover {
+  background-color: rgba(61, 120, 118, 0.25);
+  transform: translateY(-2px);
+  box-shadow: var(--search-item-shadow);
+}
+
+/* Search Examples */
+.search-examples h3 {
+  color: var(--search-text-color);
+  font-size: 1rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.search-examples ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 15px 0 0 0;
+}
+
+.search-examples li {
+  background-color: rgba(var(--color-teal-medium-rgb), 0.15);
+  color: var(--search-text-color);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(var(--color-teal-medium-rgb), 0.2);
+}
+
+.search-examples li:hover {
+  background-color: var(--color-teal-medium);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--search-item-shadow-hover);
+}
+
+/* Search Results */
+.search-results {
+  margin-top: 30px;
+}
+
+.result-item {
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: rgba(var(--color-teal-medium-rgb), 0.05);
+  border: 1px solid rgba(var(--color-teal-medium-rgb), 0.15);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.result-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--search-item-shadow);
+  border-color: rgba(61, 120, 118, 0.3);
+}
+
+.result-item h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+  color: var(--search-button-bg);
+}
+
+.result-item p {
+  margin: 0 0 10px 0;
+  font-size: 0.9em;
+  color: var(--search-text-secondary);
+}
+
+.result-item .result-meta {
+  font-size: 0.8em;
+  color: #777;
+}
+
+.result-item .result-link {
+  display: inline-block;
+  margin-top: 10px;
+  color: var(--search-button-bg);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.result-item .result-link:hover {
+  color: var(--search-button-hover);
+  text-decoration: underline;
+}
+
+/* Loading Animation */
+.search-loading {
+  text-align: center;
+  padding: 30px 0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.search-loading div {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(61, 120, 118, 0.2);
+  border-radius: 50%;
+  border-top-color: var(--search-button-bg);
+  animation: spin 1s linear infinite;
+  margin: 0 auto;
+}
+
+.search-loading p {
+  margin-top: 15px;
+  color: var(--search-text-secondary);
+}
+
+/* No Results & Error States */
+.no-results, .search-error {
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+  background-color: rgba(61, 120, 118, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(61, 120, 118, 0.2);
+}
+
+.no-results h3 {
+  color: var(--search-button-bg);
+  margin-bottom: 10px;
+}
+
+.search-error p {
+  color: var(--search-purple-accent);
+}
+
+/* Autocomplete Container */
+.autocomplete-container {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid rgba(61, 120, 118, 0.2);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: var(--search-item-shadow);
+  z-index: 10;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.autocomplete-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid rgba(61, 120, 118, 0.1);
+  transition: background-color 0.2s ease;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.autocomplete-item:hover {
+  background-color: rgba(61, 120, 118, 0.1);
+}
+
+.autocomplete-item.selected {
+  background-color: rgba(61, 120, 118, 0.15);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .search-overlay-content {
+    width: 95%;
+    padding: 20px;
+    margin: 30px auto;
+  }
+  
+  .search-examples ul {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-overlay-content h2 {
+    font-size: 1.3em;
+    margin-bottom: 15px;
+  }
+  
+  .search-input {
+    font-size: 14px;
+    padding: 12px;
+  }
+  
+  .search-info-box {
+    padding: 12px;
+    font-size: 0.9em;
+  }
+  
+  .search-examples ul {
+    gap: 8px;
+  }
+  
+  .search-examples li {
+    padding: 6px 12px;
+    font-size: 0.85em;
+  }
+}

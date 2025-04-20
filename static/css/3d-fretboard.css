@@ -1,0 +1,85 @@
+/* Fretboard container */
+.fretboard {
+  /* Basic styling */
+  display: grid;
+  grid-column-gap: 0 !important;
+  grid-template-columns: repeat(17, auto);
+  
+  /* Flat design - no perspective */
+  transform: none;
+  
+  /* Transparent background */
+  background-color: transparent;
+  
+  /* No shadow */
+  box-shadow: none;
+  
+  /* No border */
+  border: none;
+  
+  /* Proper spacing */
+  margin: 1rem auto;
+  padding: 0;
+  max-width: 1200px;
+  width: 95%;
+}
+
+/* Individual frets - transparent background */
+.fret {
+  position: relative;
+  text-align: center;
+  
+  /* Transparent background */
+  background: transparent;
+  
+  /* Silver fret lines */
+  border-left: 1px solid rgba(200, 200, 200, 0.7);
+  border-right: none;
+  
+  /* No shadow */
+  box-shadow: none;
+  
+  /* No 3D effect */
+  transform: none;
+}
+
+/* Fret numbers - Roman numerals */
+.nofret {
+  font-size: 0.8em;
+  text-align: center;
+  color: #1D262A;
+  margin-bottom: 5px;
+  
+  /* Clean text */
+  text-shadow: none;
+  font-weight: 400;
+  letter-spacing: 0.8px;
+  
+  /* Ensure background is transparent */
+  background-color: transparent !important;
+}
+
+/* Fix for the specific fret numbers to always be visible */
+#fretboardcontainer .nofret {
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Simple responsive adjustments */
+@media only screen and (max-width: 1050px) {
+  .nofret {
+    font-size: 0.75em;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .nofret {
+    font-size: 0.7em;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .nofret {
+    font-size: 0.65em;
+  }
+}

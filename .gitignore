@@ -143,3 +143,5 @@ dmypy.json
 
 #VisualStudioCode
 .vs_code/
+ # Local windsurf rules file
+.windsurfrules

@@ -34,7 +34,9 @@
             <h2>Select Chord</h2>
             <div class="grid-container">
                 {% for option in chord_options %}
-                <div class="grid-item" data-value="{{ option }}">{{ option }}</div>
+                <div class="grid-item" data-value="{{ option }}" {% if option == selected_chord %}class="active"{% endif %}>
+                    {{ option }}
+                </div>
                 {% endfor %}
             </div>
             <button id="backToInitialFromChord">Back</button>

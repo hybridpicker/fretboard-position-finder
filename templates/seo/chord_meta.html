@@ -1,0 +1,40 @@
+{% load seo_tags %}
+<!-- Chord-specific meta tags -->
+<script type="application/ld+json">
+{{ chord_structured_data }}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Play {{ chord_root }} {{ chord_type }} Chord on Guitar",
+  "description": "Learn how to play the {{ chord_root }} {{ chord_type }} chord across the guitar fretboard with multiple voicings and positions.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Understanding the {{ chord_root }} {{ chord_type }} Chord Structure",
+      "text": "The {{ chord_root }} {{ chord_type }} chord consists of {{ chord_notes_description }}."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Basic {{ chord_root }} {{ chord_type }} Chord Position",
+      "text": "Start with the basic position for {{ chord_root }} {{ chord_type }} chord at the {% if chord_position_fret %}{{ chord_position_fret }}{% else %}first{% endif %} fret."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Alternative Voicings",
+      "text": "Explore multiple voicings of the {{ chord_root }} {{ chord_type }} chord across the fretboard."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Practice with Progressions",
+      "text": "Practice the {{ chord_root }} {{ chord_type }} chord in common progressions to build muscle memory and transitions."
+    }
+  ],
+  "tool": {
+    "@type": "HowToTool",
+    "name": "Guitar"
+  }
+}
+</script>

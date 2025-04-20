@@ -1,0 +1,61 @@
+/**
+ * Keyboard Navigation Styles
+ * Ensures cursor navigation elements are properly styled
+ */
+
+/* Make sure cursors are visible when using keyboard navigation */
+.left-cursor, .right-cursor {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: flex !important;
+}
+
+/* Add keyboard indicator to show that keyboard navigation is available */
+.keyboard-nav-indicator {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.keyboard-nav-indicator:hover {
+    opacity: 1;
+}
+
+/* Add arrow key hint at first load */
+.keyboard-nav-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.keyboard-nav-hint.visible {
+    opacity: 0.9;
+    animation: fadeInOut 5s ease forwards;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    20% { opacity: 0.9; }
+    80% { opacity: 0.9; }
+    100% { opacity: 0; }
+}

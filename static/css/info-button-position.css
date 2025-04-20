@@ -1,0 +1,9 @@
+/* Override info button position to bottom left */
+.info-icon {
+    position: fixed !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: 25px !important;
+    left: 25px !important;
+    z-index: 1 !important;
+}

@@ -1,0 +1,48 @@
+/**
+ * Styles for direct inversion cycling
+ * Improves cursor visibility and prevents flashing
+ */
+
+/* Make cursors more visible */
+.left-cursor, .right-cursor {
+    opacity: 0.8 !important;
+    transition: opacity 0.2s ease;
+    z-index: 100 !important;
+    cursor: pointer !important;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+.left-cursor:hover, .right-cursor:hover {
+    opacity: 1 !important;
+}
+
+/* Target only the active position's notes */
+.note.active:not(.inversion-note) {
+    opacity: 1 !important;
+    transition: opacity 0.2s ease;
+}
+
+/* Hide inversion notes completely to prevent flashing */
+.note.inversion-note, .tone.inversion-tone {
+    opacity: 0 !important;
+    pointer-events: none !important; 
+}
+
+/* Make root notes highly visible */
+img.tone.root {
+    opacity: 1 !important;
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.5) !important;
+    border: 2px solid #CC0000 !important;
+}
+
+/* Add a subtle transition when changing positions */
+.fretboard {
+    transition: transform 0.2s ease;
+}
+
+/* Add focus to active notes */
+.note.active .notename {
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #efede8;
+}

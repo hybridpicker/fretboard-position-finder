@@ -1,0 +1,64 @@
+/* Minimalistic Notes Styling */
+
+/* Base styling for all notes */
+.note {
+  position: absolute;
+  z-index: 10;
+}
+
+/* Standard note appearance - minimalistic */
+.note > .tone {
+  /* Clean appearance */
+  border-radius: 50%;
+  transition: opacity 0.2s ease;
+  border: none;
+  box-shadow: none;
+  background-image: none;
+}
+
+/* Simple note names */
+.notename {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-secondary) !important;
+  font-size: 0.85em;
+  font-weight: 400;
+  text-shadow: none;
+  transition: visibility 0.2s, opacity 0.2s;
+}
+
+/* Responsive adjustments */
+@media only screen and (max-width: 1050px) {
+  .note > .tone {
+    max-height: 22px;
+    max-width: 22px;
+  }
+  
+  .notename {
+    font-size: 0.8em;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .note > .tone {
+    max-height: 20px;
+    max-width: 20px;
+  }
+  
+  .notename {
+    font-size: 0.75em;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .note > .tone {
+    max-height: 18px;
+    max-width: 18px;
+  }
+  
+  .notename {
+    font-size: 0.7em;
+  }
+}

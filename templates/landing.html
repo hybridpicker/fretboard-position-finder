@@ -1,0 +1,91 @@
+{% extends "fretboardbase.html" %}
+{% load static %}
+
+{% block title %}Guitar Positions Explorer{% endblock %}
+
+{% block header_css %}
+<link rel="stylesheet" href="{% static 'css/main_buttons.css' %}" type="text/css" media="screen">
+<!-- Font Awesome for the info icon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
+    /* Additional styles for the landing page */
+    .header-container {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .main-title {
+        font-size: 2.5rem;
+        font-weight: 500;
+        color: #333;
+        margin: 30px 0;
+    }
+    
+    /* Ensure clean layout */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    /* Add subtle background to highlight the form */
+    .main-search-container {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header-container">
+        <div class="logo-container">
+            <img src="{% static 'media/logo/Guitar_Positions_Logo_themed.svg' %}" alt="Guitar Positions" class="main-logo">
+        </div>
+    </div>
+
+    <div class="main-nav-container">
+        <!-- First row: Primary navigation buttons -->
+        <div class="main-nav-row-primary">
+            <a href="{{ scale_view }}" class="main-button-primary">Scales</a>
+            <a href="{{ arpeggio_view }}" class="main-button-primary">Arpeggios</a>
+            <a href="{{ chord_view }}" class="main-button-primary">Chords</a>
+        </div>
+        
+        <!-- Second row: Settings button -->
+        <div class="main-nav-row-secondary">
+            <button id="mainSettingsButton" class="main-button-settings">Settings</button>
+        </div>
+        
+        <!-- Third row: About button with icon -->
+        <div class="main-nav-row-tertiary">
+            <a href="{{ about }}" class="main-button-about">
+                <i class="fas fa-info-circle"></i> About
+            </a>
+        </div>
+        
+        <!-- Search section -->
+        <div class="main-search-container">
+            <form class="main-search-form" action="{{ search }}" method="get">
+                <input type="text" class="main-search-input" name="q" placeholder="Search for scales, chords, or arpeggios...">
+                <button type="submit" class="main-search-button">Search</button>
+            </form>
+            
+            <div class="main-search-examples">
+                <span class="main-search-example" data-search="C major scale">C major scale</span>
+                <span class="main-search-example" data-search="A minor pentatonic">A minor pentatonic</span>
+                <span class="main-search-example" data-search="Em7 chord">Em7 chord</span>
+                <span class="main-search-example" data-search="Dmaj7 arpeggio">Dmaj7 arpeggio</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/landing_page.js' %}"></script>
+{% endblock %}

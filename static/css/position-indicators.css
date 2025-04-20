@@ -1,0 +1,228 @@
+/* Position indicators and difficulty styling */
+
+/* Position dots colors based on difficulty */
+.position-dot.position-beginner {
+    background-color: #4CAF50; /* Green */
+}
+
+.position-dot.position-intermediate {
+    background-color: #2196F3; /* Blue */
+}
+
+.position-dot.position-advanced {
+    background-color: #9C27B0; /* Purple */
+}
+
+/* Position label with difficulty indicator */
+.position-label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+.difficulty-indicator {
+    display: inline-block;
+    padding: 2px 5px;
+    border-radius: 3px;
+    margin-left: 5px;
+    font-size: 10px;
+    color: white;
+}
+
+.difficulty-indicator.beginner {
+    background-color: #4CAF50; /* Green */
+}
+
+.difficulty-indicator.intermediate {
+    background-color: #2196F3; /* Blue */
+}
+
+.difficulty-indicator.advanced {
+    background-color: #9C27B0; /* Purple */
+}
+
+/* Position information tooltip */
+.position-info {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 1000;
+    width: 200px;
+    text-align: center;
+}
+
+.position-dot:hover .position-info {
+    opacity: 1;
+}
+
+/* Enhanced position indicators */
+.position-indicators {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    position: relative;
+}
+
+.position-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ccc;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    position: relative;
+}
+
+.position-dot:hover {
+    transform: scale(1.2);
+}
+
+.position-dot.current {
+    transform: scale(1.2);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Position diagram */
+.position-diagram {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.position-diagram h4 {
+    margin-top: 0;
+    font-size: 16px;
+    color: #333;
+}
+
+.position-diagram-content {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.fretboard-mini {
+    display: inline-block;
+    border: 1px solid #ddd;
+    padding: 5px;
+    background-color: white;
+}
+
+.fretboard-mini-string {
+    height: 15px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.fretboard-mini-string:not(:last-child) {
+    border-bottom: 1px solid #ddd;
+}
+
+.fretboard-mini-fret {
+    width: 20px;
+    height: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.fretboard-mini-fret:not(:last-child) {
+    border-right: 1px solid #ddd;
+}
+
+.fretboard-mini-note {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #FF877A;
+}
+
+.fretboard-mini-note.root {
+    background-color: #FF4500;
+}
+
+/* Position description */
+.position-description {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Navigation buttons for positions */
+.position-navigation {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.position-nav-button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+}
+
+.position-nav-button:hover {
+    background-color: #e0e0e0;
+}
+
+.position-nav-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+/* Responsive adjustments */
+@media only screen and (max-width: 768px) {
+    .position-dot {
+        width: 10px;
+        height: 10px;
+        margin: 0 3px;
+    }
+    
+    .position-info {
+        width: 150px;
+        font-size: 10px;
+        padding: 3px 6px;
+    }
+    
+    .position-label {
+        font-size: 12px;
+    }
+    
+    .difficulty-indicator {
+        font-size: 8px;
+        padding: 1px 3px;
+    }
+    
+    .fretboard-mini-fret {
+        width: 15px;
+        height: 12px;
+    }
+    
+    .fretboard-mini-note {
+        width: 8px;
+        height: 8px;
+    }
+}

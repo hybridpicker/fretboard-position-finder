@@ -1,0 +1,26 @@
+/* Force visibility on active notes */
+.note.active {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: block !important;
+}
+
+.note.active img.tone {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline !important;
+}
+
+.note.active .notename {
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline !important;
+}
+
+/* Root note styling */
+.note.active img.tone.root {
+    visibility: visible !important;
+    opacity: 1 !important;
+    border: 2px solid rgb(204, 0, 0) !important;
+    box-shadow: rgba(255, 0, 0, 0.3) 0px 0px 5px !important;
+}

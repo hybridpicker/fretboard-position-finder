@@ -1,0 +1,42 @@
+/* Logo styling */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.main-logo {
+  max-width: 200px;
+  height: auto;
+  /* SVG filter to match theme colors */
+  filter: var(--logo-filter, none);
+}
+
+/* Theme-specific color adjustments */
+:root {
+  /* Connect logo colors with theme variables */
+  --logo-teal: var(--color-teal-medium, #3d7876);    /* cls-3 in SVG */
+  --color-slate-blue: #577D96;                       /* Specific slate blue color */
+  --logo-slate: var(--color-slate-blue, #577D96);    /* cls-2 in SVG */
+  --logo-filter: none; /* Default: no filter */
+}
+
+/* Optional: Dark theme adjustments */
+body.dark-theme .main-logo {
+  --logo-filter: brightness(1.1) saturate(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-logo {
+    max-width: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-logo {
+    max-width: 180px;
+  }
+}

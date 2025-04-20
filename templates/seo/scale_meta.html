@@ -1,0 +1,40 @@
+{% load seo_tags %}
+<!-- Scale-specific meta tags -->
+<script type="application/ld+json">
+{{ scale_structured_data }}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Play {{ scale_root }} {{ scale_type }} Scale on Guitar",
+  "description": "Learn how to play the {{ scale_root }} {{ scale_type }} scale across the entire guitar fretboard with multiple positions and patterns.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Understanding the {{ scale_root }} {{ scale_type }} Scale Formula",
+      "text": "The {{ scale_root }} {{ scale_type }} scale consists of the following intervals: {{ scale_formula }}."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Position 1: {{ scale_root }} {{ scale_type }} Scale",
+      "text": "Start with the first position of the {{ scale_root }} {{ scale_type }} scale, often called the root position."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Connecting Scale Positions",
+      "text": "Learn to connect multiple positions of the {{ scale_root }} {{ scale_type }} scale across the fretboard."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Practice with Backing Tracks",
+      "text": "Practice the {{ scale_root }} {{ scale_type }} scale over appropriate backing tracks to develop your musical ear and improvisation skills."
+    }
+  ],
+  "tool": {
+    "@type": "HowToTool",
+    "name": "Guitar"
+  }
+}
+</script>

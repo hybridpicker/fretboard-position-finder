@@ -1,39 +1,131 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Guitar Positions</title>
+  <title>{{ page_title|default:"Guitar Positions | Complete Fretboard Visualization Tool" }}</title>
 
   {% include "header/header.html" %}
   
+  {% if chord_options %}
+  <!-- Include direct inversion cycling CSS for chord views -->
+  <link rel="stylesheet" href="{% static 'css/direct-inversion-cycling.css' %}">
+  {% endif %}
+  
+  <!-- String Toggle and Settings CSS -->
+  <link rel="stylesheet" href="{% static 'css/string_toggle.css' %}">
+  <link rel="stylesheet" href="{% static 'css/settings_menu.css' %}">
+  <!-- Fix for note visibility -->
+  <link rel="stylesheet" href="{% static 'css/note-visibility-fix.css' %}">
+  <!-- Pure CSS Fretboard Background -->
+  <link rel="stylesheet" href="{% static 'css/css-fretboard.css' %}">
+  <!-- Eight-string Mobile Styles -->
+  <link rel="stylesheet" href="{% static 'css/eight-string-mobile.css' %}">
+  
+  <!-- Info Button Style -->
+  <link rel="stylesheet" href="{% static 'css/info-button.css' %}">
+  
+  <!-- Info Button Position Override -->
+  <link rel="stylesheet" href="{% static 'css/info-button-position.css' %}">
+
+  <!-- 3D Fretboard Styling -->
+  <link rel="stylesheet" href="{% static 'css/3d-fretboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/3d-notes.css' %}">
+  <!-- <link rel="stylesheet" href="{% static 'css/3d-strings.css' %}"> -->
+  <!-- Minimalistic strings with variable thickness -->
+  <link rel="stylesheet" href="{% static 'css/minimalistic-strings.css' %}">
+
+  <!-- Fretboard Inlay Debug CSS (for marker debugging) -->
+  <link rel="stylesheet" href="{% static 'css/fretboard-inlay-debug.css' %}">
+  
+  <!-- Accessibility Styles - for SEO and screen readers -->
+  <link rel="stylesheet" href="{% static 'css/accessibility.css' %}">
+
   <!-- Meta Tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="title" content="Fretboard-Position-Finder">
-  <meta name="description" content="Discover all possible fingerings on the guitar fretboard for scales, arpeggios, and chords in all 12 keys. Perfect for guitarists of all levels to expand their skills.">
+  <meta name="title" content="{{ page_title|default:'Guitar Positions | Complete Fretboard Visualization Tool' }}">
+  <meta name="description" content="{{ meta_description|default:'Find any scale, chord, or arpeggio position on the guitar fretboard. Free interactive tool for guitarists of all levels with comprehensive coverage of musical situations.' }}">
+  <meta name="keywords" content="{{ meta_keywords|default:'guitar positions, fretboard finder, guitar scales, guitar chords, guitar arpeggios, fretboard visualization, guitar learning tool' }}">
+
+  <!-- Canonical URL for SEO -->
+  <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
   <!-- Social Media Meta -->
-  <meta property="og:title" content="Guitar Positions">
-  <meta property="og:description" content="Discover all possible fingerings on the guitar fretboard for scales, arpeggios, and chords in all 12 keys. Perfect for guitarists of all levels to expand their skills.">
-  <meta property="og:image" content="{% static 'thumbnail/facebook/thumb_24.jpg' %}">
-  <meta property="og:url" content="https://guitar-positions.org">
+  <meta property="og:title" content="{{ og_title|default:'Guitar Positions | Ultimate Fretboard Tool' }}">
+  <meta property="og:description" content="{{ og_description|default:'Interactive fretboard visualization for guitarists. Explore scales, modes, arpeggios, and chord positions across the entire fretboard.' }}">
+  <meta property="og:image" content="{% static 'thumbnail/facebook/thumb_25.jpg' %}">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta property="og:type" content="website">
 
-  <meta name="twitter:title" content="Guitar Positions">
-  <meta name="twitter:description" content="Discover all possible fingerings on the guitar fretboard for scales, arpeggios, and chords in all 12 keys. Perfect for guitarists of all levels to expand their skills.">
-  <meta name="twitter:image" content="{% static 'thumbnail/twitter/thumb_24.jpg' %}">
+  <meta name="twitter:title" content="{{ twitter_title|default:'Guitar Positions | Fretboard Tool' }}">
+  <meta name="twitter:description" content="{{ twitter_description|default:'Find any guitar position instantly with our comprehensive fretboard visualization tool.' }}">
+  <meta name="twitter:image" content="{% static 'thumbnail/twitter/thumb_25.jpg' %}">
   <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Schema.org structured data for rich search results -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "{{ page_title|default:'Guitar Positions | Complete Fretboard Visualization Tool' }}",
+    "url": "{{ request.build_absolute_uri }}",
+    "description": "{{ meta_description|default:'Find any scale, chord, or arpeggio position on the guitar fretboard. Free interactive tool for guitarists of all levels.' }}",
+    "applicationCategory": "MusicApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "Guitar Positions"
+    }
+    {% with path=request.path %}
+    {% if path|slice:":7" == '/chord/' or path|slice:":7" == '/scale/' or path|slice:":10" == '/arpeggio/' or path|slice:":6" == '/mode/' %}
+    ,
+    "potentialAction": {
+      "@type": "LearningResource",
+      "learningResourceType": "Guitar Position"
+    }
+    {% endif %}
+    {% endwith %}
+  }
+  </script>
+  
+  <!-- Organization schema with logo -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Guitar Positions",
+    "url": "{{ request.build_absolute_uri }}",
+    "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'media/logo/Guitar_Positions_Logo_themed.svg' %}",
+    "description": "Interactive tool for guitarists to find scales, chords, and arpeggios across the fretboard"
+  }
+  </script>
 
   {% block head %}
   {% endblock %}
 </head>
 <body>
+  {% csrf_token %}
   <div class="mbs">
     {% include "sidebar/sidebar.html" %}
-    {% if chord_options %}
-      {% include "overlay-menu/overlay-menu-chords.html" %}
-    {% else %}
-      {% include "overlay-menu/overlay-menu.html" %}
-    {% endif %}
+    
+    {# Include the new unified menu #}
+    {% include "overlay-menu/unified_menu.html" %}
+
+    <!-- Unified Menu Trigger -->
+    <div id="unifiedMenuToggle">
+      <img src="{% static 'media/svg/position_icon.svg' %}" alt="Menu" class="overlay-icon">
+    </div>
+    
+    <script>
+      // Remove the global toggle function as it's now handled in unified_menu.js
+    </script>
+    
+    <!-- V-system info removed -->
   
     <!-- Info Icon -->
     <div id="infoToggle">
@@ -64,13 +156,76 @@
   {% block fretboard %}
   {% endblock %}
 
+  {# Include search overlay here #}
+  {% include "search/search_overlay.html" %}
+  
   <footer>
     {% include "footer/footer.html" %}
   </footer>
 
+  <!-- Initialization Script for Cursor Navigation State -->
+  <script>
+    // --- Global State Initialization ---
+    // Assign state variables explicitly to the window object for global access
+    window.currentMode = undefined; // Will be set based on Django context below
+    window.currentScalePosition = 0; // Default scale position (0 = "All")
+    window.maxScalePosition = 5;     // TODO: Adjust if max scale position is dynamic or different
+    window.currentChordType = 'triad'; // Default chord type ('triad' or 'fourNote') - TODO: Potentially derive from Django context if needed
+    window.currentInversion = 0;     // Default chord inversion (0 = "Basic/Root")
+
+    // Determine mode based on Django context (using JS comments to hide tags from linters)
+    /* {% if chord_options %} */
+      window.currentMode = 'chords';
+      // Potentially set currentChordType based on {{ chord_type }} if format matches ('triad'/'fourNote')
+      // Example: if ('{{ chord_type }}'.includes('7') || '{{ chord_type }}'.includes('9')) { currentChordType = 'fourNote'; } else { currentChordType = 'triad'; }
+    /* {% else %} */
+      window.currentMode = 'scales';
+    /* {% endif %} */
+    console.log("Initial Mode:", window.currentMode); // Log initial mode
+
+    // Declare DOM element variables globally
+    // Declare DOM element variables globally (will be assigned later in cursor-inversion.js)
+    var leftCursorElement; // Using var for broader compatibility, though assignment is key
+    var rightCursorElement;
+    var displayElement;
+
+    // DOM Element assignments moved to cursor-inversion.js DOMContentLoaded listener
+    // --- End Initialization ---
+  </script>
+
   {% include "footer/scripts.html" %}
+
+  {% if chord_options %}
+  <!-- Load original chord inversions for compatibility -->
+  <script src="{% static 'js/chord-inversions.js' %}"></script>
+  <!--<script src="{% static 'js/direct-inversion-cycling.js' %}"></script>-->
+  <script src="{% static 'js/cursor-inversion-hooks.js' %}"></script>
+  
+  <!-- Pass chord inversion data to JavaScript using json_script -->
+  {{ inversion_names|json_script:"inversion-data" }}
+
+  <script>
+    // Make chord type and inversions available to JS
+    var chordType = '{{ chord_type }}'; // Assuming chord_type is a simple string
+    var availableInversions = JSON.parse(document.getElementById('inversion-data').textContent);
+    console.log("Chord type:", chordType);
+    console.log("Available inversions:", availableInversions);
+  </script>
+  {% endif %}
+  
+  <!-- Load search functionality -->
+  <script src="{% static 'js/search.js' %}"></script>
+  
+  <!-- Info toggle enhancement -->
+  <script src="{% static 'js/info-toggle-enhancement.js' %}"></script>
 
   {% block footer %}
   {% endblock %}
+  
+  <!-- At the end of body, include fretboard inlays JS -->
+  <script src="{% static 'js/fretboard-inlays.js' %}?v=20230416_final5"></script>
+  
+  <!-- String interaction effects -->
+  <script src="{% static 'js/string-interaction.js' %}"></script>
 </body>
 </html>
