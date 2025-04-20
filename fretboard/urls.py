@@ -40,8 +40,6 @@ sitemaps = {
 urlpatterns_non_i18n = [
     # API endpoints
     path('api/', include('api.urls', namespace='api')),
-    # Admin site
-    path('admin/', admin.site.urls),
     # JSON search endpoint (likely doesn't need i18n)
     path('search/json/', search_json, name='search_json'),
     path('search_json/', search_json, name='search_json_alt'),
@@ -51,6 +49,10 @@ urlpatterns_non_i18n = [
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]
+
+# Only add the admin URL in DEBUG mode
+if settings.DEBUG:
+    urlpatterns_non_i18n.append(path('admin/', admin.site.urls))
 
 # URLs that should be prefixed with language code
 urlpatterns_i18n = i18n_patterns(
