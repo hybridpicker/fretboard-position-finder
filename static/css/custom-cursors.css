@@ -23,7 +23,7 @@
 
 /* Position cursors on each side */
 .left-cursor {
-  left: -20px !important;
+  left: 0 !important;
   background-image: url('/static/media/svg/cursor_left.svg') !important;
   background-size: contain !important;
   background-repeat: no-repeat !important;
@@ -31,7 +31,7 @@
 }
 
 .right-cursor {
-  right: -60px !important;
+  right: 0 !important;
   background-image: url('/static/media/svg/cursor_right.svg') !important;
   background-size: contain !important;
   background-repeat: no-repeat !important;
