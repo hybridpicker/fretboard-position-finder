@@ -1,0 +1,29 @@
+/* Minimalistic Strings Styling with color variables */
+
+/* String styling - white lines on dark background */
+.highAString, 
+.eString,
+.bString, 
+.gString,
+.dString, 
+.AString,
+.ELowString, 
+.lowBString {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: none;
+  background-color: var(--color-dark-bg) !important; /* Dark background for string cells */
+}
+
+/* Ensure spacing areas are transparent */
+.spacing-top,
+.spacing-bottom {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+/* Ensure nofret area is transparent */
+.nofret {
+  background-color: transparent !important;
+  border: none !important;
+}

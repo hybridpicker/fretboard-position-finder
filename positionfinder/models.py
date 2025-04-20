@@ -1,9 +1,10 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from .notes_choices import ChordChoicesField
 
 class Root(models.Model):
     name = models.CharField(max_length=30)
+    display_name = models.CharField(max_length=30, null=True, blank=True)
     pitch = models.IntegerField()
     def __str__(self):
         return str(self.name)

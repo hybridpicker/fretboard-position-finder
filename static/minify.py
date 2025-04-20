@@ -25,9 +25,7 @@ def minify_files():
                     with open(output_file_path, 'w', encoding='utf-8') as output_file:
                         output_file.write(minified_content)
                     
-                    print(f"Minified {input_file_path} to {output_file_path}")
                 else:
-                    print(f"Minified file already exists: {output_file_path}")
 
 if __name__ == "__main__":
     minify_files()

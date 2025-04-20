@@ -1,0 +1,86 @@
+/* Color Scheme Variables - Based on Original Circle SVGs */
+:root {
+  /* Base Colors */
+  --color-cream: #EFEDE8;
+  --color-dark-slate: #2D3C3F;
+  --color-dark-bg: #1a1a1a;
+  --color-slate-blue: #577D96;
+  
+  /* Circle 01 Purple Colors */
+  --color-purple-light: #967bba;
+  --color-purple-medium: #8a6aad;
+  --color-purple-dark: #7e57a0;
+  --color-purple-darker: #61457f;
+  
+  /* Circle 02 Teal Colors */
+  --color-teal-light: #558976; 
+  --color-teal-medium: #3d7876;
+  --color-teal-dark: #487c72;
+  --color-teal-darker: #2f5c66;
+  
+  /* Circle 03 Yellow Colors */
+  --color-yellow-light: #f9e178;
+  --color-yellow-medium: #efd760;
+  --color-yellow-dark: #e6d14e;
+  --color-yellow-darker: #d8cb52;
+  
+  /* Circle 04 Yellow Accent */
+  --color-accent-yellow: #e6d14e;
+  --color-accent-yellow-border: #d8cb52;
+  
+  /* RGB Colors */
+  --color-cream-rgb: 239, 237, 232;
+  --color-dark-slate-rgb: 45, 60, 63;
+  --color-dark-bg-rgb: 26, 26, 26;
+  
+  --color-purple-light-rgb: 150, 123, 186;
+  --color-purple-medium-rgb: 138, 106, 173;
+  --color-purple-dark-rgb: 126, 87, 160;
+  --color-purple-darker-rgb: 97, 69, 127;
+  
+  --color-teal-light-rgb: 85, 137, 118;
+  --color-teal-medium-rgb: 61, 120, 118;
+  --color-teal-dark-rgb: 72, 124, 114;
+  --color-teal-darker-rgb: 47, 92, 102;
+  
+  --color-yellow-light-rgb: 249, 225, 120;
+  --color-yellow-medium-rgb: 239, 215, 96;
+  --color-yellow-dark-rgb: 230, 209, 78;
+  --color-yellow-darker-rgb: 216, 203, 82;
+
+  /* Semantic Color Assignments */
+  --bg-primary: var(--color-cream);
+  --bg-secondary: var(--color-dark-bg);
+  --bg-accent: var(--color-teal-medium);
+  
+  --text-primary: var(--color-dark-slate);
+  --text-secondary: var(--color-cream);
+  --text-accent: var(--color-purple-medium);
+  
+  --link-color: var(--color-purple-medium);
+  --link-hover: var(--color-teal-medium);
+  
+  --btn-primary-bg: var(--color-teal-medium);
+  --btn-primary-text: var(--color-cream);
+  --btn-secondary-bg: var(--color-purple-medium);
+  --btn-secondary-text: var(--color-cream);
+  
+  --menu-bg: var(--color-dark-bg);
+  --menu-text: var(--color-cream);
+  --menu-hover: var(--color-yellow-dark);
+  
+  --note-active: var(--color-purple-medium);
+  --note-root: var(--color-yellow-dark);
+  --note-text: var(--color-dark-slate);
+  
+  --border-light: var(--color-cream);
+  --border-dark: var(--color-dark-bg);
+  --border-accent: var(--color-yellow-dark);
+  
+  /* Fretboard specific colors */
+  --fret-number: var(--color-dark-slate);
+  --fret-bg: transparent;
+  --fret-marker: #ffffff; /* Original color of fret markers */
+  --string-color: rgba(255, 255, 255, 0.7);
+  --string-thick: rgba(255, 255, 255, 0.9);
+}

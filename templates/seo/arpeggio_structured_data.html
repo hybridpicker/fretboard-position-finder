@@ -1,0 +1,91 @@
+<!-- Arpeggio-specific structured data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": "{{ root_name }} {{ selected_arpeggio }} Arpeggio",
+  "description": "{{ root_name }} {{ selected_arpeggio }} arpeggio positions for guitar",
+  "keywords": "{{ root_name }} {{ selected_arpeggio }} arpeggio, guitar arpeggio, {{ selected_arpeggio }} positions, {{ root_name }} guitar arpeggio",
+  "learningResourceType": "Guitar Arpeggio",
+  "educationalLevel": "all",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "http://schema.org/InStock"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Guitar Positions"
+  },
+  "datePublished": "2025-04-19"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://guitar-positions.org"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Arpeggios",
+      "item": "https://guitar-positions.org/arpeggios/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ root_name }} Arpeggios",
+      "item": "https://guitar-positions.org/arpeggios/{{ root_name|lower }}/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "{{ root_name }} {{ selected_arpeggio }} Arpeggio",
+      "item": "https://guitar-positions.org/arpeggios/{{ root_name|lower }}/{{ selected_arpeggio|lower|cut:" " }}-arpeggio/"
+    }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Play {{ root_name }} {{ selected_arpeggio }} Arpeggio on Guitar",
+  "description": "Learn how to play the {{ root_name }} {{ selected_arpeggio }} arpeggio across the guitar fretboard with multiple positions and patterns.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Understanding the {{ root_name }} {{ selected_arpeggio }} Arpeggio Structure",
+      "text": "The {{ root_name }} {{ selected_arpeggio }} arpeggio consists of the notes: {{ selected_notes|join:", " }}."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Position 1: {{ root_name }} {{ selected_arpeggio }} Arpeggio",
+      "text": "Start with the first position of the {{ root_name }} {{ selected_arpeggio }} arpeggio, often called the root position."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Sweep Picking Technique",
+      "text": "Learn the sweep picking technique to play the {{ root_name }} {{ selected_arpeggio }} arpeggio smoothly across the fretboard."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Practice in Musical Context",
+      "text": "Practice the {{ root_name }} {{ selected_arpeggio }} arpeggio in different musical contexts, such as chord progressions and improvisations."
+    }
+  ],
+  "tool": {
+    "@type": "HowToTool",
+    "name": "Guitar"
+  }
+}
+</script>

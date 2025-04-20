@@ -1,0 +1,99 @@
+/* Fretboard styling - minimal and clean */
+
+/* Clean fretboard layout */
+.fretboard {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Fret markers at specific positions - ONE dot per fret */
+/* Position dots below the fretboard */
+.nofret:nth-child(3)::after, /* III */
+.nofret:nth-child(5)::after, /* V */
+.nofret:nth-child(7)::after, /* VII */
+.nofret:nth-child(9)::after, /* IX */
+.nofret:nth-child(15)::after, /* XV */
+.nofret:nth-child(17)::after { /* XVII */
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background-color: var(--bg-primary);
+  border-radius: 50%;
+  z-index: 5;
+}
+
+/* Double dot for the 12th fret (XII) */
+.nofret:nth-child(12)::after { /* First dot below XII */
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background-color: var(--bg-primary);
+  border-radius: 50%;
+  z-index: 5;
+}
+
+.nofret:nth-child(12)::before { /* Second dot above XII */
+  content: "";
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background-color: var(--bg-primary);
+  border-radius: 50%;
+  z-index: 5;
+}
+
+/* Ensure enharmonic notes overlay correctly by positioning them absolutely within the fret */
+.fret .note {
+  position: absolute;
+}
+
+/* Specific rule to ensure the second enharmonic note overlays the first one exactly */
+.note + .note {
+    top: 0 !important; 
+    margin-top: 0 !important; /* Reset any potential inherited margin */
+}
+
+/* Ensure string cells have dark background */
+.fretboard .highAString,
+.fretboard .eString,
+.fretboard .bString, 
+.fretboard .gString,
+.fretboard .dString, 
+.fretboard .AString,
+.fretboard .ELowString, 
+.fretboard .lowBString {
+  background-color: #1a1a1a !important;
+}
+
+/* Ensure spacing-top has dark background */
+.fretboard .spacing-top {
+  background-color: #1a1a1a !important;
+}
+
+/* The div.spacing-top .fret elements should also have the dark background */
+.fretboard .spacing-top .fret {
+  background-color: #1a1a1a !important;
+}
+
+/* Keep spacing-bottom and nofret transparent */
+.fretboard .spacing-bottom,
+.fretboard .nofret {
+  background-color: transparent !important;
+}
+
+/* Also ensure the spacing-bottom .fret elements are transparent */
+.fretboard .spacing-bottom .fret {
+  background-color: transparent !important;
+}

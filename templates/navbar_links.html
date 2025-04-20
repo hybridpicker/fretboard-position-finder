@@ -1,0 +1,8 @@
+<nav class="main-nav">
+    <ul>
+        <li {% if request.resolver_match.url_name == 'fretboard' %}class="active"{% endif %}><a href="{% url 'fretboard' %}">Fretboard</a></li>
+        <li {% if request.resolver_match.url_name == 'chord_search' %}class="active"{% endif %}><a href="{% url 'chord_search' %}">Chord Search</a></li>
+        <li {% if request.resolver_match.url_name == 'unified_search' %}class="active"{% endif %}><a href="{% url 'unified_search' %}">Global Search</a></li>
+        <li {% if request.resolver_match.url_name == 'about' %}class="active"{% endif %}><a href="{% url 'about' %}">About</a></li>
+    </ul>
+</nav>

@@ -26,8 +26,8 @@ def get_functionality_pitches(notes_options_id, root):
     return ALL_NOTES_NOTES
 
 def get_tension_final_list(tonal_root, ALL_NOTES_NOTES, ALL_NOTES, NOTES_NOTES):
-    TENSION_NOTE_FINAL = [int(x)+tonal_root for x in ALL_NOTES_NOTES]
-    TENSION_NOTE_FINAL = [x-12 if x>=12 else x for x in TENSION_NOTE_FINAL]
+    TENSION_NOTE_FINAL = [int(x) + tonal_root for x in ALL_NOTES_NOTES]
+    TENSION_NOTE_FINAL = [x - 12 if x >= 12 else x for x in TENSION_NOTE_FINAL]
     TENSION_NOTE_LIST = [ALL_NOTES[x] for x in TENSION_NOTE_FINAL]
     return TENSION_NOTE_LIST
 
@@ -41,8 +41,7 @@ def get_all_notes_functionality(root, root_id):
 
 def get_functionality_note_names(notes_options_id, root, tonal_root, root_id):
     ALL_NOTES = get_all_notes_functionality(root, root_id)
-    tonal_root =+ root
-    selected_root_name = Root.objects.get(pk=root_id).name
+    tonal_root += root
     notes = ChordNotes.objects.get(pk=notes_options_id)
     NOTES_NOTES = build_notes(notes)
     ALL_NOTES_NOTES = [x for x in NOTES_NOTES]

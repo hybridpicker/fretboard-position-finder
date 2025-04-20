@@ -1,0 +1,587 @@
+/* 
+ * Improved Unified Overlay Menu Styles
+ * Focusing on consistent button styling and better readability
+ */
+
+:root {
+  /* Primary Colors - Light Theme */
+  --menu-bg-color: #f8f9fa;
+  --menu-text-color: #333333;
+  --menu-text-secondary: #555555;
+  
+  /* Button Colors */
+  --button-bg: #3d7876;
+  --button-bg-hover: #487c72;
+  --button-bg-selected: #558976;
+  --button-text: #ffffff;
+  
+  /* Info Box */
+  --info-box-bg: rgba(245, 247, 250, 0.9);
+  --info-box-border: 1px solid rgba(61, 120, 118, 0.3);
+  
+  /* Accent Colors for Categories */
+  --root-accent: #8a6aad; /* Purple for root notes */
+  --scale-accent: #3d7876; /* Teal for scales */
+  --chord-accent: #487c72; /* Darker teal for chords */
+  --arpeggio-accent: #558976; /* Light teal for arpeggios */
+  --position-accent: #efd760; /* Yellow for positions */
+  
+  /* UI Elements */
+  --overlay-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  --item-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --item-shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Base Overlay Structure */
+#unifiedOverlayMenu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.95);
+  z-index: 1050;
+  display: none;
+  overflow-y: auto;
+  color: var(--menu-text-color);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  justify-content: center;
+  align-items: center;
+}
+
+#unifiedOverlayMenu .overlay-content {
+  position: relative;
+  max-width: 750px;
+  width: 90%;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: var(--menu-bg-color);
+  border-radius: 12px;
+  box-shadow: var(--overlay-shadow);
+  max-height: 85vh;
+  overflow-y: auto;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Typography */
+#unifiedOverlayMenu h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: var(--menu-text-color);
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(61, 120, 118, 0.2);
+  padding-bottom: 15px;
+  letter-spacing: 0.5px;
+}
+
+#unifiedOverlayMenu h3 {
+  color: var(--menu-text-color);
+  font-size: 1.2em;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+/* Step Container Styles */
+#unifiedOverlayMenu .step {
+  display: none;
+  padding: 20px;
+  margin-top: 15px;
+  border-radius: 8px;
+  background-color: rgba(245, 247, 250, 0.7);
+  border: 1px solid rgba(61, 120, 118, 0.1);
+}
+
+#unifiedOverlayMenu .step.active-step {
+  display: block;
+}
+
+#unifiedOverlayMenu .steps-container {
+  display: none;
+}
+
+/* Initial Mode Selection Buttons */
+#initialStep {
+  text-align: center;
+}
+
+.mode-buttons {
+  display: initial; 
+  justify-content: center; 
+  gap: 15px; 
+  margin-top: 25px;
+}
+
+#initialStep .mode-select-button {
+  display: inline-block;
+  padding: 14px 25px;
+  margin: 5px;
+  font-size: 1.1em;
+  cursor: pointer;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: var(--item-shadow);
+  min-width: 120px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+#initialStep .mode-select-button:hover {
+  background-color: var(--button-bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--item-shadow-hover);
+}
+
+/* Specific styling for special buttons */
+#initialStep .settings-button {
+  background-color: #3e4957;
+}
+
+#initialStep .settings-button:hover {
+  background-color: #4b5a6a;
+}
+
+#initialStep .about-button {
+  background-color: #3e4e57;
+  text-decoration: none;
+}
+
+#initialStep .about-button:hover {
+  background-color: #4b606a;
+}
+
+/* Grid Layout for Options */
+#unifiedOverlayMenu .grid-container {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 25px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 15px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--button-bg-selected) var(--menu-bg-color);
+}
+
+/* Scrollbar styling for grid containers */
+#unifiedOverlayMenu .grid-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+#unifiedOverlayMenu .grid-container::-webkit-scrollbar-track {
+  background: rgba(35, 37, 49, 0.3);
+  border-radius: 4px;
+}
+
+#unifiedOverlayMenu .grid-container::-webkit-scrollbar-thumb {
+  background-color: var(--button-bg);
+  border-radius: 4px;
+}
+
+#unifiedOverlayMenu .grid-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--button-bg-hover);
+}
+
+/* Standard grid layouts */
+#unifiedOverlayMenu .grid-container {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Grid Item Styling - Standardized Across All Types */
+#unifiedOverlayMenu .grid-item {
+  padding: 13px 12px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: none;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-size: 1em;
+  box-shadow: var(--item-shadow);
+  font-weight: 400;
+}
+
+#unifiedOverlayMenu .grid-item:hover {
+  background-color: var(--button-bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--item-shadow-hover);
+}
+
+#unifiedOverlayMenu .grid-item.selected {
+  background-color: var(--button-bg-selected);
+  color: white;
+  font-weight: 500;
+}
+
+/* Specific Item Type Styling with Consistent UI */
+/* Root notes */
+#unifiedOverlayMenu .root-item {
+  font-weight: 500;
+}
+
+#unifiedOverlayMenu .root-item:hover {
+  background-color: var(--root-accent);
+}
+
+#unifiedOverlayMenu .root-item.selected {
+  background-color: var(--root-accent);
+}
+
+/* Scale types */
+#unifiedOverlayMenu .scale-type-item:hover {
+  background-color: var(--scale-accent);
+}
+
+#unifiedOverlayMenu .scale-type-item.selected {
+  background-color: var(--scale-accent);
+}
+
+/* Arpeggio types */
+#unifiedOverlayMenu .arpeggio-type-item:hover {
+  background-color: var(--arpeggio-accent);
+}
+
+#unifiedOverlayMenu .arpeggio-type-item.selected {
+  background-color: var(--arpeggio-accent);
+}
+
+/* Chord types */
+#unifiedOverlayMenu .chord-type-item:hover {
+  background-color: var(--chord-accent);
+}
+
+#unifiedOverlayMenu .chord-type-item.selected {
+  background-color: var(--chord-accent);
+}
+
+/* Position items */
+#unifiedOverlayMenu .position-item:hover {
+  background-color: var(--position-accent);
+}
+
+#unifiedOverlayMenu .position-item.selected {
+  background-color: var(--position-accent);
+  color: #333; /* Darker text for better contrast with yellow */
+}
+
+/* Info Box Styling */
+.info-box {
+  background-color: var(--info-box-bg);
+  border: var(--info-box-border);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 15px 0 20px 0;
+  color: var(--menu-text-secondary);
+}
+
+.info-box p {
+  margin: 8px 0;
+  line-height: 1.5;
+  font-size: 0.95em;
+}
+
+.info-box strong {
+  color: var(--menu-text-color);
+  font-weight: 600;
+}
+
+/* Back Button */
+#unifiedOverlayMenu .back-button {
+  display: inline-block;
+  padding: 10px 18px;
+  margin-top: 20px;
+  background-color: #e1e7eb;
+  color: #333;
+  border: 1px solid rgba(61, 120, 118, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95em;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+#unifiedOverlayMenu .back-button:hover {
+  background-color: #d1dce3;
+  transform: translateY(-2px);
+  box-shadow: var(--item-shadow);
+}
+
+/* Modern Minimalist Close Button */
+#unifiedOverlayMenu .close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  z-index: 1100;
+  transition: all 0.3s ease;
+  background: transparent;
+  border: none;
+  opacity: 0.6;
+}
+
+#unifiedOverlayMenu .close-button:hover {
+  opacity: 1;
+  transform: rotate(90deg);
+}
+
+#unifiedOverlayMenu .close-button::before,
+#unifiedOverlayMenu .close-button::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background-color: var(--button-bg);
+  top: 50%;
+  left: 0;
+  transition: all 0.3s ease;
+}
+
+#unifiedOverlayMenu .close-button::before {
+  transform: rotate(45deg);
+}
+
+#unifiedOverlayMenu .close-button::after {
+  transform: rotate(-45deg);
+}
+
+#unifiedOverlayMenu .close-button:hover::before,
+#unifiedOverlayMenu .close-button:hover::after {
+  background-color: var(--button-bg-hover);
+  height: 2px;
+}
+
+/* Search Box Styling */
+.search-box-container {
+  margin: 25px auto;
+  width: 100%;
+  max-width: 500px;
+}
+
+.search-input-wrapper {
+  display: flex;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: var(--item-shadow);
+}
+
+.overlay-search-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 1px solid rgba(61, 120, 118, 0.2);
+  border-right: none;
+  font-size: 16px;
+  background-color: white;
+  color: #333;
+  outline: none;
+  border-radius: 8px 0 0 8px;
+}
+
+.overlay-search-input:focus {
+  border-color: var(--button-bg);
+}
+
+.overlay-search-button {
+  background-color: var(--button-bg);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+  font-weight: 500;
+  border-radius: 0 8px 8px 0;
+}
+
+.overlay-search-button:hover {
+  background-color: var(--button-bg-hover);
+}
+
+/* Search Examples */
+.search-examples ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 15px 0 0 0;
+}
+
+.search-examples li {
+  background-color: #e1e7eb;
+  color: #333;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(61, 120, 118, 0.2);
+}
+
+.search-examples li:hover {
+  background-color: var(--button-bg);
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Settings Section Styling */
+.settings-section {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.settings-item {
+  margin-bottom: 15px;
+}
+
+.settings-item label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--menu-text-color);
+  font-weight: 500;
+}
+
+.settings-control {
+  width: 100%;
+}
+
+.settings-select,
+#language-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(35, 37, 49, 0.8);
+  color: var(--menu-text-color);
+  font-size: 14px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px top 50%;
+  background-size: 12px auto;
+  padding-right: 30px;
+}
+
+.settings-select:focus,
+#language-select:focus {
+  outline: none;
+  border-color: var(--button-bg-selected);
+}
+
+.settings-apply-button {
+  padding: 10px 18px;
+  background-color: var(--button-bg-selected);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.settings-apply-button:hover {
+  background-color: #6b79c5;
+  transform: translateY(-2px);
+  box-shadow: var(--item-shadow);
+}
+
+.settings-info {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: var(--info-box-bg);
+  border-radius: 6px;
+  font-size: 0.9em;
+  color: var(--menu-text-secondary);
+  border: var(--info-box-border);
+}
+
+.settings-info p {
+  margin: 6px 0;
+  line-height: 1.4;
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+  #unifiedOverlayMenu .overlay-content {
+    width: 95%;
+    padding: 20px;
+    margin: 30px auto;
+  }
+  
+  #unifiedOverlayMenu .grid-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  #initialStep .mode-select-button {
+    padding: 12px 18px;
+    font-size: 1em;
+    min-width: 100px;
+  }
+  
+  .search-box-container {
+    margin-top: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  #unifiedOverlayMenu .grid-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  #unifiedOverlayMenu h2 {
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+  }
+  
+  .search-box-container {
+    max-width: 100%;
+  }
+  
+  .mode-buttons {
+    gap: 10px;
+  }
+  
+  #initialStep .mode-select-button {
+    margin: 3px;
+    padding: 10px 15px;
+    font-size: 0.95em;
+    min-width: 85px;
+  }
+  
+  .info-box {
+    padding: 12px 10px;
+    font-size: 0.9em;
+  }
+  
+  .settings-section h3 {
+    font-size: 1.1em;
+  }
+}
+
+/* Print styles - hide menu when printing */
+@media print {
+  #unifiedOverlayMenu {
+    display: none !important;
+  }
+}

@@ -1,0 +1,232 @@
+{% load static %}
+
+<div id="unifiedOverlayMenu" class="overlay-menu">
+    <div class="overlay-content">
+        {# Initial Step: Choose Mode #}
+        <div id="initialStep" class="step active-step">
+            <h2>Guitar Positions Explorer</h2>
+            
+            <div class="mode-buttons">
+                <button id="selectModeScale" class="mode-select-button" title="Explore Scales">
+                  Scales
+                </button>
+                <button id="selectModeArpeggio" class="mode-select-button" title="Explore Arpeggios">
+                  Arpeggios
+                </button>
+                <button id="selectModeChord" class="mode-select-button" title="Explore Chords">
+                  Chords
+                </button>
+            </div>
+            <div class="mode-buttons">
+                <button id="selectModeSettings" class="mode-select-button settings-button" title="Settings">
+                  <span style="margin-right:8px;">⚙️</span>Settings
+                </button>
+                <a href="/about" class="mode-select-button about-button" title="About">
+                  <span style="margin-right:8px;">ℹ️</span>About
+                </a>
+                <a href="https://buy.stripe.com/4gw3dX93jcIecXm6op" target="_blank" class="mode-select-button donate-link" title="Donate">
+                  <span style="margin-right:8px;">❤️</span>Donate
+                </a>
+            </div>
+            
+        </div>
+
+        {# Scale Steps (Initially Hidden) #}
+        <div id="scaleStepsContainer" class="steps-container" style="display: none;">
+            <div id="scaleRootStep" class="step">
+                <h2>Select Root Note</h2>
+                <div class="info-box">
+                    <p>The root note establishes the tonal center of your scale.</p>
+                </div>
+                <div class="grid-container">
+                    {% for option in unified_menu_root_options %}
+                    <div class="grid-item root-item" data-value="{{ option.id }}">{{ option.name }}</div>
+                    {% endfor %}
+                </div>
+                <button class="back-button" data-target="initialStep">Back</button>
+            </div>
+            <div id="scaleTypeStep" class="step" style="display: none;">
+                <h2>Select Scale Type</h2>
+                <div class="info-box">
+                    <p>Choose the type of scale you want to explore.</p>
+                </div>
+                <div class="grid-container">
+                    {% for option in unified_menu_scale_options %}
+                    <div class="grid-item scale-type-item" data-value="{{ option.id }}">{{ option.note_name }}</div>
+                    {% endfor %}
+                </div>
+                <button class="back-button" data-target="scaleRootStep">Back</button>
+            </div>
+            <div id="scalePositionStep" class="step" style="display: none;">
+                <h2>Select Position</h2>
+                <div class="info-box">
+                    <p>Choose "All Notes" to see the complete scale or select a specific position (1-5) to focus on a particular pattern.</p>
+                </div>
+                <div class="grid-container">
+                    <div class="grid-item position-item" data-value="0">All Notes</div>
+                    {% for option in scale_position_options %}
+                    <div class="grid-item position-item" data-value="{{ option.position_order }}">{{ option.position_order }}</div>
+                    {% endfor %}
+                </div>
+                <button class="back-button" data-target="scaleTypeStep">Back</button>
+            </div>
+        </div>
+
+        {# Arpeggio Steps (Initially Hidden) #}
+        <div id="arpeggioStepsContainer" class="steps-container" style="display: none;">
+             <div id="arpeggioRootStep" class="step">
+                <h2>Select Root Note</h2>
+                <div class="info-box">
+                    <p>The root note establishes the foundation of your arpeggio.</p>
+                </div>
+                <div class="grid-container">
+                    {% for option in unified_menu_root_options %}
+                    <div class="grid-item root-item" data-value="{{ option.id }}">{{ option.name }}</div>
+                    {% endfor %}
+                </div>
+                <button class="back-button" data-target="initialStep">Back</button>
+            </div>
+             <div id="arpeggioTypeStep" class="step" style="display: none;">
+                <h2>Select Arpeggio Type</h2>
+                <div class="info-box">
+                    <p>Choose the arpeggio quality (major, minor, seventh, etc.).</p>
+                </div>
+                <div class="grid-container">
+                     {% for option in unified_menu_arpeggio_options %}
+                    <div class="grid-item arpeggio-type-item" data-value="{{ option.id }}">{{ option.note_name }}</div>
+                    {% endfor %}
+                </div>
+                <button class="back-button" data-target="arpeggioRootStep">Back</button>
+            </div>
+             <div id="arpeggioPositionStep" class="step" style="display: none;">
+                <h2>Select Position</h2>
+                <div class="info-box">
+                    <p>Choose "All Notes" to see the complete arpeggio or select a specific position to focus on a particular pattern.</p>
+                </div>
+                <div class="grid-container">
+                    <div class="grid-item position-item" data-value="0">All Notes</div>
+                     {% for option in arpeggio_position_options %}
+                    <div class="grid-item position-item" data-value="{{ option.position_order }}">{{ option.position_order }}</div>
+                    {% endfor %}
+                </div>
+                <button class="back-button" data-target="arpeggioTypeStep">Back</button>
+            </div>
+        </div>
+
+        {# Chord Steps (Initially Hidden) #}
+        <div id="chordStepsContainer" class="steps-container" style="display: none;">
+            <div id="chordRootStep" class="step">
+                <h2>Select Root Note</h2>
+                <div class="info-box">
+                    <p>The root note sets the tonal center of your chord.</p>
+                </div>
+                <div class="grid-container">
+                    {% for option in unified_menu_root_options %}
+                    <div class="grid-item root-item" data-value="{{ option.id }}">{{ option.name }}</div>
+                    {% endfor %}
+                </div>
+                <button class="back-button" data-target="initialStep">Back</button>
+            </div>
+            <div id="chordTypeStep" class="step" style="display: none;">
+                 <h2>Select Chord Type</h2>
+                 <div class="info-box">
+                     <p><strong>Triads</strong>: Basic three-note chords played on adjacent strings.</p>
+                     <p><strong>Spread Triads</strong>: Three-note chords with notes distributed across non-adjacent strings.</p>
+                     <p><strong>V-System Voicings</strong>: Specific 4-note voicings for 7th chords following Ted Greene's system.</p>
+                 </div>
+                 <div class="grid-container">
+                     {# Standard types can still be listed explicitly or looped if preferred #}
+                     <div class="grid-item chord-type-item" data-value="Spread Triads">Spread Triads</div>
+                     <div class="grid-item chord-type-item" data-value="Triads">Triads</div>
+                    
+                    {# Dynamically add V-System types from the context #}
+                    {% for v_type in unified_menu_chord_type_options.v_system_types %} 
+                        <div class="grid-item chord-type-item" data-value="{{ v_type }}">{{ v_type }} Chords</div>
+                    {% empty %}
+                        <!-- Optional: Message if no V-System types are found in the database -->
+                        {# <p>No V-System chord types found.</p> #} 
+                    {% endfor %}
+                 </div>
+                 <button class="back-button" data-target="chordRootStep">Back</button>
+            </div>
+            <div id="chordNameStep" class="step" style="display: none;">
+                <h2>Select Chord Quality</h2>
+                <div class="info-box">
+                    <p>Choose the chord quality (major, minor, seventh, etc.).</p>
+                </div>
+                <div class="grid-container">
+                    {% for option in chord_name_options %}
+                    <div class="grid-item chord-name-item" data-value="{{ option }}">
+                        {{ option }}
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="back-button" data-target="chordTypeStep">Back</button>
+            </div>
+            <div id="chordRangeStep" class="step" style="display: none;">
+                 <h2>Select Note Range</h2>
+                 <div class="info-box">
+                     <p>Choose the range of notes to use in your chord voicings.</p>
+                 </div>
+                 <div class="grid-container">
+                     {% for option in chord_range_options %}
+                     <div class="grid-item range-item" data-value="{{ option.range }}">{{ option.range }}</div>
+                     {% endfor %}
+                 </div>
+                 <button class="back-button" data-target="chordNameStep">Back</button>
+            </div>
+            <div id="chordPositionStep" class="step" style="display: none;">
+                 <h2>Select Position/Inversion</h2>
+                 <div class="info-box">
+                     <p>Choose an inversion to change which chord tone is in the bass position.</p>
+                 </div>
+                 <div class="grid-container">
+                     {% for option in chord_position_options %}
+                     <div class="grid-item position-item" data-value="{{ option.inversion_order }}">{{ option.inversion_order }}</div>
+                     {% endfor %}
+                 </div>
+                 <button class="back-button" data-target="chordRangeStep">Back</button>
+            </div>
+        </div>
+
+        {# Settings Container (Initially Hidden) #}
+        <div id="settingsContainer" class="steps-container" style="display: none;">
+            <div id="settingsStep" class="step">
+                <h2>Settings</h2>
+                
+                <div class="settings-section">
+                    <h3>Fretboard Configuration</h3>
+                    
+                    <div class="settings-item">
+                        <label for="string-config">String Configuration:</label>
+                        <div class="settings-control">
+                            <select id="string-config" class="settings-select">
+                                <option value="six-string" selected>6-String Guitar</option>
+                                <option value="eight-string">8-String Guitar</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-info">
+                        <p>The 6-string configuration uses standard guitar tuning (E, A, D, G, B, E).</p>
+                        <p>The 8-string configuration adds a low B and high A string (B, E, A, D, G, B, E, A).</p>
+                    </div>
+                    
+                    <button id="applySettings" class="settings-apply-button">Apply Settings</button>
+                </div>
+                
+                <!-- Language settings section removed -->
+                
+                <div class="settings-section">
+                    
+                    <button id="applyAppearance" class="settings-apply-button">Apply Settings</button>
+                </div>
+                
+                <button class="back-button" data-target="initialStep">Back</button>
+            </div>
+        </div>
+
+        {# Global Close Button #}
+        <div id="closeUnifiedOverlay" class="close-button"></div>
+    </div>
+</div>

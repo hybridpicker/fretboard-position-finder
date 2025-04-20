@@ -1,0 +1,74 @@
+{% load static %}
+<div id="searchOverlay" class="search-overlay">
+  <div class="search-overlay-content">
+    <div class="search-overlay-header">
+      <h2>Find Guitar Positions</h2>
+      <button id="closeSearchOverlay" class="close-overlay-button" aria-label="Close search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    
+    <form action="{% url 'unified_search' %}" method="GET" class="search-overlay-form">
+      <div class="search-input-wrapper">
+        <input type="text" name="q" placeholder="Search scales, chords, or arpeggios..." class="search-input" id="overlaySearchInput" autocomplete="off">
+        <div class="autocomplete-container" id="overlayAutocompleteContainer"></div>
+        <button type="submit" class="search-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </button>
+      </div>
+    </form>
+    
+    <div class="search-info-box">
+      <p>
+        Search by key, scale/chord type, or use specific formats like "A minor pentatonic" or "Cmaj7 chord"
+      </p>
+    </div>
+    
+    {% if recent_searches %}
+    <div class="recent-searches">
+      <h3>Recent Searches</h3>
+      <div class="recent-search-tags">
+        {% for search in recent_searches %}
+        <a href="{% url 'unified_search' %}?q={{ search }}" class="recent-search-tag">{{ search }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    
+    <div class="search-examples">
+      <h3>Examples:</h3>
+      <ul>
+        <li data-search="C major scale">C major scale</li>
+        <li data-search="E minor pentatonic">E minor pentatonic</li>
+        <li data-search="Gmaj7 chord">Gmaj7 chord</li>
+        <li data-search="D Dorian scale">D Dorian scale</li>
+        <li data-search="A minor arpeggio">A minor arpeggio</li>
+        <li data-search="F Lydian">F Lydian</li>
+      </ul>
+    </div>
+    
+    <div id="searchResults" class="search-results">
+      <!-- Results will be populated here by JavaScript -->
+    </div>
+    
+    <div id="searchLoading" class="search-loading" style="display: none;">
+      <div></div>
+      <p>Searching...</p>
+    </div>
+    
+    <div id="searchError" class="search-error" style="display: none;">
+      <p>An error occurred. Please try again.</p>
+    </div>
+    
+    <div id="noResults" class="no-results" style="display: none;">
+      <h3>No matches found</h3>
+      <p>Try different keywords or check out our examples above</p>
+    </div>
+  </div>
+</div>

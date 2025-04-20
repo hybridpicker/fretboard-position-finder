@@ -1,0 +1,416 @@
+{% extends 'fretboardbase.html' %}
+{% load static %}
+
+{% block title %}Unified Search - Fretboard Finder{% endblock %}
+
+{% block css %}
+<style>
+    .search-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 1rem;
+    }
+    
+    .search-form {
+        background-color: #f5f5f5;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    .btn-search {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    
+    .btn-search:hover {
+        background-color: #0069d9;
+    }
+    
+    .search-results {
+        background-color: white;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .result-count {
+        font-weight: bold;
+        color: #666;
+    }
+    
+    .result-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .result-table th {
+        background-color: #f5f5f5;
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 2px solid #ddd;
+    }
+    
+    .result-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .result-table tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .position-tag {
+        display: inline-block;
+        background-color: #e9ecef;
+        color: #495057;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .notes-cell {
+        font-family: monospace;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+    }
+    
+    .section-tabs {
+        display: flex;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .section-tab {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        border: 1px solid transparent;
+        border-bottom: none;
+    }
+    
+    .section-tab.active {
+        background-color: #fff;
+        border-color: #ddd;
+        border-radius: 4px 4px 0 0;
+        margin-bottom: -1px;
+    }
+    
+    .section-content {
+        display: none;
+        padding: 1rem;
+    }
+    
+    .section-content.active {
+        display: block;
+    }
+    
+    .result-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        font-weight: bold;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+        margin-left: 0.5rem;
+    }
+    
+    .badge-chord {
+        color: #fff;
+        background-color: #007bff;
+    }
+    
+    .badge-scale {
+        color: #fff;
+        background-color: #28a745;
+    }
+    
+    .badge-arpeggio {
+        color: #fff;
+        background-color: #6f42c1;
+    }
+    
+    .highlight {
+        background-color: #ffed4a;
+        padding: 0 2px;
+        border-radius: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <h1>Unified Fretboard Search</h1>
+    
+    <div class="search-form">
+        <form method="GET" action="{% url 'unified_search' %}">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="search_query">Search Query</label>
+                    <input 
+                        type="text" 
+                        id="search_query" 
+                        name="search_query" 
+                        class="form-control" 
+                        placeholder="Enter chord, scale, or arpeggio name..."
+                        value="{{ search_query }}"
+                        autofocus
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="search_type">Search Type</label>
+                    <select id="search_type" name="search_type" class="form-control">
+                        <option value="all" {% if search_type == 'all' %}selected{% endif %}>All Types</option>
+                        <option value="chords" {% if search_type == 'chords' %}selected{% endif %}>Chords Only</option>
+                        <option value="scales" {% if search_type == 'scales' %}selected{% endif %}>Scales Only</option>
+                        <option value="arpeggios" {% if search_type == 'arpeggios' %}selected{% endif %}>Arpeggios Only</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-search">Search</button>
+        </form>
+    </div>
+    
+    {% if search_query %}
+        <div class="search-results">
+            <div class="result-header">
+                <h2>Search Results for "{{ search_query }}"</h2>
+                <div class="result-count">{{ total_count }} results found</div>
+            </div>
+            
+            <!-- Tabs for different result types -->
+            <div class="section-tabs">
+                <div class="section-tab {% if search_type == 'chords' or search_type == 'all' %}active{% endif %}" data-target="chords-results">
+                    Chords <span class="result-badge badge-chord">{{ results.chords|length }}</span>
+                </div>
+                <div class="section-tab {% if search_type == 'scales' or search_type == 'all' %}active{% endif %}" data-target="scales-results">
+                    Scales <span class="result-badge badge-scale">{{ results.scales|length }}</span>
+                </div>
+                <div class="section-tab {% if search_type == 'arpeggios' or search_type == 'all' %}active{% endif %}" data-target="arpeggios-results">
+                    Arpeggios <span class="result-badge badge-arpeggio">{{ results.arpeggios|length }}</span>
+                </div>
+            </div>
+            
+            <!-- Chords Results Section -->
+            <div id="chords-results" class="section-content {% if search_type == 'chords' or search_type == 'all' %}active{% endif %}">
+                {% if results.chords %}
+                    <table class="result-table">
+                        <thead>
+                            <tr>
+                                <th>Chord Name</th>
+                                <th>Type</th>
+                                <th>Range</th>
+                                <th>Category</th>
+                                <th>Positions</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for chord in results.chords %}
+                                <tr>
+                                    <td>{{ chord.name }}</td>
+                                    <td>{{ chord.type }}</td>
+                                    <td>{{ chord.range }}</td>
+                                    <td>{{ chord.category }}</td>
+                                    <td>
+                                        {% for position in chord.positions %}
+                                            <span class="position-tag">{{ position }}</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td class="notes-cell">{{ chord.notes|join:" - " }}</td>
+                                    <td>
+                                        <a href="{{ chord.url }}">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="no-results">
+                        <p>No chords found matching your search criteria.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Scales Results Section -->
+            <div id="scales-results" class="section-content {% if search_type == 'scales' or search_type == 'all' %}active{% endif %}">
+                {% if results.scales %}
+                    <table class="result-table">
+                        <thead>
+                            <tr>
+                                <th>Scale Name</th>
+                                <th>Type</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for scale in results.scales %}
+                                <tr>
+                                    <td>{{ scale.name }}</td>
+                                    <td>{{ scale.type }}</td>
+                                    <td class="notes-cell">{{ scale.notes|join:" - " }}</td>
+                                    <td>
+                                        <a href="{{ scale.url }}">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="no-results">
+                        <p>No scales found matching your search criteria.</p>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Arpeggios Results Section -->
+            <div id="arpeggios-results" class="section-content {% if search_type == 'arpeggios' or search_type == 'all' %}active{% endif %}">
+                {% if results.arpeggios %}
+                    <table class="result-table">
+                        <thead>
+                            <tr>
+                                <th>Arpeggio Name</th>
+                                <th>Type</th>
+                                <th>Notes</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for arpeggio in results.arpeggios %}
+                                <tr>
+                                    <td>{{ arpeggio.name }}</td>
+                                    <td>{{ arpeggio.type }}</td>
+                                    <td class="notes-cell">{{ arpeggio.notes|join:" - " }}</td>
+                                    <td>
+                                        <a href="{{ arpeggio.url }}">
+                                            View
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="no-results">
+                        <p>No arpeggios found matching your search criteria.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="search-results">
+            <div class="no-results">
+                <p>Enter a search term to find chords, scales, and arpeggios.</p>
+                <p>Try searching for terms like "major", "minor", "7th", etc.</p>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="search-tips">
+        <h3>Search Tips</h3>
+        <ul>
+            <li>Use general terms like "major", "minor", "dim" to find multiple related results</li>
+            <li>For exact matches, use complete names like "Major 7" or "Dominant 7"</li>
+            <li>Filter results by selecting a specific search type (Chords, Scales, or Arpeggios)</li>
+            <li>Use the tabs above to navigate between different result types</li>
+            <li>Click "View" to see the selected item on the fretboard</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching functionality
+        const tabs = document.querySelectorAll('.section-tab');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and content sections
+                document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.section-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding content section
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+        
+        // Highlight search terms
+        const searchTerm = '{{ search_query }}';
+        if (searchTerm) {
+            const tables = document.querySelectorAll('.result-table');
+            
+            tables.forEach(table => {
+                const cells = table.querySelectorAll('td:not(.notes-cell)');
+                
+                cells.forEach(cell => {
+                    if (cell.innerText.toLowerCase().includes(searchTerm.toLowerCase())) {
+                        const regex = new RegExp(searchTerm, 'gi');
+                        cell.innerHTML = cell.innerText.replace(regex, match => `<span class="highlight">${match}</span>`);
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

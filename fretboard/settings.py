@@ -12,6 +12,19 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+# --- DEBUG PRINT MIDDLEWARE FOR ALL REQUESTS ---
+class PrintRequestDebugMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+    def __call__(self, request):
+        print("\n[DEBUG][MIDDLEWARE] Incoming request:")
+        print(f"  Path: {request.path}")
+        print(f"  Method: {request.method}")
+        print(f"  GET: {dict(request.GET)}")
+        print(f"  POST: {dict(request.POST)}")
+        response = self.get_response(request)
+        return response
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -35,11 +48,15 @@ INSTALLED_APPS = [
     'positionfinder.apps.PositionfinderConfig',
     'django_extensions',
     'fretboard',
+    'rest_framework',
+    'api',
     ]
 
 MIDDLEWARE = [
+    'fretboard.settings.PrintRequestDebugMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # Locale middleware removed
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -60,6 +77,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'positionfinder.context_processors.unified_menu_context',
+                'positionfinder.context_processors.app_version_context',
+                'positionfinder.context_stripe.stripe_url_context',
+                'positionfinder.seo_context_processor.get_seo_metadata',
             ],
         },
     },
@@ -94,11 +115,13 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
-USE_I18N = True
+USE_I18N = False  # Disable internationalization
 
 USE_L10N = True
 
 USE_TZ = True
+
+# Language settings removed
 
 
 # Static files (CSS, JavaScript, Images)
@@ -122,5 +145,34 @@ FIXTURE_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# REST Framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+}
+
+# Caching
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'fretboard-cache',
+        'TIMEOUT': 60 * 15,  # 15 minutes
+    }
+}
+
+# Custom setting to enable the optimized chord view by default
+USE_OPTIMIZED_CHORD_VIEW = True
+
+# Application version
+VERSION = "2.1"
+
 if os.path.isfile(os.path.join(BASE_DIR, 'local_settings.py')):
     from local_settings import *
+    STRIPE_DONATE_URL = locals().get('STRIPE_DONATE_URL', None)
+else:
+    STRIPE_DONATE_URL = None

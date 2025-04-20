@@ -2,13 +2,25 @@
 {% load static %}
 
 {% block head %}
+{% if selected_chord %}
+    {% include "seo/chord_structured_data.html" %}
+{% elif selected_scale %}
+    {% include "seo/scale_structured_data.html" %}
+{% elif selected_arpeggio %}
+    {% include "seo/arpeggio_structured_data.html" %}
+{% endif %}
+{% include "seo/faq_schema.html" %}
 {% endblock %}
 
 {% block heading %}
-<h1>Guitar Positions</h1>
+<div class="logo-container">
+    <h1 class="visually-hidden">Guitar Fretboard Position Finder - Interactive Guitar Tool</h1>
+    <img src="{% static 'media/logo/Guitar_Positions_Logo_themed.svg' %}" alt="Guitar Positions - Complete Fretboard Visualization Tool" class="main-logo">
+</div>
 {% endblock %}
 
 {% block fretboard %}
+  {# Debug block removed as requested #}
 {% endblock %}
 
 {% block footer %}

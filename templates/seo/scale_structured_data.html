@@ -1,0 +1,91 @@
+<!-- Scale-specific structured data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  "name": "{{ root_name }} {{ selected_scale }} Scale",
+  "description": "{{ root_name }} {{ selected_scale }} scale positions for guitar",
+  "keywords": "{{ root_name }} {{ selected_scale }} scale, guitar scale, {{ selected_scale }} positions, {{ root_name }} guitar scale",
+  "learningResourceType": "Guitar Scale",
+  "educationalLevel": "all",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD",
+    "availability": "http://schema.org/InStock"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Guitar Positions"
+  },
+  "datePublished": "2025-04-19"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://guitar-positions.org"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Scales",
+      "item": "https://guitar-positions.org/scales/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "{{ root_name }} Scales",
+      "item": "https://guitar-positions.org/scales/{{ root_name|lower }}/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "{{ root_name }} {{ selected_scale }} Scale",
+      "item": "https://guitar-positions.org/scales/{{ root_name|lower }}/{{ selected_scale|lower|cut:" " }}-scale/"
+    }
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Play {{ root_name }} {{ selected_scale }} Scale on Guitar",
+  "description": "Learn how to play the {{ root_name }} {{ selected_scale }} scale across the guitar fretboard with multiple positions and patterns.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "name": "Understanding the {{ root_name }} {{ selected_scale }} Scale Formula",
+      "text": "The {{ root_name }} {{ selected_scale }} scale consists of the notes: {{ selected_notes|join:", " }}."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Position 1: {{ root_name }} {{ selected_scale }} Scale",
+      "text": "Start with the first position of the {{ root_name }} {{ selected_scale }} scale, often called the root position."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Connecting Scale Positions",
+      "text": "Learn to connect multiple positions of the {{ root_name }} {{ selected_scale }} scale across the fretboard."
+    },
+    {
+      "@type": "HowToStep",
+      "name": "Practice with Backing Tracks",
+      "text": "Practice the {{ root_name }} {{ selected_scale }} scale over appropriate backing tracks to develop your musical ear and improvisation skills."
+    }
+  ],
+  "tool": {
+    "@type": "HowToTool",
+    "name": "Guitar"
+  }
+}
+</script>
