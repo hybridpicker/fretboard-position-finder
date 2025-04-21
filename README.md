@@ -81,6 +81,12 @@ python manage.py loaddata v3_v7_voicings
 ```bash
 python manage.py runserver 0.0.0.0:8080
 ```
+=======
+   - Python
+   - JavaScript
+   - JSON
+   
+## Fretboard-Position-Finder in Action
 
 Open http://localhost:8080 to view the app.
 
@@ -111,3 +117,23 @@ gunicorn fretboard.wsgi:application --bind 0.0.0.0:8080
 ## License
 
 MIT License
+=======
+MEDIA_URL = '/media/'
+
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'fretboard/static_cdn')
+
+FIXTURE_DIRS = [
+    os.path.join(BASE_DIR, 'fixtures'),
+]
+```
+
+Fretboard-Position-Finder loads all fingerings, that are stored as **fixtures** with the migrate-command:
+```python
+python manage.py migrate
+```
