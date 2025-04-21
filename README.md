@@ -2,7 +2,8 @@
 
 
 **Interactive guitar fretboard visualization for scales, chords, and arpeggios in all 12 keys**
-![mockup_devide_gp](https://github.com/user-attachments/assets/60990f6d-39a1-4e1f-bb69-85c4357e631f)
+![guitar_positions_mockup](https://github.com/user-attachments/assets/2c44c7cf-e4cb-4b66-afc3-ea0dc8ef29a8)
+
 
 ## Features
 
