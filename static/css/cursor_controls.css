@@ -111,11 +111,11 @@
   }
   
   .left-cursor {
-    left: -12px;
+    left: 0;
   }
   
   .right-cursor {
-    right: -12px;
+    right: 0;
   }
 }
 

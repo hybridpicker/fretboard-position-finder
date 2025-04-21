@@ -16,12 +16,6 @@
     height: 90vh;
     max-height: 730px;
   }
-  
-  /* Hide cursor elements in mobile portrait mode */
-  .left-cursor,
-  .right-cursor {
-    display: none !important;
-  }
 }
 
 /* Keep standard styling for landscape mode */
