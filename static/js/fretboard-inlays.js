@@ -97,6 +97,16 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
+    // Check if we're in mobile view
+    function isMobileView() {
+        // More robust mobile detection
+        return (
+            window.matchMedia("only screen and (max-width: 480px)").matches ||
+            window.matchMedia("only screen and (max-device-width: 480px)").matches ||
+            (window.matchMedia("only screen and (max-width: 640px)").matches && window.matchMedia("(orientation: portrait)").matches)
+        );
+    }
+
     // Helper to get the vertical center of the fretboard container
     function getPlayableVerticalCenter() {
         // Try to find the top of the first string and center of the last string
@@ -241,24 +251,51 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Remove old inlays if any
-    inlayContainer.innerHTML = '';
+    // Function to update inlays
+    function updateInlays() {
+        // Clear existing inlays
+        inlayContainer.innerHTML = '';
+        
+        // Check for mobile view - if true, don't add any inlays
+        if (isMobileView()) {
+            // Remove any existing inlays and exit
+            return;
+        }
+        
+        // Add new inlays with recalculated positions
+        setTimeout(() => {
+            FRET_MARKERS.forEach(fret => {
+                addMinimalisticInlay(fret);
+            });
+        }, 300);
+    }
     
-    // Add new inlays with appropriate timeout
-    setTimeout(() => {
-        FRET_MARKERS.forEach(fret => {
-            addMinimalisticInlay(fret);
-        });
-    }, 300);
-
     // Add the inlay container to the fretboard
     if (fretboard) {
         fretboard.appendChild(inlayContainer);
     }
 
+    // Initial check and update
+    updateInlays();
+
     // Handle window resize and orientation changes
     window.addEventListener('resize', updateInlays);
-    window.addEventListener('orientationchange', updateInlays);
+    window.addEventListener('orientationchange', function() {
+        // Force a delay after orientation change to ensure DOM updates are complete
+        setTimeout(updateInlays, 500);
+    });
+    
+    // Create a media query list for mobile detection
+    const mobileMediaQuery = window.matchMedia("only screen and (max-width: 480px), only screen and (max-device-width: 480px)");
+    
+    // Add listener for media query changes
+    try {
+        // Modern browsers (addEventListener approach)
+        mobileMediaQuery.addEventListener('change', updateInlays);
+    } catch (e) {
+        // Fallback for older browsers
+        mobileMediaQuery.addListener(updateInlays);
+    }
     
     // Listen for changes in the string configuration
     const observer = new MutationObserver((mutations) => {
@@ -274,18 +311,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (fretboardContainer) {
         observer.observe(fretboardContainer, { attributes: true });
-    }
-    
-    // Function to update inlays
-    function updateInlays() {
-        // Clear existing inlays
-        inlayContainer.innerHTML = '';
-        // Add new inlays with recalculated positions
-        setTimeout(() => {
-            FRET_MARKERS.forEach(fret => {
-                addMinimalisticInlay(fret);
-            });
-        }, 300);
     }
     
     // Also update inlays when the string toggle is used (if that feature exists)

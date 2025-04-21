@@ -80,7 +80,7 @@ function initializeStringConfig() {
     }
     
     // Determine which configuration to use (stored or default)
-    let configState = 'eight-string'; // Default to eight-string
+    let configState = 'six-string'; // Default to six-string
     
     if (preferredConfig && (preferredConfig === 'six-string' || preferredConfig === 'eight-string')) {
         // Use the valid stored configuration
