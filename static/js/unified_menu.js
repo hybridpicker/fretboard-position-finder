@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applyStringConfiguration(savedConfig); // Apply the saved setting
     } else {
         console.log('No saved string configuration found, using default.');
-        applyStringConfiguration('eight-string'); // Apply default if nothing saved
+        applyStringConfiguration('six-string'); // Apply default if nothing saved
     }
     
     // Set a cookie too, to ensure backend can read it
@@ -37,8 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.cookie = "stringConfig=" + savedConfig + ";path=/;SameSite=Lax";
         console.log(`Set stringConfig cookie to: ${savedConfig}`);
     } else {
-        document.cookie = "stringConfig=eight-string;path=/;SameSite=Lax";
-        console.log('Set stringConfig cookie to default: eight-string');
+        document.cookie = "stringConfig=six-string;path=/;SameSite=Lax";
+        console.log('Set stringConfig cookie to default: six-string');
     }
 
     // Add toggle button event listener

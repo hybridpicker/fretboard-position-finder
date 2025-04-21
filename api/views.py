@@ -543,11 +543,11 @@ class ChordRangesView(APIView):
             string_mode = request.query_params.get('string_mode', None)
             if not string_mode:
                 # Then try cookie
-                string_mode = request.COOKIES.get('stringConfig', 'eight-string')
+                string_mode = request.COOKIES.get('stringConfig', 'six-string')
             
             # Set defaults if still not found
             if string_mode not in ['six-string', 'eight-string']:
-                string_mode = 'eight-string'
+                string_mode = 'six-string'
                 
             is_six_string = string_mode == 'six-string'
             
