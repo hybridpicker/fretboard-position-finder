@@ -106,9 +106,9 @@ function getStringConfigFromStorage() {
         console.warn('Could not read from localStorage:', e);
     }
     
-    // Default to eight-string if no valid stored config
-    console.log('No valid string configuration found, defaulting to eight-string');
-    return 'eight-string';
+    // Default to six-string if no valid stored config
+    console.log('No valid string configuration found, defaulting to six-string');
+    return 'six-string';
 }
 
 /**

@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Default to eight-string if not found
-        return config || 'eight-string';
+        // Default to six-string if not found
+        return config || 'six-string';
     };
     
     // Initialize string configuration if not already set
