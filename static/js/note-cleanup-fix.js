@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
  * Initialize the cursor navigation fix
  */
 function initCursorNavigationFix() {
+    // NOTE: Disabling aggressive cleanup override to allow proper note activation
+    return;
     // Store original functions if they exist
     const originalRightCursorClick = window.rightCursorClick;
     const originalLeftCursorClick = window.leftCursorClick;

@@ -579,6 +579,18 @@ document.addEventListener('DOMContentLoaded', function() {
     document.cookie = name + '=; Max-Age=-99999999; path=/; SameSite=Lax';
   }
 
+  // Debug shortcuts for root and cursor navigation
+  // Define root-shift handlers before keydown listener
+  window.increaseRoot = function() {
+    console.log("CURSOR-DEBUG-SHORTCUT: increaseRoot");
+    var btn = document.getElementById('root-increment');
+    if (btn) btn.click();
+  };
+  window.decreaseRoot = function() {
+    console.log("CURSOR-DEBUG-SHORTCUT: decreaseRoot");
+    var btn = document.getElementById('root-decrement');
+    if (btn) btn.click();
+  };
   // Event listener for keydown events
   document.addEventListener('keydown', function(event) {
     // Check if the 'Escape' key is pressed
@@ -601,6 +613,15 @@ document.addEventListener('DOMContentLoaded', function() {
       if (infoToggle) {
         infoToggle.click();
       }
+    }
+    // Cursor navigation shortcuts
+    if (event.key === 'ArrowLeft') {
+      console.log("CURSOR-DEBUG-SHORTCUT: ArrowLeft");
+      if (typeof leftCursorClick === 'function') leftCursorClick();
+    }
+    if (event.key === 'ArrowRight') {
+      console.log("CURSOR-DEBUG-SHORTCUT: ArrowRight");
+      if (typeof rightCursorClick === 'function') rightCursorClick();
     }
     // Right arrow key functionality has been removed
     // Check if the up arrow key is pressed
