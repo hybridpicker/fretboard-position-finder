@@ -134,3 +134,30 @@ function ensureNotesUpdate() {
 
 // Removed all logic related to getNoteNameFromData
 // (was previously called to show note names on fretboard)
+// ------------------------------------------------------------
+// Root note keyboard shortcuts (up/down arrows) - Moved to root_note_keyboard_controls.js
+// These are just placeholder functions for backwards compatibility
+window.rootNoteUp = function() {
+    // Implementation in root_note_keyboard_controls.js
+};
+window.rootNoteDown = function() {
+    // Implementation in root_note_keyboard_controls.js
+};
+// Legacy aliases for compatibility with existing keymap handlers
+window.increaseRoot = window.rootNoteUp;
+window.decreaseRoot = window.rootNoteDown;
+
+// Keyboard handlers: ensure left/right arrows click cursor buttons
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        const leftBtn = document.querySelector('.left-cursor');
+        if (leftBtn) leftBtn.click();
+    }
+    if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        const rightBtn = document.querySelector('.right-cursor');
+        if (rightBtn) rightBtn.click();
+    }
+    // Up/Down arrows are handled in root_note_keyboard_controls.js
+});
