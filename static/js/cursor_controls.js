@@ -135,19 +135,18 @@ function ensureNotesUpdate() {
 // Removed all logic related to getNoteNameFromData
 // (was previously called to show note names on fretboard)
 // ------------------------------------------------------------
-// Root note keyboard shortcuts (up/down arrows)
-// Clicks the existing root-increment and root-decrement buttons
+// Root note keyboard shortcuts (up/down arrows) - Moved to root_note_keyboard_controls.js
+// These are just placeholder functions for backwards compatibility
 window.rootNoteUp = function() {
-    var btn = document.getElementById('root-increment');
-    if (btn) btn.click();
+    // Implementation in root_note_keyboard_controls.js
 };
 window.rootNoteDown = function() {
-    var btn = document.getElementById('root-decrement');
-    if (btn) btn.click();
+    // Implementation in root_note_keyboard_controls.js
 };
 // Legacy aliases for compatibility with existing keymap handlers
 window.increaseRoot = window.rootNoteUp;
 window.decreaseRoot = window.rootNoteDown;
+
 // Keyboard handlers: ensure left/right arrows click cursor buttons
 document.addEventListener('keydown', function(event) {
     if (event.key === 'ArrowLeft') {
@@ -160,4 +159,5 @@ document.addEventListener('keydown', function(event) {
         const rightBtn = document.querySelector('.right-cursor');
         if (rightBtn) rightBtn.click();
     }
+    // Up/Down arrows are handled in root_note_keyboard_controls.js
 });
