@@ -197,9 +197,9 @@
 
   {% if chord_options %}
   <!-- Load original chord inversions for compatibility -->
-  <script src="{% static 'js/chord-inversions.js' %}"></script>
+  <!-- <script src="{% static 'js/chord-inversions.js' %}"></script> -->
   <!--<script src="{% static 'js/direct-inversion-cycling.js' %}"></script>-->
-  <script src="{% static 'js/cursor-inversion-hooks.js' %}"></script>
+  <!-- <script src="{% static 'js/cursor-inversion-hooks.js' %}"></script> -->
   
   <!-- Pass chord inversion data to JavaScript using json_script -->
   {{ inversion_names|json_script:"inversion-data" }}
