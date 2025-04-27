@@ -728,3 +728,8 @@ button.secondary:hover {
   background: url('/static/media/svg/close_menu_24_active.svg') no-repeat center center;
   cursor: pointer;
 }
+
+/* Hide the chord quality grid as it's not currently needed */
+#chord-quality-grid {
+    display: none !important; 
+}

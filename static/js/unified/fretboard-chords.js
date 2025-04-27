@@ -544,6 +544,7 @@ class ChordFretboardController extends FretboardCore {
     for (const stringName in positionData) {
       // Skip the assigned_strings array
       if (stringName === 'assigned_strings') {
+        console.log(`[LoopDebug] Skipping '${stringName}'`);
         continue;
       }
       
@@ -552,7 +553,7 @@ class ChordFretboardController extends FretboardCore {
       // Get the note data for this string
       const noteData = positionData[stringName];
       if (!noteData || !noteData.length) {
-        console.log(`No note data for string ${stringName}`);
+        console.log(`[LoopDebug] No note data for string ${stringName}, continuing.`);
         continue;
       }
       
@@ -563,7 +564,7 @@ class ChordFretboardController extends FretboardCore {
       console.log(`String ${stringName}: note=${noteName}, function=${noteFunction}`);
       
       if (!noteName) {
-        console.log(`No note name for string ${stringName}, skipping`);
+        console.log(`[LoopDebug] No note name for string ${stringName}, continuing.`);
         continue;
       }
       
@@ -571,6 +572,11 @@ class ChordFretboardController extends FretboardCore {
       if (!this.state.activeNotes.has(stringName)) {
         this.state.activeNotes.set(stringName, new Map());
       }
+      this.state.activeNotes.get(stringName).set(noteName, {
+        noteName,
+        noteFunction,
+        active: false // Will be set to true if DOM element is found
+      });
       
       try {
         // Properly escape note name for CSS selector using the class method
@@ -583,7 +589,7 @@ class ChordFretboardController extends FretboardCore {
         console.log(`Selector "${noteSelector}" matched ${noteElements.length} elements`);
         
         if (noteElements.length === 0) {
-          console.log(`No matching elements for note ${noteName} on string ${stringName}, but tracking it anyway`);
+          console.warn(`No matching elements found for ${noteName} on ${stringName}`);
           // We continue because we've already added the note to activeNotes above
           continue;
         }
@@ -617,6 +623,7 @@ class ChordFretboardController extends FretboardCore {
           console.log(`Selected best note on fret ${bestNote.fretNum} with score ${bestNote.score}`);
           
           // Activate only the best note
+          console.log(`[ActivationCheck] About to call _activateNote for BEST NOTE:`, { element: bestNote.element, noteName, noteFunction });
           this._activateNote(bestNote.element, noteName, noteFunction);
           
           // Store the active fret
@@ -628,6 +635,7 @@ class ChordFretboardController extends FretboardCore {
         // If there's only one option, use it
         else {
           console.log(`Single option for ${noteName} on ${stringName}`);
+          console.log(`[ActivationCheck] About to call _activateNote for SINGLE NOTE:`, { element: noteElements[0], noteName, noteFunction });
           this._activateNote(noteElements[0], noteName, noteFunction);
           
           // Store the active fret
@@ -641,7 +649,7 @@ class ChordFretboardController extends FretboardCore {
           this.state.activeFrets.get(stringName).add(fretNum);
         }
       } catch (error) {
-        console.error(`Error processing note ${noteName} on string ${stringName}:`, error);
+        console.error(`Error caught processing note ${noteName} on string ${stringName}:`, error);
         // Continue to the next note - we've already tracked this one in activeNotes
       }
     }
@@ -703,9 +711,29 @@ class ChordFretboardController extends FretboardCore {
    * @private
    */
   _activateNote(element, noteName, noteFunction) {
-    // Activate the note element
+    console.log('[NoteActivation] Activating note:', { 
+      noteName, 
+      noteFunction, 
+      element,
+      img: element.querySelector('img.tone')
+    });
+
+    // Activate the note element and set the active flag in our data structure
     element.classList.add('active');
+    element.setAttribute('data-note-active', 'true');
+    element.setAttribute('data-note-function', noteFunction || '');
     
+    // Add to active notes map
+    if (this.state.activeNotes.has(element.closest('[class*="String"]').className)) {
+      const stringMap = this.state.activeNotes.get(element.closest('[class*="String"]').className);
+      stringMap.set(noteName, {
+        noteName, 
+        noteFunction, 
+        element,
+        active: true
+      });
+    }
+
     // Find and activate the note name display
     const noteNameDiv = element.querySelector('.notename');
     if (noteNameDiv) {
@@ -713,6 +741,11 @@ class ChordFretboardController extends FretboardCore {
       // Explicitly set styles to ensure visibility, overriding potential inline styles
       noteNameDiv.style.visibility = 'visible';
       noteNameDiv.style.opacity = '1';
+      
+      // Add note function to display if available
+      if (noteFunction) {
+        noteNameDiv.setAttribute('data-note-function', noteFunction);
+      }
     } else {
       console.warn(`No .notename found for note ${noteName}`);
     }
@@ -724,8 +757,24 @@ class ChordFretboardController extends FretboardCore {
       return;
     }
     
-    // Activate the tone image
+    // Activate the tone image and set attributes
     img.classList.add('active');
+    img.setAttribute('data-note-name', noteName);
+    img.setAttribute('data-note-function', noteFunction || '');
+    
+    // Get the fret element (parent of note element)
+    const fretEl = element.closest('[class*="fret"]');
+    if (fretEl) {
+      console.log('[NoteActivation] fretElement:', { 
+        fretElement: fretEl,
+        classList: Array.from(fretEl.classList),
+        fretNum: this._getFretNumber(fretEl),
+        stringName: this._getStringNameFromElement(fretEl)
+      });
+      
+      // Add active class to the fret
+      fretEl.classList.add('active-fret');
+    }
     
     // Special styling for root notes
     if (noteFunction === 'R') {
@@ -736,50 +785,66 @@ class ChordFretboardController extends FretboardCore {
       let canonicalId = canonicalInfo ? canonicalInfo.id : null;
       let canonicalName = canonicalInfo ? canonicalInfo.canonical : null;
       console.log('[RootMarking] canonicalInfo:', {noteName, canonicalInfo});
+      
       if (!canonicalInfo) {
         console.warn('[RootMarking] No canonical mapping found for noteName:', noteName);
       }
+      
+      // Apply root styling to both the image and the note element
       img.classList.add('root');
+      element.classList.add('root-note');
+      
+      // Use the root circle image
       img.setAttribute('src', '/static/media/circle-root.svg');
+      
+      // Set all root data attributes
       img.setAttribute('data-is-root', 'true');
       img.setAttribute('data-note-name', noteName);
-      if (canonicalClass) img.setAttribute('data-note-class', canonicalClass);
-      if (canonicalId) img.setAttribute('data-note-id', canonicalId);
-      if (canonicalName) img.setAttribute('data-canonical-name', canonicalName);
-      img.style.opacity = '1';
-      const rootMarkedEvent = new CustomEvent('rootNoteMarked', {
-        detail: { element: img, noteName, canonicalClass, canonicalId, canonicalName }
-      });
-      document.dispatchEvent(rootMarkedEvent);
-      console.log('[RootMarking] Finished marking root:', {noteName, canonicalClass, canonicalId, canonicalName, img});
-    }
-
-    // --- LOGGING: all note activations ---
-    console.log('[NoteActivation] Activating note:', {noteName, noteFunction, element, img});
-    
-    // Add note to active notes map using a unique key
-    try {
-      const fretElement = element.closest('.fret');
-      if (fretElement) {
-        const fretNum = this._getFretNumber(fretElement);
-        const stringName = Array.from(fretElement.classList).find(cls => cls.endsWith('String'));
-        console.log('[NoteActivation] fretElement:', fretElement, 'classList:', Array.from(fretElement.classList), 'fretNum:', fretNum, 'stringName:', stringName);
-        if (!stringName || fretNum === -1) {
-          console.warn('[NoteActivation] Could not determine stringName or fretNum for key in _activateNote', element, Array.from(fretElement.classList));
-        }
-        // ...rest of logic
-        const noteKey = `${stringName}-${fretNum}`;
-        // Ensure the map for this string exists
-        if (!this.state.activeNotes.has(stringName)) {
-           this.state.activeNotes.set(stringName, new Map());
-        }
-        this.state.activeNotes.get(stringName).set(noteKey, { noteName: noteName, noteFunction: noteFunction });
-      } else {
-         console.warn(`Could not find parent .fret for element in _activateNote`, element);
+      element.setAttribute('data-is-root', 'true');
+      element.setAttribute('data-note-name', noteName);
+      
+      // Add canonical information if available
+      if (canonicalClass) {
+        img.setAttribute('data-note-class', canonicalClass);
+        element.setAttribute('data-note-class', canonicalClass);
       }
-    } catch (e) {
-      console.error(`Error generating key or setting active note in _activateNote: ${e}`, element);
+      if (canonicalId) {
+        img.setAttribute('data-note-id', canonicalId);
+        element.setAttribute('data-note-id', canonicalId);
+      }
+      if (canonicalName) {
+        img.setAttribute('data-canonical-name', canonicalName);
+        element.setAttribute('data-canonical-name', canonicalName);
+      }
+    } else {
+      // Ensure non-root notes have the proper image
+      if (img.getAttribute('src').includes('circle-root.svg')) {
+        img.setAttribute('src', '/static/media/circle.svg');
+      }
     }
+    
+    // IMPORTANT: Force a repaint to ensure styles are applied
+    void element.offsetWidth;
+    
+    // Add to active elements set for tracking
+    this.activeElements.add(element);
+  }
+  
+  /**
+   * Helper to get string name from an element
+   * @param {HTMLElement} element - Element to get string name from
+   * @returns {string|null} String name or null if not found
+   * @private
+   */
+  _getStringNameFromElement(element) {
+    if (!element) return null;
+    
+    // Find class that ends with "String"
+    const stringClass = Array.from(element.classList).find(cls => 
+      cls.endsWith('String')
+    );
+    
+    return stringClass || null;
   }
   
   /**
