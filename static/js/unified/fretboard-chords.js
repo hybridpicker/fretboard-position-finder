@@ -683,7 +683,7 @@ class ChordFretboardController extends FretboardCore {
     const rootImgs = document.querySelectorAll('img.tone.root');
     rootImgs.forEach(img => {
       img.classList.remove('root');
-      if (img.getAttribute('src') === '/static/media/circle-root.svg') {
+      if (img.getAttribute('src') === '/static/media/svg/root_note.svg') {
         img.setAttribute('src', '/static/media/circle.svg');
       }
       img.removeAttribute('data-is-root');
@@ -795,7 +795,7 @@ class ChordFretboardController extends FretboardCore {
       element.classList.add('root-note');
       
       // Use the root circle image
-      img.setAttribute('src', '/static/media/circle-root.svg');
+      img.setAttribute('src', '/static/media/svg/root_note.svg');
       
       // Set all root data attributes
       img.setAttribute('data-is-root', 'true');
@@ -818,7 +818,7 @@ class ChordFretboardController extends FretboardCore {
       }
     } else {
       // Ensure non-root notes have the proper image
-      if (img.getAttribute('src').includes('circle-root.svg')) {
+      if (img.getAttribute('src').includes('root_note.svg')) {
         img.setAttribute('src', '/static/media/circle.svg');
       }
     }
