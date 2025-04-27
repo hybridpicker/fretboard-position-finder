@@ -564,6 +564,17 @@ document.addEventListener('DOMContentLoaded', () => {
             applySettings();
         });
     }
+    
+    // Appearance Settings apply button
+    const applyAppearanceButton = document.getElementById('applyAppearance');
+    if (applyAppearanceButton) {
+        applyAppearanceButton.addEventListener('click', (e) => {
+            console.log('Apply Appearance button clicked.'); // Debug log
+            e.preventDefault();
+            e.stopPropagation();
+            applySettings();
+        });
+    }
 
     // --- Main Grid Item Click Handler ---
     function handleGridItemClick(event) {
