@@ -227,5 +227,13 @@
   
   <!-- String interaction effects -->
   <script src="{% static 'js/string-interaction.js' %}"></script>
+
+  <script>
+    // Set a global JavaScript variable based on Django's DEBUG setting
+    window.DJANGO_DEBUG = {{ debug|yesno:"true,false" }};
+  </script>
+
+  <!-- Include the custom debug logger script -->
+  <script src="{% static 'js/debug-logger.js' %}"></script>
 </body>
 </html>
