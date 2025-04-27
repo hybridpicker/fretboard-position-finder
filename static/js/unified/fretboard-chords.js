@@ -109,6 +109,29 @@ class ChordFretboardController extends FretboardCore {
     // Load voicing data
     this._initFretboard();
     
+    // Fix for note names visibility in chord mode when cursor navigation is used
+    document.addEventListener('notesVisibilityChanged', (event) => {
+      // Only apply in chord mode
+      if (this.options.viewType === 'chord') {
+        const isVisible = event.detail.visible;
+        // Update all note names to match their image visibility
+        document.querySelectorAll('.notename').forEach(nameElement => {
+          // Only update note names that are active
+          if (nameElement.classList.contains('active')) {
+            // Get parent note element to check if it's visible
+            const noteElement = nameElement.closest('.note');
+            const noteImage = noteElement?.querySelector('img.tone');
+            
+            if (noteElement && noteImage) {
+              // Match the visibility of the note name to the image
+              nameElement.style.visibility = noteImage.style.visibility;
+              nameElement.style.opacity = noteImage.style.opacity;
+            }
+          }
+        });
+      }
+    });
+    
     return this;
   }
   

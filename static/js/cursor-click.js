@@ -16,24 +16,11 @@ window.fpf = window.fpf || {}; // Global namespace for our functionality
 window.fpf.cursor = {
     mode: null,           // 'scales' or 'chords'
     position: 0,          // Current scale position (0 = "All Positions")
-    maxPosition: 5,       // Maximum scale position
+    maxPosition: 6,       // Maximum scale position - default to 6 (will be updated dynamically)
     chordType: 'triad',   // 'triad' or 'fourNote'
     inversion: 0,         // Current chord inversion (0 = Root Position)
-    maxInversion: 2,      // Maximum chord inversion
-    initialized: false,   // Flag to prevent multiple initializations
-    debugMode: true       // Enable detailed debug logging
+    initialized: false    // Flag to prevent multiple initializations
 };
-
-// Helper function to log debug information
-function cursorDebugLog(message, data = null) {
-    if (window.fpf.cursor.debugMode) {
-        if (data) {
-            console.log(`CURSOR_DEBUG_LOG: ${message}`, data);
-        } else {
-            console.log(`CURSOR_DEBUG_LOG: ${message}`);
-        }
-    }
-}
 
 // ---- HELPER FUNCTIONS ----
 
@@ -188,6 +175,46 @@ function getAvailablePositions() {
 }
 
 /**
+ * Detect maximum position number from DOM or scale_data
+ * @return {number} The maximum position number (>= 5)
+ */
+function detectMaxPosition() {
+    let maxPosition = 6; // Default minimum value
+    
+    // Try to get from position select element first
+    const positionSelect = document.getElementById('position_select');
+    if (positionSelect) {
+        for (let i = 0; i < positionSelect.options.length; i++) {
+            const value = positionSelect.options[i].value;
+            const numValue = parseInt(value);
+            
+            // Only consider numeric options (not "All Positions" or text values)
+            if (!isNaN(numValue) && numValue > maxPosition) {
+                maxPosition = numValue;
+            }
+        }
+    }
+    
+    // Try to get from scale_data if available
+    if (typeof scale_data !== 'undefined' && scale_data) {
+        // Look for highest numeric position key
+        const positions = Object.keys(scale_data)
+            .map(key => parseInt(key))
+            .filter(num => !isNaN(num) && num > 0);
+            
+        if (positions.length > 0) {
+            const dataMax = Math.max(...positions);
+            if (dataMax > maxPosition) {
+                maxPosition = dataMax;
+            }
+        }
+    }
+    
+    console.log("Detected maximum position:", maxPosition);
+    return maxPosition;
+}
+
+/**
  * Create cursor elements if they don't exist
  */
 function ensureCursorElements() {
@@ -291,7 +318,7 @@ function updateScaleDisplay(positionValue) {
 function updateChordDisplay(inversionValue) {
     // Get position name from inversion index
     const positionName = getPositionName(inversionValue);
-    cursorDebugLog(`updateChordDisplay - Inversion: ${inversionValue}, Position: "${positionName}"`);
+    console.log("updateChordDisplay - Updating to inversion:", inversionValue, "position:", positionName);
     
     // Update the select dropdown
     const positionSelect = document.getElementById('position_select');
@@ -305,14 +332,14 @@ function updateChordDisplay(inversionValue) {
                 (positionName === 'Root Position' && optionValue === 'Basic Position')) {
                 positionSelect.selectedIndex = i;
                 foundMatchingOption = true;
-                cursorDebugLog(`Found matching option: "${optionValue}" at index: ${i}`);
+                console.log("Found matching option:", optionValue, "at index:", i);
                 break;
             }
         }
         
         if (!foundMatchingOption) {
-            cursorDebugLog(`No matching option found for position: "${positionName}"`);
-            cursorDebugLog(`Available options:`, Array.from(positionSelect.options).map(o => o.value));
+            console.warn("No matching option found for position:", positionName);
+            console.log("Available options:", Array.from(positionSelect.options).map(o => o.value));
         }
         
         // Trigger change event to update UI
@@ -343,62 +370,41 @@ function updateChordDisplay(inversionValue) {
         range = voicing_data.note_range;
     }
     
-    // Try controller as another source if all else fails
-    if (!range && window.chordFretboardController && window.chordFretboardController.chordState) {
-        range = window.chordFretboardController.chordState.currentRange;
-    }
-    
     // Default if all else fails
     if (!range) {
         range = 'e - g';
     }
     
-    cursorDebugLog(`Using note range: "${range}"`);
+    console.log("Using range:", range);
     
-    // DIRECT CONTROLLER CALL APPROACH
-    // If the unified controller is available, use it directly
-    if (window.chordFretboardController) {
-        cursorDebugLog(`Calling unified controller.updateChordDisplay directly`);
-        try {
-            window.chordFretboardController.updateChordDisplay(positionName, range);
-            return; // Exit early if we successfully called the controller
-        } catch (err) {
-            cursorDebugLog(`Error calling controller directly: ${err.message}`);
-            // Continue to fallback methods
-        }
-    }
-    
-    // BRIDGE FUNCTION APPROACH
     // Most important: Call the getTonesFromDataChords function to update the fretboard
-    if (typeof window.getTonesFromDataChords === 'function') {
-        cursorDebugLog(`Calling getTonesFromDataChords bridge with position: "${positionName}", range: "${range}"`);
+    if (typeof getTonesFromDataChords === 'function') {
+        console.log("Calling getTonesFromDataChords with position:", positionName, "range:", range);
         try {
-            window.getTonesFromDataChords(positionName, range);
+            getTonesFromDataChords(positionName, range);
         } catch (err) {
-            cursorDebugLog(`Error in getTonesFromDataChords: ${err.message}`);
+            console.error("Error in getTonesFromDataChords:", err);
             
             // Try alternate case
             if (positionName === 'Root Position') {
-                cursorDebugLog(`Retrying with 'Basic Position'`);
+                console.log("Retrying with 'Basic Position'");
                 try {
-                    window.getTonesFromDataChords('Basic Position', range);
+                    getTonesFromDataChords('Basic Position', range);
                 } catch (err2) {
-                    cursorDebugLog(`Error in retry attempt: ${err2.message}`);
+                    console.error("Error in retry attempt:", err2);
                 }
             }
         }
     } else {
-        cursorDebugLog(`ERROR: getTonesFromDataChords function not found. Chord inversion cannot be updated.`);
+        console.error("getTonesFromDataChords function not found. Chord inversion cannot be updated.");
     }
     
     // Try to trigger any additional display updates
     if (typeof refreshChordDisplay === 'function') {
-        cursorDebugLog(`Calling refreshChordDisplay helper`);
         setTimeout(refreshChordDisplay, 50);
     }
     
     if (typeof updateVoicingsDisplay === 'function') {
-        cursorDebugLog(`Calling updateVoicingsDisplay helper`);
         setTimeout(updateVoicingsDisplay, 50);
     }
 }
@@ -421,11 +427,11 @@ function updateCursorVisibility() {
         rightCursor.style.visibility = (state.position >= state.maxPosition) ? 'hidden' : 'visible';
         rightCursor.style.display = (state.position >= state.maxPosition) ? 'none' : 'block';
         
-        cursorDebugLog(`Scales cursor visibility updated - left: ${leftCursor.style.visibility}, right: ${rightCursor.style.visibility}`);
-        cursorDebugLog(`Scales cursor state - position: ${state.position}, maxPosition: ${state.maxPosition}`);
+        console.log("Scales cursor visibility - left:", leftCursor.style.visibility, "right:", rightCursor.style.visibility, "maxPosition:", state.maxPosition);
     } else if (state.mode === 'chords') {
-        // For chords, we use the maxInversion properly
-        const maxInversion = state.maxInversion || ((state.chordType === 'triad') ? 2 : 3);
+        // For chords, we should still hide cursors at extremes (even though they wrap)
+        // to match the requirement
+        const maxInversion = (state.chordType === 'triad') ? 2 : 3;
         
         leftCursor.style.visibility = (state.inversion <= 0) ? 'hidden' : 'visible';
         leftCursor.style.display = (state.inversion <= 0) ? 'none' : 'block';
@@ -433,8 +439,7 @@ function updateCursorVisibility() {
         rightCursor.style.visibility = (state.inversion >= maxInversion) ? 'hidden' : 'visible';
         rightCursor.style.display = (state.inversion >= maxInversion) ? 'none' : 'block';
         
-        cursorDebugLog(`Chords cursor visibility updated - left: ${leftCursor.style.visibility}, right: ${rightCursor.style.visibility}`);
-        cursorDebugLog(`Chords cursor state - inversion: ${state.inversion}, maxInversion: ${maxInversion}, chordType: ${state.chordType}`);
+        console.log("Chords cursor visibility - left:", leftCursor.style.visibility, "right:", rightCursor.style.visibility);
     } else {
         // Unknown mode, hide both cursors
         leftCursor.style.visibility = 'hidden';
@@ -442,7 +447,7 @@ function updateCursorVisibility() {
         rightCursor.style.visibility = 'hidden';
         rightCursor.style.display = 'none';
         
-        cursorDebugLog(`Mode not recognized: ${state.mode}, hiding cursors`);
+        console.warn("Unknown mode, hiding cursors");
     }
 }
 
@@ -454,30 +459,27 @@ function updateCursorVisibility() {
  */
 window.fpfLeftCursorClick = function() {
     const state = window.fpf.cursor;
-    cursorDebugLog(`Left cursor clicked in mode: ${state.mode}`);
+    console.log("Left cursor clicked. Current mode:", state.mode);
     
     if (state.mode === 'scales') {
         // For scales: Go back one position, stop at 0
         if (state.position > 0) {
             state.position--;
-            cursorDebugLog(`Scales mode: updating position to ${state.position}`);
+            console.log("Updating scale position to:", state.position);
             updateScaleDisplay(state.position);
-        } else {
-            cursorDebugLog(`Scales mode: already at position 0, not changing`);
         }
     } else if (state.mode === 'chords') {
         // For chords: Go back one inversion, wrap around to max
-        const maxInversion = state.maxInversion || ((state.chordType === 'triad') ? 2 : 3);
+        const maxInversion = (state.chordType === 'triad') ? 2 : 3;
         
         state.inversion--;
         if (state.inversion < 0) {
             state.inversion = maxInversion;
         }
-        cursorDebugLog(`Chords mode: updating inversion to ${state.inversion}`);
-        cursorDebugLog(`Chords mode: mapped to position name "${getPositionName(state.inversion)}"`);
+        console.log("Updating chord inversion to:", state.inversion);
         updateChordDisplay(state.inversion);
     } else {
-        cursorDebugLog(`Unknown mode: ${state.mode}, cannot handle left click`);
+        console.warn("Unknown mode, cannot handle left click");
         return;
     }
     
@@ -497,16 +499,11 @@ window.fpfLeftCursorClick = function() {
     // Restore multi-inversion display if in chords mode
     if (state.mode === 'chords') {
         if (typeof window.forceCorrectInversionDisplay === 'function') {
-            cursorDebugLog(`Attempting to call forceCorrectInversionDisplay after chord navigation`);
             setTimeout(window.forceCorrectInversionDisplay, 150);
         } else if (typeof window.updateChordInversions === 'function') {
-            cursorDebugLog(`Attempting to call updateChordInversions after chord navigation`);
             setTimeout(window.updateChordInversions, 150);
         } else if (typeof enhanceChordDisplay === 'function') {
-            cursorDebugLog(`Attempting to call enhanceChordDisplay after chord navigation`);
             setTimeout(enhanceChordDisplay, 150);
-        } else {
-            cursorDebugLog(`No inversion display enhancement functions found`);
         }
     }
 };
@@ -517,30 +514,27 @@ window.fpfLeftCursorClick = function() {
  */
 window.fpfRightCursorClick = function() {
     const state = window.fpf.cursor;
-    cursorDebugLog(`Right cursor clicked in mode: ${state.mode}`);
+    console.log("Right cursor clicked. Current mode:", state.mode);
     
     if (state.mode === 'scales') {
         // For scales: Go forward one position, stop at max
         if (state.position < state.maxPosition) {
             state.position++;
-            cursorDebugLog(`Scales mode: updating position to ${state.position}`);
+            console.log("Updating scale position to:", state.position);
             updateScaleDisplay(state.position);
-        } else {
-            cursorDebugLog(`Scales mode: already at max position ${state.maxPosition}, not changing`);
         }
     } else if (state.mode === 'chords') {
         // For chords: Go forward one inversion, wrap around to 0
-        const maxInversion = state.maxInversion || ((state.chordType === 'triad') ? 2 : 3);
+        const maxInversion = (state.chordType === 'triad') ? 2 : 3;
         
         state.inversion++;
         if (state.inversion > maxInversion) {
             state.inversion = 0;
         }
-        cursorDebugLog(`Chords mode: updating inversion to ${state.inversion}`);
-        cursorDebugLog(`Chords mode: mapped to position name "${getPositionName(state.inversion)}"`);
+        console.log("Updating chord inversion to:", state.inversion);
         updateChordDisplay(state.inversion);
     } else {
-        cursorDebugLog(`Unknown mode: ${state.mode}, cannot handle right click`);
+        console.warn("Unknown mode, cannot handle right click");
         return;
     }
     
@@ -560,16 +554,11 @@ window.fpfRightCursorClick = function() {
     // Restore multi-inversion display if in chords mode
     if (state.mode === 'chords') {
         if (typeof window.forceCorrectInversionDisplay === 'function') {
-            cursorDebugLog(`Attempting to call forceCorrectInversionDisplay after chord navigation`);
             setTimeout(window.forceCorrectInversionDisplay, 150);
         } else if (typeof window.updateChordInversions === 'function') {
-            cursorDebugLog(`Attempting to call updateChordInversions after chord navigation`);
             setTimeout(window.updateChordInversions, 150);
         } else if (typeof enhanceChordDisplay === 'function') {
-            cursorDebugLog(`Attempting to call enhanceChordDisplay after chord navigation`);
             setTimeout(enhanceChordDisplay, 150);
-        } else {
-            cursorDebugLog(`No inversion display enhancement functions found`);
         }
     }
 };
@@ -587,11 +576,10 @@ function initCursorSystem() {
     const state = window.fpf.cursor;
     
     if (state.initialized) {
-        cursorDebugLog(`Cursor system already initialized, skipping`);
         return; // Already initialized
     }
     
-    cursorDebugLog(`Initializing cursor system...`);
+    console.log("Initializing cursor system...");
     
     // Create cursor elements if they don't exist
     ensureCursorElements();
@@ -600,151 +588,102 @@ function initCursorSystem() {
     const url = window.location.href.toLowerCase();
     if (url.includes('chord')) {
         state.mode = 'chords';
-        cursorDebugLog(`Mode detection: 'chords' detected from URL`);
-        
-        // For chord mode, detect chord type
-        // First check if unified controller is available
-        if (typeof window.chordFretboardController !== 'undefined') {
-            cursorDebugLog(`Chord controller: Unified controller detected`);
-            
-            // Get chord type from controller
-            const controller = window.chordFretboardController;
-            if (controller && controller.chordState) {
-                state.chordType = controller.chordState.chordType || 'triad';
-                cursorDebugLog(`Chord controller: Using chord type from controller: ${state.chordType}`);
-                
-                // Set initial inversion based on controller's current position
-                const currentPos = controller.chordState.currentPosition || 'Root Position';
-                state.inversion = getInversionIndex(currentPos);
-                cursorDebugLog(`Chord controller: Set initial inversion to ${state.inversion} from position "${currentPos}"`);
-            } else {
-                cursorDebugLog(`Chord controller: Found but missing chordState, using defaults`);
-            }
-        }
-        // Fallback to voicing_data if available
-        else if (typeof window.voicing_data !== 'undefined') {
-            cursorDebugLog(`Chord data: Using legacy voicing_data`);
-            
-            // Determine chord type (triad vs seventh)
-            const chordName = window.voicing_data.chord || '';
-            cursorDebugLog(`Chord data: Detected chord name "${chordName}"`);
-            
-            if (chordName.includes('7') || chordName.includes('Seventh')) {
-                state.chordType = 'seventh';
-                cursorDebugLog(`Chord data: Detected seventh chord type`);
-            } else {
-                state.chordType = 'triad';
-                cursorDebugLog(`Chord data: Detected triad chord type`);
-            }
-        } else {
-            cursorDebugLog(`Chord data: No data source found, defaulting to triad`);
-        }
-        
-        // Set default max inversion based on chord type
-        let theoreticalMaxInversion = (state.chordType === 'triad') ? 2 : 3;
-        cursorDebugLog(`Chord setup: Theoretical max inversion from chord type: ${theoreticalMaxInversion}`);
-        
-        // Get current inversion
-        // If there's a position select, read from there first
-        const positionSelect = document.getElementById('position_select');
-        if (positionSelect && positionSelect.value) {
-            state.inversion = getInversionIndex(positionSelect.value);
-            cursorDebugLog(`Chord position: Using value from position_select: "${positionSelect.value}" → inversion ${state.inversion}`);
-            
-            // Use select options to determine actual max inversion
-            if (positionSelect.options.length > 0) {
-                // Count how many inversion options are available in the UI
-                const availableOptions = Array.from(positionSelect.options).map(o => o.value);
-                cursorDebugLog(`Available position options:`, availableOptions);
-                
-                // Find the maximum inversion index from available options
-                let uiMaxInversion = 0;
-                for (const option of availableOptions) {
-                    const invIndex = getInversionIndex(option);
-                    if (invIndex > uiMaxInversion) {
-                        uiMaxInversion = invIndex;
-                    }
-                }
-                
-                cursorDebugLog(`UI-based max inversion: ${uiMaxInversion}`);
-                
-                // Use the smaller of theoretical or UI-based max
-                state.maxInversion = Math.min(uiMaxInversion, theoreticalMaxInversion);
-                cursorDebugLog(`Using final maxInversion: ${state.maxInversion} (minimum of theoretical and UI-based)`);
-            } else {
-                state.maxInversion = theoreticalMaxInversion;
-                cursorDebugLog(`No options in select, using theoretical maxInversion: ${state.maxInversion}`);
-            }
-        } else {
-            cursorDebugLog(`Chord position: No position_select element or value found, using theoretical max`);
-            state.maxInversion = theoreticalMaxInversion;
-        }
-        
-        // If still default (0), check URL
-        if (state.inversion === 0) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const position = urlParams.get('position_select');
-            if (position) {
-                state.inversion = getInversionIndex(position);
-                cursorDebugLog(`Chord position: Using value from URL param: "${position}" → inversion ${state.inversion}`);
-            } else {
-                cursorDebugLog(`Chord position: No position in URL, using default inversion 0`);
-            }
-        }
+        console.log("Detected chord mode");
     } else if (url.includes('scale') || url.includes('arpeggio')) {
         state.mode = 'scales';
-        cursorDebugLog(`Mode detection: 'scales' detected from URL`);
-        
-        // Try to get position from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const position = urlParams.get('position');
-        if (position !== null) {
-            try {
-                state.position = parseInt(position) || 0;
-                cursorDebugLog(`Scale position: Set from URL parameter to ${state.position}`);
-            } catch (e) {
-                state.position = 0;
-                cursorDebugLog(`Scale position: Error parsing URL parameter, defaulting to 0`);
-            }
-        } else {
-            cursorDebugLog(`Scale position: No URL parameter found, using default 0`);
-        }
-        
-        // Determine max position from UI
-        const positionSelect = document.getElementById('position');
-        if (positionSelect) {
-            state.maxPosition = positionSelect.options.length - 1;
-            cursorDebugLog(`Scale max position: Set from select element to ${state.maxPosition}`);
-            
-            // Debug output all select options
-            const options = Array.from(positionSelect.options).map(o => o.value);
-            cursorDebugLog(`Available position options:`, options);
-        } else {
-            // Default to 7 if not found (standard for common scales)
-            state.maxPosition = 7;
-            cursorDebugLog(`Scale max position: No select element found, defaulting to ${state.maxPosition}`);
-        }
+        console.log("Detected scale/arpeggio mode");
     } else {
-        cursorDebugLog(`Mode detection: No mode detected in URL, defaulting to scales`);
-        state.mode = 'scales';
+        // Try to detect from page content
+        const scaleElements = document.querySelectorAll(
+            '.scale-name, .scale-root, .arpeggio-name, .arpeggio-root'
+        );
+        const chordElements = document.querySelectorAll(
+            '.chord-name, .chord-root, .chord-type'
+        );
+        
+        if (scaleElements.length > chordElements.length) {
+            state.mode = 'scales';
+            console.log("Detected scale/arpeggio mode from DOM elements");
+        } else {
+            // Default to chords
+            state.mode = 'chords';
+            console.log("Defaulting to chord mode");
+        }
     }
     
-    // Examine critical DOM elements for debugging
-    cursorDebugLog(`DOM inspection: Looking for position_select element`);
-    const positionSelect = document.getElementById('position_select');
-    cursorDebugLog(`DOM inspection: position_select element found: ${positionSelect ? 'yes' : 'no'}`);
+    // Check for voicing_data to confirm if we're in chord mode
+    if (typeof voicing_data !== 'undefined') {
+        state.mode = 'chords';
+        console.log("Detected chord mode from presence of voicing_data");
+    }
     
-    cursorDebugLog(`DOM inspection: Looking for chord_type_select element`);
-    const chordTypeSelect = document.getElementById('chord_type_select');
-    cursorDebugLog(`DOM inspection: chord_type_select element found: ${chordTypeSelect ? 'yes' : 'no'}`);
+    // Check for scale_data to confirm if we're in scale mode
+    if (typeof scale_data !== 'undefined') {
+        state.mode = 'scales';
+        console.log("Detected scale mode from presence of scale_data");
+    }
     
-    // Update cursor visibility
-    updateCursorVisibility();
+    // Get current position from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const positionParam = urlParams.get('position_select');
+    
+    if (state.mode === 'scales') {
+        // For scales: Try to parse position as number
+        if (positionParam !== null && !isNaN(parseInt(positionParam))) {
+            state.position = parseInt(positionParam);
+        }
+        
+        // Detect maximum position dynamically
+        state.maxPosition = detectMaxPosition();
+        
+        console.log("Scale system initialized with position:", state.position, "max:", state.maxPosition);
+    } else if (state.mode === 'chords') {
+        // For chords: Get inversion from position name
+        if (positionParam) {
+            state.inversion = getInversionIndex(positionParam);
+        }
+        
+        // Determine chord type
+        const chordTypeParam = getChordType();
+        state.chordType = isFourNoteChord(chordTypeParam) ? 'fourNote' : 'triad';
+        
+        console.log("Chord system initialized with inversion:", state.inversion, "type:", state.chordType);
+    }
+    
+    // Set up keyboard navigation
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'ArrowLeft') {
+            event.preventDefault();
+            window.fpfLeftCursorClick();
+        } else if (event.key === 'ArrowRight') {
+            event.preventDefault();
+            window.fpfRightCursorClick();
+        }
+    });
+    
+    // Set up cursor click handlers using delegation
+    document.body.addEventListener('click', function(event) {
+        const leftCursor = event.target.closest('.left-cursor');
+        const rightCursor = event.target.closest('.right-cursor');
+        
+        if (leftCursor) {
+            event.preventDefault();
+            event.stopPropagation();
+            window.fpfLeftCursorClick();
+        } else if (rightCursor) {
+            event.preventDefault();
+            event.stopPropagation();
+            window.fpfRightCursorClick();
+        }
+    }, true); // Use capture phase
     
     // Mark as initialized
     state.initialized = true;
-    cursorDebugLog(`Cursor system initialization complete. Mode: ${state.mode}`);
-    cursorDebugLog(`Final state:`, JSON.parse(JSON.stringify(state)));
+    
+    // Initial UI update
+    updateCursorVisibility();
+    
+    console.log("Cursor system initialization complete");
 }
 
 // Initialize when document is ready
@@ -769,6 +708,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Expose a function to manually create cursor elements
     window.forceCursorCreation = ensureCursorElements;
+    
+    // Expose a function to manually detect and set the maximum position
+    window.updateMaxPosition = function() {
+        window.fpf.cursor.maxPosition = detectMaxPosition();
+        updateCursorVisibility();
+        return window.fpf.cursor.maxPosition;
+    };
 });
 
 // Re-export functions for backward compatibility
@@ -776,144 +722,3 @@ window.updateCursorVisibility = updateCursorVisibility;
 window.getPositionName = getPositionName;
 window.getInversionIndex = getInversionIndex;
 window.getAvailablePositions = getAvailablePositions;
-
-// URL parameter handling for position_select
-const URL_PARAM = 'position_select';
-
-function getUrlParameter(name) {
-    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-    const results = regex.exec(location.search);
-    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-}
-
-function updateUrlParameter(value) {
-    const url = new URL(window.location);
-    if (value) {
-        url.searchParams.set(URL_PARAM, value);
-    } else {
-        url.searchParams.delete(URL_PARAM);
-    }
-    // Use replaceState to avoid polluting browser history excessively
-    // Use pushState if you want distinct history entries for each click
-    window.history.replaceState({ path: url.toString() }, '', url.toString());
-}
-
-function initializeStateFromUrl() {
-    const paramValue = getUrlParameter(URL_PARAM);
-    cursorDebugLog(`Initializing state from URL parameter '${URL_PARAM}': ${paramValue}`);
-
-    // Determine initial mode - THIS IS CRUCIAL
-    // You MUST have logic here or elsewhere to set `currentMode` correctly
-    // before this function runs. Example placeholder:
-    // currentMode = determineCurrentModeFromPage();
-
-    if (!currentMode) {
-        cursorDebugLog("Current mode not set during initialization!");
-        // Set a default or leave state as is?
-    }
-
-    if (paramValue) {
-        if (currentMode === 'scale' || currentMode === 'arpeggio') {
-            const pos = scaleUrlMap[paramValue];
-            if (pos !== undefined && pos >= 0 && pos <= MAX_SCALE_POS) {
-                scalePosition = pos;
-            } else {
-                cursorDebugLog(`Invalid scale position value '${paramValue}' in URL. Defaulting to 'all'.`);
-                scalePosition = 0;
-            }
-        } else if (currentMode === 'chord') {
-            const inv = chordUrlMap[paramValue];
-            const maxInv = getMaxChordInversions(); // Need to potentially get chord data first?
-            if (inv !== undefined && inv >= 0 && inv <= maxInv) {
-                chordInversion = inv;
-            } else {
-                cursorDebugLog(`Invalid chord inversion value '${paramValue}' in URL. Defaulting to 'Root'.`);
-                chordInversion = 0;
-            }
-        }
-    } else {
-        // No parameter, default to initial states
-        if (currentMode === 'scale' || currentMode === 'arpeggio') {
-             scalePosition = 0;
-        } else if (currentMode === 'chord') {
-             chordInversion = 0;
-        }
-    }
-
-    // Update display based on initial state
-    updateDisplay();
-}
-
-function updateDisplay() {
-    if (currentMode === 'scale' || currentMode === 'arpeggio') {
-        updateScaleArpeggioView();
-    } else if (currentMode === 'chord') {
-        updateChordView();
-    } else {
-         // If mode is unknown or not set, clear the parameter
-         updateUrlParameter(null);
-    }
-}
-
-function updateScaleArpeggioView() {
-    cursorDebugLog(`Scale/Arpeggio: Fetching position ${scalePosition}`);
-    getTonesFromDataScales(scalePosition); // Pass 0 for 'all', 1-6 for positions
-    updateCursorVisibility();
-    updateUrlParameter(scalePosMap[scalePosition]);
-}
-
-function updateChordView() {
-    cursorDebugLog(`Chord: Fetching inversion ${chordInversion}`);
-    getTonesFromDataChords(chordInversion);
-    updateCursorVisibility();
-    // Ensure the inversion exists in the map before setting URL
-    const maxInv = getMaxChordInversions();
-    if (chordInversion <= maxInv && chordInvMap[chordInversion]) {
-        updateUrlParameter(chordInvMap[chordInversion]);
-    } else {
-        cursorDebugLog(`Inversion ${chordInversion} not found in map or exceeds max ${maxInv}`);
-        updateUrlParameter(chordInvMap[0]); // Default to Root if invalid
-    }
-
-}
-
-function updateCursorVisibility() {
-    // ... existing code ...
-}
-
-// ... existing code ...
-
-// Example: Allow other scripts to set the mode and initialize state
-window.setCursorMode = (mode) => {
-    currentMode = mode;
-    // Reset state when mode changes and initialize from URL (or default)
-    initializeStateFromUrl();
-    cursorDebugLog(`Cursor mode set to: ${currentMode}`);
-};
-
-// Example: Function to reset cursor state explicitly, e.g., after a new search
-window.resetCursorState = (mode, initialData = null) => {
-    cursorDebugLog(`Resetting cursor state for mode: ${mode}`);
-    currentMode = mode;
-    window.currentSearchData = initialData; // Store data if needed for isFourNoteChord
-
-    // Reset internal state variables FIRST
-    if (mode === 'scale' || mode === 'arpeggio') {
-        scalePosition = 0; // Default to 'all'
-    } else if (mode === 'chord') {
-        chordInversion = 0; // Default to 'root'
-    } else {
-         scalePosition = 0;
-         chordInversion = 0;
-    }
-
-    // Update display and URL (which will use the reset internal state)
-    updateDisplay();
-
-    // Note: initializeStateFromUrl() might be better if you want the URL to dictate
-    // the state even after a reset, but typically a reset implies going to default.
-};
-
-// Expose initialization function if needed externally
-window.initializeCursorStateFromUrl = initializeStateFromUrl;
