@@ -197,9 +197,9 @@
 
   {% if chord_options %}
   <!-- Load original chord inversions for compatibility -->
-  <script src="{% static 'js/chord-inversions.js' %}"></script>
+  <!-- <script src="{% static 'js/chord-inversions.js' %}"></script> -->
   <!--<script src="{% static 'js/direct-inversion-cycling.js' %}"></script>-->
-  <script src="{% static 'js/cursor-inversion-hooks.js' %}"></script>
+  <!-- <script src="{% static 'js/cursor-inversion-hooks.js' %}"></script> -->
   
   <!-- Pass chord inversion data to JavaScript using json_script -->
   {{ inversion_names|json_script:"inversion-data" }}
@@ -227,5 +227,13 @@
   
   <!-- String interaction effects -->
   <script src="{% static 'js/string-interaction.js' %}"></script>
+
+  <script>
+    // Set a global JavaScript variable based on Django's DEBUG setting
+    window.DJANGO_DEBUG = {{ debug|yesno:"true,false" }};
+  </script>
+
+  <!-- Include the custom debug logger script -->
+  <script src="{% static 'js/debug-logger.js' %}"></script>
 </body>
 </html>

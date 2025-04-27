@@ -254,7 +254,7 @@ class ScaleFretboardController extends FretboardCore {
             // Check if root note
             if (stringData.root_note && stringData.root_note.includes(tone)) {
               img.classList.add('root');
-              img.setAttribute('src', '/static/media/circle-root.svg');
+              img.setAttribute('src', '/static/media/svg/root_note.svg');
               console.log(`SCALE DEBUG: Marked ${tone} as root note`);
             }
           }
@@ -529,7 +529,7 @@ class ScaleFretboardController extends FretboardCore {
                 // If root note, show root marker
                 if (stringData.root_note && stringData.root_note.includes(tone)) {
                   img.classList.add('root');
-                  img.setAttribute('src', '/static/media/circle-root.svg');
+                  img.setAttribute('src', '/static/media/svg/root_note.svg');
                 }
               }
             } 
@@ -647,7 +647,7 @@ class ScaleFretboardController extends FretboardCore {
               // Check if it's a root note
               if (stringData.root_note && stringData.root_note.includes(tone)) {
                 img.classList.add('root');
-                img.setAttribute('src', '/static/media/circle-root.svg');
+                img.setAttribute('src', '/static/media/svg/root_note.svg');
               }
             }
             
