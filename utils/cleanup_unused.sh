@@ -19,7 +19,7 @@ fi
 
 # Run the test first to see what needs to be cleaned up
 echo "Running the unused files test to check what needs to be cleaned..."
-python3 manage.py test tests.test_unused_files.UnusedFilesTestCase.test_high_confidence_files_removed -v 2
+python3 manage.py test tests.test_unused_files_testcase.UnusedFilesTestCase.test_high_confidence_files_removed -v 2
 
 # Create backup directory
 BACKUP_DIR="$HOME/Coding/Django/fretboard-position-finder/static/backup_$(date +%Y%m%d)"
@@ -81,7 +81,7 @@ echo "If you need to restore any files, you can find them in the backup director
 
 # Run the test again to verify cleanup
 echo -e "\nVerifying cleanup was successful..."
-python3 manage.py test tests.test_unused_files.UnusedFilesTestCase.test_high_confidence_files_removed -v 2
+python3 manage.py test tests.test_unused_files_testcase.UnusedFilesTestCase.test_high_confidence_files_removed -v 2
 
 if [ $? -eq 0 ]; then
     echo -e "\n✅ Success! All high-confidence unused files have been removed."

@@ -1,16 +1,16 @@
 """
 Test file for improved chord search functionality.
-Run with: python manage.py test positionfinder.test_chord_search
+Run with: python manage.py test tests.test_chord_search
 """
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.http import JsonResponse
 import json
 
-from .models_chords import ChordNotes, ChordPosition
-from .improved_chord_search import improved_search_chords
-from .search_integration import integrated_search_json
-from .views_search import search_json
+from positionfinder.models_chords import ChordNotes, ChordPosition
+from positionfinder.improved_chord_search import improved_search_chords
+from positionfinder.search_integration import integrated_search_json
+from positionfinder.views_search import search_json
 
 class ImprovedChordSearchTests(TestCase):
     """Test cases for the improved chord search functionality."""

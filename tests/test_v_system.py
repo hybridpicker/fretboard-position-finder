@@ -3,9 +3,9 @@ Tests for the V-System implementation.
 """
 from django.test import TestCase
 from django.db import transaction
-from .v_system_generator import VoicingSystem
-from .models_chords import ChordNotes, ChordPosition
-from .notes_choices import NOTES_CHOICES
+from positionfinder.v_system_generator import VoicingSystem
+from positionfinder.models_chords import ChordNotes, ChordPosition
+from positionfinder.notes_choices import NOTES_CHOICES
 
 class VSystemTest(TestCase):
     """

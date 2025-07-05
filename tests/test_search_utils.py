@@ -1,5 +1,5 @@
 import pytest
-from .search_utils import parse_query, get_root_id_from_name
+from positionfinder.search_utils import parse_query, get_root_id_from_name
 import requests
 import os
 import json
