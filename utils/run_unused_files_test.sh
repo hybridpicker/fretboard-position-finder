@@ -21,7 +21,7 @@ elif [ -d "venv" ]; then
 fi
 
 # Run the specific test
-python3 manage.py test tests.test_unused_files
+python3 manage.py test tests.test_unused_files_testcase
 
 # Check if the test passed
 if [ $? -eq 0 ]; then

@@ -18,7 +18,7 @@ fi
 
 # Run specific tests first
 echo "===== Running Unused Files Test ====="
-python3 manage.py test tests.test_unused_files -v 2
+python3 manage.py test tests.test_unused_files_testcase -v 2
 
 echo
 echo "===== Running Triad Tests ====="
