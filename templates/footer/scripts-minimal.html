@@ -1,0 +1,150 @@
+{% load static %}
+<!-- Base JavaScript -->
+<script src="{% static 'js/base.2.1.0.js' %}" defer></script>
+
+<!-- Unified Fretboard Framework Scripts -->
+<script src="{% static 'js/unified/fretboard-core.js' %}"></script>
+<script src="{% static 'js/unified/fretboard-chords.js' %}"></script>
+
+<!-- Bridge for Chord Controller compatibility -->
+<script src="{% static 'js/chord-controller-bridge.js' %}"></script>
+
+<!-- Menu scripts -->
+<script src="{% static 'js/unified_menu.js' %}" defer></script>
+<script src="{% static 'js/unified_menu_init.js' %}" defer></script>
+
+{% if chord_options %}
+<script src="{% static 'js/chord_optimizer.js' %}" defer></script>
+{% endif %}
+
+<!-- Fretboard optimization -->
+<script src="{% static 'js/fretboard_optimizer.js' %}" defer></script>
+
+<!-- Debug tools for scales and arpeggios -->
+{% if selected_category == 1 or selected_category == 2 %}
+<script>
+    window.DJANGO_DEBUG = true;
+</script>
+<script src="{% static 'js/scale_arpeggio_debug.js' %}" defer></script>
+{% endif %}
+
+{% if chord_options %}
+<!-- Enhanced chord UI features -->
+<script src="{% static 'js/chord_ui_enhancements.js' %}" defer></script>
+<script src="{% static 'js/multi-inversion-display.js' %}" defer></script>
+
+<!-- Enhanced 8-string chord functionality -->
+<script src="{% static 'js/chord_quality_selector.js' %}" defer></script>
+<script src="{% static 'js/eight_string_enhancements.js' %}" defer></script>
+<script src="{% static 'js/chord_structure_display.js' %}" defer></script>
+
+<!-- Direct validation panel override for C Major -->
+<script src="{% static 'js/validation_panel_fix.js' %}"></script>
+
+<!-- Chord Tone Display Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const showChordTonesButton = document.getElementById('show_chord_tones_button');
+        if (showChordTonesButton) {
+            showChordTonesButton.addEventListener('click', function() {
+                const toneElements = document.querySelectorAll('img.tone.active');
+                
+                if (this.textContent === 'Show Chord Tones') {
+                    toneElements.forEach(function(toneEl) {
+                        let overlayDiv = toneEl.parentElement.querySelector('.tone-role-overlay');
+                        if (!overlayDiv) {
+                            overlayDiv = document.createElement('div');
+                            overlayDiv.className = 'tone-role-overlay';
+                            overlayDiv.style.cssText = `
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%, -50%);
+                                background-color: rgba(0, 0, 0, 0.6);
+                                color: white;
+                                border-radius: 50%;
+                                width: 20px;
+                                height: 20px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                font-size: 12px;
+                                font-weight: bold;
+                            `;
+                            toneEl.parentElement.style.position = 'relative';
+                            toneEl.parentElement.appendChild(overlayDiv);
+                        }
+                        
+                        let role = '';
+                        if (toneEl.classList.contains('root') || 
+                            toneEl.getAttribute('src').includes('red_circle')) {
+                            role = 'R';
+                        } else {
+                            const allTones = Array.from(document.querySelectorAll('img.tone.active'));
+                            const index = allTones.indexOf(toneEl);
+                            
+                            if (allTones.length === 3) {
+                                const roles = ['R', '3', '5'];
+                                role = roles[index % 3];
+                            } 
+                            else if (allTones.length === 4) {
+                                const roles = ['R', '3', '5', '7'];
+                                role = roles[index % 4];
+                            }
+                        }
+                        
+                        overlayDiv.textContent = role;
+                        overlayDiv.style.display = 'flex';
+                    });
+                    
+                    this.textContent = 'Hide Chord Tones';
+                } else {
+                    document.querySelectorAll('.tone-role-overlay').forEach(function(overlay) {
+                        overlay.style.display = 'none';
+                    });
+                    
+                    this.textContent = 'Show Chord Tones';
+                }
+            });
+        }
+    });
+</script>
+{% endif %}
+
+{% if use_optimized_chord_view %}
+<!-- Optimized Chord View Controller -->
+<script>
+  window.DJANGO_DEBUG = false;
+  /* {% if debug %} */
+  window.DJANGO_DEBUG = true;
+  /* {% endif %} */
+</script>
+<script src="{% static 'js/optimized/chord-view-utils.js' %}"></script>
+<script src="{% static 'js/optimized/chord-view.min.js' %}"></script>
+<script src="{% static 'js/optimized/chord-view-integration.js' %}" defer></script>
+{% endif %}
+
+<!-- Core Fixes -->
+<script src="{% static 'js/tone_data_fix.js' %}"></script>
+<script src="{% static 'js/string_toggle_fix.js' %}"></script>
+<script src="{% static 'js/recursive-function-fix.js' %}"></script>
+<script src="{% static 'js/root_note_keyboard_controls.js' %}"></script>
+<script src="{% static 'js/note-cleanup-fix.js' %}"></script>
+<script src="{% static 'js/3d-fretboard.js' %}" defer></script>
+<script src="{% static 'js/string_config_fix.js' %}" defer></script>
+<script src="{% static 'js/search_keyboard_fix.js' %}" defer></script>
+<script src="{% static 'js/debug-elements.js' %}" defer></script>
+<script src="{% static 'js/playtone-autofix.js' %}" defer></script>
+
+<!-- Minimal Cursor Navigation for Scales -->
+{% if not chord_options %}
+<script src="{% static 'js/cursor-navigation-minimal.js' %}"></script>
+{% endif %}
+
+<!-- Minimal Chord Cursor Navigation -->
+{% if chord_options %}
+<script src="{% static 'js/chord-cursor-minimal.js' %}"></script>
+{% endif %}
+
+<!-- Cache Clear Helper (Temporary) -->
+<script src="{% static 'js/cache-clear-helper.js' %}"></script>

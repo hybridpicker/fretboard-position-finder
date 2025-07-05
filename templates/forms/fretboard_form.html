@@ -52,12 +52,12 @@
                         <option value="0">All Notes</option>
                         {% endif %}
                         {% for position in position_options %}
-                        {% if selected_position == position.position_order %}
-                        <option value="{{ position.position_order }}" selected>
+                        {% if selected_position == position.id|stringformat:"s" %}
+                        <option value="{{ position.id }}" selected>
                             Position: {{ position.position_order }}
                         </option>
                         {% else %}
-                        <option value="{{ position.position_order }}">
+                        <option value="{{ position.id }}">
                             Position: {{ position.position_order }}
                         </option>
                         {% endif %}

@@ -210,6 +210,17 @@
     var availableInversions = JSON.parse(document.getElementById('inversion-data').textContent);
     console.log("Chord type:", chordType);
     console.log("Available inversions:", availableInversions);
+    
+    // Early setup for chord cursor navigation
+    window._chordPageReady = true;
+    
+    // Create a basic voicing_data structure if needed
+    if (!window.voicing_data) {
+      window.voicing_data = { 'e - g': {} };
+    }
+    
+    // Mark this as a chord page for cursor system
+    window._isChordPage = true;
   </script>
   {% endif %}
   
