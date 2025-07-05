@@ -145,3 +145,7 @@ dmypy.json
 .vs_code/
  # Local windsurf rules file
 .windsurfrules
+
+# Claude Code files
+.claude/
+CLAUDE.md

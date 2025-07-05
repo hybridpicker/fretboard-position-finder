@@ -184,11 +184,18 @@ class MusicalTheoryView:
         else:
             # For scales and chords, use Notes
             notes_options = Notes.objects.filter(category_id=category_id)
-            position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
+            # Get unique position orders to avoid duplicates
+            all_positions = NotesPosition.objects.filter(notes_name=notes_options_id)
+            seen_orders = set()
+            position_options = []
+            for pos in all_positions.order_by('position_order'):
+                if pos.position_order not in seen_orders:
+                    position_options.append(pos)
+                    seen_orders.add(pos.position_order)
             
             # Check if the requested position_id exists within the available options for the selected notes
             # Fallback to 'All Notes' ('0') if the specific position doesn't exist to prevent DoesNotExist error
-            if position_id != '0' and not position_options.filter(pk=position_id).exists():
+            if position_id != '0' and not any(pos.pk == int(position_id) for pos in position_options):
                 position_id = '0'
         
         # Calculate data for template

@@ -263,43 +263,15 @@ function getTonesFromDataScales(y) {
     }
   });
 
-  // Convert position ID to position order by checking available positions
-  let actualPosition = y;
-  if (y !== '0' && scale_data && !scale_data[y]) {
-    // Position ID not found in scale_data, try to map to position order
-    // Check if this is a position ID that needs to be converted to position order
-    console.log(`Position ID ${y} not found in scale_data, checking for position order mapping...`);
-    
-    // Get the dropdown to find the position order for this ID
-    const posSelect = document.getElementById('position_select');
-    if (posSelect) {
-      for (let i = 0; i < posSelect.options.length; i++) {
-        const option = posSelect.options[i];
-        if (option.value === y) {
-          // Extract position order from the option text "Position: X"
-          const match = option.text.match(/Position:\s*(\d+)/);
-          if (match) {
-            actualPosition = match[1];
-            console.log(`Mapped position ID ${y} to position order ${actualPosition}`);
-            break;
-          }
-        }
-      }
-    }
-  }
-  
-  // Check if we have the position data
-  if (!scale_data || !scale_data[actualPosition]) {
-    console.error(`Scale data for position ${actualPosition} not found.`);
-    // Fallback to all positions
-    if (actualPosition !== '0' && scale_data && scale_data['0']) {
-       activateAllPositionsNotes('0');
+  // Check if scale_data exists and has the selected position
+  if (!scale_data || !scale_data[y]) {
+    console.error(`Scale data for position ${y} not found.`);
+    // Optionally display "All Positions" or handle the error
+    if (y !== '0' && scale_data && scale_data['0']) {
+       activateAllPositionsNotes('0'); // Fallback to all positions
     }
     return;
   }
-  
-  // Update y to use the actual position
-  y = actualPosition;
 
   // Handle "All Positions" (position 0) separately
   if (y === '0') {

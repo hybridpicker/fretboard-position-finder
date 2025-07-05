@@ -4,17 +4,15 @@
 
 <!-- Unified Fretboard Framework Scripts -->
 <script src="{% static 'js/unified/fretboard-core.js' %}"></script>
-{# Removed conflicting script: <script src="{% static 'js/unified/fretboard-scales.js' %}"></script> #}
 <script src="{% static 'js/unified/fretboard-chords.js' %}"></script>
 
-{# Include the new unified menu scripts (unconditionally) #}
+<!-- Bridge for Chord Controller compatibility -->
+<script src="{% static 'js/chord-controller-bridge.js' %}"></script>
+
+<!-- Menu scripts -->
 <script src="{% static 'js/unified_menu.js' %}" defer></script>
 <script src="{% static 'js/unified_menu_init.js' %}" defer></script>
-<!-- Load cursor inversion logic (handles both scales and chords now) -->
-<script src="{% static 'js/cursor-inversion.js' %}"></script>
 
-{# Removed old conditional overlay menu scripts #}
-{# Note: chord_optimizer.js might still be needed if its functionality is separate #}
 {% if chord_options %}
 <script src="{% static 'js/chord_optimizer.js' %}" defer></script>
 {% endif %}
@@ -25,7 +23,6 @@
 <!-- Debug tools for scales and arpeggios -->
 {% if selected_category == 1 or selected_category == 2 %}
 <script>
-    // Force DEBUG to true since this script is only included in debug mode
     window.DJANGO_DEBUG = true;
 </script>
 <script src="{% static 'js/scale_arpeggio_debug.js' %}" defer></script>
@@ -34,90 +31,64 @@
 {% if chord_options %}
 <!-- Enhanced chord UI features -->
 <script src="{% static 'js/chord_ui_enhancements.js' %}" defer></script>
-<!-- Cursor and navigation management -->
-<script src="{% static 'js/cursor_management.js' %}"></script>
-<script src="{% static 'js/cursor_controls.js' %}" defer></script>
-<!-- Fixed cursor navigation functions -->
-<script src="{% static 'js/fixed-cursor-navigation.js' %}"></script>
-<script src="{% static 'js/direct-cursor-fix.js' %}"></script>
-<script src="{% static 'js/direct_chord_navigation.js' %}"></script>
-<!-- Add our root note fixing script BEFORE other chord display scripts -->
-<script src="{% static 'js/direct_chord_navigation_fix.js' %}" defer></script>
 <script src="{% static 'js/multi-inversion-display.js' %}" defer></script>
-<!-- cursor-inversion.js moved outside the if block -->
-<!-- Use a fixed chord-inversions.js -->
-<script src="{% static 'js/chord-inversions-fixed.js' %}" defer></script>
 
 <!-- Enhanced 8-string chord functionality -->
 <script src="{% static 'js/chord_quality_selector.js' %}" defer></script>
 <script src="{% static 'js/eight_string_enhancements.js' %}" defer></script>
 <script src="{% static 'js/chord_structure_display.js' %}" defer></script>
 
-<!-- Debug tools - helpful for troubleshooting -->
-<!-- Disabled debug tools to avoid conflicts -->
-<!-- <script src="{% static 'js/chord_debug.js' %}" defer></script> -->
-<!-- <script src="{% static 'js/chord_debug_notes.js' %}" defer></script> -->
-
 <!-- Direct validation panel override for C Major -->
 <script src="{% static 'js/validation_panel_fix.js' %}"></script>
-
-<!-- Minimal Chord UI for chords page -->
-<script src="{% static 'js/minimal-chord-ui.js' %}" defer></script>
 
 <!-- Chord Tone Display Script -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Add event listener for the Show Chord Tones button if it exists
         const showChordTonesButton = document.getElementById('show_chord_tones_button');
         if (showChordTonesButton) {
             showChordTonesButton.addEventListener('click', function() {
                 const toneElements = document.querySelectorAll('img.tone.active');
                 
-                // Toggle between showing chord tones (R, 3, 5, 7) and note names
                 if (this.textContent === 'Show Chord Tones') {
-                    // Create overlay divs for each active tone to show R, 3, 5, 7
                     toneElements.forEach(function(toneEl) {
-                        // Create an overlay div if it doesn't exist
                         let overlayDiv = toneEl.parentElement.querySelector('.tone-role-overlay');
                         if (!overlayDiv) {
                             overlayDiv = document.createElement('div');
                             overlayDiv.className = 'tone-role-overlay';
-                            overlayDiv.style.position = 'absolute';
-                            overlayDiv.style.top = '50%';
-                            overlayDiv.style.left = '50%';
-                            overlayDiv.style.transform = 'translate(-50%, -50%)';
-                            overlayDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.6)';
-                            overlayDiv.style.color = 'white';
-                            overlayDiv.style.borderRadius = '50%';
-                            overlayDiv.style.width = '20px';
-                            overlayDiv.style.height = '20px';
-                            overlayDiv.style.display = 'flex';
-                            overlayDiv.style.justifyContent = 'center';
-                            overlayDiv.style.alignItems = 'center';
-                            overlayDiv.style.fontSize = '12px';
-                            overlayDiv.style.fontWeight = 'bold';
+                            overlayDiv.style.cssText = `
+                                position: absolute;
+                                top: 50%;
+                                left: 50%;
+                                transform: translate(-50%, -50%);
+                                background-color: rgba(0, 0, 0, 0.6);
+                                color: white;
+                                border-radius: 50%;
+                                width: 20px;
+                                height: 20px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                font-size: 12px;
+                                font-weight: bold;
+                            `;
                             toneEl.parentElement.style.position = 'relative';
                             toneEl.parentElement.appendChild(overlayDiv);
                         }
                         
-                        // Determine note role
                         let role = '';
                         if (toneEl.classList.contains('root') || 
                             toneEl.getAttribute('src').includes('red_circle')) {
                             role = 'R';
                         } else {
-                            // Get position in chord based on order of notes
                             const allTones = Array.from(document.querySelectorAll('img.tone.active'));
                             const index = allTones.indexOf(toneEl);
                             
-                            // For triads (3 notes)
                             if (allTones.length === 3) {
-                                const roles = ['R', '3', '5']; // Root, third, fifth
+                                const roles = ['R', '3', '5'];
                                 role = roles[index % 3];
                             } 
-                            // For seventh chords (4 notes)
                             else if (allTones.length === 4) {
-                                const roles = ['R', '3', '5', '7']; // Root, third, fifth, seventh
+                                const roles = ['R', '3', '5', '7'];
                                 role = roles[index % 4];
                             }
                         }
@@ -128,7 +99,6 @@
                     
                     this.textContent = 'Hide Chord Tones';
                 } else {
-                    // Hide all tone role overlays
                     document.querySelectorAll('.tone-role-overlay').forEach(function(overlay) {
                         overlay.style.display = 'none';
                     });
@@ -144,40 +114,37 @@
 {% if use_optimized_chord_view %}
 <!-- Optimized Chord View Controller -->
 <script>
-  // Set debug mode based on Django context
   window.DJANGO_DEBUG = false;
   /* {% if debug %} */
   window.DJANGO_DEBUG = true;
   /* {% endif %} */
 </script>
-<!-- Load utility scripts first to ensure dependencies are available -->
 <script src="{% static 'js/optimized/chord-view-utils.js' %}"></script>
 <script src="{% static 'js/optimized/chord-view.min.js' %}"></script>
-<!-- Ensure the integration script loads after chord view is fully loaded -->
 <script src="{% static 'js/optimized/chord-view-integration.js' %}" defer></script>
 {% endif %}
 
-<!-- Core Fixes (load order matters) -->
-<script src="{% static 'js/cursor_fix.js' %}"></script>
+<!-- Core Fixes -->
 <script src="{% static 'js/tone_data_fix.js' %}"></script>
 <script src="{% static 'js/string_toggle_fix.js' %}"></script>
-<!-- Fix for recursive function calls -->
 <script src="{% static 'js/recursive-function-fix.js' %}"></script>
-<!-- Add custom SVG cursor script -->
-<script src="{% static 'js/cursor-styles/custom-cursors.js' %}" defer></script>
-<!-- New chord cursor fix solution -->
-<script src="{% static 'js/chord-cursor-fix.js' %}"></script>
-<!-- Aggressive note cleanup fix -->
+<script src="{% static 'js/root_note_keyboard_controls.js' %}"></script>
 <script src="{% static 'js/note-cleanup-fix.js' %}"></script>
-<!-- 3D Fretboard Enhancement -->
 <script src="{% static 'js/3d-fretboard.js' %}" defer></script>
-
-<!-- String Configuration Fix - Add this at the very end to ensure it runs last -->
 <script src="{% static 'js/string_config_fix.js' %}" defer></script>
-
-<!-- Search Keyboard Fix - Disable keyboard shortcuts when searching -->
 <script src="{% static 'js/search_keyboard_fix.js' %}" defer></script>
-
-<!-- PlayTone Bugfix & Debugging -->
 <script src="{% static 'js/debug-elements.js' %}" defer></script>
 <script src="{% static 'js/playtone-autofix.js' %}" defer></script>
+
+<!-- Minimal Cursor Navigation for Scales -->
+{% if not chord_options %}
+<script src="{% static 'js/cursor-navigation-minimal.js' %}"></script>
+{% endif %}
+
+<!-- Minimal Chord Cursor Navigation -->
+{% if chord_options %}
+<script src="{% static 'js/chord-cursor-minimal.js' %}"></script>
+{% endif %}
+
+<!-- Cache Clear Helper (Temporary) -->
+<script src="{% static 'js/cache-clear-helper.js' %}"></script>

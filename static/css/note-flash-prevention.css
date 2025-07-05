@@ -1,0 +1,42 @@
+/* 
+ * Note Flash Prevention CSS
+ * Provides CSS-based backstop to prevent note name flashing on page load
+ * Works alongside cursor-navigation-minimal.js v2.2
+ */
+
+/* Default state: Hide all note names immediately */
+.notename {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transition: none !important;
+}
+
+/* Only show notes that are explicitly marked as active */
+.notename[data-note-active="true"],
+.note[data-note-active="true"] .notename,
+.notename.active,
+.notename.show-name {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: opacity 0.2s ease-in-out !important;
+}
+
+/* Ensure chord notes with active state are visible */
+.note.active .notename,
+.note.root-note .notename {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Handle specific chord notation styles */
+.notename.active {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: opacity 0.2s ease-in-out !important;
+}
+
+/* Override any inline styles that might make notes visible incorrectly */
+.notename:not([data-note-active="true"]):not(.active):not(.show-name) {
+    visibility: hidden !important;
+    opacity: 0 !important;
+}

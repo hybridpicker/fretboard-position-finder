@@ -1,0 +1,735 @@
+/* static/css/local-fonts.css */
+@font-face {
+  font-family: 'Dosis';
+  src: url('/static/fonts/dosis/Dosis-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dosis';
+  src: url('/static/fonts/dosis/Dosis-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Dosis';
+  src: url('/static/fonts/dosis/Dosis-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Dosis', sans-serif;
+  font-size: 14pt;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+.fretboard {
+  display: grid;
+  grid-column-gap: 0 !important;
+  grid-template-columns: repeat(17, auto);
+  padding-left: 28px;
+  padding-right: 0;
+  width: 1400px;
+  font-size: 14pt;
+  position: relative;
+  background-color: transparent;
+}
+#fretboardcontainer {
+  width: 1400px;
+  margin: auto;
+}
+/* Let the fretboard CSS handle string styling */
+
+/* Ensure spacing rows have correct styling */
+.spacing-top {
+  height: 29px;
+  border: none !important;
+  clear: both;
+}
+
+.spacing-bottom {
+  height: 29px;
+  border: none !important;
+  clear: both; /* Ensure clean break in the layout */
+}
+
+/* Make sure spacing-top children have dark background */
+.spacing-top .fret {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Make sure spacing-bottom children have transparent background */
+.spacing-bottom .fret {
+  background-color: transparent !important;
+}
+
+.fret .note {
+  color: var(--note-text);
+  position: relative;
+  z-index: 10; /* Ensure notes display on top */
+}
+.fret.one {
+  padding-left: 0;
+  padding-right: 0;
+}
+.fret.one.laststring {
+  border-left: 0px;
+}
+.laststring {
+  border-right: 0px;
+  height: 10px !important; /* Maintain consistent height */
+}
+
+/* Add specific styling for the bottom string to ensure proper spacing */
+.spacing-bottom + .nofret {
+  position: relative;
+  z-index: 4; /* Ensure fret numbers remain on top */
+  background-color: transparent !important; /* Ensure background is transparent */
+}
+.note {
+  position: absolute;
+  left: -15px;
+  top: 0;
+  z-index: 3; /* Ensure notes appear above the fretboard background */
+}
+.notename, .tensionname {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  visibility: hidden;
+  opacity: 0.85; /* Default opacity when visible */
+}
+
+/* Make notename visible only when the toggle adds the 'show-name' class */
+.notename.show-name {
+  visibility: visible !important; /* Override default hidden state */
+  opacity: 0.85 !important; /* Ensure desired opacity */
+}
+.note > .tone {
+  visibility: hidden;
+  vertical-align: middle;
+  max-height: 25px;
+  max-width: 25px;
+}
+/* Make active notes and their tone images visible */
+.note.active {
+  visibility: visible !important; /* Ensure the note container is visible */
+  opacity: 1 !important; /* Ensure full opacity */
+}
+
+.note.active .tone {
+  visibility: visible !important; /* Ensure the tone image is visible */
+  opacity: 1 !important; /* Ensure full opacity */
+}
+
+/* Style for the temporary brightness effect when playing a tone */
+.tone.playing {
+  filter: brightness(2.0); /* Increase brightness further */
+  transition: filter 0.1s ease-in-out; /* Smooth transition for brightness */
+}
+
+a .active:hover {
+  cursor: pointer;
+}
+
+#fretboardcontainer {
+  margin-top: 4em;
+}
+#formselect {
+  text-align: center;
+}
+h1, h2, h3 {
+  text-align: center;
+  font-weight: normal;
+  font-size: 16pt;
+}
+p {
+  font-size: 14pt;
+  font-weight: lighter;
+  font-style: normal;
+  padding: 0 1rem;
+}
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+.mbs {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.mbs h1:first-of-type{
+  margin-top: 4rem;
+}
+button {
+  font-family: 'Dosis', sans-serif;
+  font-size: 14pt;
+}
+.note_name {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.fret {
+  position: relative;
+  text-align: center;
+  height: 35px;
+  width: auto;
+  box-sizing: border-box; /* Ensure borders are included in width calculation */
+  border-left: none; /* Remove any default left borders */
+  border-right: none; /* Remove any default right borders */
+}
+.spacing-top {
+  height: 15px;
+}
+.spacing-bottom {
+  height: 10px; /* Height that defines space below the last string */
+  background-color: transparent !important; /* Ensure transparency */
+}
+@media only screen and (max-width: 360px) {
+  .fret {
+    height: 42px;
+  }
+  .fretboard {
+    width: 860px;
+  }
+}
+.nofret {
+  font-size: 14pt;
+  text-align: center;
+  color: var(--fret-number);
+  width: 82px;
+  position: relative;
+  z-index: 10; /* Higher z-index to ensure visibility */
+  background-color: var(--fret-bg) !important; /* Force transparent background */
+  border: none !important; /* Remove any borders that might be applied */
+}
+.note-click {
+  position: absolute;
+  top: -17px;
+}
+.notename, .tensionname {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+@media only screen and (max-width: 1500px) {
+  .fretboard {
+    width: 1010px;
+    padding-left: 22px;
+    margin: auto;
+    background-position-y: top;
+  }
+  .eString, .highAString {
+    border-top: 1px solid var(--string-color) !important;
+  }
+  .bString, .gString {
+    border-top: 1.5px solid var(--string-color) !important;
+  }
+  .dString, .AString, .ELowString {
+    border-top: 2px solid var(--string-thick) !important;
+  }
+  .ELowString, .lowBString {
+    border-top: 2.5px solid var(--string-thick) !important;
+  }
+  #fretboardcontainer {
+    width: 1000px;
+    margin: auto;
+  }
+}
+.fret {
+  position: relative;
+  text-align: center;
+  width: auto;
+}
+.nofret {
+  font-size: 14pt;
+  text-align: center;
+  color: var(--fret-number);
+  width: 82px;
+}
+.note-click {
+  position: absolute;
+  top: -17px;
+}
+@media only screen and (min-width: 1500px) {
+  .spacing-top {
+    height: 22px;
+  }
+}
+
+@media only screen and (max-width: 1500px) {
+  .fret {
+    width: 100%;
+  }
+  .nofret {
+    width: 58.8167px;
+  }
+}
+@media only screen and (max-width: 1050px) {
+  #fretboardcontainer {
+    width: 100%;
+    margin: auto;
+  }
+  .fret {
+    width: 100%;
+  }
+  .nofret {
+    width: 39.2px;
+  }
+  .fretboard {
+    width: 100%;
+    margin: auto;
+    background-position-y: top;
+    padding-left: 22px;
+  }
+  .note > .tone {
+    max-height: 26px;
+    max-width: 26px;
+  }
+  .fret .note {
+    font-size: 10pt;
+    padding-top: 3px;
+  }
+  .spacing-top {
+    height: 20px;
+  }
+}
+@media only screen and (max-width: 982px) {
+  .fret{
+    height: 44px;
+  }
+}
+@media only screen and (max-width: 890px) {
+  .fretboard {
+    padding-left: 18px;
+  }
+}
+@media only screen and (max-width: 780px) {
+  .spacing-top {
+    height: 15px;
+  }
+  #fretboardcontainer {
+    margin-top: 16px;
+  }
+  .note > .tone {
+    max-height: 20px;
+    max-width: 20px;
+  }
+  .fretboard {
+    padding-left: 16px;
+  }
+}
+@media only screen and (max-width: 620px) {
+  #fretboardcontainer {
+    margin-top: 10px;
+  }
+}
+@media only screen and (max-width: 550px) {
+  #fretboardcontainer {
+    margin-top: 16px;
+  }
+}
+@media only screen and (max-width: 500px) {
+  #fretboardcontainer {
+    margin-top: 16px;
+  }
+}
+@media only screen and (max-width: 442px) {
+  #fretboardcontainer {
+    margin-top: 16px;
+    overflow-x: scroll;
+    scroll-behavior: smooth;
+  }
+}
+@media only screen and (max-width: 545px) {
+  .fretboard {
+    width: 1000px;
+    padding-left: 14px;
+    margin: auto;
+    background-position-y: top;
+  }
+}
+@media only screen and (max-width: 772px) {
+  .mbs {
+    margin-top: 3rem;
+  }
+}
+@media only screen and (max-width: 894px) {
+  .fretboard {
+    width: 100%;
+  }
+  .fret {
+    height: 44px;
+  }
+}
+@media only screen and (max-width: 850px) {
+  .fret {
+    height: 40px;
+  }
+}
+@media only screen and (max-width: 795px) {
+  .fret {
+    height: 38px;
+  }
+}
+@media only screen and (max-width: 743px) {
+  .fretboard {
+    width: 100%;
+  }
+  .fret {
+    height: 34px;
+  }
+}
+@media only screen and (max-width: 668px) {
+  .fretboard {
+    width: 668px;
+    padding-left: 16px;
+  }
+  .fret {
+    height: 34px;
+  }
+}
+@media only screen and (max-width: 620px) {
+  .fret {
+    height: 33px;
+  }
+}
+footer div {
+  text-align: center;
+  margin: auto;
+}
+
+.version-info {
+  font-size: 11pt;
+  color: var(--text-muted, #888);
+  margin-top: -10px;
+  padding-bottom: 5px;
+  text-align: center;
+  opacity: 0.8;
+}
+#github:hover .st0 {
+  fill: rgb(171, 173, 193);
+}
+.rotate-container {
+  margin: auto;
+}
+.rotate-container {
+  text-align: center;
+  position: fixed;
+  top: 25%;
+  width: 95vw;
+}
+.fretboardcontainer {
+  position: relative;
+}
+.left-cursor,
+.right-cursor {
+  position: absolute !important; /* Force absolute positioning */
+  background-repeat: no-repeat;
+  z-index: 100 !important; /* Higher z-index to ensure they're on top */
+  background-position: center;
+  width: 2.5rem !important; /* Slightly larger for better visibility */
+  height: 50vh;
+  background-size: contain; /* Ensure proper sizing */
+  pointer-events: auto !important; /* Ensure clicks register */
+}
+
+.left-cursor {
+  display: none;
+  top: 50%;
+  left: -30px;
+  transform: translateY(-50%);
+}
+.left-cursor:hover{
+  cursor: pointer;
+}
+.right-cursor {
+  display: none;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+.right-cursor:hover{
+  cursor: pointer;
+}
+
+/* Fix for cursor positioning in fretboardcontainer */
+.fretboardcontainer {
+  position: relative !important; /* Ensure relative positioning for absolute children */
+}
+@media only screen and (max-width: 400px) and (orientation: portrait) {
+  .position-indicators{
+    display: none !important;
+  }
+  .fretboard {
+    margin: 0 !important;
+    width: unset !important;
+    rotate: 90deg;
+    position: absolute;
+    margin-top: 18vw !important;
+  }
+  #fretboardcontainer {
+    margin: 0;
+    height: 90vh;
+    max-height: 730px;
+  }
+  .left-cursor {
+    top: 50%;
+    left: 0;
+  }
+  .right-cursor {
+    top: 50%;
+    right: 0;
+  }
+  .note > .tone {
+    max-height: 22px;
+    max-width: 22px;
+    padding-top: 2px;
+  }
+}
+.info-icon {
+  width: 33px;
+  height: 33px;
+  display: inline-block;
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  z-index: 1;
+}
+.info-icon:hover{
+  cursor: pointer;
+}
+
+/* Sidebar */
+#menuToggle {
+  position: fixed;
+  top: 25px;
+  left: 25px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#menuToggle:hover{
+  cursor: pointer;
+}
+
+.menu-icon {
+  width: 33px;
+  height: 33px;
+  margin-bottom: 5px;
+  z-index: 1000;
+}
+
+#menuToggle input {
+  display: none;
+}
+
+#menu {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 300px;
+  height: 100%;
+  background: var(--menu-bg);
+  transition: left 0.3s ease-in-out;
+  padding-top: 60px;
+  overflow-y: scroll;
+  z-index: 10;
+  box-shadow: 2px 0 10px rgba(var(--color-dark-slate-rgb), 0.3);
+}
+
+#menu a, .dropdown label {
+  display: block;
+  padding: 15px;
+  text-decoration: none;
+  color: var(--menu-text);
+  transition: background-color 0.2s ease;
+}
+
+#menu a:hover, .dropdown label:hover {
+  background: rgba(var(--color-khaki-rgb), 0.2);
+  color: var(--menu-hover);
+  cursor: pointer;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  display: none;
+}
+
+.dropdown-menu {
+  max-height: 0;
+  overflow: scroll;
+  display: block;
+  background: rgba(var(--color-teal-rgb), 0.2);
+  position: relative;
+  width: 100%;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+  visibility: hidden;
+}
+
+.dropdown-toggle:checked + label + .dropdown-menu {
+  max-height: 300px; /* adjust as needed */
+  padding: 10px 0; /* adjust as needed */
+  visibility: visible;
+}
+
+.dropdown-menu ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.dropdown-menu ul li {
+  padding-left: 0;
+}
+
+/* Overlay Menu */
+/* overlay-menu-chords.css */
+#overlayMenuChords, #overlayMenu {
+  display: none;
+}
+
+.overlay-icon {
+  width: 33px;
+  height: 33px;
+  margin-left: 10px;
+  display: inline-block;
+}
+
+.overlay-icon:hover{
+  cursor: pointer;
+}
+
+.overlay-menu {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(var(--color-dark-slate-rgb), 0.85);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.overlay-content {
+  background: var(--bg-primary);
+  padding: 5rem;
+  border-radius: 8px;
+  max-height: 80%;
+  overflow: auto;
+  position: relative;
+  font-size: 14pt;
+  margin: 0 auto;
+  min-width: 40vw;
+  max-width: 1100px;
+  border: 1px solid var(--border-accent);
+  box-shadow: 0 4px 20px rgba(var(--color-dark-slate-rgb), 0.4);
+}
+
+.step {
+  display: none !important;
+}
+
+.step.active, .step.active-step {
+  display: grid !important;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px 5px;
+  font-size: 14pt;
+  border: none;
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+
+button:hover {
+  background-color: var(--color-blue-teal);
+  cursor: pointer;
+}
+
+button.secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+}
+
+button.secondary:hover {
+  background-color: rgba(var(--color-terra-cotta-rgb), 0.9);
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 1rem;
+  padding: 10px;
+  margin-bottom: 20px;
+  overflow-y: auto; /* Enables vertical scrolling within the container */
+  overflow-x: hidden; /* Prevents horizontal scrolling */
+  max-height: calc(100vh - 22rem); /* Ensures the container doesn't exceed the overlay's height */
+}
+
+.grid-item {
+  background-color: var(--bg-primary);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(var(--color-dark-slate-rgb), 0.1);
+  padding: 20px;
+  text-align: center;
+  font-size: 14pt;
+  min-width: 80px;
+  max-width: 120px;
+  word-wrap: break-word;
+  transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  border: 1px solid rgba(var(--color-teal-rgb), 0.1);
+}
+
+.grid-item:hover {
+  background-color: rgba(var(--color-teal-rgb), 0.05);
+  box-shadow: 0 6px 12px rgba(var(--color-dark-slate-rgb), 0.15);
+  transform: translateY(-2px);
+  cursor: pointer;
+  border-color: var(--color-teal);
+}
+
+.close-button {
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  width: 20px;
+  height: 20px;
+  background: url('/static/media/svg/close_menu_24.svg') no-repeat center center;
+  background-size: contain;
+  border: none;
+}
+
+.close-button:hover {
+  background: url('/static/media/svg/close_menu_24_active.svg') no-repeat center center;
+  cursor: pointer;
+}
+
+/* Hide the chord quality grid as it's not currently needed */
+#chord-quality-grid {
+    display: none !important; 
+}

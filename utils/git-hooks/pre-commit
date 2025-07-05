@@ -31,7 +31,7 @@ fi
 
 echo "Running unused files test..."
 # Only run the specific test file to avoid import errors
-python3 manage.py test positionfinder.test_unused_files -v 1
+python3 manage.py test tests.test_unused_files -v 1
 
 # If the test fails, prevent the commit
 if [ $? -ne 0 ]; then
