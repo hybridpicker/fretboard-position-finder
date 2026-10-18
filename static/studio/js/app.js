@@ -374,9 +374,15 @@ function renderFinder() {
   const numbers = new Set(tuning().numbers);
   const otherInstrument = type.voicings.filter((v) => v.tones.some((x) => !numbers.has(DB_STRING_NUMBERS[x.string]))).length;
   const extra = isVs && otherInstrument ? ` ${otherInstrument} more voicing${otherInstrument > 1 ? 's' : ''} need${otherInstrument > 1 ? '' : 's'} a 7- or 8-string tuning (settings).` : '';
+  let derived = '';
+  if (isVs && type.vsDerived) {
+    const ordinal = (label) => label + ({ 1: 'st', 2: 'nd', 3: 'rd' }[label.slice(-1)] && !/1[123]$/.test(label) ? { 1: 'st', 2: 'nd', 3: 'rd' }[label.slice(-1)] : 'th');
+    const omitted = type.vsOmitted.map((iv) => ordinal(pretty(view.labels[iv]))).join(' and ');
+    derived = ` Built from the V-System templates${omitted ? ` without the ${omitted}` : ''}.`;
+  }
   $('#finderSummary').textContent = (shapes.length
     ? (isVs ? `${shapes.length} voicings, every inversion, grouped by system and string set.` : `${shapes.length} playable shapes, easiest first.`)
-    : 'No shapes match these filters.') + extra;
+    : 'No shapes match these filters.') + derived + extra;
 
   let lastGroup = null;
   const html = [];
@@ -670,34 +676,13 @@ function bind() {
     try { if (v) localStorage.setItem('gp-theme', v); else localStorage.removeItem('gp-theme'); } catch { /* ignore */ }
   });
 
-  // Keyboard shortcuts
-  document.addEventListener('keydown', (e) => {
-    if (e.target.closest('input, select, textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
-    const modes = ['scale', 'arpeggio', 'chord', 'identify'];
-    if (['1', '2', '3', '4'].includes(e.key)) { state.mode = modes[parseInt(e.key, 10) - 1]; state.selected = 0; render(); return; }
-    if (e.key === ' ' && !e.target.closest('button')) { e.preventDefault(); play(); return; }
-    if (e.key === 'm' || e.key === 'M') { $('#soundBtn').click(); return; }
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-      if (state.mode === 'identify') return;
-      e.preventDefault();
-      state.root = mod12(state.root + (e.key === 'ArrowUp' ? 1 : -1));
-      state.selected = 0;
-      render();
-      return;
-    }
-    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-      const dir = e.key === 'ArrowRight' ? 1 : -1;
-      if (state.mode === 'scale' || state.mode === 'arpeggio') {
-        const count = view.positions.length;
-        state.position = (state.position + dir + count + 1) % (count + 1);
-      } else if (state.mode === 'chord' && view.shapes.length) {
-        state.selected = (state.selected + dir + view.shapes.length) % view.shapes.length;
-        if (state.sound) setTimeout(play, 0);
-      } else return;
-      e.preventDefault();
-      render();
-    }
-  });
+  // Keyboard shortcuts (press ? for the overview)
+  document.addEventListener('keydown', onKey);
+  $('#helpClose').addEventListener('click', () => toggleHelp(false));
+  $('#help').addEventListener('click', (e) => { if (e.target.id === 'help') toggleHelp(false); });
+  $('#helpBtn').addEventListener('click', () => toggleHelp(true));
+  document.querySelectorAll('.vmod').forEach((el) => { el.textContent = VIEW_MODIFIER; });
+  document.querySelectorAll('.modes button[data-key]').forEach((b) => { b.title = `${b.textContent} (${VIEW_MODIFIER}${b.dataset.key})`; });
 
   let resizeTimer;
   let lastOrientation = orientation();
@@ -705,6 +690,163 @@ function bind() {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => { if (orientation() !== lastOrientation) { lastOrientation = orientation(); renderBoard(); } }, 150);
   });
+}
+
+// ---------------------------------------------------------------------------
+// Keyboard
+// ---------------------------------------------------------------------------
+const NOTE_KEYS = { KeyC: 0, KeyD: 2, KeyE: 4, KeyF: 5, KeyG: 7, KeyA: 9, KeyB: 11 };
+// Views use Control (Mac) or Alt (elsewhere) + initial letter; plain A–G are keys.
+// Command and Ctrl on Windows/Linux would clash with browser shortcuts such as new window or copy.
+const VIEW_KEYS = { KeyS: 'scale', KeyA: 'arpeggio', KeyC: 'chord', KeyN: 'identify' };
+const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+const VIEW_MODIFIER = IS_MAC ? '⌃' : 'Alt';
+const isViewChord = (e) => e.code in VIEW_KEYS && !e.metaKey && !e.shiftKey && (IS_MAC ? e.ctrlKey && !e.altKey : e.altKey && !e.ctrlKey);
+
+function toggleHelp(open) {
+  $('#help').hidden = !open;
+  if (open) $('#helpClose').focus();
+}
+
+function setMode(mode) {
+  if (state.mode === mode) return;
+  state.mode = mode;
+  state.selected = 0;
+  render();
+}
+
+function transpose(semitones) {
+  if (state.mode === 'identify') return;
+  state.root = mod12(state.root + semitones);
+  state.selected = 0;
+  render();
+}
+
+/** Types in the same grouped order as the picker shows them. */
+function orderedTypes() {
+  const groups = new Map();
+  typeList().forEach((item) => {
+    if (!groups.has(item.group)) groups.set(item.group, []);
+    groups.get(item.group).push(item);
+  });
+  return [...groups.values()].flat();
+}
+
+function stepType(dir) {
+  if (state.mode === 'identify') return;
+  const list = orderedTypes();
+  const idx = list.findIndex((t) => t.key === currentType().key);
+  setType(list[(idx + dir + list.length) % list.length].key);
+  state.selected = 0;
+  render();
+  toast(currentType().name);
+}
+
+function selectNumber(n) {
+  if (state.mode === 'scale' || state.mode === 'arpeggio') {
+    if (n > view.positions.length) { toast(`Only ${view.positions.length} positions`); return; }
+    state.position = n; // 0 = whole neck
+    render();
+  } else if (state.mode === 'chord') {
+    // 1 = root position, 2 = 1st inversion, … (bass note filter); 0 = any bass
+    const stack = [...view.type.intervals].sort((a, b) => a - b);
+    if (n > stack.length) { toast(`${view.type.name} has ${stack.length} chord tones`); return; }
+    state.bass = n === 0 ? 'any' : String(stack[n - 1]);
+    state.selected = 0;
+    render();
+    toast(n === 0 ? 'Any bass note' : n === 1 ? 'Root position' : `${['', '', '1st', '2nd', '3rd', '4th', '5th'][n] || n + 'th'} inversion`);
+  }
+}
+
+function stepShape(dir) {
+  if (state.mode === 'scale' || state.mode === 'arpeggio') {
+    const count = view.positions.length;
+    state.position = (state.position + dir + count + 1) % (count + 1);
+  } else if (state.mode === 'chord' && view.shapes.length) {
+    state.selected = (state.selected + dir + view.shapes.length) % view.shapes.length;
+    if (state.sound) setTimeout(play, 0);
+  } else return;
+  render();
+  if (state.mode === 'chord') document.querySelector('.card[aria-pressed="true"]')?.scrollIntoView({ block: 'nearest' });
+}
+
+function onKey(e) {
+  if (isViewChord(e)) {
+    e.preventDefault();
+    toggleHelp(false);
+    setMode(VIEW_KEYS[e.code]);
+    return;
+  }
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (!$('#help').hidden) {
+    if (e.key === 'Escape' || e.key === '?') { e.preventDefault(); toggleHelp(false); }
+    return;
+  }
+  if (e.target.closest('input, select, textarea')) return;
+  const onButton = e.target.closest('button');
+
+  if (e.key === '?') { e.preventDefault(); toggleHelp(true); return; }
+  if (e.key === 'Escape') {
+    if (!$('#typePanel').hidden) openTypePanel(false);
+    if (!$('#settings').hidden) $('#settingsBtn').click();
+    return;
+  }
+  if (e.key === '/') { if (state.mode !== 'identify') { e.preventDefault(); openTypePanel(true); } return; }
+  if (e.key === ' ' && !onButton) { e.preventDefault(); play(); return; }
+  if (e.key === ',' || e.key === '.') { stepType(e.key === '.' ? 1 : -1); return; }
+  if (e.key === '+' || e.key === '=' || e.key === '-') {
+    state.bpm = Math.max(50, Math.min(220, state.bpm + (e.key === '-' ? -5 : 5)));
+    $('#tempo').value = state.bpm;
+    $('#tempoOut').textContent = state.bpm;
+    store.set('bpm', state.bpm);
+    toast(`Tempo ${state.bpm} BPM`);
+    return;
+  }
+  if ((e.key === 'Backspace' || e.key === 'Delete') && state.mode === 'identify') { e.preventDefault(); state.identify = []; render(); return; }
+
+  if (e.key === '#') { transpose(1); return; }
+  if (e.code in NOTE_KEYS && !e.shiftKey) {
+    if (state.mode === 'identify') return;
+    state.root = NOTE_KEYS[e.code];
+    state.selected = 0;
+    render();
+    return;
+  }
+  if (/^Digit[0-9]$/.test(e.code)) { selectNumber(parseInt(e.code.slice(5), 10)); return; }
+
+  switch (e.code) {
+    case 'ArrowUp': case 'ArrowDown':
+      if (state.mode === 'identify') return;
+      e.preventDefault();
+      // Shift: walk the circle of fifths instead of semitones
+      transpose((e.code === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 7 : 1));
+      return;
+    case 'ArrowRight': case 'ArrowLeft':
+      if (onButton && onButton.closest('.seg, .positions, .keys')) return;
+      e.preventDefault();
+      stepShape(e.code === 'ArrowRight' ? 1 : -1);
+      return;
+    case 'KeyM': $('#soundBtn').click(); return;
+    case 'KeyL':
+      state.labels = state.labels === 'notes' ? 'intervals' : 'notes';
+      store.set('labels', state.labels);
+      render();
+      toast(state.labels === 'notes' ? 'Note names' : 'Intervals');
+      return;
+    case 'KeyX':
+      if (state.mode !== 'scale' || view.type.intervals.length < 6) return;
+      state.system = state.system === 'box' ? 'nps' : 'box';
+      render();
+      toast(state.system === 'box' ? 'Box positions' : '3 notes per string');
+      return;
+    case 'KeyV':
+      if (state.mode !== 'chord') return;
+      state.source = state.source === 'vsystem' ? 'finder' : 'vsystem';
+      state.selected = 0;
+      render();
+      return;
+    default:
+  }
 }
 
 state.labels = store.get('labels', 'intervals') === 'notes' ? 'notes' : 'intervals';

@@ -151,3 +151,23 @@ test('V-System inversions keep the voicing structure (close stays close)', () =>
   assert.deepEqual(shapes.map((s) => s.frets.join(',')), ['-1,-1,10,9,8,7', '-1,-1,14,12,12,8', '-1,-1,5,4,1,0', '-1,-1,9,5,5,3']);
   assert.ok(shapes.every((s) => s.voicing === 'Close'));
 });
+
+test('chord types without database voicings get V-System voicings derived from Major 7', () => {
+  const lib = buildLibrary({
+    chords: [{
+      name: 'Major 7', intervals: [0, 4, 7, 11],
+      voicings: [{ id: 1, system: 'V2', range: 'e - A', tones: [
+        { string: 'AString', interval: 0 }, { string: 'dString', interval: 7 },
+        { string: 'gString', interval: 11 }, { string: 'bString', interval: 4 }] }],
+    }],
+  });
+  const maj7s11 = lib.chords.find((c) => c.symbol === 'maj7#11');
+  assert.equal(maj7s11.vsDerived, true);
+  assert.deepEqual(maj7s11.vsOmitted, [7]);
+  // 1-3-#11-7 replaces 1-3-5-7 voice for voice
+  assert.deepEqual(maj7s11.voicings[0].tones.map((t) => t.interval), [0, 6, 11, 4]);
+  const shapes = voicingTemplateShapes(0, maj7s11.intervals, maj7s11.voicings[0], std);
+  assert.equal(shapes.length, 4);
+  assert.ok(lib.chords.find((c) => c.symbol === 'm6').vsDerived);
+  assert.equal(lib.chords.find((c) => c.symbol === '5').voicings.length, 0, 'power chords have no V-System');
+});

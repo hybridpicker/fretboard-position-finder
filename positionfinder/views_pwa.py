@@ -36,13 +36,14 @@ SHELL_ASSETS = (
     ('studio/js/fretboard.js', False),
     ('studio/js/diagram.js', False),
     ('studio/js/audio.js', False),
-    ('fonts/dosis/Dosis-SemiBold.ttf', False),
     ('studio/manifest.webmanifest', False),
     ('studio/icons/icon-192.png', False),
     ('studio/icons/icon-512.png', False),
     ('studio/icons/icon-maskable-192.png', False),
     ('studio/icons/icon-maskable-512.png', False),
     ('studio/icons/apple-touch-icon.png', False),
+    ('studio/icons/icon-small.svg', False),
+    ('studio/icons/favicon-32.png', False),
 )
 
 
