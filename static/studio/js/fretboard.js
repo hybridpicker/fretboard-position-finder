@@ -69,16 +69,6 @@ export function renderFretboard(host, opts) {
   const parts = [];
 
   parts.push(`<svg class="fb fb-${orientation}" viewBox="0 0 ${g.width} ${g.height}" role="img" aria-label="Guitar fretboard" xmlns="http://www.w3.org/2000/svg">`);
-  parts.push(`<defs>
-    <linearGradient id="wood" x1="0" y1="0" x2="${vertical ? 1 : 0}" y2="${vertical ? 0 : 1}">
-      <stop offset="0" stop-color="var(--wood-1)"/><stop offset="0.5" stop-color="var(--wood-2)"/><stop offset="1" stop-color="var(--wood-1)"/>
-    </linearGradient>
-    <linearGradient id="fretwire" x1="0" y1="0" x2="${vertical ? 0 : 1}" y2="${vertical ? 1 : 0}">
-      <stop offset="0" stop-color="var(--fret-dark)"/><stop offset="0.5" stop-color="var(--fret-light)"/><stop offset="1" stop-color="var(--fret-dark)"/>
-    </linearGradient>
-    <filter id="noteShadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.6" flood-opacity="0.35"/></filter>
-  </defs>`);
-
   // Fingerboard
   const a0 = g.start;
   const a1 = along(g.frets) + 2;
@@ -91,7 +81,7 @@ export function renderFretboard(host, opts) {
     const [x2, y2] = pt(aEnd, cEnd);
     return `<rect x="${Math.min(x1, x2)}" y="${Math.min(y1, y2)}" width="${Math.abs(x2 - x1)}" height="${Math.abs(y2 - y1)}" ${attrs}/>`;
   };
-  parts.push(rect(a0, a1, cMin, cMax, 'class="fb-wood" fill="url(#wood)" rx="4"'));
+  parts.push(rect(a0, a1, cMin, cMax, 'class="fb-wood"'));
 
   // Inlays
   const inlayC = (cMin + cMax) / 2;
@@ -99,28 +89,28 @@ export function renderFretboard(host, opts) {
     const mid = (along(f - 1) + along(f)) / 2;
     if (INLAYS.includes(f)) {
       const [x, y] = pt(mid, inlayC);
-      parts.push(`<circle class="fb-inlay" cx="${x}" cy="${y}" r="6.5"/>`);
+      parts.push(`<circle class="fb-inlay" cx="${x}" cy="${y}" r="4.5"/>`);
     } else if (DOUBLE_INLAYS.includes(f)) {
       const off = g.spacing * Math.min(1.5, (n - 1) / 3);
       for (const c of [inlayC - off, inlayC + off]) {
         const [x, y] = pt(mid, c);
-        parts.push(`<circle class="fb-inlay" cx="${x}" cy="${y}" r="6.5"/>`);
+        parts.push(`<circle class="fb-inlay" cx="${x}" cy="${y}" r="4.5"/>`);
       }
     }
   }
 
   // Frets and nut
   for (let f = 1; f <= g.frets; f++) {
-    parts.push(rect(along(f) - 1.6, along(f) + 1.6, cMin, cMax, 'fill="url(#fretwire)" class="fb-fret"'));
+    parts.push(rect(along(f) - 0.75, along(f) + 0.75, cMin, cMax, 'class="fb-fret"'));
   }
-  parts.push(rect(a0 - 5, a0 + 1, cMin - 1, cMax + 1, 'class="fb-nut" rx="1.5"'));
+  parts.push(rect(a0 - 3, a0 + 1, cMin, cMax, 'class="fb-nut"'));
 
   // Strings (thicker for lower strings)
   for (let s = 0; s < n; s++) {
-    const width = 0.9 + (n - 1 - s) * (1.5 / Math.max(1, n - 1));
+    const width = 0.7 + (n - 1 - s) * (0.9 / Math.max(1, n - 1));
     const [x1, y1] = pt(a0 - 40, across(s));
     const [x2, y2] = pt(a1, across(s));
-    parts.push(`<line class="fb-string ${s < n / 2 ? 'wound' : ''}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-width="${width.toFixed(2)}"/>`);
+    parts.push(`<line class="fb-string" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-width="${width.toFixed(2)}"/>`);
   }
 
   // Fret numbers
@@ -167,11 +157,11 @@ export function renderFretboard(host, opts) {
   // Notes
   notes.forEach((note, i) => {
     const [x, y] = pt(noteAlong(note.fret), across(note.string));
-    const r = note.state === 'ghost' ? 9.5 : 13;
+    const r = note.state === 'ghost' ? 5 : 12;
     const cls = ['fb-note', `role-${note.role || 'tension'}`, `state-${note.state || 'active'}`];
     if (note.fret === 0) cls.push('open');
     parts.push(`<g class="${cls.join(' ')}" data-i="${i}" transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" ${interactive ? '' : 'tabindex="-1"'}>`);
-    parts.push(`<circle r="${r}" ${note.state === 'ghost' ? '' : 'filter="url(#noteShadow)"'}/>`);
+    parts.push(`<circle r="${r}"/>`);
     if (note.label !== undefined && note.label !== '' && note.state !== 'ghost') {
       const small = String(note.label).length > 2;
       parts.push(`<text class="${small ? 'small' : ''}" text-anchor="middle" dominant-baseline="central">${esc(note.label)}</text>`);
