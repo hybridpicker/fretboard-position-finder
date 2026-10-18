@@ -134,7 +134,7 @@ def build_index(catalog, version):
     # Head elements that only make sense for the hosted website
     html = sub_once(html, r'\n[ \t]*<link rel="canonical"[^\n]*', '', 'canonical link')
     html = re.sub(r'\n[ \t]*<meta (?:property="og:|name="twitter:)[^\n]*', '', html)
-    html = replace_once(html, '\n  {% include "favicon.html" %}', '', 'favicon include')
+    html = html.replace('\n  {% include "favicon.html" %}', '')  # older templates; icon links now point into the bundle
     html = sub_once(html, r'\n[ \t]*<link rel="manifest"[^\n]*', '', 'manifest link')
     html = sub_once(html, r'\n[ \t]*<link rel="apple-touch-icon"[^\n]*', '', 'apple-touch-icon link')
 
@@ -217,15 +217,26 @@ def main():
         raise SystemExit('build_app_bundle: the catalogue is empty; check the catalogue source')
 
     out = Path(args.out).resolve()
-    if out.exists():
+    if out.exists() and (out == REPO or out in REPO.parents or (any(out.iterdir()) and not (out / 'app.css').is_file())):
         # Only ever replace a previous bundle, never an unrelated folder
-        if out == REPO or out in REPO.parents or (any(out.iterdir()) and not (out / 'index.html').is_file()):
-            raise SystemExit(f'build_app_bundle: refusing to replace {out}; it does not look like an app bundle')
+        raise SystemExit(f'build_app_bundle: refusing to replace {out}; it does not look like an app bundle')
+
+    # Build next to the target and swap at the end, so a failed build leaves the old bundle intact
+    staging = out.with_name(out.name + '.building')
+    if staging.exists():
+        shutil.rmtree(staging)
+    staging.mkdir(parents=True)
+    try:
+        index = build_index(catalog, version)
+        copy_static(staging)
+        (staging / 'app.css').write_text(APP_CSS, encoding='utf-8')
+        (staging / 'index.html').write_text(index, encoding='utf-8')
+    except BaseException:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
+    if out.exists():
         shutil.rmtree(out)
-    out.mkdir(parents=True)
-    copy_static(out)
-    (out / 'app.css').write_text(APP_CSS, encoding='utf-8')
-    (out / 'index.html').write_text(build_index(catalog, version), encoding='utf-8')
+    staging.rename(out)
 
     print(f'App bundle written to {out} (v{version}: {len(catalog["scales"])} scales, '
           f'{len(catalog["arpeggios"])} arpeggios, {len(catalog["chords"])} chords)')
