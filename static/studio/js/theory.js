@@ -167,6 +167,8 @@ export function buildLibrary(catalog) {
     }
   }
 
+  deriveVSystem(chords);
+
   const arpeggios = [];
   const addArp = (entry, source) => {
     const intervals = [...new Set(entry.intervals.map(mod12))].sort((a, b) => a - b);
@@ -181,6 +183,48 @@ export function buildLibrary(catalog) {
   CHORD_LIBRARY.filter((c) => c.intervals.length >= 3).forEach((c) => addArp(c, 'builtin'));
 
   return { scales, arpeggios, chords };
+}
+
+/**
+ * Reduce a chord to the notes a V-System voicing can hold: drop the 5th first, then the 9th, then the 11th.
+ * Returns { intervals, omitted } or null when fewer than three notes remain.
+ */
+export function vSystemReduction(intervals, size) {
+  let kept = [...intervals].sort((a, b) => a - b);
+  const omitted = [];
+  for (const drop of [7, 2, 5]) {
+    if (kept.length <= size) break;
+    if (kept.includes(drop)) { kept = kept.filter((iv) => iv !== drop); omitted.push(drop); }
+  }
+  return kept.length === size ? { intervals: kept, omitted } : null;
+}
+
+/**
+ * The V-System only says which voice of the close-position chord sits on which string, so the database
+ * templates of one 4-note chord (and one triad) apply to every other 4-note chord (and triad).
+ * Chord types without voicings of their own get templates derived from Major 7 / Major.
+ */
+export function deriveVSystem(chords) {
+  const sourceFor = (size) => chords
+    .filter((c) => c.voicings.length && !c.vsDerived && c.intervals.length === size)
+    .sort((a, b) => b.voicings.length - a.voicings.length)[0];
+  for (const chord of chords) {
+    if (chord.voicings.length) continue;
+    for (const size of [4, 3]) {
+      const reduction = vSystemReduction(chord.intervals, size);
+      const source = sourceFor(size);
+      if (!reduction || !source) continue;
+      const from = [...source.intervals].sort((a, b) => a - b);
+      chord.voicings = source.voicings.map((v) => ({
+        ...v,
+        id: `${chord.key}-${v.id}`,
+        tones: v.tones.map((t) => ({ string: t.string, interval: reduction.intervals[from.indexOf(t.interval)] })),
+      }));
+      chord.vsDerived = true;
+      chord.vsOmitted = reduction.omitted;
+      break;
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
