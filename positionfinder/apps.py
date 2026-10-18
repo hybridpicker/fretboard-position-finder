@@ -12,6 +12,14 @@ class PositionfinderConfig(AppConfig):
         This is called when the application is ready during Django startup.
         """
         logger.info("Initializing PositionfinderConfig")
+
+        # Rebuild the Studio catalogue whenever musical content changes (e.g. via the admin)
+        from django.db.models.signals import post_delete, post_save
+        from .views_studio import clear_catalog_cache
+        for model_name in ('Notes', 'Root', 'ChordNotes'):
+            model = self.get_model(model_name)
+            post_save.connect(clear_catalog_cache, sender=model, dispatch_uid=f'studio_catalog_save_{model_name}')
+            post_delete.connect(clear_catalog_cache, sender=model, dispatch_uid=f'studio_catalog_delete_{model_name}')
         
         try:
             # We import and apply the chord search integration after 

@@ -5,4 +5,4 @@ Disallow: /admin/
 # Allow all search engines to index the site
 # Guitar Fretboard Position Finder - Scales, Chords, Arpeggios, and Modes
 
-Sitemap: https://guitar-positions.org/sitemap.xml
+Sitemap: https://fretboard.schoensgibl.com/sitemap.xml

@@ -1,0 +1,14 @@
+# Full pip freeze of the project virtualenv (test-only packages excluded).
+# Use as: pip install -r requirements-prod.txt -c constraints.txt
+asgiref==3.12.1
+Django==4.2.30
+django-extensions==4.1
+djangorestframework==3.17.2
+numpy==2.5.4
+packaging==26.3
+pillow==13.0.0
+psycopg2-binary==2.9.13
+Pygments==2.21.0
+RapidFuzz==3.14.6
+sqlparse==0.6.0
+thefuzz==0.22.1

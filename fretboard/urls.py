@@ -25,6 +25,8 @@ import positionfinder.views
 import positionfinder.views_search
 from positionfinder.views import fretboard_unified_view, chord_search_test_view
 from positionfinder.views_search import unified_search_view, search_json
+from positionfinder.views_studio import studio_view, catalog_json
+from positionfinder.views_pwa import service_worker
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -39,6 +41,9 @@ sitemaps = {
 # URLs that should not be prefixed with language code
 urlpatterns_non_i18n = [
     # API endpoints
+    path('api/catalog/', catalog_json, name='studio_catalog'),
+    # PWA service worker (served from the root so its scope covers the studio at /)
+    path('sw.js', service_worker, name='service_worker'),
     path('api/', include('api.urls', namespace='api')),
     # JSON search endpoint (likely doesn't need i18n)
     path('search/json/', search_json, name='search_json'),
@@ -57,8 +62,10 @@ if settings.DEBUG:
 # URLs that should be prefixed with language code
 urlpatterns_i18n = i18n_patterns(
     # API endpoints
-    # Main unified view that handles scales, arpeggios, and chords
-    path('', fretboard_unified_view, name='fretboard'),
+    # Studio: the redesigned single-page app (also understands legacy query parameters)
+    path('', studio_view, name='fretboard'),
+    # Previous UI that handles scales, arpeggios, and chords
+    path('classic/', fretboard_unified_view, name='fretboard_classic'),
     
     # Search view page
     path('search/', unified_search_view, name='unified_search'),
