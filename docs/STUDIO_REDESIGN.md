@@ -215,6 +215,8 @@ Reasons: the engine is the product and it is already pure JS with tests; a rewri
 
 ### 7.5 Offline catalogue bundling
 
+> Implemented in phase 1 as `scripts/build_app_bundle.py` (see `apps/README.md`): the catalogue is inlined into `www/index.html` as the same `catalog-data` JSON script the web page uses, so `app.js` needs no loader change. The bullets below were the original sketch.
+
 - Build step: `python manage.py export_catalog > www/catalog.json` (new management command wrapping `build_catalog()`), or `curl https://fretboard.schoensgibl.com/api/catalog/`. Contains formulas only, no personal data.
 - A small `www/index.html` (static copy of `templates/studio/index.html` without Django tags) loads `catalog.json` instead of the inline `json_script`; `app.js` gets a tiny loader that prefers inline data and falls back to `fetch('catalog.json')`.
 - Optional: check `/api/catalog/` for a newer `version` when online and cache it; the bundled copy remains the baseline.

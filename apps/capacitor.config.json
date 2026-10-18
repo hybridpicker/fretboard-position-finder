@@ -1,0 +1,8 @@
+{
+  "appId": "com.schoensgibl.guitarpositions",
+  "appName": "Guitar Positions",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  }
+}
