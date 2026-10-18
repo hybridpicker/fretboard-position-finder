@@ -57,10 +57,16 @@ APP_CSS = """\
   --app-inset-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
   --app-inset-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
 }
-body { padding-left: var(--app-inset-left); padding-right: var(--app-inset-right); }
-.topbar { padding-top: calc(10px + var(--app-inset-top)); }
-.footer { padding-bottom: calc(18px + var(--app-inset-bottom)); }
-.toast { bottom: calc(24px + var(--app-inset-bottom)); }
+body {
+  padding: var(--app-inset-top) var(--app-inset-right) var(--app-inset-bottom) var(--app-inset-left);
+}
+/* Opaque strip behind the status bar; the sticky top bar docks below it */
+body::before {
+  content: ''; position: fixed; z-index: 11; top: 0; left: 0; right: 0;
+  height: var(--app-inset-top); background: var(--bg);
+}
+.topbar { top: var(--app-inset-top); }
+.toast { margin-bottom: var(--app-inset-bottom); }
 """
 
 
@@ -183,8 +189,10 @@ def copy_static(out):
 
     # Assets referenced from studio.css via url(...), e.g. ../fonts/dosis/*.ttf
     css = (studio_src / 'studio.css').read_text(encoding='utf-8')
-    for ref in re.findall(r'url\([\'"]?([^\'")]+)[\'"]?\)', css):
-        if ref.startswith(('data:', 'http:', 'https:', '//')):
+    for _, ref in re.findall(r'url\(\s*([\'"]?)(.*?)\1\s*\)', css):
+        if ref.startswith('data:'):
+            continue  # inline, no request
+        if ref.startswith(('http:', 'https:', '//')):
             raise SystemExit(f'build_app_bundle: studio.css references a non-bundled asset: {ref}')
         src = (studio_src / ref).resolve()
         if not src.is_file() or STATIC.resolve() not in src.parents:
