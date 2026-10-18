@@ -1,0 +1,20 @@
+{
+  "id": "/",
+  "name": "Guitar Positions Studio",
+  "short_name": "Guitar Positions",
+  "description": "Scales, arpeggios and chords with fingerings on an interactive guitar fretboard, plus playable chord shapes, drop voicings and a chord namer. Works offline once installed.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#101217",
+  "background_color": "#101217",
+  "categories": ["music", "education"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

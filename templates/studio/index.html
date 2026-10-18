@@ -1,0 +1,196 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>{{ page_title|default:"Guitar Positions | Fretboard Studio" }}</title>
+  <meta name="description" content="{{ meta_description|default:'Find every scale, arpeggio and chord on the guitar fretboard with fingerings, playable chord shapes, drop voicings and a chord namer. Free for all guitarists.' }}">
+  <meta name="theme-color" content="#101217" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f5f2ec" media="(prefers-color-scheme: light)">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/">
+  <meta property="og:title" content="{{ og_title|default:'Guitar Positions | Fretboard Studio' }}">
+  <meta property="og:description" content="{{ og_description|default:'Scales, arpeggios and chords with fingerings on an interactive fretboard.' }}">
+  <meta property="og:image" content="{% static 'thumbnail/facebook/thumb_25.jpg' %}">
+  <meta name="twitter:card" content="summary_large_image">
+  {% include "favicon.html" %}
+  <link rel="manifest" href="{% static 'studio/manifest.webmanifest' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'studio/icons/apple-touch-icon.png' %}">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Guitar Positions">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="stylesheet" href="{% static 'studio/studio.css' %}?v={{ APP_VERSION }}">
+  <script>
+    // Apply the saved theme before first paint to avoid a flash
+    try { var t = localStorage.getItem('gp-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="skip" href="#board">Skip to fretboard</a>
+
+  <header class="topbar">
+    <a class="brand" href="{% url 'fretboard' %}" aria-label="Guitar Positions home">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="M3 12.7h26M3 19.3h26M12 6v20M20.5 6v20"/><circle cx="16.2" cy="16" r="2.6"/></svg>
+      <span class="brand-name">Guitar Positions</span>
+      <span class="brand-tag">Studio</span>
+    </a>
+    <nav class="modes" role="tablist" aria-label="Mode">
+      <button role="tab" data-mode="scale" aria-selected="true"><span class="k">1</span>Scales</button>
+      <button role="tab" data-mode="arpeggio"><span class="k">2</span>Arpeggios</button>
+      <button role="tab" data-mode="chord"><span class="k">3</span>Chords</button>
+      <button role="tab" data-mode="identify"><span class="k">4</span>Chord Namer</button>
+    </nav>
+    <div class="top-actions">
+      <button class="icon-btn" id="soundBtn" aria-pressed="true" title="Sound on/off (M)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="on" d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/><path class="off" d="M4 9v6h4l5 4V5L8 9H4zm15.6 3 2.1-2.1-1.4-1.4-2.1 2.1-2.1-2.1-1.4 1.4 2.1 2.1-2.1 2.1 1.4 1.4 2.1-2.1 2.1 2.1 1.4-1.4z"/></svg>
+      </button>
+      <button class="icon-btn" id="settingsBtn" aria-expanded="false" aria-controls="settings" title="Settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.4 7.4 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7.4 7.4 0 0 0-1.7 1l-2.4-1-2 3.4L6.6 11a7.6 7.6 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7.4 7.4 0 0 0 1.7 1l.3 2.5h4l.4-2.5a7.4 7.4 0 0 0 1.7-1l2.4 1 2-3.4zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="settings" id="settings" hidden>
+    <div class="settings-grid">
+      <label>Tuning<select id="tuningSelect"></select></label>
+      <label>Frets<select id="fretsSelect"><option value="12">12</option><option value="15">15</option><option value="17">17</option><option value="22">22</option><option value="24">24</option></select></label>
+      <label>Neck<select id="orientationSelect"><option value="auto">Auto</option><option value="horizontal">Horizontal</option><option value="vertical">Vertical</option></select></label>
+      <label class="check"><input type="checkbox" id="leftyToggle"> Left-handed</label>
+      <label>Theme<select id="themeSelect"><option value="">System</option><option value="dark">Dark</option><option value="light">Light</option></select></label>
+      <label>Note names<select id="spellingSelect"><option value="auto">Theory-correct</option><option value="sharp">Sharps ♯</option><option value="flat">Flats ♭</option></select></label>
+    </div>
+  </section>
+
+  <main class="stage">
+    <section class="selector" aria-label="Key and type">
+      <div class="keys" id="keyPicker" role="radiogroup" aria-label="Key"></div>
+      <div class="type-row">
+        <div class="combo" id="typeCombo">
+          <button class="combo-btn" id="typeBtn" aria-haspopup="listbox" aria-expanded="false"><span id="typeLabel">Major</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5z"/></svg></button>
+          <div class="combo-panel" id="typePanel" hidden>
+            <input type="search" id="typeSearch" placeholder="Search scales, chords…" autocomplete="off" aria-label="Search">
+            <div class="combo-list" id="typeList" role="listbox"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="headline">
+      <div>
+        <p class="eyebrow" id="eyebrow">Scale</p>
+        <h1 id="title">C Major</h1>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="play-box">
+        <button class="play" id="playBtn" title="Play (Space)"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5v14l11-7z"/><path class="i-stop" d="M6 6h12v12H6z"/></svg><span>Play</span></button>
+        <label class="tempo" id="tempoBox">♩ <input type="range" id="tempo" min="50" max="220" value="110" aria-label="Tempo"><output id="tempoOut">110</output></label>
+      </div>
+    </section>
+
+    <section class="board-card" id="board" aria-label="Fretboard">
+      <div class="board-scroll" id="boardScroll"><div id="fretboard"></div></div>
+      <div class="legend" id="legend"></div>
+    </section>
+
+    <section class="controls" id="controls">
+      <div class="positions" id="positionsBar"></div>
+      <div class="control-group">
+        <div class="seg" id="systemSeg" role="radiogroup" aria-label="Fingering system">
+          <button data-system="box" title="One finger per fret (CAGED-style boxes)">Box</button>
+          <button data-system="nps" title="Three notes per string">3 NPS</button>
+        </div>
+        <div class="seg" id="labelSeg" role="radiogroup" aria-label="Note labels">
+          <button data-labels="fingers">Fingers</button>
+          <button data-labels="intervals">Intervals</button>
+          <button data-labels="notes">Notes</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="finder" id="finder" hidden>
+      <div class="finder-head">
+        <div>
+          <h2>Fingering finder</h2>
+          <p class="muted" id="finderSummary"></p>
+        </div>
+        <div class="filters">
+          <div class="seg" id="sourceSeg">
+            <button data-source="finder" title="Every playable shape, ranked by how easy it is to play">Best shapes</button>
+            <button data-source="vsystem" title="Voicings from the Guitar Positions V-System library">V-System</button>
+          </div>
+          <div class="seg" id="bassSeg" aria-label="Bass note"></div>
+          <div class="seg" id="neckSeg" aria-label="Neck region">
+            <button data-neck="all">Whole neck</button>
+            <button data-neck="open">Open</button>
+            <button data-neck="mid">5–9</button>
+            <button data-neck="high">10+</button>
+          </div>
+          <select id="vsystemSelect" aria-label="Voicing system" hidden></select>
+        </div>
+      </div>
+      <div class="cards" id="cards"></div>
+    </section>
+
+    <section class="namer" id="namer" hidden>
+      <div class="namer-head">
+        <div>
+          <h2>Chord Namer</h2>
+          <p class="muted">Tap frets to build a shape — one note per string. Tap the nut area for open strings, tap again to mute.</p>
+        </div>
+        <div class="namer-actions">
+          <button class="ghost-btn" id="namerPlay">Strum</button>
+          <button class="ghost-btn" id="namerClear">Clear</button>
+        </div>
+      </div>
+      <div class="namer-body">
+        <div class="namer-result" id="namerResult"></div>
+        <div class="namer-lists">
+          <div><h3>Also could be</h3><ul class="pill-list" id="namerChords"></ul></div>
+          <div><h3>Scales that fit</h3><ul class="pill-list" id="namerScales"></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <noscript>
+      <p class="noscript">Guitar Positions Studio needs JavaScript. The <a href="{% url 'fretboard_classic' %}">classic version</a> works without the new interface.</p>
+    </noscript>
+  </main>
+
+  <footer class="footer">
+    <span>Guitar Positions <span class="muted">v{{ APP_VERSION }}</span></span>
+    <nav>
+      <a href="{% url 'about' %}">About</a>
+      <a href="{% url 'impressum' %}">Impressum &amp; Privacy</a>
+      <a href="{% url 'fretboard_classic' %}">Classic version</a>
+      {% if STRIPE_DONATE_URL %}<a href="{{ STRIPE_DONATE_URL }}" rel="noopener" target="_blank">Support the project</a>{% endif %}
+    </nav>
+    <span class="muted kbd-hint">Keys: ← → position · ↑ ↓ key · Space play · 1–4 mode</span>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  {{ catalog_json|json_script:"catalog-data" }}
+  {{ legacy_state_json|json_script:"legacy-state" }}
+  <script type="module" src="{% static 'studio/js/app.js' %}?v={{ APP_VERSION }}"></script>
+  <script>
+    // Offline support. ?sw=off unregisters the worker and clears its caches; ?sw=on enables it
+    // (off by default on localhost so local edits always show up immediately).
+    (function () {
+      if (!('serviceWorker' in navigator)) return;
+      var flag = new URLSearchParams(location.search).get('sw');
+      try { if (flag) localStorage.setItem('gp-sw', flag); flag = localStorage.getItem('gp-sw'); } catch (e) {}
+      var local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+      if (flag === 'off' || (local && flag !== 'on')) {
+        navigator.serviceWorker.getRegistrations().then(function (regs) { regs.forEach(function (r) { r.unregister(); }); });
+        if (window.caches) caches.keys().then(function (keys) {
+          keys.filter(function (k) { return k.indexOf('gp-studio-') === 0; }).forEach(function (k) { caches.delete(k); });
+        });
+        return;
+      }
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('{% url "service_worker" %}', { scope: '/' }).catch(function () {});
+      });
+    })();
+  </script>
+</body>
+</html>

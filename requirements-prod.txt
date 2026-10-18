@@ -1,0 +1,17 @@
+# Production dependencies with exact pins.
+# Versions taken from the project virtualenv (pip freeze); gunicorn is the
+# current stable release. Requires Python >= 3.12 (numpy 2.5.x needs 3.12+).
+# Install with:  pip install -r requirements-prod.txt -c constraints.txt
+Django==4.2.30
+djangorestframework==3.17.2
+django-extensions==4.1
+thefuzz[speedup]==0.22.1
+numpy==2.5.4
+Pillow==13.0.0
+psycopg2-binary==2.9.13
+gunicorn==26.2.0
+
+# Transitive runtime dependencies (pinned for reproducible installs)
+asgiref==3.12.1
+sqlparse==0.6.0
+RapidFuzz==3.14.6
