@@ -12,7 +12,8 @@
     "sync": "npm run bundle && cap sync",
     "serve": "python3 -m http.server 8765 --bind 127.0.0.1 --directory www",
     "ios": "npm run sync && cap open ios",
-    "android": "npm run sync && cap open android"
+    "android": "npm run sync && cap open android",
+    "macos": "bash scripts/build-macos.sh"
   },
   "dependencies": {
     "@capacitor/android": "8.5.3",
