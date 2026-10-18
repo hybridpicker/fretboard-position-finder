@@ -33,6 +33,11 @@ ln -s "$APPS_DIR/node_modules" "$WORK/node_modules"
 cd "$WORK"
 npx cap add ios --packagemanager CocoaPods
 
+# Use the committed app icons (incl. the macOS idiom set) and launch screen, not the template's
+rm -rf ios/App/App/Assets.xcassets
+ditto "$APPS_DIR/ios/App/App/Assets.xcassets" ios/App/App/Assets.xcassets
+cp "$APPS_DIR/ios/App/App/Base.lproj/LaunchScreen.storyboard" ios/App/App/Base.lproj/LaunchScreen.storyboard
+
 # Enable Mac Catalyst for the app target (keeps the iOS bundle identifier)
 PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
 sed -i '' -E 's/^([[:space:]]*)PRODUCT_BUNDLE_IDENTIFIER = (.*);/\1PRODUCT_BUNDLE_IDENTIFIER = \2;\

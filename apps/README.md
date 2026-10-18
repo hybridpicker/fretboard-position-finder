@@ -170,15 +170,41 @@ team. A free Personal Team can do this, but its profiles expire after 7 days. Re
 `com.schoensgibl.guitarpositions` under a personal team may block that identifier for the
 later paid team, so use a separate test ID such as `com.schoensgibl.guitarpositions.dev`.
 
+## App icons and launch screens
+
+The masters live in `static/studio/icons/` and are rendered from the SVG sources by
+`scripts/build_studio_icons.py`. After changing them, regenerate the native sets and commit the
+results:
+
+```bash
+cd apps
+PYTHON=../.venv/bin/python npm run icons
+```
+
+[`scripts/generate_native_icons.py`](scripts/generate_native_icons.py) needs Pillow. It writes:
+
+| Target | Source | Output |
+|---|---|---|
+| iOS / iPadOS app icon | `app-icon-1024.png` (opaque, full bleed; the OS applies the mask) | `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png` (single size) |
+| Mac Catalyst app icon | `app-icon-macos-1024.png` (Big Sur tile with transparent margin) | `AppIcon-mac-{16,32,128,256,512}@{1,2}x.png` in the same set, as `mac` idiom entries. Catalyst builds use these; iOS builds ignore them. Without them, Catalyst would show the square iOS icon unmasked. |
+| Android adaptive icon (API 26+) | foreground `app-icon-android-foreground-1024.png` on `#141414` | `android/app/src/main/res/mipmap-*/ic_launcher_foreground.png`, `values/ic_launcher_background.xml`, `mipmap-anydpi-v26/ic_launcher*.xml` |
+| Android themed icon (13+) | foreground alpha in one colour | `mipmap-*/ic_launcher_monochrome.png` |
+| Android legacy icons (API 24-25) | `app-icon-1024.png` | `mipmap-*/ic_launcher.png` (square), `mipmap-*/ic_launcher_round.png` (circle) |
+| iOS launch screen | `app-icon-1024.png` centred on a 2732 px `#141414` square (aspect-fill) | `Assets.xcassets/Splash.imageset/`, and the background colour in `Base.lproj/LaunchScreen.storyboard` |
+| Android splash | `app-icon-1024.png` at half the short side, on `#141414` | `drawable*/splash.png`. Android 12+ shows the launcher icon on `windowSplashScreenBackground` (`#141414`, `values/styles.xml`) |
+
+`npm run macos` copies the committed asset catalogue and launch screen into its generated
+Catalyst project.
+
 ## Not done yet (TODO)
 
 - **Signing and store accounts:** no certificates, provisioning profiles, keystores or
   App Store Connect / Play Console setup. Set the iOS signing team in Xcode
   (Signing & Capabilities). Create the Android upload key outside the repo and use Play App
   Signing. Keep all keys in GitHub Actions secrets, never in the repository (plan 7.8).
-- **App icons and splash screens:** the native projects still use Capacitor's placeholder
-  assets. Generate them from a 1024×1024 source, e.g. with `npx @capacitor/assets generate`.
-  `static/studio/icons/icon-512.png` is too small for the App Store icon.
+- **Liquid Glass icon:** iOS 26 can also use an Icon Composer `.icon` file for layered,
+  tinted and dark variants. The current single-size icon is valid and gets the system's default
+  treatment.
 - **Versioning:** `MARKETING_VERSION` / `versionName` are still `1.0`. Wire them to
   `settings.VERSION` and derive build numbers from CI (plan 7.8).
 - **Native features for guideline 4.2:** haptics, share sheet, status bar, iOS audio session
