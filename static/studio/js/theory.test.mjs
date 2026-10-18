@@ -137,3 +137,17 @@ test('all tunings produce positions', () => {
     assert.ok(findChordShapes(4, [0, 3, 7], t).length > 3, t.id);
   }
 });
+
+test('V-System inversions keep the voicing structure (close stays close)', () => {
+  // Cmaj7 V1 (close) on D-G-B-e, stored root-first like the database
+  const template = {
+    system: 'V1', range: 'e - d',
+    tones: [
+      { string: 'dString', interval: 0 }, { string: 'gString', interval: 4 },
+      { string: 'bString', interval: 7 }, { string: 'eString', interval: 11 },
+    ],
+  };
+  const shapes = voicingTemplateShapes(0, [0, 4, 7, 11], template, std);
+  assert.deepEqual(shapes.map((s) => s.frets.join(',')), ['-1,-1,10,9,8,7', '-1,-1,14,12,12,8', '-1,-1,5,4,1,0', '-1,-1,9,5,5,3']);
+  assert.ok(shapes.every((s) => s.voicing === 'Close'));
+});

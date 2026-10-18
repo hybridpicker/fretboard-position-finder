@@ -659,35 +659,58 @@ export function findChordShapes(rootPc, intervals, tuning, options = {}) {
  * Each template yields all inversions (rotating every voice to the next chord tone,
  * exactly like ChordPosition offsets in the Django models).
  */
-export function voicingTemplateShapes(rootPc, chordIntervals, template, tuning, { maxFret = 17, maxSpan = 5 } = {}) {
+export function voicingTemplateShapes(rootPc, chordIntervals, template, tuning, { maxFret = 22, maxSpan = 11 } = {}) {
   const n = tuning.midi.length;
   const indexByNumber = {};
   tuning.numbers.forEach((num, idx) => { indexByNumber[num] = idx; });
   const tones = template.tones.map((t) => ({ idx: indexByNumber[DB_STRING_NUMBERS[t.string]], interval: t.interval }));
   if (tones.some((t) => t.idx === undefined)) return [];
-  // Chord-tone cycle (1-3-5-7): every voice moves up to the next chord tone per inversion
+  // Chord-tone cycle (1-3-5-7): every voice moves up to the next chord tone per inversion,
+  // exactly like the ChordPosition offsets in the Django models.
   const cycle = [...new Set(tones.map((t) => t.interval))].sort((a, b) => a - b);
+  const order = [...tones].sort((a, b) => a.idx - b.idx);
+
+  // Root position: octave per voice so pitches rise from string to string with the smallest span
+  const base = order.map((t) => mod12(rootPc + t.interval - tuning.midi[t.idx]));
+  let rootPos = null;
+  for (let mask = 0; mask < 1 << order.length; mask++) {
+    const frets = base.map((b, k) => b + (mask & (1 << k) ? 12 : 0));
+    const pitches = frets.map((f, k) => tuning.midi[order[k].idx] + f);
+    if (pitches.some((p, k) => k > 0 && p <= pitches[k - 1])) continue;
+    const fretted = frets.filter((f) => f > 0);
+    const span = fretted.length ? Math.max(...fretted) - Math.min(...fretted) : 0;
+    const low = Math.min(...frets);
+    if (!rootPos || span < rootPos.span || (span === rootPos.span && low < rootPos.low)) rootPos = { pitches, span, low };
+  }
+  if (!rootPos) return [];
+
   const shapes = [];
   for (let inv = 0; inv < cycle.length; inv++) {
-    const base = new Array(n).fill(-1);
-    tones.forEach((t) => {
-      const interval = cycle[(cycle.indexOf(t.interval) + inv) % cycle.length];
-      base[t.idx] = mod12(rootPc + interval - tuning.midi[t.idx]);
+    const pitches = rootPos.pitches.map((p, k) => {
+      let pitch = p;
+      let iv = order[k].interval;
+      for (let step = 0; step < inv; step++) {
+        const next = cycle[(cycle.indexOf(iv) + 1) % cycle.length];
+        pitch += mod12(next - iv) || 12;
+        iv = next;
+      }
+      return pitch;
     });
-    // Place the shape at the lowest window where it fits within the span
-    for (let w = 0; w <= 11; w++) {
-      const frets = base.map((b) => (b < 0 ? -1 : b + 12 * Math.max(0, Math.ceil((w - b) / 12))));
-      const used = frets.filter((f) => f >= 0);
-      if (Math.max(...used) - Math.min(...used) > maxSpan || Math.max(...used) > maxFret) continue;
-      if (Math.min(...used) !== w) continue;
-      const fingering = assignFingers(frets) || { fingers: frets.map((f) => (f < 0 ? null : f === 0 ? 0 : 1)), barres: [] };
-      shapes.push({
-        frets, ...fingering, inversionIndex: inv, system: template.system, range: template.range,
-        ...describeVoicing(frets, tuning, rootPc, chordIntervals),
-        minFret: Math.min(...used.filter((f) => f > 0).concat([99])) === 99 ? 0 : Math.min(...used.filter((f) => f > 0)),
-      });
-      break;
-    }
+    let voiceFrets = pitches.map((p, k) => p - tuning.midi[order[k].idx]);
+    // Show each inversion at its lowest octave on the neck
+    voiceFrets = voiceFrets.map((f) => f - 12 * Math.floor(Math.min(...voiceFrets) / 12));
+    const fretted = voiceFrets.filter((f) => f > 0);
+    const span = fretted.length ? Math.max(...fretted) - Math.min(...fretted) : 0;
+    if (Math.max(...voiceFrets) > maxFret || span > maxSpan) continue;
+    const frets = new Array(n).fill(-1);
+    order.forEach((t, k) => { frets[t.idx] = voiceFrets[k]; });
+    const fingering = assignFingers(frets) || { fingers: frets.map((f) => (f < 0 ? null : f === 0 ? 0 : 1)), barres: [] };
+    shapes.push({
+      frets, ...fingering, inversionIndex: inv, system: template.system, range: template.range,
+      ...describeVoicing(frets, tuning, rootPc, chordIntervals),
+      minFret: fretted.length ? Math.min(...fretted) : 0,
+      span,
+    });
   }
   return shapes;
 }
