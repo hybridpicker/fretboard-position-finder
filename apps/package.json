@@ -1,0 +1,25 @@
+{
+  "name": "guitar-positions-app",
+  "version": "2.1.0",
+  "private": true,
+  "description": "Native iOS and Android shells (Capacitor) for Guitar Positions Studio. See README.md.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "bundle": "${PYTHON:-python3} ../scripts/build_app_bundle.py --out www",
+    "sync": "npm run bundle && cap sync",
+    "serve": "python3 -m http.server 8765 --bind 127.0.0.1 --directory www",
+    "ios": "npm run sync && cap open ios",
+    "android": "npm run sync && cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3"
+  }
+}
