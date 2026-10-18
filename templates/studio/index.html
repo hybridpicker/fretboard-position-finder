@@ -12,7 +12,9 @@
   <meta property="og:description" content="{{ og_description|default:'Scales, arpeggios and chords with fingerings on an interactive fretboard.' }}">
   <meta property="og:image" content="{% static 'thumbnail/facebook/thumb_25.jpg' %}">
   <meta name="twitter:card" content="summary_large_image">
-  {% include "favicon.html" %}
+  <link rel="icon" type="image/svg+xml" href="{% static 'studio/icons/icon-small.svg' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'studio/icons/favicon-32.png' %}">
+  <link rel="icon" type="image/png" sizes="48x48" href="{% static 'studio/icons/favicon-48.png' %}">
   <link rel="manifest" href="{% static 'studio/manifest.webmanifest' %}">
   <link rel="apple-touch-icon" sizes="180x180" href="{% static 'studio/icons/apple-touch-icon.png' %}">
   <meta name="mobile-web-app-capable" content="yes">
@@ -32,13 +34,16 @@
     <a class="brand" href="{% url 'fretboard' %}" aria-label="Guitar Positions home">
       <span class="brand-name">Guitar Positions</span>
     </a>
-    <nav class="modes" role="tablist" aria-label="Mode">
-      <button role="tab" data-mode="scale" aria-selected="true">Scales</button>
-      <button role="tab" data-mode="arpeggio">Arpeggios</button>
-      <button role="tab" data-mode="chord">Chords</button>
-      <button role="tab" data-mode="identify">Chord Namer</button>
+    <nav class="modes" role="tablist" aria-label="View">
+      <button role="tab" data-mode="scale" aria-selected="true" data-key="S" title="Scales (⌃S)">Scales</button>
+      <button role="tab" data-mode="arpeggio" data-key="A" title="Arpeggios (⌃A)">Arpeggios</button>
+      <button role="tab" data-mode="chord" data-key="C" title="Chords (⌃C)">Chords</button>
+      <button role="tab" data-mode="identify" data-key="N" title="Chord Namer (⌃N)">Chord Namer</button>
     </nav>
     <div class="top-actions">
+      <button class="icon-btn" id="helpBtn" title="Keyboard shortcuts (?)" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5zm2 .5v10h14V7zm1.5 1.5h2v2h-2zm3.5 0h2v2h-2zm3.5 0h2v2h-2zm3.5 0h1.5v2H17zM6.5 12h2v2h-2zm3.5 0h2v2h-2zm3.5 0h2v2h-2zm3.5 0h1.5v2H17zM8 15.25h8v1.5H8z"/></svg>
+      </button>
       <button class="icon-btn" id="soundBtn" aria-pressed="true" title="Sound on/off (M)">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path class="on" d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/><path class="off" d="M4 9v6h4l5 4V5L8 9H4zm15.6 3 2.1-2.1-1.4-1.4-2.1 2.1-2.1-2.1-1.4 1.4 2.1 2.1-2.1 2.1 1.4 1.4 2.1-2.1 2.1 2.1 1.4-1.4z"/></svg>
       </button>
@@ -162,10 +167,64 @@
       <a href="{% url 'fretboard_classic' %}">Classic version</a>
       {% if STRIPE_DONATE_URL %}<a href="{{ STRIPE_DONATE_URL }}" rel="noopener" target="_blank">Support the project</a>{% endif %}
     </nav>
-    <span class="muted kbd-hint">Keys: ← → position · ↑ ↓ key · Space play · 1–4 mode</span>
+    <span class="muted kbd-hint">Press <kbd>?</kbd> for keyboard shortcuts</span>
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="help" id="help" role="dialog" aria-modal="true" aria-labelledby="helpTitle" hidden>
+    <div class="help-panel">
+      <div class="help-head">
+        <h2 id="helpTitle">Keyboard shortcuts</h2>
+        <button class="icon-btn" id="helpClose" aria-label="Close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg>
+        </button>
+      </div>
+      <div class="help-grid">
+        <section>
+          <h3>Key</h3>
+          <dl>
+            <dt><kbd>C</kbd> <kbd>D</kbd> <kbd>E</kbd> <kbd>F</kbd> <kbd>G</kbd> <kbd>A</kbd> <kbd>B</kbd></dt><dd>Change key</dd>
+            <dt><kbd>#</kbd></dt><dd>Sharpen the key (F then # = F♯)</dd>
+            <dt><kbd>↑</kbd> <kbd>↓</kbd></dt><dd>Transpose a semitone</dd>
+            <dt><kbd>⇧</kbd> <kbd>↑</kbd> <kbd>↓</kbd></dt><dd>Move round the circle of fifths</dd>
+          </dl>
+        </section>
+        <section>
+          <h3>Positions &amp; inversions</h3>
+          <dl>
+            <dt><kbd>1</kbd> … <kbd>9</kbd></dt><dd>Position (scales, arpeggios) · inversion (chords)</dd>
+            <dt><kbd>0</kbd></dt><dd>Whole neck · any bass note</dd>
+            <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous / next position or shape</dd>
+            <dt><kbd>,</kbd> <kbd>.</kbd></dt><dd>Previous / next scale or chord type</dd>
+            <dt><kbd>/</kbd></dt><dd>Search scales and chords</dd>
+          </dl>
+        </section>
+        <section>
+          <h3>Views</h3>
+          <dl>
+            <dt><kbd class="vmod">⌃</kbd> <kbd>S</kbd></dt><dd>Scales</dd>
+            <dt><kbd class="vmod">⌃</kbd> <kbd>A</kbd></dt><dd>Arpeggios</dd>
+            <dt><kbd class="vmod">⌃</kbd> <kbd>C</kbd></dt><dd>Chords</dd>
+            <dt><kbd class="vmod">⌃</kbd> <kbd>N</kbd></dt><dd>Chord Namer</dd>
+            <dt><kbd>V</kbd></dt><dd>Chords: best shapes ↔ V-System</dd>
+          </dl>
+        </section>
+        <section>
+          <h3>Sound &amp; view</h3>
+          <dl>
+            <dt><kbd>Space</kbd></dt><dd>Play / stop</dd>
+            <dt><kbd>+</kbd> <kbd>−</kbd></dt><dd>Tempo ±5 BPM</dd>
+            <dt><kbd>M</kbd></dt><dd>Sound on / off</dd>
+            <dt><kbd>L</kbd></dt><dd>Intervals ↔ note names</dd>
+            <dt><kbd>X</kbd></dt><dd>Box ↔ 3 notes per string</dd>
+            <dt><kbd>⌫</kbd></dt><dd>Chord Namer: clear</dd>
+            <dt><kbd>Esc</kbd></dt><dd>Close menus</dd>
+          </dl>
+        </section>
+      </div>
+    </div>
+  </div>
 
   {{ catalog_json|json_script:"catalog-data" }}
   {{ legacy_state_json|json_script:"legacy-state" }}
