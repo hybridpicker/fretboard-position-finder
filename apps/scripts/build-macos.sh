@@ -46,10 +46,23 @@ xcodebuild \
   -destination 'generic/platform=macOS,variant=Mac Catalyst' \
   -derivedDataPath "$WORK/DerivedData" \
   CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM= PROVISIONING_PROFILE_SPECIFIER= \
+  ENABLE_HARDENED_RUNTIME=NO \
   build
 
 rm -rf "$OUT/$APP_NAME.app"
 mkdir -p "$OUT"
 ditto "$WORK/DerivedData/Build/Products/$CONFIGURATION-maccatalyst/App.app" "$OUT/$APP_NAME.app"
+
+# Re-sign inside-out so app and embedded frameworks carry one consistent ad hoc signature.
+# With the hardened runtime on an ad hoc app, library validation makes dyld reject the
+# frameworks ("different Team IDs"); the runtime is only needed for notarisation.
+for framework in "$OUT/$APP_NAME.app"/Contents/Frameworks/*.framework; do
+  [ -e "$framework" ] && codesign --force --sign - --timestamp=none "$framework"
+done
+codesign --force --sign - --timestamp=none "$OUT/$APP_NAME.app"
 codesign --verify --deep --strict "$OUT/$APP_NAME.app"
+if codesign -dv "$OUT/$APP_NAME.app" 2>&1 | grep -q 'flags=.*runtime'; then
+  echo "Hardened runtime is still enabled on $OUT/$APP_NAME.app" >&2
+  exit 1
+fi
 echo "Built $OUT/$APP_NAME.app"
