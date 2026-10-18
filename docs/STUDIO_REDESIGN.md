@@ -267,7 +267,7 @@ Total to both stores: roughly 4–6 calendar weeks of focused work, dominated by
 ## 9. Deployment target
 
 - Production URL: **https://fretboard.schoensgibl.com** on the AlmaLinux 9 server (fresh instance, Django behind Nginx, HTTPS required for the service worker).
-- The old guitar-positions.org deployment was removed in January 2026 and that domain no longer resolves, so no redirects from it are possible; legacy query parameters are still mapped for bookmarks that are rewritten to the new host.
+- **Decision (2026-10-18):** fretboard.schoensgibl.com is the only domain. guitar-positions.org is not used any more (the old deployment was removed in January 2026, the domain no longer resolves and no redirect is planned). Legacy query parameters (`?models_select=…`) are still mapped for old bookmarks on the new host.
 - Server checklist: `collectstatic`; long-lived cache headers for fingerprinted static files, short for `index.html` and `/sw.js`; gzip/brotli; `/api/catalog/` cached 1 h; clear the `studio_catalog_v1` cache key on deploy when catalogue data changed; set `CSRF_TRUSTED_ORIGINS`/`ALLOWED_HOSTS` for the new host; update `robots.txt` and sitemap host.
 - Server work (deploy, Nginx, certificates) is done in a Claude Code session on the AlmaLinux 9 host, not from the workstation.
 

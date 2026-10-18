@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{{ page_title|default:"Guitar Positions | Fretboard Studio" }}</title>
   <meta name="description" content="{{ meta_description|default:'Find every scale, arpeggio and chord on the guitar fretboard with fingerings, playable chord shapes, drop voicings and a chord namer. Free for all guitarists.' }}">
-  <meta name="theme-color" content="#101217" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#f5f2ec" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/">
   <meta property="og:title" content="{{ og_title|default:'Guitar Positions | Fretboard Studio' }}">
   <meta property="og:description" content="{{ og_description|default:'Scales, arpeggios and chords with fingerings on an interactive fretboard.' }}">
@@ -30,15 +30,13 @@
 
   <header class="topbar">
     <a class="brand" href="{% url 'fretboard' %}" aria-label="Guitar Positions home">
-      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="6" width="26" height="20" rx="4"/><path d="M3 12.7h26M3 19.3h26M12 6v20M20.5 6v20"/><circle cx="16.2" cy="16" r="2.6"/></svg>
       <span class="brand-name">Guitar Positions</span>
-      <span class="brand-tag">Studio</span>
     </a>
     <nav class="modes" role="tablist" aria-label="Mode">
-      <button role="tab" data-mode="scale" aria-selected="true"><span class="k">1</span>Scales</button>
-      <button role="tab" data-mode="arpeggio"><span class="k">2</span>Arpeggios</button>
-      <button role="tab" data-mode="chord"><span class="k">3</span>Chords</button>
-      <button role="tab" data-mode="identify"><span class="k">4</span>Chord Namer</button>
+      <button role="tab" data-mode="scale" aria-selected="true">Scales</button>
+      <button role="tab" data-mode="arpeggio">Arpeggios</button>
+      <button role="tab" data-mode="chord">Chords</button>
+      <button role="tab" data-mode="identify">Chord Namer</button>
     </nav>
     <div class="top-actions">
       <button class="icon-btn" id="soundBtn" aria-pressed="true" title="Sound on/off (M)">
@@ -83,7 +81,7 @@
       </div>
       <div class="play-box">
         <button class="play" id="playBtn" title="Play (Space)"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5v14l11-7z"/><path class="i-stop" d="M6 6h12v12H6z"/></svg><span>Play</span></button>
-        <label class="tempo" id="tempoBox">♩ <input type="range" id="tempo" min="50" max="220" value="110" aria-label="Tempo"><output id="tempoOut">110</output></label>
+        <label class="tempo" id="tempoBox">Tempo <input type="range" id="tempo" min="50" max="220" value="110" aria-label="Tempo"><output id="tempoOut">110</output></label>
       </div>
     </section>
 
@@ -100,7 +98,6 @@
           <button data-system="nps" title="Three notes per string">3 NPS</button>
         </div>
         <div class="seg" id="labelSeg" role="radiogroup" aria-label="Note labels">
-          <button data-labels="fingers">Fingers</button>
           <button data-labels="intervals">Intervals</button>
           <button data-labels="notes">Notes</button>
         </div>
@@ -108,16 +105,18 @@
     </section>
 
     <section class="finder" id="finder" hidden>
+      <div class="source-tabs" id="sourceSeg" role="tablist" aria-label="Shape source">
+        <button data-source="finder" title="Every playable shape, ranked by how easy it is to play">Best shapes</button>
+        <button data-source="vsystem" title="Voicings from the Guitar Positions V-System library">V-System</button>
+      </div>
       <div class="finder-head">
         <div>
-          <h2>Fingering finder</h2>
+          <h2>Chord shapes</h2>
           <p class="muted" id="finderSummary"></p>
         </div>
         <div class="filters">
-          <div class="seg" id="sourceSeg">
-            <button data-source="finder" title="Every playable shape, ranked by how easy it is to play">Best shapes</button>
-            <button data-source="vsystem" title="Voicings from the Guitar Positions V-System library">V-System</button>
-          </div>
+          <select id="vsystemSelect" aria-label="Voicing system" hidden></select>
+          <select id="rangeSelect" aria-label="String set" hidden></select>
           <div class="seg" id="bassSeg" aria-label="Bass note"></div>
           <div class="seg" id="neckSeg" aria-label="Neck region">
             <button data-neck="all">Whole neck</button>
@@ -125,7 +124,6 @@
             <button data-neck="mid">5–9</button>
             <button data-neck="high">10+</button>
           </div>
-          <select id="vsystemSelect" aria-label="Voicing system" hidden></select>
         </div>
       </div>
       <div class="cards" id="cards"></div>

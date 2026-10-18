@@ -2,7 +2,7 @@
 import {
   ROOT_NAMES, NOTE_SHARP, NOTE_FLAT, TUNINGS, getTuning, mod12, pretty, buildLibrary, spellCollection,
   intervalRole, neckNotes, scalePositions, findChordShapes, voicingTemplateShapes, assignFingers,
-  identifyChords, identifyScales, midiName,
+  identifyChords, identifyScales, midiName, DB_STRING_NUMBERS,
 } from './theory.js';
 import { renderFretboard, pulseNote } from './fretboard.js';
 import { chordDiagram } from './diagram.js';
@@ -17,7 +17,6 @@ const store = {
 
 const library = buildLibrary(readJSON('catalog-data'));
 const MODE_NAMES = { scale: 'Scale', arpeggio: 'Arpeggio', chord: 'Chord', identify: 'Chord Namer' };
-const ROLE_NAMES = { root: 'Root', third: '3rd', fifth: '5th', seventh: '7th', tension: 'Other' };
 
 // ---------------------------------------------------------------------------
 // State
@@ -26,8 +25,8 @@ const defaults = {
   mode: 'scale', root: 0,
   scaleKey: (library.scales.find((s) => s.intervals.join() === '0,2,4,5,7,9,11') || library.scales[0])?.key,
   arpKey: (library.arpeggios.find((a) => a.intervals.join() === '0,4,7,11') || library.arpeggios[0])?.key,
-  chordKey: 'major', position: 1, system: 'box', labels: 'fingers', source: 'finder', bass: 'any',
-  neck: 'all', vsystem: 'all', selected: 0,
+  chordKey: 'major', position: 1, system: 'box', labels: 'intervals', source: 'finder', bass: 'any',
+  neck: 'all', vsystem: 'all', vrange: 'all', selected: 0,
 };
 const state = {
   ...defaults,
@@ -55,6 +54,7 @@ function readUrl() {
     const hit = library.chords.find((c) => c.dbName === legacy.chordName || c.name === legacy.chordName);
     if (hit) { state.chordKey = hit.key; state.source = 'vsystem'; }
     if (legacy.system) state.vsystem = legacy.system;
+    if (legacy.range) state.vrange = legacy.range;
   }
   if (legacy.position) state.position = legacy.position;
 
@@ -67,6 +67,9 @@ function readUrl() {
     if (state.mode === 'arpeggio' && library.arpeggios.some((s) => s.key === type)) state.arpKey = type;
     if (state.mode === 'chord' && library.chords.some((s) => s.key === type)) state.chordKey = type;
   }
+  if (p.get('src') === 'vsystem') state.source = 'vsystem';
+  if (p.get('vs')) state.vsystem = p.get('vs');
+  if (p.get('strings')) state.vrange = p.get('strings');
   if (p.get('pos') !== null) state.position = Math.max(0, parseInt(p.get('pos'), 10) || 0);
   if (p.get('sys') === 'nps' || p.get('sys') === 'box') state.system = p.get('sys');
   if (p.get('shape')) {
@@ -85,6 +88,11 @@ function writeUrl() {
   if (state.mode !== 'identify') {
     p.set('root', ROOT_NAMES[state.root]);
     p.set('type', currentType().key);
+  }
+  if (state.mode === 'chord' && state.source === 'vsystem') {
+    p.set('src', 'vsystem');
+    if (state.vsystem !== 'all') p.set('vs', state.vsystem);
+    if (state.vrange !== 'all') p.set('strings', state.vrange);
   }
   if (state.mode === 'scale' || state.mode === 'arpeggio') {
     p.set('pos', String(state.position));
@@ -144,20 +152,12 @@ function computeScaleView() {
   const active = state.position > 0 ? positions[state.position - 1] : null;
   const maxFret = Math.max(state.frets, active ? active.maxFret + 1 : 0);
   const activeKeys = new Set(active ? active.notes.map((n) => `${n.string}:${n.fret}`) : []);
-  const fingerOf = {};
-  active?.notes.forEach((n) => { fingerOf[`${n.string}:${n.fret}`] = n.finger; });
-
-  const label = (n) => {
-    if (state.labels === 'notes') return pretty(names[n.interval]);
-    if (state.labels === 'intervals') return pretty(labels[n.interval]);
-    const f = fingerOf[`${n.string}:${n.fret}`];
-    return f === undefined ? pretty(labels[n.interval]) : f === 0 ? 'O' : String(f);
-  };
+  const label = (n) => pretty(state.labels === 'notes' ? names[n.interval] : labels[n.interval]);
   const notes = neckNotes(state.root, type.intervals, t, maxFret).map((n) => ({
     ...n,
     role: intervalRole(n.interval, labels),
     state: !active || activeKeys.has(`${n.string}:${n.fret}`) ? 'active' : 'ghost',
-    label: !active && state.labels === 'fingers' ? pretty(labels[n.interval]) : label(n),
+    label: label(n),
   }));
   // Play order: the active position ascending (and back down), or two octaves from the lowest root
   let seqNotes;
@@ -188,26 +188,25 @@ function computeChordView() {
   const bass = state.bass === 'any' ? null : parseInt(state.bass, 10);
   let shapes;
   if (state.source === 'vsystem') {
-    const templates = type.voicings.filter((v) => state.vsystem === 'all' || v.system === state.vsystem);
-    shapes = templates.flatMap((tpl) => voicingTemplateShapes(state.root, type.intervals, tpl, t, { maxFret: 17 }));
+    const templates = type.voicings.filter((v) => (state.vsystem === 'all' || v.system === state.vsystem)
+      && (state.vrange === 'all' || v.range === state.vrange));
+    shapes = templates.flatMap((tpl) => voicingTemplateShapes(state.root, type.intervals, tpl, t));
     if (bass !== null) shapes = shapes.filter((s) => s.bassInterval === bass);
-    shapes.sort((a, b) => a.minFret - b.minFret);
   } else {
     shapes = findChordShapes(state.root, type.intervals, t, { maxFret: Math.max(15, state.frets), bass, limit: 400 });
   }
-  shapes = filterNeck(shapes).slice(0, state.source === 'vsystem' ? 96 : 36);
+  shapes = filterNeck(shapes);
+  if (state.source !== 'vsystem') shapes = shapes.slice(0, 36);
   if (state.selected >= shapes.length) state.selected = 0;
   const shape = shapes[state.selected] || null;
   const maxFret = Math.max(state.frets, shape ? Math.max(...shape.frets) + 1 : 0);
 
-  const shapeKeys = new Map();
-  shape?.frets.forEach((f, s) => { if (f >= 0) shapeKeys.set(`${s}:${f}`, shape.fingers[s]); });
+  const shapeKeys = new Set();
+  shape?.frets.forEach((f, s) => { if (f >= 0) shapeKeys.add(`${s}:${f}`); });
   const notes = neckNotes(state.root, type.intervals, t, maxFret).map((n) => {
     const key = `${n.string}:${n.fret}`;
     const inShape = shapeKeys.has(key);
-    let lbl = pretty(labels[n.interval]);
-    if (state.labels === 'notes') lbl = pretty(names[n.interval]);
-    if (state.labels === 'fingers' && inShape) lbl = shapeKeys.get(key) ? String(shapeKeys.get(key)) : 'O';
+    const lbl = pretty(state.labels === 'notes' ? names[n.interval] : labels[n.interval]);
     return { ...n, role: intervalRole(n.interval, labels), state: !shape || inShape ? 'active' : 'ghost', label: lbl };
   });
   const sequence = shape ? shape.frets.map((f, s) => (f < 0 ? null : notes.findIndex((n) => n.string === s && n.fret === f))).filter((i) => i !== null && i >= 0).map((i) => ({ midi: notes[i].midi, index: i })) : [];
@@ -231,7 +230,6 @@ function computeIdentifyView() {
   const notes = sounding.map((n) => {
     const interval = refRoot === null ? 0 : mod12(n.midi - refRoot);
     let label = pretty(midiName(n.midi, names === NOTE_FLAT || names === ROOT_NAMES && [1, 3, 8, 10].includes(mod12(n.midi))));
-    if (state.labels === 'fingers' && fingering) label = fingering.fingers[n.string] ? String(fingering.fingers[n.string]) : 'O';
     if (state.labels === 'intervals' && best) label = pretty(spellCollection(names[best.root], best.chord.intervals, 'chord').labels[interval] || '?');
     return { ...n, interval, role: best ? intervalRole(interval, spellCollection(names[best.root], best.chord.intervals, 'chord').labels) : 'tension', state: 'active', label };
   });
@@ -326,10 +324,10 @@ function renderLegend() {
   let roles;
   if (state.mode === 'identify') roles = view.best ? view.best.chord.intervals.map((iv) => intervalRole(iv)) : [];
   else roles = view.type.intervals.map((iv) => intervalRole(iv, view.labels));
-  const uniq = ['root', 'third', 'fifth', 'seventh', 'tension'].filter((r) => roles.includes(r));
-  let html = uniq.map((r) => `<span class="role-${r}">${ROLE_NAMES[r]}</span>`).join('');
+  let html = '<span class="role-root">Root</span>';
+  if (roles.some((r) => r === 'third' || r === 'fifth' || r === 'seventh')) html += '<span class="role-third">3rd, 5th, 7th</span>';
+  if (roles.includes('tension')) html += `<span class="role-tension">${state.mode === 'scale' ? 'Other scale notes' : 'Other'}</span>`;
   if (state.mode !== 'identify' && (view.active || view.shape)) html += '<span class="hint">Faded: same notes elsewhere on the neck</span>';
-  if (state.labels === 'fingers' && state.mode !== 'identify') html += '<span class="muted">Numbers = fingers (1 index … 4 pinky, O open)</span>';
   $('#legend').innerHTML = html;
 }
 
@@ -344,47 +342,63 @@ function renderPositions() {
   sys.querySelectorAll('button').forEach((b) => { b.disabled = view.type.intervals.length < 6 && b.dataset.system === 'nps'; });
 }
 
-function easiness(score, best, worst) {
-  const span = Math.max(0.0001, worst - best);
-  return Math.max(1, 5 - Math.round(((score - best) / span) * 4));
-}
-
 function renderFinder() {
   const type = view.type;
   const bassSeg = $('#bassSeg');
   const bassOptions = [['any', 'Any bass']].concat(type.intervals.map((iv) => [String(iv), pretty(view.labels[iv]) + ' in bass']));
   bassSeg.innerHTML = bassOptions.map(([v, l]) => `<button data-bass="${v}" aria-pressed="${state.bass === v}">${l}</button>`).join('');
-  const hasDb = type.voicings.length > 0;
-  $('#sourceSeg [data-source="vsystem"]').disabled = !hasDb;
-  if (!hasDb && state.source === 'vsystem') state.source = 'finder';
+  const isVs = state.source === 'vsystem';
+  $('#sourceSeg [data-source="vsystem"]').innerHTML = `V-System${type.voicings.length ? `<small>${type.voicings.length}</small>` : ''}`;
+
   const vs = $('#vsystemSelect');
-  vs.hidden = state.source !== 'vsystem';
-  if (state.source === 'vsystem') {
+  const rs = $('#rangeSelect');
+  vs.hidden = !isVs || !type.voicings.length;
+  rs.hidden = vs.hidden;
+  if (isVs && type.voicings.length) {
     const systems = [...new Set(type.voicings.map((v) => v.system))];
-    vs.innerHTML = ['<option value="all">All voicing systems</option>'].concat(systems.map((s) => `<option value="${s}" ${state.vsystem === s ? 'selected' : ''}>${s}</option>`)).join('');
+    if (state.vsystem !== 'all' && !systems.includes(state.vsystem)) state.vsystem = 'all';
+    vs.innerHTML = ['<option value="all">All systems</option>'].concat(systems.map((x) => `<option value="${x}" ${state.vsystem === x ? 'selected' : ''}>${x}</option>`)).join('');
+    const ranges = [...new Set(type.voicings.filter((v) => state.vsystem === 'all' || v.system === state.vsystem).map((v) => v.range))];
+    if (state.vrange !== 'all' && !ranges.includes(state.vrange)) state.vrange = 'all';
+    rs.innerHTML = ['<option value="all">All string sets</option>'].concat(ranges.map((r) => `<option value="${r}" ${state.vrange === r ? 'selected' : ''}>Strings ${r}</option>`)).join('');
   }
+
   const shapes = view.shapes;
-  const scores = shapes.map((s) => s.score).filter((x) => x !== undefined);
-  const best = Math.min(...scores);
-  const worst = Math.max(...scores);
-  $('#finderSummary').textContent = shapes.length
-    ? (state.source === 'vsystem' ? `${shapes.length} voicings from the V-System library, every inversion.` : `${shapes.length} playable shapes, easiest first. Click one to see it on the neck and hear it.`)
-    : 'No shapes match these filters.';
   const chordName = pretty(rootName() + (type.symbol || ''));
-  $('#cards').innerHTML = shapes.length ? shapes.map((s, i) => {
-    const rootStrings = s.frets.map((f, st) => (f >= 0 && mod12(tuning().midi[st] + f - state.root) === 0 ? st : null)).filter((x) => x !== null);
-    const ease = s.score !== undefined ? easiness(s.score, best, worst) : null;
-    const bassName = s.bassInterval ? `/${pretty(view.names[s.bassInterval])}` : '';
-    const meta = [s.voicing, s.inversion, s.system && s.range ? `${s.system} · ${s.range}` : ''].filter(Boolean).join(' · ');
-    return `<button class="card" data-shape="${i}" aria-pressed="${i === state.selected}">
-      <span class="rank">${i + 1}</span>
-      ${ease ? `<span class="easy" title="Ease ${ease}/5">${[1, 2, 3, 4, 5].map((k) => `<i class="${k <= ease ? 'on' : ''}"></i>`).join('')}</span>` : ''}
-      ${chordDiagram({ ...s, rootStrings }, tuning().midi.length)}
+  if (isVs && !type.voicings.length) {
+    const withVs = library.chords.filter((c) => c.voicings.length);
+    $('#finderSummary').textContent = `The V-System library has no voicings for ${type.name} yet.`;
+    $('#cards').innerHTML = `<div class="empty">Available for ${withVs.map((c) => `<button data-open-type="${c.key}">${pretty(rootName() + c.symbol)}</button>`).join('')}</div>`;
+    return;
+  }
+  const numbers = new Set(tuning().numbers);
+  const otherInstrument = type.voicings.filter((v) => v.tones.some((x) => !numbers.has(DB_STRING_NUMBERS[x.string]))).length;
+  const extra = isVs && otherInstrument ? ` ${otherInstrument} more voicing${otherInstrument > 1 ? 's' : ''} need${otherInstrument > 1 ? '' : 's'} a 7- or 8-string tuning (settings).` : '';
+  $('#finderSummary').textContent = (shapes.length
+    ? (isVs ? `${shapes.length} voicings, every inversion, grouped by system and string set.` : `${shapes.length} playable shapes, easiest first.`)
+    : 'No shapes match these filters.') + extra;
+
+  let lastGroup = null;
+  const html = [];
+  shapes.forEach((sh, i) => {
+    if (isVs) {
+      const group = `${sh.system}|${sh.range}`;
+      if (group !== lastGroup) {
+        html.push(`<div class="group-head">${sh.system}<span>strings ${sh.range}</span></div>`);
+        lastGroup = group;
+      }
+    }
+    const rootStrings = sh.frets.map((f, st) => (f >= 0 && mod12(tuning().midi[st] + f - state.root) === 0 ? st : null)).filter((x) => x !== null);
+    const bassName = sh.bassInterval ? `/${pretty(view.names[sh.bassInterval])}` : '';
+    const meta = [sh.voicing, sh.inversion, sh.span >= 6 ? 'wide stretch' : ''].filter(Boolean).join(' · ');
+    html.push(`<button class="card" data-shape="${i}" aria-pressed="${i === state.selected}">
+      ${chordDiagram({ ...sh, rootStrings }, tuning().midi.length, { showFingers: false })}
       <b>${chordName}${bassName}</b>
       <span>${meta || '&nbsp;'}</span>
-      <span class="frets">${s.frets.map((f) => (f < 0 ? 'x' : f)).join(' ')}</span>
-    </button>`;
-  }).join('') : '<div class="empty">Try another bass note or neck region.</div>';
+      <span class="frets">${sh.frets.map((f) => (f < 0 ? 'x' : f)).join(' ')}</span>
+    </button>`);
+  });
+  $('#cards').innerHTML = html.join('') || '<div class="empty">Try another bass note or neck region.</div>';
 }
 
 function renderNamer() {
@@ -394,10 +408,10 @@ function renderNamer() {
   } else if (!view.best) {
     res.innerHTML = `<div class="big">?</div><div class="sub">${view.notes.length} note${view.notes.length > 1 ? 's' : ''} — no common chord name yet</div>`;
   } else {
-    const fingerText = view.fingering ? view.frets.map((f, s) => (f < 0 ? 'x' : f === 0 ? 'o' : view.fingering.fingers[s])).join(' ') : 'needs more than four fingers';
+    const fretText = view.frets.map((f) => (f < 0 ? 'x' : f)).join(' ');
     res.innerHTML = `<div class="big">${pretty(view.best.name)}</div>
       <div class="sub">${view.best.chord.name}${view.best.exact ? '' : ' (no 5th)'}</div>
-      <div class="sub">Fingering: <b>${fingerText}</b></div>
+      <div class="sub">Frets: <b>${fretText}</b></div>
       <button class="ghost-btn" data-open-chord="${view.best.chord.key}" data-open-root="${view.best.root}" style="margin-top:10px">Show all shapes</button>`;
   }
   $('#namerChords').innerHTML = view.chords.slice(1).map((c) => `<li><button class="${c.exact ? '' : 'partial'}" data-open-chord="${c.chord.key}" data-open-root="${c.root}">${pretty(c.name)}</button></li>`).join('') || '<li class="muted">—</li>';
@@ -434,7 +448,7 @@ function renderTypeList(filter = '') {
   });
   const html = Object.entries(groups).map(([group, items]) => `<div class="combo-group">${group}</div>` + items.map((item) => `
     <button class="combo-item" role="option" data-key="${item.key}" aria-selected="${item.key === current}">
-      <span>${item.name}${item.symbol ? ` <small>${pretty(item.symbol)}</small>` : ''}</span>
+      <span>${item.name}${item.symbol ? ` <small>${pretty(item.symbol)}</small>` : ''}${item.voicings?.length ? '<span class="tag">V-System</span>' : ''}</span>
       <small>${item.intervals.length} notes</small>
     </button>`).join('')).join('');
   $('#typeList').innerHTML = html || '<div class="combo-group">No match</div>';
@@ -571,8 +585,11 @@ function bind() {
     state.selected = 0;
     render();
   });
-  $('#vsystemSelect').addEventListener('change', (e) => { state.vsystem = e.target.value; state.selected = 0; render(); });
+  $('#vsystemSelect').addEventListener('change', (e) => { state.vsystem = e.target.value; state.vrange = 'all'; state.selected = 0; render(); });
+  $('#rangeSelect').addEventListener('change', (e) => { state.vrange = e.target.value; state.selected = 0; render(); });
   $('#cards').addEventListener('click', (e) => {
+    const typeLink = e.target.closest('[data-open-type]');
+    if (typeLink) { state.chordKey = typeLink.dataset.openType; state.selected = 0; render(); return; }
     const b = e.target.closest('[data-shape]');
     if (!b) return;
     state.selected = parseInt(b.dataset.shape, 10);
@@ -690,7 +707,7 @@ function bind() {
   });
 }
 
-state.labels = store.get('labels', 'fingers');
+state.labels = store.get('labels', 'intervals') === 'notes' ? 'notes' : 'intervals';
 readUrl();
 bind();
 render();
