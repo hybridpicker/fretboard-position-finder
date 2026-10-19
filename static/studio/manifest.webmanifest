@@ -8,8 +8,8 @@
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "theme_color": "#141414",
-  "background_color": "#141414",
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
   "categories": [
     "music",
     "education"

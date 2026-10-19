@@ -5,6 +5,7 @@ import {
   TUNINGS, getTuning, scalePositions, assignFingers, findChordShapes, classifyVoicing,
   identifyChords, identifyScales, spellNote, intervalLabels, buildLibrary, voicingTemplateShapes,
   CHORD_LIBRARY, SCALE_LIBRARY, fingerStringGroup,
+  parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes,
 } from './theory.js';
 
 const std = getTuning('standard');
@@ -170,4 +171,114 @@ test('chord types without database voicings get V-System voicings derived from M
   assert.equal(shapes.length, 4);
   assert.ok(lib.chords.find((c) => c.symbol === 'm6').vsDerived);
   assert.equal(lib.chords.find((c) => c.symbol === '5').voicings.length, 0, 'power chords have no V-System');
+});
+
+// ---- Chord symbol search (#1) ------------------------------------------------
+test('parseChordQuery reads root and quality', () => {
+  const lib = buildLibrary(null);
+  const parse = (q) => parseChordQuery(q, lib.chords);
+  const em7 = parse('Em7');
+  assert.equal(em7.root, 4);
+  assert.deepEqual(em7.chords.map((c) => c.name), ['Minor 7']);
+  assert.equal(parse('em7').root, 4, 'case-insensitive root');
+  assert.equal(parse('EM7').chords[0].name, 'Major 7', 'capital M means major');
+  const f = parse('F#m7b5');
+  assert.equal(f.root, 6);
+  assert.equal(f.chords[0].name, 'Minor 7b5');
+  assert.equal(parse('Bbmaj7').root, 10);
+  assert.equal(parse('Eb7').chords[0].name, 'Dominant 7');
+  assert.equal(parse('Ab5').chords[0].name, 'Power chord');
+  assert.equal(parse('C-7').chords[0].name, 'Minor 7');
+});
+
+test('"maj7#11" and "Major 7#11" are the same chord, with or without root', () => {
+  const lib = buildLibrary(null);
+  const a = parseChordQuery('Maj7#11', lib.chords);
+  const b = parseChordQuery('major 7#11', lib.chords);
+  assert.equal(a.root, null);
+  assert.equal(a.chords[0].key, b.chords[0].key);
+  assert.equal(parseChordQuery('Dmaj7#11', lib.chords).root, 2);
+  assert.equal(parseChordQuery('Add9', lib.chords).chords[0].name, 'Add 9', 'A + "dd9" falls back to the whole word');
+  assert.equal(parseChordQuery('dim', lib.chords).root, null);
+});
+
+test('parseChordQuery ignores bare roots and plain words', () => {
+  const lib = buildLibrary(null);
+  assert.equal(parseChordQuery('E', lib.chords), null);
+  assert.equal(parseChordQuery('Bb', lib.chords), null);
+  assert.equal(parseChordQuery('dorian', lib.chords), null);
+});
+
+test('Em7 suggests Dorian, Phrygian and Aeolian on E', () => {
+  const lib = buildLibrary(null);
+  const names = scalesForChord(4, [0, 3, 7, 10], lib.scales).map((x) => x.scale.name);
+  for (const n of ['Dorian', 'Phrygian', 'Aeolian (Natural Minor)']) assert.ok(names.includes(n), n);
+  assert.ok(!names.includes('Lydian'));
+});
+
+// ---- Bebop / Messiaen (#2, #4) -----------------------------------------------
+test('bebop scales are grouped and have eight notes', () => {
+  const lib = buildLibrary(null);
+  const bebop = lib.scales.filter((s) => s.group === 'Bebop');
+  assert.equal(bebop.length, 5);
+  assert.ok(bebop.every((s) => s.intervals.length === 8));
+  assert.ok(bebop.some((s) => s.name === 'Bebop Dominant'));
+});
+
+test('8-note scales produce complete positions in box and NPS systems', () => {
+  const lib = buildLibrary(null);
+  const dom = lib.scales.find((s) => s.name === 'Bebop Dominant');
+  for (const system of ['box', 'nps']) {
+    const positions = scalePositions(7, dom.intervals, std, { system });
+    assert.equal(positions.length, 8, system);
+    for (const p of positions) {
+      assert.ok(p.notes.length >= 8, `${system} position ${p.index} has all degrees`);
+      assert.ok(p.notes.every((n) => n.finger >= 0 && n.finger <= 4));
+    }
+  }
+  assert.ok(neckNotes(7, dom.intervals, std, 15).length > 40);
+});
+
+test('Messiaen modes 1-7 exist exactly once, in the Symmetric group', () => {
+  const lib = buildLibrary(null);
+  for (const m of MESSIAEN_MODES) {
+    const hits = lib.scales.filter((s) => s.intervals.join() === m.intervals.join());
+    assert.equal(hits.length, 1, `mode ${m.mode} appears once`);
+    assert.equal(hits[0].group, 'Symmetric');
+  }
+  assert.match(lib.scales.find((s) => s.name === 'Whole Tone').alias, /messiaen mode 1/);
+  const catalog = { scales: [{ name: 'Diminished', intervals: [0, 1, 3, 4, 6, 7, 9, 10] }] };
+  const withDb = buildLibrary(catalog);
+  assert.equal(withDb.scales.filter((s) => s.intervals.length === 8 && s.intervals.join() === '0,1,3,4,6,7,9,10').length, 1, 'no duplicate of a database Diminished');
+  const sparse = buildLibrary(null).scales.filter((s) => s.group === 'Symmetric');
+  assert.equal(sparse.length, 7);
+});
+
+test('Messiaen modes are limited-transposition (symmetric)', () => {
+  for (const m of MESSIAEN_MODES) {
+    const set = new Set(m.intervals);
+    const transpositions = new Set();
+    for (let t = 0; t < 12; t++) transpositions.add([...set].map((iv) => (iv + t) % 12).sort((a, b) => a - b).join());
+    assert.ok(transpositions.size < 12, `mode ${m.mode}`);
+  }
+});
+
+// ---- Scale -> chords (#7) ----------------------------------------------------
+test('C major yields the diatonic seventh chords', () => {
+  const lib = buildLibrary(null);
+  const { diatonic } = chordsForScale(0, [0, 2, 4, 5, 7, 9, 11], lib.chords);
+  assert.deepEqual(diatonic.map((d) => d.seventh.symbol), ['maj7', 'm7', 'm7', 'maj7', '7', 'm7', 'm7b5']);
+  assert.deepEqual(diatonic.map((d) => d.root), [0, 2, 4, 5, 7, 9, 11]);
+  assert.equal(diatonic[6].triad.symbol, 'dim');
+});
+
+test('chordsForScale only returns chords whose notes are inside the scale', () => {
+  const lib = buildLibrary(null);
+  const scale = [0, 3, 5, 7, 10];
+  const { diatonic, others } = chordsForScale(9, scale, lib.chords);
+  assert.equal(diatonic.length, 0, 'no stacked thirds for a pentatonic');
+  assert.ok(others.length > 0);
+  const scalePcs = scale.map((i) => (i + 9) % 12);
+  for (const o of others) assert.ok(o.chord.intervals.every((iv) => scalePcs.includes((iv + o.root) % 12)));
+  assert.ok(others.some((o) => o.root === 9 && o.chord.symbol === 'm7'));
 });
