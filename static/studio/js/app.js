@@ -2,7 +2,7 @@
 import {
   ROOT_NAMES, NOTE_SHARP, NOTE_FLAT, TUNINGS, getTuning, mod12, pretty, buildLibrary, spellCollection,
   intervalRole, neckNotes, scalePositions, findChordShapes, voicingTemplateShapes, assignFingers,
-  identifyChords, identifyScales, midiName, DB_STRING_NUMBERS, parseChordQuery, scalesForChord,
+  identifyChords, identifyScales, midiName, DB_STRING_NUMBERS, parseChordQuery, scalesForChord, chordsForScale,
 } from './theory.js';
 import { renderFretboard, pulseNote } from './fretboard.js';
 import { chordDiagram } from './diagram.js';
@@ -269,6 +269,7 @@ function render() {
   renderLegend();
   if (isScaleLike) renderPositions();
   if (isChord) renderFinder();
+  renderScaleChords();
   if (isIdentify) renderNamer();
   syncSegs();
   writeUrl();
@@ -424,6 +425,40 @@ function renderNamer() {
   $('#namerChords').innerHTML = view.chords.slice(1).map((c) => `<li><button class="${c.exact ? '' : 'partial'}" data-open-chord="${c.chord.key}" data-open-root="${c.root}">${pretty(c.name)}</button></li>`).join('') || '<li class="muted">—</li>';
   const names = ROOT_NAMES;
   $('#namerScales').innerHTML = view.scales.map((s) => `<li><button data-open-scale="${s.scale.key}" data-open-root="${s.root}">${pretty(names[s.root])} ${s.scale.name}</button></li>`).join('') || '<li class="muted">—</li>';
+}
+
+function renderScaleChords() {
+  const host = $('#scaleChords');
+  host.hidden = state.mode !== 'scale';
+  if (host.hidden) return;
+  const type = view.type;
+  const { diatonic, others } = chordsForScale(state.root, type.intervals, library.chords);
+  const chordLabel = (root, chord) => pretty(`${view.names[mod12(root - state.root)] ?? ROOT_NAMES[root]}${chord.symbol || ''}`);
+  const button = (root, chord, extra = '') => `<li><button data-open-chord="${chord.key}" data-open-root="${root}">${extra}${chordLabel(root, chord)}</button></li>`;
+  const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+  const roman = (d) => {
+    const numeral = ROMAN[d.degree];
+    const label = view.labels[d.interval] || '';
+    const minor = d.triad ? d.triad.intervals.includes(3) : false;
+    return `<small>${pretty(label.replace(/\d+$/, ''))}${minor ? numeral.toLowerCase() : numeral}</small>`;
+  };
+  let html = `<div class="finder-head"><div><h2>Chords in this scale</h2>
+    <p class="muted">Chords built only from ${pretty(rootName())} ${type.name} notes. Click one to see its shapes.</p></div></div>`;
+  if (diatonic.length) {
+    html += `<div class="chord-rows"><div><h3>Diatonic sevenths</h3><ul class="pill-row">${diatonic.filter((d) => d.seventh).map((d) => button(d.root, d.seventh, roman(d))).join('')}</ul></div>
+      <div><h3>Diatonic triads</h3><ul class="pill-row">${diatonic.filter((d) => d.triad).map((d) => button(d.root, d.triad, roman(d))).join('')}</ul></div></div>`;
+  }
+  const byRoot = new Map();
+  others.forEach((o) => {
+    if (!byRoot.has(o.root)) byRoot.set(o.root, []);
+    byRoot.get(o.root).push(o);
+  });
+  const rows = [...byRoot.entries()].map(([root, list]) => `<div class="chord-root"><b>${pretty(view.names[mod12(root - state.root)] ?? ROOT_NAMES[root])}</b><ul class="pill-row">${
+    list.sort((a, b) => a.chord.intervals.length - b.chord.intervals.length).map((o) => button(root, o.chord)).join('')}</ul></div>`);
+  html += others.length
+    ? `<details class="all-chords"${diatonic.length ? '' : ' open'}><summary>All fitting chords <span class="muted">(${others.length})</span></summary>${rows.join('')}</details>`
+    : '<p class="muted">No library chord fits entirely inside this scale.</p>';
+  host.innerHTML = html;
 }
 
 function syncSegs() {
@@ -689,6 +724,7 @@ function bind() {
     }
   };
   $('#namer').addEventListener('click', openFromButton);
+  $('#scaleChords').addEventListener('click', openFromButton);
   $('#namerClear').addEventListener('click', () => { state.identify = []; render(); });
   $('#namerPlay').addEventListener('click', () => play());
 

@@ -937,3 +937,33 @@ export function scalesForChord(rootPc, chordIntervals, scaleLibrary, limit = 8) 
     .sort((a, b) => a.score - b.score)
     .slice(0, limit);
 }
+
+/**
+ * Chords that live inside a scale.
+ * diatonic: for heptatonic scales the stacked-thirds triads and sevenths per degree.
+ * others: every library chord (3+ notes) on every scale degree whose notes are a subset of the scale.
+ */
+export function chordsForScale(rootPc, scaleIntervals, chordLibrary) {
+  const sorted = [...scaleIntervals].sort((a, b) => a - b);
+  const scalePcs = pcSet(rootPc, sorted);
+  const find = (intervals) => chordLibrary.find((c) => sameSet(c.intervals, intervals));
+  const diatonic = [];
+  if (sorted.length === 7) {
+    sorted.forEach((iv, degree) => {
+      const stack = (steps) => steps.map((k) => mod12(sorted[(degree + k) % 7] - iv)).sort((a, b) => a - b);
+      diatonic.push({
+        degree, interval: iv, root: mod12(rootPc + iv),
+        triad: find(stack([0, 2, 4])), seventh: find(stack([0, 2, 4, 6])),
+      });
+    });
+  }
+  const others = [];
+  for (const iv of sorted) {
+    const root = mod12(rootPc + iv);
+    for (const chord of chordLibrary) {
+      if (chord.intervals.length < 3) continue;
+      if (isSubset(pcSet(root, chord.intervals), scalePcs)) others.push({ root, interval: iv, chord });
+    }
+  }
+  return { diatonic, others };
+}

@@ -5,7 +5,7 @@ import {
   TUNINGS, getTuning, scalePositions, assignFingers, findChordShapes, classifyVoicing,
   identifyChords, identifyScales, spellNote, intervalLabels, buildLibrary, voicingTemplateShapes,
   CHORD_LIBRARY, SCALE_LIBRARY, fingerStringGroup,
-  parseChordQuery, scalesForChord, MESSIAEN_MODES, neckNotes,
+  parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes,
 } from './theory.js';
 
 const std = getTuning('standard');
@@ -261,4 +261,24 @@ test('Messiaen modes are limited-transposition (symmetric)', () => {
     for (let t = 0; t < 12; t++) transpositions.add([...set].map((iv) => (iv + t) % 12).sort((a, b) => a - b).join());
     assert.ok(transpositions.size < 12, `mode ${m.mode}`);
   }
+});
+
+// ---- Scale -> chords (#7) ----------------------------------------------------
+test('C major yields the diatonic seventh chords', () => {
+  const lib = buildLibrary(null);
+  const { diatonic } = chordsForScale(0, [0, 2, 4, 5, 7, 9, 11], lib.chords);
+  assert.deepEqual(diatonic.map((d) => d.seventh.symbol), ['maj7', 'm7', 'm7', 'maj7', '7', 'm7', 'm7b5']);
+  assert.deepEqual(diatonic.map((d) => d.root), [0, 2, 4, 5, 7, 9, 11]);
+  assert.equal(diatonic[6].triad.symbol, 'dim');
+});
+
+test('chordsForScale only returns chords whose notes are inside the scale', () => {
+  const lib = buildLibrary(null);
+  const scale = [0, 3, 5, 7, 10];
+  const { diatonic, others } = chordsForScale(9, scale, lib.chords);
+  assert.equal(diatonic.length, 0, 'no stacked thirds for a pentatonic');
+  assert.ok(others.length > 0);
+  const scalePcs = scale.map((i) => (i + 9) % 12);
+  for (const o of others) assert.ok(o.chord.intervals.every((iv) => scalePcs.includes((iv + o.root) % 12)));
+  assert.ok(others.some((o) => o.root === 9 && o.chord.symbol === 'm7'));
 });
