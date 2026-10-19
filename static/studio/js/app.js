@@ -355,7 +355,8 @@ function renderFinder() {
   vs.hidden = !isVs || !type.voicings.length;
   rs.hidden = vs.hidden;
   if (isVs && type.voicings.length) {
-    const systems = [...new Set(type.voicings.map((v) => v.system))];
+    const systemNumber = (name) => parseInt(String(name).replace(/\D/g, ''), 10) || 0;
+    const systems = [...new Set(type.voicings.map((v) => v.system))].sort((a, b) => systemNumber(a) - systemNumber(b) || String(a).localeCompare(String(b)));
     if (state.vsystem !== 'all' && !systems.includes(state.vsystem)) state.vsystem = 'all';
     vs.innerHTML = ['<option value="all">All systems</option>'].concat(systems.map((x) => `<option value="${x}" ${state.vsystem === x ? 'selected' : ''}>${x}</option>`)).join('');
     const ranges = [...new Set(type.voicings.filter((v) => state.vsystem === 'all' || v.system === state.vsystem).map((v) => v.range))];
