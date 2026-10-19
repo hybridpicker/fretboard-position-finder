@@ -5,6 +5,7 @@ import {
   TUNINGS, getTuning, scalePositions, assignFingers, findChordShapes, classifyVoicing,
   identifyChords, identifyScales, spellNote, intervalLabels, buildLibrary, voicingTemplateShapes,
   CHORD_LIBRARY, SCALE_LIBRARY, fingerStringGroup,
+  MESSIAEN_MODES, neckNotes,
 } from './theory.js';
 
 const std = getTuning('standard');
@@ -170,4 +171,51 @@ test('chord types without database voicings get V-System voicings derived from M
   assert.equal(shapes.length, 4);
   assert.ok(lib.chords.find((c) => c.symbol === 'm6').vsDerived);
   assert.equal(lib.chords.find((c) => c.symbol === '5').voicings.length, 0, 'power chords have no V-System');
+});
+
+// ---- Bebop / Messiaen (#2, #4) -----------------------------------------------
+test('bebop scales are grouped and have eight notes', () => {
+  const lib = buildLibrary(null);
+  const bebop = lib.scales.filter((s) => s.group === 'Bebop');
+  assert.equal(bebop.length, 5);
+  assert.ok(bebop.every((s) => s.intervals.length === 8));
+  assert.ok(bebop.some((s) => s.name === 'Bebop Dominant'));
+});
+
+test('8-note scales produce complete positions in box and NPS systems', () => {
+  const lib = buildLibrary(null);
+  const dom = lib.scales.find((s) => s.name === 'Bebop Dominant');
+  for (const system of ['box', 'nps']) {
+    const positions = scalePositions(7, dom.intervals, std, { system });
+    assert.equal(positions.length, 8, system);
+    for (const p of positions) {
+      assert.ok(p.notes.length >= 8, `${system} position ${p.index} has all degrees`);
+      assert.ok(p.notes.every((n) => n.finger >= 0 && n.finger <= 4));
+    }
+  }
+  assert.ok(neckNotes(7, dom.intervals, std, 15).length > 40);
+});
+
+test('Messiaen modes 1-7 exist exactly once, in the Symmetric group', () => {
+  const lib = buildLibrary(null);
+  for (const m of MESSIAEN_MODES) {
+    const hits = lib.scales.filter((s) => s.intervals.join() === m.intervals.join());
+    assert.equal(hits.length, 1, `mode ${m.mode} appears once`);
+    assert.equal(hits[0].group, 'Symmetric');
+  }
+  assert.match(lib.scales.find((s) => s.name === 'Whole Tone').alias, /messiaen mode 1/);
+  const catalog = { scales: [{ name: 'Diminished', intervals: [0, 1, 3, 4, 6, 7, 9, 10] }] };
+  const withDb = buildLibrary(catalog);
+  assert.equal(withDb.scales.filter((s) => s.intervals.length === 8 && s.intervals.join() === '0,1,3,4,6,7,9,10').length, 1, 'no duplicate of a database Diminished');
+  const sparse = buildLibrary(null).scales.filter((s) => s.group === 'Symmetric');
+  assert.equal(sparse.length, 7);
+});
+
+test('Messiaen modes are limited-transposition (symmetric)', () => {
+  for (const m of MESSIAEN_MODES) {
+    const set = new Set(m.intervals);
+    const transpositions = new Set();
+    for (let t = 0; t < 12; t++) transpositions.add([...set].map((iv) => (iv + t) % 12).sort((a, b) => a - b).join());
+    assert.ok(transpositions.size < 12, `mode ${m.mode}`);
+  }
 });
