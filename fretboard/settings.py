@@ -20,7 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 
-ALLOWED_HOSTS = ['*']
+# The public site lives only at https://fretboard.schoensgibl.com; localhost entries are for development.
+SITE_URL = 'https://fretboard.schoensgibl.com'
+ALLOWED_HOSTS = ['fretboard.schoensgibl.com', 'localhost', '127.0.0.1', '[::1]']
+CSRF_TRUSTED_ORIGINS = [SITE_URL]
 
 
 # Application definition
