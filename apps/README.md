@@ -187,11 +187,11 @@ PYTHON=../.venv/bin/python npm run icons
 |---|---|---|
 | iOS / iPadOS app icon | `app-icon-1024.png` (opaque, full bleed; the OS applies the mask) | `ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-1024.png` (single size) |
 | Mac Catalyst app icon | `app-icon-macos-1024.png` (Big Sur tile with transparent margin) | `AppIcon-mac-{16,32,128,256,512}@{1,2}x.png` in the same set, as `mac` idiom entries. Catalyst builds use these; iOS builds ignore them. Without them, Catalyst would show the square iOS icon unmasked. |
-| Android adaptive icon (API 26+) | foreground `app-icon-android-foreground-1024.png` on `#141414` | `android/app/src/main/res/mipmap-*/ic_launcher_foreground.png`, `values/ic_launcher_background.xml`, `mipmap-anydpi-v26/ic_launcher*.xml` |
+| Android adaptive icon (API 26+) | foreground `app-icon-android-foreground-1024.png` on `#f7f7f5` | `android/app/src/main/res/mipmap-*/ic_launcher_foreground.png`, `values/ic_launcher_background.xml`, `mipmap-anydpi-v26/ic_launcher*.xml` |
 | Android themed icon (13+) | foreground alpha in one colour | `mipmap-*/ic_launcher_monochrome.png` |
 | Android legacy icons (API 24-25) | `app-icon-1024.png` | `mipmap-*/ic_launcher.png` (square), `mipmap-*/ic_launcher_round.png` (circle) |
-| iOS launch screen | `app-icon-1024.png` centred on a 2732 px `#141414` square (aspect-fill) | `Assets.xcassets/Splash.imageset/`, and the background colour in `Base.lproj/LaunchScreen.storyboard` |
-| Android splash | `app-icon-1024.png` at half the short side, on `#141414` | `drawable*/splash.png`. Android 12+ shows the launcher icon on `windowSplashScreenBackground` (`#141414`, `values/styles.xml`) |
+| iOS launch screen | `app-icon-1024.png` centred on a 2732 px `#f7f7f5` square (aspect-fill) | `Assets.xcassets/Splash.imageset/`, and the background colour in `Base.lproj/LaunchScreen.storyboard` |
+| Android splash | `app-icon-1024.png` at half the short side, on `#f7f7f5` | `drawable*/splash.png`. Android 12+ shows the launcher icon on `windowSplashScreenBackground` (`#f7f7f5`, `values/styles.xml`) |
 
 `npm run macos` copies the committed asset catalogue and launch screen into its generated
 Catalyst project.
