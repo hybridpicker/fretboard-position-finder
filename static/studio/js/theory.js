@@ -99,6 +99,26 @@ export const SCALE_LIBRARY = [
   { name: 'Melodic Minor', intervals: [0, 2, 3, 5, 7, 9, 11] },
   { name: 'Harmonic Minor', intervals: [0, 2, 3, 5, 7, 8, 11] },
   { name: 'Whole Tone', intervals: [0, 2, 4, 6, 8, 10] },
+  // Bebop scales: a heptatonic scale plus one chromatic passing tone (8 notes)
+  { name: 'Bebop Dominant', intervals: [0, 2, 4, 5, 7, 9, 10, 11] },
+  { name: 'Bebop Major', intervals: [0, 2, 4, 5, 7, 8, 9, 11] },
+  { name: 'Bebop Dorian (Minor)', intervals: [0, 2, 3, 4, 5, 7, 9, 10] },
+  { name: 'Bebop Harmonic Minor', intervals: [0, 2, 3, 5, 7, 8, 10, 11] },
+  { name: 'Bebop Melodic Minor', intervals: [0, 2, 3, 5, 7, 8, 9, 11] },
+];
+
+/**
+ * Messiaen's modes of limited transposition. Mode 1 is the whole-tone scale and Mode 2 the half-whole
+ * diminished scale; both are matched by interval set so a database entry is never duplicated.
+ */
+export const MESSIAEN_MODES = [
+  { mode: 1, name: 'Whole Tone', intervals: [0, 2, 4, 6, 8, 10] },
+  { mode: 2, name: 'Messiaen Mode 2 (Diminished half-whole)', intervals: [0, 1, 3, 4, 6, 7, 9, 10] },
+  { mode: 3, name: 'Messiaen Mode 3', intervals: [0, 2, 3, 4, 6, 7, 8, 10, 11] },
+  { mode: 4, name: 'Messiaen Mode 4', intervals: [0, 1, 2, 5, 6, 7, 8, 11] },
+  { mode: 5, name: 'Messiaen Mode 5', intervals: [0, 1, 5, 6, 7, 11] },
+  { mode: 6, name: 'Messiaen Mode 6', intervals: [0, 2, 4, 5, 6, 8, 10, 11] },
+  { mode: 7, name: 'Messiaen Mode 7', intervals: [0, 1, 2, 3, 5, 6, 7, 8, 9, 11] },
 ];
 
 const SCALE_GROUPS = [
@@ -106,7 +126,8 @@ const SCALE_GROUPS = [
   ['Pentatonic & Blues', ['pentatonic', 'blues']],
   ['Melodic minor family', ['melodic minor', 'dorian b2', 'lydian augmented', 'lydian dominant', 'aeolian dominant', 'half diminished', 'altered', 'mixolydian b6']],
   ['Harmonic family', ['harmonic', 'locrian #6', 'major augmented', 'dorian #4', 'phrygian dominant', 'lydian #2', 'altered dominant bb7', 'dorian b5', 'phrygian b4', 'lydian b3', 'mixolydian b2', 'lydian augmented #2', 'locrian bb7']],
-  ['Symmetric', ['whole tone', 'diminished', 'augmented']],
+  ['Symmetric', ['whole tone', 'diminished', 'augmented', 'messiaen']],
+  ['Bebop', ['bebop']],
 ];
 
 // Fix spelling glitches carried in the database
@@ -151,6 +172,11 @@ export function buildLibrary(catalog) {
   };
   (catalog?.scales || []).forEach((s) => addScale(s, 'db'));
   SCALE_LIBRARY.forEach((s) => addScale(s, 'builtin'));
+  for (const m of MESSIAEN_MODES) {
+    const existing = scales.find((x) => sameSet(x.intervals, m.intervals));
+    if (existing) existing.alias = `${existing.alias || ''} messiaen mode ${m.mode}`.trim();
+    else addScale(m, 'builtin');
+  }
 
   const chords = CHORD_LIBRARY.map((c) => ({ ...c, key: slug(c.name), voicings: [], source: 'builtin' }));
   for (const dbChord of catalog?.chords || []) {
@@ -461,7 +487,11 @@ export function scalePositions(rootPc, intervals, tuning, { system = 'box', maxS
   const perStringCount = intervals.length <= 5 ? 2 : 3;
   starts.forEach((start, degree) => {
     let notes;
-    if (system === 'nps') notes = buildPerString(start, rootPc, intervals, tuning, perStringCount);
+    if (system === 'nps') {
+      notes = buildPerString(start, rootPc, intervals, tuning, perStringCount);
+      // Scales with chromatic passing tones can run out of frets below the nut: play that position an octave up
+      if (!notes.length && start < 12) notes = buildPerString(start + 12, rootPc, intervals, tuning, perStringCount);
+    }
     else if (isRegularTuning(tuning)) notes = buildBox(start, rootPc, intervals, tuning);
     else notes = buildWindow(start, rootPc, intervals, tuning);
     if (notes.length < intervals.length) return;
