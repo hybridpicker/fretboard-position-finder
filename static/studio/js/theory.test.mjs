@@ -5,7 +5,7 @@ import {
   TUNINGS, getTuning, scalePositions, assignFingers, findChordShapes, classifyVoicing,
   identifyChords, identifyScales, spellNote, intervalLabels, buildLibrary, voicingTemplateShapes,
   CHORD_LIBRARY, SCALE_LIBRARY, fingerStringGroup,
-  MESSIAEN_MODES, neckNotes,
+  parseChordQuery, scalesForChord, MESSIAEN_MODES, neckNotes,
 } from './theory.js';
 
 const std = getTuning('standard');
@@ -171,6 +171,49 @@ test('chord types without database voicings get V-System voicings derived from M
   assert.equal(shapes.length, 4);
   assert.ok(lib.chords.find((c) => c.symbol === 'm6').vsDerived);
   assert.equal(lib.chords.find((c) => c.symbol === '5').voicings.length, 0, 'power chords have no V-System');
+});
+
+// ---- Chord symbol search (#1) ------------------------------------------------
+test('parseChordQuery reads root and quality', () => {
+  const lib = buildLibrary(null);
+  const parse = (q) => parseChordQuery(q, lib.chords);
+  const em7 = parse('Em7');
+  assert.equal(em7.root, 4);
+  assert.deepEqual(em7.chords.map((c) => c.name), ['Minor 7']);
+  assert.equal(parse('em7').root, 4, 'case-insensitive root');
+  assert.equal(parse('EM7').chords[0].name, 'Major 7', 'capital M means major');
+  const f = parse('F#m7b5');
+  assert.equal(f.root, 6);
+  assert.equal(f.chords[0].name, 'Minor 7b5');
+  assert.equal(parse('Bbmaj7').root, 10);
+  assert.equal(parse('Eb7').chords[0].name, 'Dominant 7');
+  assert.equal(parse('Ab5').chords[0].name, 'Power chord');
+  assert.equal(parse('C-7').chords[0].name, 'Minor 7');
+});
+
+test('"maj7#11" and "Major 7#11" are the same chord, with or without root', () => {
+  const lib = buildLibrary(null);
+  const a = parseChordQuery('Maj7#11', lib.chords);
+  const b = parseChordQuery('major 7#11', lib.chords);
+  assert.equal(a.root, null);
+  assert.equal(a.chords[0].key, b.chords[0].key);
+  assert.equal(parseChordQuery('Dmaj7#11', lib.chords).root, 2);
+  assert.equal(parseChordQuery('Add9', lib.chords).chords[0].name, 'Add 9', 'A + "dd9" falls back to the whole word');
+  assert.equal(parseChordQuery('dim', lib.chords).root, null);
+});
+
+test('parseChordQuery ignores bare roots and plain words', () => {
+  const lib = buildLibrary(null);
+  assert.equal(parseChordQuery('E', lib.chords), null);
+  assert.equal(parseChordQuery('Bb', lib.chords), null);
+  assert.equal(parseChordQuery('dorian', lib.chords), null);
+});
+
+test('Em7 suggests Dorian, Phrygian and Aeolian on E', () => {
+  const lib = buildLibrary(null);
+  const names = scalesForChord(4, [0, 3, 7, 10], lib.scales).map((x) => x.scale.name);
+  for (const n of ['Dorian', 'Phrygian', 'Aeolian (Natural Minor)']) assert.ok(names.includes(n), n);
+  assert.ok(!names.includes('Lydian'));
 });
 
 // ---- Bebop / Messiaen (#2, #4) -----------------------------------------------
