@@ -2,7 +2,7 @@
 import {
   ROOT_NAMES, NOTE_SHARP, NOTE_FLAT, TUNINGS, getTuning, mod12, pretty, buildLibrary, spellCollection,
   intervalRole, neckNotes, scalePositions, findChordShapes, voicingTemplateShapes, assignFingers,
-  identifyChords, identifyScales, midiName, DB_STRING_NUMBERS,
+  identifyChords, identifyScales, midiName, DB_STRING_NUMBERS, parseChordQuery, scalesForChord,
 } from './theory.js';
 import { renderFretboard, pulseNote } from './fretboard.js';
 import { chordDiagram } from './diagram.js';
@@ -443,22 +443,59 @@ function typeList() {
   return library.scales;
 }
 
+const SUGGESTION_MODES = { chord: 'Chord', vsystem: 'V-System', arpeggio: 'Arpeggio', scale: 'Scale' };
+
+/** Cross-mode suggestions for a typed chord symbol ("Em7", "Maj7#11") or "<root> <scale name>". */
+function searchSuggestions(query) {
+  const out = [];
+  const parsed = parseChordQuery(query, library.chords);
+  if (parsed) {
+    const root = parsed.root ?? state.root;
+    const rootLabel = parsed.rootName ? parsed.rootName : rootName(root);
+    for (const chord of parsed.chords.slice(0, 2)) {
+      const title = `${rootLabel}${chord.symbol || ' ' + chord.name}`;
+      out.push({ kind: 'chord', mode: 'chord', key: chord.key, root, label: title, hint: 'Chord shapes' });
+      if (chord.voicings.length) out.push({ kind: 'vsystem', mode: 'chord', key: chord.key, root, source: 'vsystem', label: title, hint: 'V-System voicings' });
+      const arp = library.arpeggios.find((a) => a.intervals.join() === [...chord.intervals].sort((x, y) => x - y).join());
+      if (arp) out.push({ kind: 'arpeggio', mode: 'arpeggio', key: arp.key, root, label: title, hint: 'Arpeggio' });
+      scalesForChord(root, chord.intervals, library.scales, 6)
+        .forEach((m) => out.push({ kind: 'scale', mode: 'scale', key: m.scale.key, root, label: `${rootLabel} ${m.scale.name}`, hint: 'Fits the chord' }));
+    }
+    return out;
+  }
+  const m = /^([A-Ga-g])([#b♯♭]?)\s+(.{3,})$/.exec(query.trim());
+  if (m) {
+    const root = pcOfName((m[1] + m[2]).replace('♯', '#').replace('♭', 'b'));
+    const text = m[3].toLowerCase();
+    library.scales.filter((sc) => `${sc.name} ${sc.alias || ''}`.toLowerCase().includes(text)).slice(0, 6)
+      .forEach((sc) => out.push({ kind: 'scale', mode: 'scale', key: sc.key, root, label: `${(m[1] + m[2]).toUpperCase()[0]}${m[2]} ${sc.name}`, hint: 'Scale' }));
+  }
+  return out;
+}
+
 function renderTypeList(filter = '') {
   const list = typeList();
   const q = filter.trim().toLowerCase();
   const current = currentType().key;
   const groups = {};
+  const suggestions = q ? searchSuggestions(filter) : [];
   list.forEach((item) => {
-    const hay = `${item.name} ${item.symbol || ''}`.toLowerCase();
+    const hay = `${item.name} ${item.symbol || ''} ${item.alias || ''}`.toLowerCase();
     if (q && !hay.includes(q)) return;
     (groups[item.group] = groups[item.group] || []).push(item);
   });
-  const html = Object.entries(groups).map(([group, items]) => `<div class="combo-group">${group}</div>` + items.map((item) => `
+  const suggestionHtml = suggestions.length ? `<div class="combo-group">Suggestions for ${pretty(filter.trim())}</div>` + suggestions.map((sg) => `
+    <button class="combo-item combo-suggest" role="option" aria-selected="false" data-mode="${sg.mode}" data-key="${sg.key}" data-root="${sg.root}"${sg.source ? ` data-source="${sg.source}"` : ''}>
+      <span>${pretty(sg.label)}<span class="tag">${SUGGESTION_MODES[sg.kind]}</span></span>
+      <small>${sg.hint}</small>
+    </button>`).join('') : '';
+  const html = suggestionHtml + Object.entries(groups).map(([group, items]) => `<div class="combo-group">${group}</div>` + items.map((item) => `
     <button class="combo-item" role="option" data-key="${item.key}" aria-selected="${item.key === current}">
       <span>${item.name}${item.symbol ? ` <small>${pretty(item.symbol)}</small>` : ''}${item.voicings?.length ? '<span class="tag">V-System</span>' : ''}</span>
       <small>${item.intervals.length} notes</small>
     </button>`).join('')).join('');
   $('#typeList').innerHTML = html || '<div class="combo-group">No match</div>';
+  if (suggestions.length) $('#typeList').querySelector('.combo-item')?.classList.add('active');
 }
 
 function openTypePanel(open) {
@@ -542,6 +579,14 @@ function bind() {
   $('#typeList').addEventListener('click', (e) => {
     const b = e.target.closest('.combo-item');
     if (!b) return;
+    if (b.dataset.mode) {
+      // Suggestion from another mode: switch view, root and type together
+      state.mode = b.dataset.mode;
+      state.root = parseInt(b.dataset.root, 10);
+      state.bass = 'any';
+      if (state.mode === 'chord') state.source = b.dataset.source || 'finder';
+      if (state.mode !== 'chord') state.position = 1;
+    }
     setType(b.dataset.key);
     state.selected = 0;
     state.position = Math.min(state.position, 1) || state.position;
@@ -626,7 +671,7 @@ function bind() {
     if (chip && state.sound) playNote(parseInt(chip.dataset.midi, 10));
   });
 
-  $('#namer').addEventListener('click', (e) => {
+  const openFromButton = (e) => {
     const chordBtn = e.target.closest('[data-open-chord]');
     const scaleBtn = e.target.closest('[data-open-scale]');
     if (chordBtn) {
@@ -642,7 +687,8 @@ function bind() {
       state.position = 1;
       render();
     }
-  });
+  };
+  $('#namer').addEventListener('click', openFromButton);
   $('#namerClear').addEventListener('click', () => { state.identify = []; render(); });
   $('#namerPlay').addEventListener('click', () => play());
 

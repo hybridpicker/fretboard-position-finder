@@ -842,3 +842,98 @@ export function identifyScales(pcs, scaleLibrary, preferRoot = null) {
   out.sort((a, b) => a.score - b.score);
   return out.slice(0, 12);
 }
+
+// ---------------------------------------------------------------------------
+// Chord symbol search ("Em7", "Maj7#11", "F#m7b5")
+// ---------------------------------------------------------------------------
+// Extra spellings people type for the library's chord qualities (keys: normalised library symbol).
+const QUALITY_ALIASES = {
+  '': ['maj', 'major', 'ma'],
+  m: ['min', 'minor', 'mi', '-'],
+  dim: ['o', '°', 'diminished'],
+  aug: ['+', 'augmented'],
+  sus4: ['sus'],
+  maj7: ['ma7', 'major7', 'Δ', 'Δ7'],
+  7: ['dom7', 'dominant7', 'dominant'],
+  m7: ['min7', 'mi7', 'minor7', '-7'],
+  m7b5: ['ø', 'ø7', 'min7b5', 'm7-5', 'halfdim', 'halfdiminished'],
+  dim7: ['o7', '°7'],
+  'mmaj7': ['minmaj7', 'mmaj7', 'm#7', '-maj7'],
+  '7#5': ['aug7', '+7', '7+5'],
+  'maj7#5': ['maj7+5', '+maj7'],
+  m6: ['min6', 'minor6', '-6'],
+  add9: ['add2'],
+  madd9: ['minadd9', 'm(add9)'],
+  maj9: ['ma9', 'major9', 'Δ9'],
+  m9: ['min9', 'minor9', '-9'],
+  '7b9': ['7-9'],
+  '7#9': ['7+9'],
+  '7b5': ['7-5'],
+  m11: ['min11', 'minor11', '-11'],
+};
+
+/** Lowercase, drop spaces and parentheses, unify accidental glyphs. */
+function normaliseQuality(text) {
+  return text.replace(/[♯]/g, '#').replace(/[♭]/g, 'b').replace(/[\s()]/g, '').toLowerCase();
+}
+
+/** Resolve the quality part of a chord symbol to library entries (by interval-set identity). */
+export function findChordQuality(text, chordLibrary) {
+  const raw = text.replace(/[\s()]/g, '').replace(/♯/g, '#').replace(/♭/g, 'b');
+  // A capital M followed by nothing or a digit means major ("M7" is not "m7")
+  const capitalM = /^M(?!in|a|i)(\d.*)?$/.exec(raw);
+  const norm = capitalM ? (capitalM[1] ? `maj${capitalM[1]}` : 'maj') : normaliseQuality(raw);
+  if (!norm && raw !== '') return [];
+  const hits = [];
+  for (const chord of chordLibrary) {
+    const sym = normaliseQuality(chord.symbol || '').trim();
+    const aliasList = (QUALITY_ALIASES[sym] || []).map(normaliseQuality);
+    const candidates = new Set([sym, normaliseQuality(chord.name), normaliseQuality(chord.dbName || ''), ...aliasList]);
+    if (chord.symbol !== undefined && candidates.has(norm) && (norm !== '' || sym === '')) hits.push(chord);
+  }
+  return hits;
+}
+
+/**
+ * Parse a search string such as "Em7", "F#m7b5" or "maj7#11".
+ * Returns { root (pitch class or null), rootName, quality, chords: [library entries] } or null.
+ * A bare root ("E") is not treated as a chord symbol so plain-text search keeps working.
+ */
+export function parseChordQuery(text, chordLibrary) {
+  const q = text.trim();
+  if (!q) return null;
+  const m = /^([A-Ga-g])([#b♯♭]?)\s*(.*)$/.exec(q);
+  const attempts = [];
+  if (m) {
+    if (m[2]) attempts.push({ rootName: m[1].toUpperCase() + m[2].replace('♯', '#').replace('♭', 'b'), rest: m[3] });
+    attempts.push({ rootName: m[1].toUpperCase(), rest: m[2] + m[3] });
+  }
+  attempts.push({ rootName: null, rest: q });
+  for (const { rootName, rest } of attempts) {
+    if (rootName && !rest.trim()) continue;
+    const chords = findChordQuality(rest, chordLibrary);
+    if (!chords.length) continue;
+    let root = null;
+    if (rootName) {
+      root = mod12(LETTER_PC[rootName[0]] + (rootName.includes('#') ? 1 : 0) - (rootName.slice(1).includes('b') ? 1 : 0));
+    }
+    return { root, rootName, quality: rest.trim(), chords };
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Chord <-> scale fit (shared by search suggestions and the scale view)
+// ---------------------------------------------------------------------------
+const pcSet = (root, intervals) => intervals.map((iv) => mod12(iv + root));
+const isSubset = (small, big) => small.every((pc) => big.includes(pc));
+
+/** Scales on `rootPc` that contain every chord tone, most idiomatic and tightest fit first. */
+export function scalesForChord(rootPc, chordIntervals, scaleLibrary, limit = 8) {
+  const chordPcs = pcSet(rootPc, chordIntervals);
+  return scaleLibrary
+    .filter((scale) => isSubset(chordPcs, pcSet(rootPc, scale.intervals)))
+    .map((scale) => ({ scale, root: rootPc, score: (scale.intervals.length - chordIntervals.length) * 0.5 + scalePopularity(scale.name) }))
+    .sort((a, b) => a.score - b.score)
+    .slice(0, limit);
+}
