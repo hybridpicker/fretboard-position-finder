@@ -7,7 +7,7 @@
   <meta name="description" content="{{ meta_description|default:'Find every scale, arpeggio and chord on the guitar fretboard with fingerings, playable chord shapes, drop voicings and a chord namer. Free for all guitarists.' }}">
   <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/">
+  <link rel="canonical" href="https://fretboard.schoensgibl.com/">
   <meta property="og:title" content="{{ og_title|default:'Guitar Positions | Fretboard Studio' }}">
   <meta property="og:description" content="{{ og_description|default:'Scales, arpeggios and chords with fingerings on an interactive fretboard.' }}">
   <meta property="og:image" content="{% static 'thumbnail/facebook/thumb_25.jpg' %}">
@@ -20,7 +20,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Guitar Positions">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <link rel="stylesheet" href="{% static 'studio/studio.css' %}?v={{ APP_VERSION }}">
   <script>
     // Apply the saved theme before first paint to avoid a flash
@@ -108,6 +108,8 @@
         </div>
       </div>
     </section>
+
+    <section class="scale-chords" id="scaleChords" aria-label="Chords in this scale" hidden></section>
 
     <section class="finder" id="finder" hidden>
       <div class="source-tabs" id="sourceSeg" role="tablist" aria-label="Shape source">

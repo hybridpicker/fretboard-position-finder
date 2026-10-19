@@ -99,6 +99,26 @@ export const SCALE_LIBRARY = [
   { name: 'Melodic Minor', intervals: [0, 2, 3, 5, 7, 9, 11] },
   { name: 'Harmonic Minor', intervals: [0, 2, 3, 5, 7, 8, 11] },
   { name: 'Whole Tone', intervals: [0, 2, 4, 6, 8, 10] },
+  // Bebop scales: a heptatonic scale plus one chromatic passing tone (8 notes)
+  { name: 'Bebop Dominant', intervals: [0, 2, 4, 5, 7, 9, 10, 11] },
+  { name: 'Bebop Major', intervals: [0, 2, 4, 5, 7, 8, 9, 11] },
+  { name: 'Bebop Dorian (Minor)', intervals: [0, 2, 3, 4, 5, 7, 9, 10] },
+  { name: 'Bebop Harmonic Minor', intervals: [0, 2, 3, 5, 7, 8, 10, 11] },
+  { name: 'Bebop Melodic Minor', intervals: [0, 2, 3, 5, 7, 8, 9, 11] },
+];
+
+/**
+ * Messiaen's modes of limited transposition. Mode 1 is the whole-tone scale and Mode 2 the half-whole
+ * diminished scale; both are matched by interval set so a database entry is never duplicated.
+ */
+export const MESSIAEN_MODES = [
+  { mode: 1, name: 'Whole Tone', intervals: [0, 2, 4, 6, 8, 10] },
+  { mode: 2, name: 'Messiaen Mode 2 (Diminished half-whole)', intervals: [0, 1, 3, 4, 6, 7, 9, 10] },
+  { mode: 3, name: 'Messiaen Mode 3', intervals: [0, 2, 3, 4, 6, 7, 8, 10, 11] },
+  { mode: 4, name: 'Messiaen Mode 4', intervals: [0, 1, 2, 5, 6, 7, 8, 11] },
+  { mode: 5, name: 'Messiaen Mode 5', intervals: [0, 1, 5, 6, 7, 11] },
+  { mode: 6, name: 'Messiaen Mode 6', intervals: [0, 2, 4, 5, 6, 8, 10, 11] },
+  { mode: 7, name: 'Messiaen Mode 7', intervals: [0, 1, 2, 3, 5, 6, 7, 8, 9, 11] },
 ];
 
 const SCALE_GROUPS = [
@@ -106,7 +126,8 @@ const SCALE_GROUPS = [
   ['Pentatonic & Blues', ['pentatonic', 'blues']],
   ['Melodic minor family', ['melodic minor', 'dorian b2', 'lydian augmented', 'lydian dominant', 'aeolian dominant', 'half diminished', 'altered', 'mixolydian b6']],
   ['Harmonic family', ['harmonic', 'locrian #6', 'major augmented', 'dorian #4', 'phrygian dominant', 'lydian #2', 'altered dominant bb7', 'dorian b5', 'phrygian b4', 'lydian b3', 'mixolydian b2', 'lydian augmented #2', 'locrian bb7']],
-  ['Symmetric', ['whole tone', 'diminished', 'augmented']],
+  ['Symmetric', ['whole tone', 'diminished', 'augmented', 'messiaen']],
+  ['Bebop', ['bebop']],
 ];
 
 // Fix spelling glitches carried in the database
@@ -151,6 +172,11 @@ export function buildLibrary(catalog) {
   };
   (catalog?.scales || []).forEach((s) => addScale(s, 'db'));
   SCALE_LIBRARY.forEach((s) => addScale(s, 'builtin'));
+  for (const m of MESSIAEN_MODES) {
+    const existing = scales.find((x) => sameSet(x.intervals, m.intervals));
+    if (existing) existing.alias = `${existing.alias || ''} messiaen mode ${m.mode}`.trim();
+    else addScale(m, 'builtin');
+  }
 
   const chords = CHORD_LIBRARY.map((c) => ({ ...c, key: slug(c.name), voicings: [], source: 'builtin' }));
   for (const dbChord of catalog?.chords || []) {
@@ -461,7 +487,11 @@ export function scalePositions(rootPc, intervals, tuning, { system = 'box', maxS
   const perStringCount = intervals.length <= 5 ? 2 : 3;
   starts.forEach((start, degree) => {
     let notes;
-    if (system === 'nps') notes = buildPerString(start, rootPc, intervals, tuning, perStringCount);
+    if (system === 'nps') {
+      notes = buildPerString(start, rootPc, intervals, tuning, perStringCount);
+      // Scales with chromatic passing tones can run out of frets below the nut: play that position an octave up
+      if (!notes.length && start < 12) notes = buildPerString(start + 12, rootPc, intervals, tuning, perStringCount);
+    }
     else if (isRegularTuning(tuning)) notes = buildBox(start, rootPc, intervals, tuning);
     else notes = buildWindow(start, rootPc, intervals, tuning);
     if (notes.length < intervals.length) return;
@@ -811,4 +841,129 @@ export function identifyScales(pcs, scaleLibrary, preferRoot = null) {
   }
   out.sort((a, b) => a.score - b.score);
   return out.slice(0, 12);
+}
+
+// ---------------------------------------------------------------------------
+// Chord symbol search ("Em7", "Maj7#11", "F#m7b5")
+// ---------------------------------------------------------------------------
+// Extra spellings people type for the library's chord qualities (keys: normalised library symbol).
+const QUALITY_ALIASES = {
+  '': ['maj', 'major', 'ma'],
+  m: ['min', 'minor', 'mi', '-'],
+  dim: ['o', '°', 'diminished'],
+  aug: ['+', 'augmented'],
+  sus4: ['sus'],
+  maj7: ['ma7', 'major7', 'Δ', 'Δ7'],
+  7: ['dom7', 'dominant7', 'dominant'],
+  m7: ['min7', 'mi7', 'minor7', '-7'],
+  m7b5: ['ø', 'ø7', 'min7b5', 'm7-5', 'halfdim', 'halfdiminished'],
+  dim7: ['o7', '°7'],
+  'mmaj7': ['minmaj7', 'mmaj7', 'm#7', '-maj7'],
+  '7#5': ['aug7', '+7', '7+5'],
+  'maj7#5': ['maj7+5', '+maj7'],
+  m6: ['min6', 'minor6', '-6'],
+  add9: ['add2'],
+  madd9: ['minadd9', 'm(add9)'],
+  maj9: ['ma9', 'major9', 'Δ9'],
+  m9: ['min9', 'minor9', '-9'],
+  '7b9': ['7-9'],
+  '7#9': ['7+9'],
+  '7b5': ['7-5'],
+  m11: ['min11', 'minor11', '-11'],
+};
+
+/** Lowercase, drop spaces and parentheses, unify accidental glyphs. */
+function normaliseQuality(text) {
+  return text.replace(/[♯]/g, '#').replace(/[♭]/g, 'b').replace(/[\s()]/g, '').toLowerCase();
+}
+
+/** Resolve the quality part of a chord symbol to library entries (by interval-set identity). */
+export function findChordQuality(text, chordLibrary) {
+  const raw = text.replace(/[\s()]/g, '').replace(/♯/g, '#').replace(/♭/g, 'b');
+  // A capital M followed by nothing or a digit means major ("M7" is not "m7")
+  const capitalM = /^M(?!in|a|i)(\d.*)?$/.exec(raw);
+  const norm = capitalM ? (capitalM[1] ? `maj${capitalM[1]}` : 'maj') : normaliseQuality(raw);
+  if (!norm && raw !== '') return [];
+  const hits = [];
+  for (const chord of chordLibrary) {
+    const sym = normaliseQuality(chord.symbol || '').trim();
+    const aliasList = (QUALITY_ALIASES[sym] || []).map(normaliseQuality);
+    const candidates = new Set([sym, normaliseQuality(chord.name), normaliseQuality(chord.dbName || ''), ...aliasList]);
+    if (chord.symbol !== undefined && candidates.has(norm) && (norm !== '' || sym === '')) hits.push(chord);
+  }
+  return hits;
+}
+
+/**
+ * Parse a search string such as "Em7", "F#m7b5" or "maj7#11".
+ * Returns { root (pitch class or null), rootName, quality, chords: [library entries] } or null.
+ * A bare root ("E") is not treated as a chord symbol so plain-text search keeps working.
+ */
+export function parseChordQuery(text, chordLibrary) {
+  const q = text.trim();
+  if (!q) return null;
+  const m = /^([A-Ga-g])([#b♯♭]?)\s*(.*)$/.exec(q);
+  const attempts = [];
+  if (m) {
+    if (m[2]) attempts.push({ rootName: m[1].toUpperCase() + m[2].replace('♯', '#').replace('♭', 'b'), rest: m[3] });
+    attempts.push({ rootName: m[1].toUpperCase(), rest: m[2] + m[3] });
+  }
+  attempts.push({ rootName: null, rest: q });
+  for (const { rootName, rest } of attempts) {
+    if (rootName && !rest.trim()) continue;
+    const chords = findChordQuality(rest, chordLibrary);
+    if (!chords.length) continue;
+    let root = null;
+    if (rootName) {
+      root = mod12(LETTER_PC[rootName[0]] + (rootName.includes('#') ? 1 : 0) - (rootName.slice(1).includes('b') ? 1 : 0));
+    }
+    return { root, rootName, quality: rest.trim(), chords };
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Chord <-> scale fit (shared by search suggestions and the scale view)
+// ---------------------------------------------------------------------------
+const pcSet = (root, intervals) => intervals.map((iv) => mod12(iv + root));
+const isSubset = (small, big) => small.every((pc) => big.includes(pc));
+
+/** Scales on `rootPc` that contain every chord tone, most idiomatic and tightest fit first. */
+export function scalesForChord(rootPc, chordIntervals, scaleLibrary, limit = 8) {
+  const chordPcs = pcSet(rootPc, chordIntervals);
+  return scaleLibrary
+    .filter((scale) => isSubset(chordPcs, pcSet(rootPc, scale.intervals)))
+    .map((scale) => ({ scale, root: rootPc, score: (scale.intervals.length - chordIntervals.length) * 0.5 + scalePopularity(scale.name) }))
+    .sort((a, b) => a.score - b.score)
+    .slice(0, limit);
+}
+
+/**
+ * Chords that live inside a scale.
+ * diatonic: for heptatonic scales the stacked-thirds triads and sevenths per degree.
+ * others: every library chord (3+ notes) on every scale degree whose notes are a subset of the scale.
+ */
+export function chordsForScale(rootPc, scaleIntervals, chordLibrary) {
+  const sorted = [...scaleIntervals].sort((a, b) => a - b);
+  const scalePcs = pcSet(rootPc, sorted);
+  const find = (intervals) => chordLibrary.find((c) => sameSet(c.intervals, intervals));
+  const diatonic = [];
+  if (sorted.length === 7) {
+    sorted.forEach((iv, degree) => {
+      const stack = (steps) => steps.map((k) => mod12(sorted[(degree + k) % 7] - iv)).sort((a, b) => a - b);
+      diatonic.push({
+        degree, interval: iv, root: mod12(rootPc + iv),
+        triad: find(stack([0, 2, 4])), seventh: find(stack([0, 2, 4, 6])),
+      });
+    });
+  }
+  const others = [];
+  for (const iv of sorted) {
+    const root = mod12(rootPc + iv);
+    for (const chord of chordLibrary) {
+      if (chord.intervals.length < 3) continue;
+      if (isSubset(pcSet(root, chord.intervals), scalePcs)) others.push({ root, interval: iv, chord });
+    }
+  }
+  return { diatonic, others };
 }
