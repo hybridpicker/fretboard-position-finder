@@ -24,7 +24,7 @@ from PIL import Image, ImageDraw
 
 APPS = Path(__file__).resolve().parent.parent
 MASTERS = APPS.parent / 'static' / 'studio' / 'icons'
-BACKGROUND = '#141414'
+BACKGROUND = '#f7f7f5'
 
 IOS_ASSETS = APPS / 'ios' / 'App' / 'App' / 'Assets.xcassets'
 ANDROID_RES = APPS / 'android' / 'app' / 'src' / 'main' / 'res'
