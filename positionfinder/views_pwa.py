@@ -38,6 +38,7 @@ SHELL_ASSETS = (
     ('studio/js/grid.js', False),
     ('studio/js/pdf.js', False),
     ('studio/js/sheet.js', False),
+    ('studio/js/songs.js', False),
     ('studio/js/audio.js', False),
     ('studio/manifest.webmanifest', False),
     ('studio/icons/icon-192.png', False),

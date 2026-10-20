@@ -7,7 +7,9 @@ import {
 } from './theory.js';
 import { renderFretboard, pulseNote } from './fretboard.js';
 import { chordDiagram } from './diagram.js';
-import { scaleSheet, chordSheet, pdfFileName } from './sheet.js';
+import { scaleSheet, chordSheet, songSheet, pdfFileName } from './sheet.js';
+import { chordGrid, gridSvg } from './grid.js';
+import { emptySong, encodeSong, decodeSong, sameSong, moveItem } from './songs.js';
 import { playNote, strum, playSequence, stopSequence, isSequencePlaying } from './audio.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -18,7 +20,7 @@ const store = {
 };
 
 const library = buildLibrary(readJSON('catalog-data'));
-const MODE_NAMES = { scale: 'Scale', arpeggio: 'Arpeggio', chord: 'Chord', identify: 'Chord Namer' };
+const MODE_NAMES = { scale: 'Scale', arpeggio: 'Arpeggio', chord: 'Chord', identify: 'Chord Namer', song: 'Songs' };
 
 // ---------------------------------------------------------------------------
 // State
@@ -41,6 +43,9 @@ const state = {
   bpm: store.get('bpm', 110),
   identify: [],
   pinFrets: null, // voicing requested by a shared link, selected once the chord view is built
+  songs: (() => { const list = store.get('songs', []); return Array.isArray(list) ? list : []; })(),
+  songId: store.get('songId', null),
+  sharedSong: null, // a song opened from a link that is not saved in this browser yet
 };
 
 function readUrl() {
@@ -82,6 +87,12 @@ function readUrl() {
   if (p.get('bass') !== null && /^(any|\d{1,2})$/.test(p.get('bass'))) state.bass = p.get('bass');
   if (['all', 'open', 'mid', 'high'].includes(p.get('neck'))) state.neck = p.get('neck');
   if (p.get('v')) state.pinFrets = parseFrets(p.get('v'));
+  if (state.mode === 'song') {
+    const shared = decodeSong((k) => p.get(k));
+    const saved = shared && state.songs.find((sg) => sameSong(sg, shared));
+    if (saved) state.songId = saved.id;
+    else if (shared) state.sharedSong = shared;
+  }
 }
 
 const parseFrets = (text) => text.split(',').map((v) => (v === 'x' ? -1 : Math.max(-1, Math.min(30, parseInt(v, 10) || 0))));
@@ -95,7 +106,10 @@ function pcOfName(name) {
 function writeUrl() {
   const p = new URLSearchParams();
   p.set('mode', state.mode);
-  if (state.mode !== 'identify') {
+  if (state.mode === 'song') {
+    const song = currentSong();
+    if (song) Object.entries(encodeSong(song)).forEach(([k, v]) => p.set(k, v));
+  } else if (state.mode !== 'identify') {
     p.set('root', ROOT_NAMES[state.root]);
     p.set('type', currentType().key);
   }
@@ -118,8 +132,8 @@ function writeUrl() {
   }
   if (state.tuning !== 'standard') p.set('tun', state.tuning);
   if (state.labels !== 'intervals') p.set('lab', state.labels);
-  // Keep fret lists readable in shared links (x,3,2,0,1,0 rather than x%2C3%2C…)
-  history.replaceState(null, '', `${location.pathname}?${p.toString().replace(/%2C/g, ',')}`);
+  // Keep fret lists and song chords readable in shared links (x,3,2,0,1,0 rather than x%2C3%2C…)
+  history.replaceState(null, '', `${location.pathname}?${p.toString().replace(/%2C/g, ',').replace(/%3B/g, ';')}`);
 }
 
 /** The current view as a link on the public site (also from the native apps and local dev). */
@@ -207,6 +221,24 @@ function currentSheet() {
       chords: view.shapes.map((sh) => chordCell(sh, state.root, type.intervals, `${name}${sh.bassInterval ? `/${pretty(view.names[sh.bassInterval])}` : ''}`, view.labels, view.names)),
     });
   }
+  if (state.mode === 'song') {
+    const song = currentSong();
+    if (!song) return null;
+    const items = song.items.map((it) => {
+      if (it.section !== undefined) return { section: it.section };
+      const c = songChord(it);
+      return c ? { name: c.name, meta: c.meta, frets: it.frets, barres: c.shape.barres, labels: c.labels, roots: c.roots } : null;
+    }).filter(Boolean);
+    const count = items.filter((it) => it.section === undefined).length;
+    return songSheet({
+      title: song.title || 'Untitled song',
+      note: song.note,
+      link,
+      strings: Math.max(...items.filter((it) => it.frets).map((it) => it.frets.length), strings),
+      lines: [`${count} chord${count === 1 ? '' : 's'} · ${t.name} · dots: ${state.labels === 'notes' ? 'note names' : 'intervals'} (filled = root)`],
+      items,
+    });
+  }
   if (state.mode === 'identify' && view.best) {
     const { best } = view;
     const names = state.spelling === 'flat' ? NOTE_FLAT : state.spelling === 'sharp' ? NOTE_SHARP : ROOT_NAMES;
@@ -246,7 +278,7 @@ async function savePdf(pdf) {
 
 function exportPdf() {
   const pdf = currentSheet();
-  if (!pdf) { toast('Place some notes first'); return; }
+  if (!pdf) { toast(state.mode === 'song' ? 'Create a song first' : 'Place some notes first'); return; }
   savePdf(pdf).then(() => toast('PDF ready')).catch(() => toast('Could not create the PDF'));
 }
 
@@ -419,7 +451,10 @@ function render() {
   const isIdentify = state.mode === 'identify';
   const isChord = state.mode === 'chord';
   const isScaleLike = state.mode === 'scale' || state.mode === 'arpeggio';
-  $('.selector').hidden = isIdentify;
+  const isSong = state.mode === 'song';
+  $('.selector').hidden = isIdentify || isSong;
+  $('#board').hidden = isSong;
+  $('#songs').hidden = !isSong;
   $('#controls').hidden = !isScaleLike && !isChord;
   $('#positionsBar').hidden = !isScaleLike;
   $('#systemSeg').hidden = state.mode !== 'scale';
@@ -429,16 +464,17 @@ function render() {
 
   if (isIdentify) view = computeIdentifyView();
   else if (isChord) view = computeChordView();
+  else if (isSong) view = { notes: [], sequence: [], song: currentSong() };
   else view = computeScaleView();
 
   renderKeys();
   renderHeadline();
-  renderBoard();
-  renderLegend();
+  if (!isSong) { renderBoard(); renderLegend(); }
   if (isScaleLike) renderPositions();
   if (isChord) renderFinder();
   renderScaleChords();
   if (isIdentify) renderNamer();
+  if (isSong) renderSongs();
   syncSegs();
   writeUrl();
 }
@@ -449,6 +485,15 @@ function renderKeys() {
 }
 
 function renderHeadline() {
+  if (state.mode === 'song') {
+    const song = currentSong();
+    $('#eyebrow').textContent = song ? `Songs & exercises · ${song.items.filter((it) => it.section === undefined).length} chords` : 'Songs & exercises';
+    $('#title').textContent = song ? song.title || 'Untitled song' : 'Songs';
+    document.title = `${song ? `${song.title} — ` : ''}Songs — Guitar Positions`;
+    $('#chips').innerHTML = '';
+    $('#typeLabel').textContent = '';
+    return;
+  }
   if (state.mode === 'identify') {
     $('#eyebrow').textContent = 'Chord Namer';
     $('#title').textContent = view.best ? pretty(view.best.name) : 'Build a chord';
@@ -532,6 +577,12 @@ function renderFinder() {
     if (state.vrange !== 'all' && !ranges.includes(state.vrange)) state.vrange = 'all';
     rs.innerHTML = ['<option value="all">All string sets</option>'].concat(ranges.map((r) => `<option value="${r}" ${state.vrange === r ? 'selected' : ''}>Strings ${r}</option>`)).join('');
   }
+
+  const target = $('#songTarget');
+  const selected = state.songs.some((sg) => sg.id === state.songId) ? state.songId : 'new';
+  target.innerHTML = state.songs.map((sg) => `<option value="${sg.id}"${sg.id === selected ? ' selected' : ''}>${escHtml(sg.title || 'Untitled song')}</option>`).join('')
+    + `<option value="new"${selected === 'new' ? ' selected' : ''}>New song</option>`;
+  $('#addSongBtn').disabled = !view.shape;
 
   const shapes = view.shapes;
   const chordName = pretty(rootName() + (type.symbol || ''));
@@ -642,6 +693,182 @@ function syncSegs() {
 }
 
 // ---------------------------------------------------------------------------
+// Songs & exercises (stored in this browser, shared as links)
+// ---------------------------------------------------------------------------
+function currentSong() {
+  return state.sharedSong || state.songs.find((sg) => sg.id === state.songId) || null;
+}
+
+function saveSongs() {
+  store.set('songs', state.songs);
+  store.set('songId', state.songId);
+}
+
+const tuningForStrings = (count) => (tuning().midi.length === count ? tuning() : TUNINGS.find((t) => t.midi.length === count) || tuning());
+
+/** Resolve a song item to its chord type, shape, name and dot labels. */
+function songChord(item) {
+  const chord = library.chords.find((c) => c.key === item.key);
+  if (!chord) return null;
+  const t = tuningForStrings(item.frets.length);
+  const shape = shapeFromFrets(item.frets, t, item.root, chord.intervals);
+  if (!shape) return null;
+  const { labels, names } = spellCollection(rootName(item.root), chord.intervals, 'chord');
+  const ivs = item.frets.map((f, st) => (f < 0 ? null : mod12(t.midi[st] + f - item.root)));
+  const bass = shape.bassInterval ? `/${pretty(names[shape.bassInterval] ?? ROOT_NAMES[mod12(item.root + shape.bassInterval)])}` : '';
+  return {
+    chord, shape, tuning: t,
+    name: pretty(rootName(item.root) + (chord.symbol || '')) + bass,
+    meta: [shape.voicing, shape.inversion].filter(Boolean).join(' · '),
+    labels: ivs.map((iv) => (iv === null ? '' : pretty((state.labels === 'notes' ? names[iv] : labels[iv]) || ''))),
+    roots: ivs.map((iv, st) => (iv === 0 ? st : null)).filter((st) => st !== null),
+  };
+}
+
+const escHtml = (text) => String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function renderSongs() {
+  const song = currentSong();
+  const list = state.songs.map((sg) => `<li><button data-song-id="${sg.id}" aria-pressed="${!state.sharedSong && sg.id === state.songId}">${escHtml(sg.title || 'Untitled song')}<small>${sg.items.filter((it) => it.section === undefined).length}</small></button></li>`).join('');
+  let editor;
+  if (!song) {
+    editor = `<div class="song-empty"><p>No song selected.</p><p class="muted">Create a song or exercise, then add chords from the Chords view with “Add to song”.</p></div>`;
+  } else {
+    const items = song.items.map((it, i) => {
+      const tools = `<div class="song-tools">
+          <button data-move="-1" data-index="${i}" aria-label="Move earlier" title="Move earlier">←</button>
+          <button data-move="1" data-index="${i}" aria-label="Move later" title="Move later">→</button>
+          <button data-remove="${i}" aria-label="Remove" title="Remove">×</button></div>`;
+      if (it.section !== undefined) {
+        return `<div class="song-section"><input type="text" data-section="${i}" value="${escHtml(it.section)}" aria-label="Section name" maxlength="60">${tools}</div>`;
+      }
+      const c = songChord(it);
+      if (!c) return `<div class="song-chord missing"><span class="muted">Unknown chord</span>${tools}</div>`;
+      const grid = gridSvg(chordGrid(c.shape, it.frets.length, { labels: c.labels, roots: c.roots, columns: 5, sy: 12 }));
+      return `<div class="song-chord"><button class="song-open" data-open-item="${i}" title="Open in Chords">${grid}<b>${c.name}</b><span>${c.meta || '&nbsp;'}</span><span class="frets">${it.frets.map((f) => (f < 0 ? 'x' : f)).join(' ')}</span></button>${tools}</div>`;
+    }).join('');
+    editor = `${state.sharedSong ? `<div class="song-shared"><span>Shared song, not saved in this browser yet.</span><button class="ghost-btn" id="songSave">Save to my songs</button></div>` : ''}
+      <label class="song-field">Title<input type="text" class="song-title" id="songTitle" value="${escHtml(song.title)}" maxlength="120" placeholder="Song or exercise"></label>
+      <textarea class="song-note" id="songNote" rows="2" maxlength="2000" placeholder="Notes for the lesson (optional)" aria-label="Notes">${escHtml(song.note || '')}</textarea>
+      <div class="song-items">${items || '<p class="muted song-hint">No chords yet. Open Chords, pick a voicing and press “Add to song”.</p>'}</div>
+      <div class="song-actions">
+        <button class="ghost-btn" id="songAddSection">Add section</button>
+        <button class="ghost-btn" id="songDelete">${state.sharedSong ? 'Close' : 'Delete song'}</button>
+      </div>`;
+  }
+  $('#songs').innerHTML = `<div class="namer-head">
+      <div><p class="muted">Chord progressions for lessons, saved in this browser only. Share them as a link or print them as PDF.</p></div>
+      <div class="namer-actions"><button class="ghost-btn" id="songNew">New song</button></div>
+    </div>
+    <div class="songs-body"><ul class="song-list">${list || '<li class="muted">No songs yet</li>'}</ul><div class="song-editor">${editor}</div></div>`;
+}
+
+function updateSong(mutate, { rerender = true } = {}) {
+  const song = currentSong();
+  if (!song) return;
+  mutate(song);
+  if (!state.sharedSong) saveSongs();
+  if (rerender) render();
+  else { renderHeadline(); writeUrl(); }
+}
+
+function newSong() {
+  const song = emptySong(`Song ${state.songs.length + 1}`);
+  state.songs.push(song);
+  state.songId = song.id;
+  state.sharedSong = null;
+  saveSongs();
+  return song;
+}
+
+function addToSong() {
+  if (!view.shape) return;
+  const target = $('#songTarget').value;
+  const song = target === 'new' ? newSong() : state.songs.find((sg) => sg.id === target);
+  if (!song) return;
+  song.items.push({ root: state.root, key: view.type.key, frets: [...view.shape.frets] });
+  state.songId = song.id;
+  saveSongs();
+  renderFinder();
+  toast(`Added ${pretty(rootName() + (view.type.symbol || ''))} to ${song.title}`);
+}
+
+function playSong() {
+  const song = currentSong();
+  const chords = (song?.items || []).filter((it) => it.section === undefined).map(songChord).filter(Boolean);
+  if (!chords.length) return;
+  $('#playBtn').classList.add('playing');
+  const bar = (60 / state.bpm) * 4 * 1000; // one chord per 4/4 bar
+  chords.forEach((c, i) => {
+    songTimers.push(setTimeout(() => strum(c.shape.frets.map((f, st) => (f < 0 ? null : c.tuning.midi[st] + f)).filter((m) => m !== null)), i * bar));
+  });
+  songTimers.push(setTimeout(() => stopPlayback(), chords.length * bar));
+}
+
+function bindSongs() {
+  const host = $('#songs');
+  host.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.id === 'songNew') { newSong(); render(); $('#songTitle')?.select(); return; }
+    if (b.dataset.songId) { state.songId = b.dataset.songId; state.sharedSong = null; saveSongs(); render(); return; }
+    if (b.id === 'songSave') {
+      state.songs.push(state.sharedSong);
+      state.songId = state.sharedSong.id;
+      state.sharedSong = null;
+      saveSongs();
+      render();
+      toast('Saved to your songs');
+      return;
+    }
+    if (b.id === 'songDelete') {
+      const song = currentSong();
+      if (state.sharedSong) { state.sharedSong = null; render(); return; }
+      if (!song || !window.confirm(`Delete “${song.title}”?`)) return;
+      state.songs = state.songs.filter((sg) => sg.id !== song.id);
+      state.songId = state.songs[0]?.id || null;
+      saveSongs();
+      render();
+      return;
+    }
+    if (b.id === 'songAddSection') {
+      updateSong((song) => { song.items.push({ section: 'Section' }); });
+      const inputs = host.querySelectorAll('[data-section]');
+      inputs[inputs.length - 1]?.select();
+      return;
+    }
+    if (b.dataset.move) {
+      const i = parseInt(b.dataset.index, 10);
+      updateSong((song) => { song.items = moveItem(song.items, i, parseInt(b.dataset.move, 10)); });
+      return;
+    }
+    if (b.dataset.remove) {
+      const i = parseInt(b.dataset.remove, 10);
+      updateSong((song) => { song.items = song.items.filter((_, k) => k !== i); });
+      return;
+    }
+    if (b.dataset.openItem) {
+      const it = currentSong()?.items[parseInt(b.dataset.openItem, 10)];
+      if (!it) return;
+      Object.assign(state, { mode: 'chord', chordKey: it.key, root: it.root, source: 'finder', bass: 'any', neck: 'all', selected: 0, pinFrets: [...it.frets] });
+      render();
+    }
+  });
+  host.addEventListener('input', (e) => {
+    const el = e.target;
+    if (el.id === 'songTitle') {
+      updateSong((song) => { song.title = el.value; }, { rerender: false });
+      const btn = host.querySelector(`[data-song-id="${state.songId}"]`);
+      if (btn && !state.sharedSong) btn.firstChild.textContent = el.value || 'Untitled song';
+    } else if (el.id === 'songNote') {
+      updateSong((song) => { song.note = el.value; }, { rerender: false });
+    } else if (el.dataset.section !== undefined) {
+      updateSong((song) => { song.items[parseInt(el.dataset.section, 10)].section = el.value; }, { rerender: false });
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Type picker
 // ---------------------------------------------------------------------------
 function typeList() {
@@ -720,15 +947,20 @@ function openTypePanel(open) {
 // ---------------------------------------------------------------------------
 // Playback
 // ---------------------------------------------------------------------------
+let songTimers = [];
+
 function stopPlayback() {
   stopSequence();
+  songTimers.forEach(clearTimeout);
+  songTimers = [];
   $('#playBtn')?.classList.remove('playing');
   pulseNote($('#fretboard'), null);
 }
 
 function play() {
   if (!state.sound) { toast('Sound is off — press M or the speaker icon'); return; }
-  if (isSequencePlaying()) { stopPlayback(); return; }
+  if (isSequencePlaying() || songTimers.length) { stopPlayback(); return; }
+  if (state.mode === 'song') { playSong(); return; }
   if (state.mode === 'chord' || state.mode === 'identify') {
     strum(view.sequence.map((s) => s.midi));
     view.sequence.forEach((s, i) => setTimeout(() => pulseNote($('#fretboard'), s.index), i * 35));
@@ -906,6 +1138,8 @@ function bind() {
   $('#tempo').addEventListener('input', (e) => { state.bpm = parseInt(e.target.value, 10); $('#tempoOut').textContent = state.bpm; store.set('bpm', state.bpm); });
   $('#shareBtn').addEventListener('click', shareLink);
   $('#pdfBtn').addEventListener('click', exportPdf);
+  $('#addSongBtn').addEventListener('click', addToSong);
+  bindSongs();
   $('#soundBtn').addEventListener('click', () => { state.sound = !state.sound; store.set('sound', state.sound); syncSegs(); if (!state.sound) stopPlayback(); });
 
   // Settings
@@ -955,7 +1189,7 @@ function bind() {
 const NOTE_KEYS = { KeyC: 0, KeyD: 2, KeyE: 4, KeyF: 5, KeyG: 7, KeyA: 9, KeyB: 11 };
 // Views use Control (Mac) or Alt (elsewhere) + initial letter; plain A–G are keys.
 // Command and Ctrl on Windows/Linux would clash with browser shortcuts such as new window or copy.
-const VIEW_KEYS = { KeyS: 'scale', KeyA: 'arpeggio', KeyC: 'chord', KeyN: 'identify' };
+const VIEW_KEYS = { KeyS: 'scale', KeyA: 'arpeggio', KeyC: 'chord', KeyN: 'identify', KeyO: 'song' };
 const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 const VIEW_MODIFIER = IS_MAC ? '⌃' : 'Alt';
 const isViewChord = (e) => e.code in VIEW_KEYS && !e.metaKey && !e.shiftKey && (IS_MAC ? e.ctrlKey && !e.altKey : e.altKey && !e.ctrlKey);

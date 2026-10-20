@@ -39,6 +39,7 @@
       <button role="tab" data-mode="arpeggio" data-key="A" title="Arpeggios (⌃A)">Arpeggios</button>
       <button role="tab" data-mode="chord" data-key="C" title="Chords (⌃C)">Chords</button>
       <button role="tab" data-mode="identify" data-key="N" title="Chord Namer (⌃N)">Chord Namer</button>
+      <button role="tab" data-mode="song" data-key="O" title="Songs &amp; exercises (⌃O)">Songs</button>
     </nav>
     <div class="top-actions">
       <button class="icon-btn" id="helpBtn" title="Keyboard shortcuts (?)" aria-haspopup="dialog">
@@ -139,6 +140,11 @@
           </div>
         </div>
       </div>
+      <div class="add-song">
+        <label for="songTarget" class="muted">Selected voicing</label>
+        <select id="songTarget" aria-label="Song to add the chord to"></select>
+        <button class="ghost-btn" id="addSongBtn">Add to song</button>
+      </div>
       <div class="cards" id="cards"></div>
     </section>
 
@@ -161,6 +167,8 @@
         </div>
       </div>
     </section>
+
+    <section class="songs" id="songs" aria-label="Songs and exercises" hidden></section>
 
     <noscript>
       <p class="noscript">Guitar Positions Studio needs JavaScript. The <a href="{% url 'fretboard_classic' %}">classic version</a> works without the new interface.</p>
@@ -215,6 +223,7 @@
             <dt><kbd class="vmod">⌃</kbd> <kbd>A</kbd></dt><dd>Arpeggios</dd>
             <dt><kbd class="vmod">⌃</kbd> <kbd>C</kbd></dt><dd>Chords</dd>
             <dt><kbd class="vmod">⌃</kbd> <kbd>N</kbd></dt><dd>Chord Namer</dd>
+            <dt><kbd class="vmod">⌃</kbd> <kbd>O</kbd></dt><dd>Songs &amp; exercises</dd>
             <dt><kbd>V</kbd></dt><dd>Chords: best shapes ↔ V-System</dd>
           </dl>
         </section>
