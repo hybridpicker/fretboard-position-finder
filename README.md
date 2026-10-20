@@ -5,7 +5,7 @@
 
 ### 🎸 Live: **[fretboard.schoensgibl.com](https://fretboard.schoensgibl.com/)**
 
-Free, no account needed. Installable as a PWA and also available as native apps (iOS, iPad, macOS, Android) that show the same Studio.
+Free, no account needed. Installable as a PWA; native apps for iOS, iPad, macOS and Android (not in the stores yet) show the same Studio.
 
 | Scales with positions and fitting chords | Chord shapes |
 |---|---|
