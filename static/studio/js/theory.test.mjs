@@ -5,7 +5,7 @@ import {
   TUNINGS, getTuning, scalePositions, assignFingers, findChordShapes, classifyVoicing,
   identifyChords, identifyScales, spellNote, intervalLabels, buildLibrary, voicingTemplateShapes,
   CHORD_LIBRARY, SCALE_LIBRARY, fingerStringGroup,
-  parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes, CHORD_SCALES, chordScaleFor,
+  parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes, CHORD_SCALES, chordScaleFor, positionOverlap,
   shapeFromFrets,
 } from './theory.js';
 
@@ -27,11 +27,12 @@ test('A minor pentatonic box 2 uses the A string stretch, not the pinky on low E
   assert.deepEqual([0, 1, 2, 3, 4, 5].map((s) => byString(box2.notes, s)), [[8, 10], [7, 10], [7, 10], [7, 9], [8, 10], [8, 10]]);
 });
 
-test('G major second position box', () => {
+test('G major second position box starts on the root', () => {
   const positions = scalePositions(7, [0, 2, 4, 5, 7, 9, 11], std, { system: 'box' });
-  const pos = positions.find((p) => p.minFret === 2 && p.notes[0].fret === 2);
-  assert.ok(pos, 'position starting on F# at fret 2 exists');
-  assert.deepEqual(byString(pos.notes, 0), [2, 3, 5]);
+  const pos = positions.find((p) => p.minFret === 2 && p.notes[0].fret === 3);
+  assert.ok(pos, 'box at frets 2-5 starting on G (the near-identical F# box is merged into it)');
+  assert.equal(pos.startInterval, 0);
+  assert.deepEqual(byString(pos.notes, 0), [3, 5]);
   assert.deepEqual(byString(pos.notes, 5), [2, 3, 5]);
   assert.ok(pos.notes.every((n) => n.finger >= 1 && n.finger <= 4));
 });
@@ -231,7 +232,7 @@ test('8-note scales produce complete positions in box and NPS systems', () => {
   const dom = lib.scales.find((s) => s.name === 'Bebop Dominant');
   for (const system of ['box', 'nps']) {
     const positions = scalePositions(7, dom.intervals, std, { system });
-    assert.equal(positions.length, 8, system);
+    assert.equal(positions.length, system === 'nps' ? 8 : 5, system);
     for (const p of positions) {
       assert.ok(p.notes.length >= 8, `${system} position ${p.index} has all degrees`);
       assert.ok(p.notes.every((n) => n.finger >= 0 && n.finger <= 4));
@@ -453,4 +454,34 @@ test('songs round-trip through the share link', async () => {
   assert.equal(junk.items.length, 1, 'invalid items are dropped');
   assert.deepEqual(moveItem([1, 2, 3], 0, 1), [2, 1, 3]);
   assert.deepEqual(moveItem([1, 2, 3], 0, -1), [1, 2, 3]);
+});
+
+// ---- Distinct positions (2026-10-20 #9) ---------------------------------------------
+test('C Ionian box positions are five distinct CAGED-like boxes (no near-duplicates)', () => {
+  const positions = scalePositions(0, [0, 2, 4, 5, 7, 9, 11], std, { system: 'box' });
+  assert.equal(positions.length, 5);
+  assert.deepEqual(positions.map((p) => [p.minFret, p.maxFret]), [[0, 3], [2, 6], [4, 8], [7, 10], [9, 13]]);
+  assert.ok(positions.some((p) => p.minFret === 7 && p.startInterval === 0), 'of the B/C pair the box on the root stays');
+});
+
+test('no two positions are near-duplicates, in any key, scale or system', () => {
+  const lib = buildLibrary(null);
+  for (const scale of lib.scales) {
+    for (const system of scale.intervals.length >= 6 ? ['box', 'nps'] : ['box']) {
+      for (let root = 0; root < 12; root++) {
+        const positions = scalePositions(root, scale.intervals, std, { system });
+        assert.ok(positions.length >= 3, `${scale.name} ${system} root ${root}: ${positions.length} positions`);
+        for (let i = 0; i < positions.length; i++) {
+          for (let j = i + 1; j < positions.length; j++) {
+            assert.ok(positionOverlap(positions[i], positions[j]) < 0.85, `${scale.name} ${system} root ${root}: ${i + 1}~${j + 1}`);
+          }
+        }
+      }
+    }
+  }
+});
+
+test('three notes per string keeps one pattern per scale degree', () => {
+  assert.equal(scalePositions(0, [0, 2, 4, 5, 7, 9, 11], std, { system: 'nps' }).length, 7);
+  assert.equal(scalePositions(9, [0, 2, 3, 5, 7, 9, 10], std, { system: 'nps' }).length, 7);
 });
