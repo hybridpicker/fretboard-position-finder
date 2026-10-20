@@ -5,7 +5,7 @@ import {
   TUNINGS, getTuning, scalePositions, assignFingers, findChordShapes, classifyVoicing,
   identifyChords, identifyScales, spellNote, intervalLabels, buildLibrary, voicingTemplateShapes,
   CHORD_LIBRARY, SCALE_LIBRARY, fingerStringGroup,
-  parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes,
+  parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes, CHORD_SCALES, chordScaleFor,
 } from './theory.js';
 
 const std = getTuning('standard');
@@ -272,15 +272,63 @@ test('C major yields the diatonic seventh chords', () => {
   assert.equal(diatonic[6].triad.symbol, 'dim');
 });
 
-test('chordsForScale only returns chords whose notes are inside the scale', () => {
+test('scales outside the chord-scale table fall back to chords on the root built from scale notes', () => {
   const lib = buildLibrary(null);
-  const scale = [0, 3, 5, 7, 10];
-  const { diatonic, others } = chordsForScale(9, scale, lib.chords);
-  assert.equal(diatonic.length, 0, 'no stacked thirds for a pentatonic');
-  assert.ok(others.length > 0);
-  const scalePcs = scale.map((i) => (i + 9) % 12);
-  for (const o of others) assert.ok(o.chord.intervals.every((iv) => scalePcs.includes((iv + o.root) % 12)));
-  assert.ok(others.some((o) => o.root === 9 && o.chord.symbol === 'm7'));
+  const mode5 = MESSIAEN_MODES.find((m) => m.mode === 5).intervals;
+  const { diatonic, chordScale, others } = chordsForScale(9, mode5, lib.chords);
+  assert.equal(diatonic.length, 0);
+  assert.equal(chordScale, null);
+  const scalePcs = mode5.map((i) => (i + 9) % 12);
+  for (const o of others) {
+    assert.equal(o.root, 9, 'only chords on the scale root');
+    assert.ok(o.chord.intervals.every((iv) => scalePcs.includes((iv + o.root) % 12)));
+  }
+});
+
+// ---- Chord-scale theory after Nettles/Graf (2026-10-20 #1) --------------------
+test('every chord-scale chord exists in the library and is built from scale notes', () => {
+  const lib = buildLibrary(null);
+  for (const entry of CHORD_SCALES) {
+    const resolved = chordScaleFor(entry.intervals, lib.chords);
+    assert.equal(resolved.chords.length, entry.chords.length, `${entry.name}: all symbols resolve`);
+    for (const chord of resolved.chords) {
+      assert.ok(chord.intervals.every((iv) => entry.intervals.includes(iv)), `${entry.name}: ${chord.symbol || 'major'} fits`);
+    }
+  }
+});
+
+test('chord-scale recommendations replace the full subset list', () => {
+  const lib = buildLibrary(null);
+  const ionian = chordsForScale(0, [0, 2, 4, 5, 7, 9, 11], lib.chords);
+  assert.equal(ionian.others.length, 0, 'no "all fitting chords" list');
+  assert.deepEqual(ionian.chordScale.chords.map((c) => c.symbol), ['maj7', '6', 'maj9', '6/9', 'add9', '']);
+  assert.deepEqual(ionian.chordScale.avoid, ['11']);
+  const dorian = chordsForScale(2, [0, 2, 3, 5, 7, 9, 10], lib.chords).chordScale;
+  assert.equal(dorian.chords[0].symbol, 'm7');
+  assert.ok(!dorian.chords.some((c) => c.symbol === 'maj7'));
+  const lydian = chordsForScale(5, [0, 2, 4, 6, 7, 9, 11], lib.chords).chordScale;
+  assert.equal(lydian.chords[0].symbol, 'maj7#11');
+});
+
+test('chord -> scales follows the same table', () => {
+  const lib = buildLibrary(null);
+  const names = (intervals) => scalesForChord(0, intervals, lib.scales).map((x) => x.scale.name);
+  assert.deepEqual(names([0, 4, 7, 11]).slice(0, 2), ['Major (Ionian)', 'Lydian']);
+  assert.equal(names([0, 3, 7, 10])[0], 'Dorian');
+  assert.equal(names([0, 4, 7, 10])[0], 'Mixolydian');
+  assert.equal(names([0, 3, 6, 10])[0], 'Locrian');
+  assert.ok(!names([0, 4, 7, 11]).includes('Mixolydian'), 'maj7 never suggests Mixolydian');
+  assert.ok(!names([0, 4, 7, 11]).includes('Bebop Dominant'));
+  const lydianDominant = { name: 'Lydian Dominant', intervals: [0, 2, 4, 6, 7, 9, 10] };
+  const withDb = buildLibrary({ scales: [lydianDominant] });
+  assert.ok(scalesForChord(0, [0, 4, 7, 10], withDb.scales).some((x) => x.scale.name === 'Lydian Dominant'));
+});
+
+test('chords outside the table still get scales by pitch content', () => {
+  const lib = buildLibrary(null);
+  assert.ok(scalesForChord(0, [0, 4, 7], lib.scales).length > 0);
+  const odd = scalesForChord(0, [0, 1, 6], lib.scales);
+  for (const x of odd) assert.ok([0, 1, 6].every((iv) => x.scale.intervals.includes(iv)));
 });
 
 // ---- Position numbering by neck place (2026-10-20 #2) ------------------------
