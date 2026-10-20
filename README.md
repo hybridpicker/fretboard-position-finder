@@ -1,5 +1,4 @@
-![Logo_Guitar_Positions](https://github.com/user-attachments/assets/fef79724-95a0-4da6-bb31-161615622764)
-
+# Guitar Positions
 
 **Interactive guitar fretboard for scales, arpeggios and chords in all 12 keys, with fingerings, playable chord shapes and a chord namer.**
 
