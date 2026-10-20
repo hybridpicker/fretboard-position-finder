@@ -12,7 +12,7 @@ Free, no account needed. Installable as a PWA; native apps for iOS, iPad, macOS 
 | **V-System voicings** | **Chord Namer** |
 | ![V-System voicings for Cmaj7](docs/screenshots/v-system.png) | ![Chord Namer recognising an open C chord](docs/screenshots/chord-namer.png) |
 | **Songs & exercises** | |
-| ![Songs view: a chord progression in Ted Greene style grids](docs/screenshots/songs.png) | |
+| ![Songs view: a chord progression with fingerings](docs/screenshots/songs.png) | |
 
 ## Features
 
@@ -22,7 +22,7 @@ Free, no account needed. Installable as a PWA; native apps for iOS, iPad, macOS 
 - **Search**: type a chord symbol such as `Em7`, `F#m7b5` or `Maj7#11` and get the chord, its V-System voicings, the arpeggio and fitting scales (Em7 → Dorian, Phrygian, Aeolian on E).
 - **Chord-scale theory** after Nettles/Graf: each scale lists the chords it is the chord scale for, with available tensions and avoid notes, plus the diatonic triads and sevenths; search and the Chord Namer suggest scales for a chord the same way. One click opens the shapes.
 - **Chord Namer**: tap a shape on the fretboard and get the chord name, alternatives and scales that fit.
-- **Songs & exercises**: collect chord progressions for lessons (title, note, sections, chosen voicings) in horizontal Ted Greene style grids. Saved in the browser only, no account.
+- **Songs & exercises**: collect chord progressions for lessons (title, note, sections, chosen voicings). Type a chord such as `Am7` and pick a fingering; diagrams show finger numbers, intervals or note names. Saved in the browser only, no account.
 - **Share & print**: every view, including the chosen voicing and songs, can be shared as a link; a PDF button creates a minimalist black-and-white A4 sheet (scale positions, chord shapes or a song).
 - **Instruments**: standard tuning, half step down, Drop D, DADGAD, open G/D, 7- and 8-string guitars, left-handed view, horizontal or vertical neck.
 - **Sound**: play scales and strum chords; keyboard shortcuts for everything (press `?`).
