@@ -16,7 +16,7 @@ Free, no account needed. Installable as a PWA; native apps for iOS, iPad, macOS 
 
 ## Features
 
-- **Scales**: modes of major, pentatonic and blues, melodic and harmonic minor families, symmetric scales (whole tone, diminished, Messiaen modes 1–7) and **Bebop** scales. Every scale has numbered positions with fingerings, as boxes or three notes per string; position 1 is always the lowest one on the neck, in every key.
+- **Scales**: modes of major, pentatonic and blues, melodic and harmonic minor families, symmetric scales (whole tone, diminished, Messiaen modes 1–7) and **Bebop** scales. Every scale has numbered positions with fingerings, as boxes (five distinct CAGED-like boxes for 7-note scales) or three notes per string; position 1 is always the lowest one on the neck, in every key.
 - **Arpeggios** for every chord type.
 - **Chords**: playable shapes ranked by ease, filterable by bass note (inversion) and neck region, plus Ted Greene style **V-System voicings** (V1–V14) for all chord types.
 - **Search**: type a chord symbol such as `Em7`, `F#m7b5` or `Maj7#11` and get the chord, its V-System voicings, the arpeggio and fitting scales (Em7 → Dorian, Phrygian, Aeolian on E).
