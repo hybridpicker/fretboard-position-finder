@@ -762,7 +762,7 @@ function renderSongs() {
       }
       const c = songChord(it);
       if (!c) return `<div class="song-chord missing"><span class="muted">Unknown chord</span>${tools}</div>`;
-      const grid = gridSvg(chordGrid(c.shape, it.frets.length, { labels: c.labels, roots: c.roots, columns: 5, sy: 14 }));
+      const grid = gridSvg(chordGrid(c.shape, it.frets.length, { labels: c.labels, roots: c.roots, columns: 5, sy: 14, vertical: true }));
       return `<div class="song-chord"><button class="song-open" data-open-item="${i}" title="Open in Chords">${grid}<b>${c.name}</b><span>${c.meta || '&nbsp;'}</span><span class="frets">${it.frets.map((f) => (f < 0 ? 'x' : f)).join(' ')}</span></button>${tools}</div>`;
     }).join('');
     editor = `${state.sharedSong ? `<div class="song-shared"><span>Shared song, not saved in this browser yet.</span><button class="ghost-btn" id="songSave">Save to my songs</button></div>` : ''}
@@ -806,7 +806,7 @@ function renderSongChordOptions() {
   host.innerHTML = `<p class="muted">${name}: click a fingering to add it.</p><div class="song-option-row">${shapes.map((sh) => {
     const ivs = sh.frets.map((f, st) => (f < 0 ? null : mod12(t.midi[st] + f - parsed.root)));
     const { labels, names } = spellCollection(rootName(parsed.root), chord.intervals, 'chord');
-    const grid = gridSvg(chordGrid(sh, sh.frets.length, { labels: dotLabels(sh, ivs, labels, names), roots: ivs.map((iv, st) => (iv === 0 ? st : null)).filter((st) => st !== null), sy: 11 }));
+    const grid = gridSvg(chordGrid(sh, sh.frets.length, { labels: dotLabels(sh, ivs, labels, names), roots: ivs.map((iv, st) => (iv === 0 ? st : null)).filter((st) => st !== null), sy: 11, vertical: true }));
     return `<button class="song-option" data-add-root="${parsed.root}" data-add-key="${chord.key}" data-add-frets="${fretsText(sh.frets)}" title="Add ${name} (${sh.frets.map((f) => (f < 0 ? 'x' : f)).join(' ')})">${grid}<span class="frets">${sh.frets.map((f) => (f < 0 ? 'x' : f)).join(' ')}</span></button>`;
   }).join('')}</div>`;
 }

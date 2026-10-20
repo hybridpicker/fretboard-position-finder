@@ -390,23 +390,29 @@ test('PDF writer produces a valid A4 file with a correct xref table', async () =
   }
 });
 
-test('chord grids are vertical: low string left, nut on top, 5+ frets', async () => {
+test('chord grids: horizontal by default, vertical boxes for songs', async () => {
   const { chordGrid, chordWindow, fretGrid } = await import('./grid.js');
   assert.deepEqual(chordWindow([-1, 3, 2, 0, 1, 0]), { from: 1, to: 5 }, 'open C from the nut');
   assert.deepEqual(chordWindow([8, 10, 10, 9, 8, 8]), { from: 8, to: 12 });
   assert.deepEqual(chordWindow([1, 8, -1, -1, -1, -1], 7), { from: 1, to: 8 }, 'wide voicing widens the grid');
-  const grid = chordGrid({ frets: [3, -1, -1, -1, -1, 5], barres: [] }, 6, { labels: ['1', '', '', '', '', '5'], roots: [0] });
-  const dots = grid.items.filter((i) => i.type === 'circle');
-  const low = dots.find((d) => d.fill === 'ink');
-  const high = dots.find((d) => d.fill === 'paper');
-  assert.ok(low.cx < high.cx, 'low string on the left');
-  assert.ok(low.cy < high.cy, 'higher frets further down');
-  assert.ok(grid.height > grid.width, 'portrait box');
-  assert.ok(grid.items.some((i) => i.type === 'line' && i.width > 1 && i.y1 === i.y2), 'horizontal nut on top');
-  const moved = chordGrid({ frets: [8, 10, 10, 9, 8, 8], barres: [{ fret: 8, from: 0, to: 5 }] }, 6);
+  const shape = { frets: [3, -1, -1, -1, -1, 5], barres: [] };
+  const opts = { labels: ['1', '', '', '', '', '5'], roots: [0] };
+  const dotsOf = (grid) => {
+    const dots = grid.items.filter((i) => i.type === 'circle');
+    return { low: dots.find((d) => d.fill === 'ink'), high: dots.find((d) => d.fill === 'paper') };
+  };
+  const flat = chordGrid(shape, 6, opts);
+  assert.ok(dotsOf(flat).low.cy > dotsOf(flat).high.cy, 'horizontal: low string at the bottom');
+  assert.ok(flat.width > flat.height);
+  const box = chordGrid(shape, 6, { ...opts, vertical: true });
+  assert.ok(dotsOf(box).low.cx < dotsOf(box).high.cx, 'vertical: low string on the left');
+  assert.ok(dotsOf(box).low.cy < dotsOf(box).high.cy, 'vertical: higher frets further down');
+  assert.ok(box.height > box.width, 'portrait box');
+  assert.ok(box.items.some((i) => i.type === 'line' && i.width > 1 && i.y1 === i.y2), 'horizontal nut on top');
+  const moved = chordGrid({ frets: [8, 10, 10, 9, 8, 8], barres: [{ fret: 8, from: 0, to: 5 }] }, 6, { vertical: true });
   assert.ok(moved.items.some((i) => i.type === 'text' && i.text === '8' && i.align === 'right'), 'start fret beside the box');
   const neck = fretGrid({ strings: 6, from: 1, to: 15, fretNumbers: 'neck' });
-  assert.ok(neck.width > neck.height, 'whole neck stays horizontal');
+  assert.ok(neck.width > neck.height, 'whole neck is horizontal');
 });
 
 test('sheets build for scales, chords and songs', async () => {
