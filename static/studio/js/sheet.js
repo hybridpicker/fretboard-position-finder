@@ -101,12 +101,12 @@ function cellLayout(chords, strings, columns, { vertical = false } = {}) {
   const frets = Math.max(5, ...chords.map((c) => { const w = chordWindow(c.frets, 5); return w.to - w.from + 1; }));
   const sy = vertical ? Math.min(14, gridUnit(colW, strings)) : Math.min(13, (colW - 2) / (1.25 + 1.75 * frets));
   const grids = chords.map((c) => chordGrid(c, strings, { labels: c.labels, roots: c.roots, columns: frets, sy, vertical }));
-  const cellH = Math.max(...grids.map((g) => g.height)) + 30;
-  return { gap, colW, grids, cellH, columns };
+  const gridH = Math.max(...grids.map((g) => g.height));
+  return { gap, colW, grids, gridH, cellH: gridH + 30, columns };
 }
 
 function chordCells(pdf, chords, layout, startY, scale = 1) {
-  const { gap, colW, grids, cellH, columns } = layout;
+  const { gap, colW, grids, gridH, cellH, columns } = layout;
   const bottom = A4.height - MARGIN - FOOTER;
   const rowH = (cellH + 8) * scale;
   let y = startY;
@@ -117,7 +117,7 @@ function chordCells(pdf, chords, layout, startY, scale = 1) {
     const x = MARGIN + col * (colW + gap);
     pdf.drawGrid(grids[i], x, y, scale);
     const fs = Math.max(scale, 0.8);
-    let ty = y + grids[i].height * scale + 9 * fs;
+    let ty = y + gridH * scale + 9 * fs; // names line up even when a grid has no start-fret number
     pdf.text(x, ty, c.name, { size: 10 * fs, bold: true });
     if (c.meta) { ty += 9 * fs; pdf.text(x, ty, c.meta, { size: 7 * fs, gray: 0.4 }); }
     ty += 9 * fs;
