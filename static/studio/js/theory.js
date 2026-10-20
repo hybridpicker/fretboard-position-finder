@@ -469,6 +469,13 @@ function buildWindow(start, rootPc, intervals, tuning) {
   return notes;
 }
 
+/** Share of notes (string + fret) two positions have in common, relative to the smaller one. */
+export function positionOverlap(a, b) {
+  const keys = new Set(b.notes.map((n) => `${n.string}:${n.fret}`));
+  const shared = a.notes.filter((n) => keys.has(`${n.string}:${n.fret}`)).length;
+  return shared / Math.min(a.notes.length, b.notes.length);
+}
+
 /**
  * Positions for a scale or arpeggio.
  * system: 'box' (one finger per fret, CAGED-style) or 'nps' (three notes per string).
@@ -520,6 +527,13 @@ export function scalePositions(rootPc, intervals, tuning, { system = 'box', maxS
       maxFret: Math.max(...frets),
     });
   });
+  // Boxes that start a semitone apart (e.g. on B and C in C major) come out almost identical. Keep one of
+  // each such pair, preferring the more compact box, then the one that starts on the root.
+  const distinct = [];
+  const byQuality = [...positions].sort((a, b) => (a.maxFret - a.minFret) - (b.maxFret - b.minFret)
+    || (a.startDegree === 0 ? 0 : 1) - (b.startDegree === 0 ? 0 : 1) || a.minFret - b.minFret);
+  for (const p of byQuality) if (distinct.every((k) => positionOverlap(k, p) < 0.85)) distinct.push(p);
+  positions.splice(0, positions.length, ...distinct);
   // Numbered by place on the neck: position 1 is the lowest one (open strings included), whatever the key
   positions.sort((a, b) => a.minFret - b.minFret || a.notes[0].fret - b.notes[0].fret);
   return positions.map((p, i) => ({ ...p, index: i + 1 }));

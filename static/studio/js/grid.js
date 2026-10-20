@@ -1,7 +1,7 @@
-// Fret grids for chord voicings and scale positions. Chord and position diagrams are vertical (strings
-// top to bottom with the low string on the left, nut on top); the whole-neck overview is horizontal (high
-// string on top, nut on the left). One geometry feeds two backends: inline SVG for the song view and the
-// vector PDF writer for printable sheets. Pure functions, no DOM.
+// Fret grids for chord voicings and scale positions. Horizontal by default (high string on top, nut on
+// the left, Ted Greene style); song chords use vertical boxes (low string on the left, nut on top).
+// One geometry feeds two backends: inline SVG for the song view and the vector PDF writer for printable
+// sheets. Pure functions, no DOM.
 
 /**
  * Lay out a grid.
@@ -83,8 +83,8 @@ export function chordWindow(frets, columns = 5) {
   return { from: lo, to: lo + width - 1 };
 }
 
-/** Vertical chord box for one voicing (labels: per-string text, roots: string indices that hold the root). */
-export function chordGrid(shape, strings, { labels = [], roots = [], columns = 5, sy = 12 } = {}) {
+/** Grid for one chord voicing (labels: per-string text, roots: string indices that hold the root). */
+export function chordGrid(shape, strings, { labels = [], roots = [], columns = 5, sy = 12, vertical = false } = {}) {
   const { from, to } = chordWindow(shape.frets, columns);
   const notes = [];
   const mutes = [];
@@ -92,7 +92,7 @@ export function chordGrid(shape, strings, { labels = [], roots = [], columns = 5
     if (f < 0) mutes.push(s);
     else notes.push({ string: s, fret: f, text: labels[s] || '', filled: roots.includes(s) });
   });
-  return fretGrid({ strings, from, to, notes, mutes, barres: shape.barres || [], sy, vertical: true });
+  return fretGrid({ strings, from, to, notes, mutes, barres: shape.barres || [], sy, vertical });
 }
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

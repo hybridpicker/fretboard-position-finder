@@ -5,7 +5,7 @@ import {
   TUNINGS, getTuning, scalePositions, assignFingers, findChordShapes, classifyVoicing,
   identifyChords, identifyScales, spellNote, intervalLabels, buildLibrary, voicingTemplateShapes,
   CHORD_LIBRARY, SCALE_LIBRARY, fingerStringGroup,
-  parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes, CHORD_SCALES, chordScaleFor,
+  parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes, CHORD_SCALES, chordScaleFor, positionOverlap,
   shapeFromFrets,
 } from './theory.js';
 
@@ -27,11 +27,12 @@ test('A minor pentatonic box 2 uses the A string stretch, not the pinky on low E
   assert.deepEqual([0, 1, 2, 3, 4, 5].map((s) => byString(box2.notes, s)), [[8, 10], [7, 10], [7, 10], [7, 9], [8, 10], [8, 10]]);
 });
 
-test('G major second position box', () => {
+test('G major second position box starts on the root', () => {
   const positions = scalePositions(7, [0, 2, 4, 5, 7, 9, 11], std, { system: 'box' });
-  const pos = positions.find((p) => p.minFret === 2 && p.notes[0].fret === 2);
-  assert.ok(pos, 'position starting on F# at fret 2 exists');
-  assert.deepEqual(byString(pos.notes, 0), [2, 3, 5]);
+  const pos = positions.find((p) => p.minFret === 2 && p.notes[0].fret === 3);
+  assert.ok(pos, 'box at frets 2-5 starting on G (the near-identical F# box is merged into it)');
+  assert.equal(pos.startInterval, 0);
+  assert.deepEqual(byString(pos.notes, 0), [3, 5]);
   assert.deepEqual(byString(pos.notes, 5), [2, 3, 5]);
   assert.ok(pos.notes.every((n) => n.finger >= 1 && n.finger <= 4));
 });
@@ -231,7 +232,7 @@ test('8-note scales produce complete positions in box and NPS systems', () => {
   const dom = lib.scales.find((s) => s.name === 'Bebop Dominant');
   for (const system of ['box', 'nps']) {
     const positions = scalePositions(7, dom.intervals, std, { system });
-    assert.equal(positions.length, 8, system);
+    assert.equal(positions.length, system === 'nps' ? 8 : 5, system);
     for (const p of positions) {
       assert.ok(p.notes.length >= 8, `${system} position ${p.index} has all degrees`);
       assert.ok(p.notes.every((n) => n.finger >= 0 && n.finger <= 4));
@@ -390,23 +391,29 @@ test('PDF writer produces a valid A4 file with a correct xref table', async () =
   }
 });
 
-test('chord grids are vertical: low string left, nut on top, 5+ frets', async () => {
+test('chord grids: horizontal by default, vertical boxes for songs', async () => {
   const { chordGrid, chordWindow, fretGrid } = await import('./grid.js');
   assert.deepEqual(chordWindow([-1, 3, 2, 0, 1, 0]), { from: 1, to: 5 }, 'open C from the nut');
   assert.deepEqual(chordWindow([8, 10, 10, 9, 8, 8]), { from: 8, to: 12 });
   assert.deepEqual(chordWindow([1, 8, -1, -1, -1, -1], 7), { from: 1, to: 8 }, 'wide voicing widens the grid');
-  const grid = chordGrid({ frets: [3, -1, -1, -1, -1, 5], barres: [] }, 6, { labels: ['1', '', '', '', '', '5'], roots: [0] });
-  const dots = grid.items.filter((i) => i.type === 'circle');
-  const low = dots.find((d) => d.fill === 'ink');
-  const high = dots.find((d) => d.fill === 'paper');
-  assert.ok(low.cx < high.cx, 'low string on the left');
-  assert.ok(low.cy < high.cy, 'higher frets further down');
-  assert.ok(grid.height > grid.width, 'portrait box');
-  assert.ok(grid.items.some((i) => i.type === 'line' && i.width > 1 && i.y1 === i.y2), 'horizontal nut on top');
-  const moved = chordGrid({ frets: [8, 10, 10, 9, 8, 8], barres: [{ fret: 8, from: 0, to: 5 }] }, 6);
+  const shape = { frets: [3, -1, -1, -1, -1, 5], barres: [] };
+  const opts = { labels: ['1', '', '', '', '', '5'], roots: [0] };
+  const dotsOf = (grid) => {
+    const dots = grid.items.filter((i) => i.type === 'circle');
+    return { low: dots.find((d) => d.fill === 'ink'), high: dots.find((d) => d.fill === 'paper') };
+  };
+  const flat = chordGrid(shape, 6, opts);
+  assert.ok(dotsOf(flat).low.cy > dotsOf(flat).high.cy, 'horizontal: low string at the bottom');
+  assert.ok(flat.width > flat.height);
+  const box = chordGrid(shape, 6, { ...opts, vertical: true });
+  assert.ok(dotsOf(box).low.cx < dotsOf(box).high.cx, 'vertical: low string on the left');
+  assert.ok(dotsOf(box).low.cy < dotsOf(box).high.cy, 'vertical: higher frets further down');
+  assert.ok(box.height > box.width, 'portrait box');
+  assert.ok(box.items.some((i) => i.type === 'line' && i.width > 1 && i.y1 === i.y2), 'horizontal nut on top');
+  const moved = chordGrid({ frets: [8, 10, 10, 9, 8, 8], barres: [{ fret: 8, from: 0, to: 5 }] }, 6, { vertical: true });
   assert.ok(moved.items.some((i) => i.type === 'text' && i.text === '8' && i.align === 'right'), 'start fret beside the box');
   const neck = fretGrid({ strings: 6, from: 1, to: 15, fretNumbers: 'neck' });
-  assert.ok(neck.width > neck.height, 'whole neck stays horizontal');
+  assert.ok(neck.width > neck.height, 'whole neck is horizontal');
 });
 
 test('sheets build for scales, chords and songs', async () => {
@@ -447,4 +454,34 @@ test('songs round-trip through the share link', async () => {
   assert.equal(junk.items.length, 1, 'invalid items are dropped');
   assert.deepEqual(moveItem([1, 2, 3], 0, 1), [2, 1, 3]);
   assert.deepEqual(moveItem([1, 2, 3], 0, -1), [1, 2, 3]);
+});
+
+// ---- Distinct positions (2026-10-20 #9) ---------------------------------------------
+test('C Ionian box positions are five distinct CAGED-like boxes (no near-duplicates)', () => {
+  const positions = scalePositions(0, [0, 2, 4, 5, 7, 9, 11], std, { system: 'box' });
+  assert.equal(positions.length, 5);
+  assert.deepEqual(positions.map((p) => [p.minFret, p.maxFret]), [[0, 3], [2, 6], [4, 8], [7, 10], [9, 13]]);
+  assert.ok(positions.some((p) => p.minFret === 7 && p.startInterval === 0), 'of the B/C pair the box on the root stays');
+});
+
+test('no two positions are near-duplicates, in any key, scale or system', () => {
+  const lib = buildLibrary(null);
+  for (const scale of lib.scales) {
+    for (const system of scale.intervals.length >= 6 ? ['box', 'nps'] : ['box']) {
+      for (let root = 0; root < 12; root++) {
+        const positions = scalePositions(root, scale.intervals, std, { system });
+        assert.ok(positions.length >= 3, `${scale.name} ${system} root ${root}: ${positions.length} positions`);
+        for (let i = 0; i < positions.length; i++) {
+          for (let j = i + 1; j < positions.length; j++) {
+            assert.ok(positionOverlap(positions[i], positions[j]) < 0.85, `${scale.name} ${system} root ${root}: ${i + 1}~${j + 1}`);
+          }
+        }
+      }
+    }
+  }
+});
+
+test('three notes per string keeps one pattern per scale degree', () => {
+  assert.equal(scalePositions(0, [0, 2, 4, 5, 7, 9, 11], std, { system: 'nps' }).length, 7);
+  assert.equal(scalePositions(9, [0, 2, 3, 5, 7, 9, 10], std, { system: 'nps' }).length, 7);
 });
