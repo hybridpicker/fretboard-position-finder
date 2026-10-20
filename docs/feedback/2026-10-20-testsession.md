@@ -68,3 +68,29 @@
 - Suspected location: no progression/song concept in the code yet. Chord voicings come from `findChordShapes`/`voicingTemplateShapes` (`static/studio/js/theory.js`, imported in `static/studio/js/app.js:4`). Current chord boxes in `static/studio/js/diagram.js:3` `chordDiagram()` are vertical (strings vertical, frets as rows, min 4 rows, no upper limit) – a horizontal, max-7-fret variant would be a new renderer option. Persistence options: URL-encoded (fits #3, no server storage), `localStorage` via the existing `store` helper (`app.js:14`), or a Django model (would need accounts → personal data, data-protection review).
 - Open: "Tate Green System" read as Ted Greene's chord-grid style – confirm. Horizontal with low E at the bottom or at the top? Should voicings wider than 7 frets be excluded or split? Should songs carry lyrics/sections/bars/rhythm or just a chord list? Where to store songs (link-only/local vs. server with accounts – the latter needs a GDPR assessment since students would be involved)? Should the Ted Greene grid also be offered in the normal Chord view?
 - Decision (2026-10-20): Stored locally in the browser (existing `store` helper) and shareable/printable as a link (song encoded in the URL); no accounts, no server storage. Content: title, optional note, ordered chords (root, type, chosen voicing), optional section dividers (Verse/Chorus). Ted Greene grid: horizontal, high E on top, low E at the bottom, nut on the left, 7 frets by default; wider voicings allowed, grid widens. Grid used in songs and PDF only; the Chord view keeps its vertical boxes.
+
+### #6 · Songs: where do the fingerings go? (adding chords was not discoverable)
+- Status: done (0c2e868)
+- Area: Songs
+- Type: Bug (usability) · Priority: hoch
+- Platform: all (shared Studio code)
+- Observation: In a song only sections could be entered; it was unclear how to add chords/fingerings (only via Chords view → "Add to song").
+- Expected: Add chords directly in the song; diagrams show the fingering.
+- Fix: "Add chord" field in the song editor (type a symbol, click one of the eight easiest fingerings, Enter takes the first); dots show finger numbers by default (switchable to intervals / note names, also on the PDF).
+
+### #7 · Chord diagrams always vertical
+- Status: done (de69142)
+- Area: Songs, PDF
+- Type: Wunsch · Priority: hoch
+- Platform: all
+- Observation: The horizontal (Ted Greene-style) grids from #5 are not wanted.
+- Expected: Fingering diagrams are always vertical.
+- Fix: chord boxes in songs and PDF sheets and the scale positions on PDF sheets are vertical (low string left, nut on top, start fret beside the box); only the whole-neck overview stays horizontal. Supersedes the orientation decision in #5.
+
+### #8 · Explain the song workflow
+- Status: done (0c2e868)
+- Area: Songs
+- Type: Wunsch · Priority: mittel
+- Platform: all
+- Expected: Short, user-friendly explanation of how songs work.
+- Fix: "How songs work" box (four steps: new song, add chords, arrange, share/PDF), open while there are no songs or the song is empty.

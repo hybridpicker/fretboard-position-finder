@@ -46,6 +46,8 @@ const state = {
   songs: (() => { const list = store.get('songs', []); return Array.isArray(list) ? list : []; })(),
   songId: store.get('songId', null),
   sharedSong: null, // a song opened from a link that is not saved in this browser yet
+  songDots: ['fingers', 'intervals', 'notes'].includes(store.get('songDots', 'fingers')) ? store.get('songDots', 'fingers') : 'fingers',
+  songQuery: '', // chord symbol typed into the song's "Add chord" field
 };
 
 function readUrl() {
@@ -235,7 +237,7 @@ function currentSheet() {
       note: song.note,
       link,
       strings: Math.max(...items.filter((it) => it.frets).map((it) => it.frets.length), strings),
-      lines: [`${count} chord${count === 1 ? '' : 's'} · ${t.name} · dots: ${state.labels === 'notes' ? 'note names' : 'intervals'} (filled = root)`],
+      lines: [`${count} chord${count === 1 ? '' : 's'} · ${t.name} · dots: ${{ fingers: 'fingers', intervals: 'intervals', notes: 'note names' }[state.songDots]} (filled = root)`],
       items,
     });
   }
@@ -720,10 +722,26 @@ function songChord(item) {
     chord, shape, tuning: t,
     name: pretty(rootName(item.root) + (chord.symbol || '')) + bass,
     meta: [shape.voicing, shape.inversion].filter(Boolean).join(' · '),
-    labels: ivs.map((iv) => (iv === null ? '' : pretty((state.labels === 'notes' ? names[iv] : labels[iv]) || ''))),
+    labels: dotLabels(shape, ivs, labels, names),
     roots: ivs.map((iv, st) => (iv === 0 ? st : null)).filter((st) => st !== null),
   };
 }
+
+/** Text inside the dots of song diagrams: finger numbers, intervals or note names. */
+function dotLabels(shape, ivs, labels, names) {
+  return ivs.map((iv, st) => {
+    if (iv === null) return '';
+    if (state.songDots === 'fingers') return shape.fingers?.[st] > 0 ? String(shape.fingers[st]) : '';
+    return pretty((state.songDots === 'notes' ? names[iv] : labels[iv]) || '');
+  });
+}
+
+const SONG_HELP = `<details class="song-help"%OPEN%><summary>How songs work</summary><ol>
+  <li><b>New song</b>: give it a title (a song or an exercise) and, if you like, a note for the lesson.</li>
+  <li><b>Add chords</b>: type a chord such as <i>Am7</i> into “Add chord” and click the fingering you want. You can also pick a shape in <i>Chords</i> and press “Add to song”.</li>
+  <li><b>Arrange</b>: add sections such as Verse or Chorus, move chords with ← →, remove them with ×. Click a diagram to see it on the fretboard.</li>
+  <li><b>Share</b>: the link button at the top copies a link for your students, the PDF button prints an A4 sheet. Songs are saved in this browser only.</li>
+</ol></details>`;
 
 const escHtml = (text) => String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -732,7 +750,7 @@ function renderSongs() {
   const list = state.songs.map((sg) => `<li><button data-song-id="${sg.id}" aria-pressed="${!state.sharedSong && sg.id === state.songId}">${escHtml(sg.title || 'Untitled song')}<small>${sg.items.filter((it) => it.section === undefined).length}</small></button></li>`).join('');
   let editor;
   if (!song) {
-    editor = `<div class="song-empty"><p>No song selected.</p><p class="muted">Create a song or exercise, then add chords from the Chords view with “Add to song”.</p></div>`;
+    editor = `<div class="song-empty"><p>No song selected.</p><p class="muted">Press “New song” to start a song or exercise.</p></div>`;
   } else {
     const items = song.items.map((it, i) => {
       const tools = `<div class="song-tools">
@@ -744,13 +762,20 @@ function renderSongs() {
       }
       const c = songChord(it);
       if (!c) return `<div class="song-chord missing"><span class="muted">Unknown chord</span>${tools}</div>`;
-      const grid = gridSvg(chordGrid(c.shape, it.frets.length, { labels: c.labels, roots: c.roots, columns: 5, sy: 12 }));
+      const grid = gridSvg(chordGrid(c.shape, it.frets.length, { labels: c.labels, roots: c.roots, columns: 5, sy: 14 }));
       return `<div class="song-chord"><button class="song-open" data-open-item="${i}" title="Open in Chords">${grid}<b>${c.name}</b><span>${c.meta || '&nbsp;'}</span><span class="frets">${it.frets.map((f) => (f < 0 ? 'x' : f)).join(' ')}</span></button>${tools}</div>`;
     }).join('');
     editor = `${state.sharedSong ? `<div class="song-shared"><span>Shared song, not saved in this browser yet.</span><button class="ghost-btn" id="songSave">Save to my songs</button></div>` : ''}
       <label class="song-field">Title<input type="text" class="song-title" id="songTitle" value="${escHtml(song.title)}" maxlength="120" placeholder="Song or exercise"></label>
       <textarea class="song-note" id="songNote" rows="2" maxlength="2000" placeholder="Notes for the lesson (optional)" aria-label="Notes">${escHtml(song.note || '')}</textarea>
-      <div class="song-items">${items || '<p class="muted song-hint">No chords yet. Open Chords, pick a voicing and press “Add to song”.</p>'}</div>
+      <div class="song-add">
+        <label class="song-field">Add chord<input type="text" class="song-input" id="songChordInput" value="${escHtml(state.songQuery)}" placeholder="e.g. Am7, D7, Gmaj7, F#m7b5" autocomplete="off" spellcheck="false"></label>
+        <div class="song-options" id="songChordOptions"></div>
+      </div>
+      <div class="song-dots"><span class="muted">Dots show</span><div class="seg" id="songDots" role="radiogroup" aria-label="Dot labels">
+        ${[['fingers', 'Fingers'], ['intervals', 'Intervals'], ['notes', 'Notes']].map(([v, l]) => `<button data-dots="${v}" aria-pressed="${state.songDots === v}">${l}</button>`).join('')}
+      </div></div>
+      <div class="song-items">${items || '<p class="muted song-hint">No chords yet. Type a chord into “Add chord” above.</p>'}</div>
       <div class="song-actions">
         <button class="ghost-btn" id="songAddSection">Add section</button>
         <button class="ghost-btn" id="songDelete">${state.sharedSong ? 'Close' : 'Delete song'}</button>
@@ -760,7 +785,30 @@ function renderSongs() {
       <div><p class="muted">Chord progressions for lessons, saved in this browser only. Share them as a link or print them as PDF.</p></div>
       <div class="namer-actions"><button class="ghost-btn" id="songNew">New song</button></div>
     </div>
+    ${SONG_HELP.replace('%OPEN%', !state.songs.length || (song && !song.items.length) ? ' open' : '')}
     <div class="songs-body"><ul class="song-list">${list || '<li class="muted">No songs yet</li>'}</ul><div class="song-editor">${editor}</div></div>`;
+  if (song) renderSongChordOptions();
+}
+
+/** Fingering choices for the chord typed into "Add chord". */
+function renderSongChordOptions() {
+  const host = $('#songChordOptions');
+  if (!host) return;
+  const query = state.songQuery.trim();
+  if (!query) { host.innerHTML = ''; return; }
+  const parsed = parseChordQuery(query, library.chords);
+  if (!parsed) { host.innerHTML = '<p class="muted">Unknown chord. Try Am7, D7, Gmaj7 or F#m7b5.</p>'; return; }
+  if (parsed.root === null) { host.innerHTML = `<p class="muted">Add the root note, e.g. A${escHtml(query)}.</p>`; return; }
+  const chord = parsed.chords[0];
+  const t = tuning();
+  const shapes = findChordShapes(parsed.root, chord.intervals, t, { maxFret: 15, limit: 8 });
+  const name = pretty(rootName(parsed.root) + (chord.symbol || ''));
+  host.innerHTML = `<p class="muted">${name}: click a fingering to add it.</p><div class="song-option-row">${shapes.map((sh) => {
+    const ivs = sh.frets.map((f, st) => (f < 0 ? null : mod12(t.midi[st] + f - parsed.root)));
+    const { labels, names } = spellCollection(rootName(parsed.root), chord.intervals, 'chord');
+    const grid = gridSvg(chordGrid(sh, sh.frets.length, { labels: dotLabels(sh, ivs, labels, names), roots: ivs.map((iv, st) => (iv === 0 ? st : null)).filter((st) => st !== null), sy: 11 }));
+    return `<button class="song-option" data-add-root="${parsed.root}" data-add-key="${chord.key}" data-add-frets="${fretsText(sh.frets)}" title="Add ${name} (${sh.frets.map((f) => (f < 0 ? 'x' : f)).join(' ')})">${grid}<span class="frets">${sh.frets.map((f) => (f < 0 ? 'x' : f)).join(' ')}</span></button>`;
+  }).join('')}</div>`;
 }
 
 function updateSong(mutate, { rerender = true } = {}) {
@@ -831,6 +879,14 @@ function bindSongs() {
       render();
       return;
     }
+    if (b.dataset.dots) { state.songDots = b.dataset.dots; store.set('songDots', state.songDots); render(); return; }
+    if (b.dataset.addFrets) {
+      const item = { root: parseInt(b.dataset.addRoot, 10), key: b.dataset.addKey, frets: parseFrets(b.dataset.addFrets) };
+      state.songQuery = '';
+      updateSong((song) => { song.items.push(item); });
+      $('#songChordInput')?.focus();
+      return;
+    }
     if (b.id === 'songAddSection') {
       updateSong((song) => { song.items.push({ section: 'Section' }); });
       const inputs = host.querySelectorAll('[data-section]');
@@ -854,12 +910,21 @@ function bindSongs() {
       render();
     }
   });
+  host.addEventListener('keydown', (e) => {
+    if (e.target.id === 'songChordInput' && e.key === 'Enter') {
+      e.preventDefault();
+      host.querySelector('.song-option')?.click();
+    }
+  });
   host.addEventListener('input', (e) => {
     const el = e.target;
     if (el.id === 'songTitle') {
       updateSong((song) => { song.title = el.value; }, { rerender: false });
       const btn = host.querySelector(`[data-song-id="${state.songId}"]`);
       if (btn && !state.sharedSong) btn.firstChild.textContent = el.value || 'Untitled song';
+    } else if (el.id === 'songChordInput') {
+      state.songQuery = el.value;
+      renderSongChordOptions();
     } else if (el.id === 'songNote') {
       updateSong((song) => { song.note = el.value; }, { rerender: false });
     } else if (el.dataset.section !== undefined) {

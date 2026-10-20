@@ -1,62 +1,78 @@
-// Horizontal fret grids in the classic Ted Greene style: strings run left to right with the high string
-// on top, the nut (or a start-fret number) on the left. One geometry feeds two backends: inline SVG for
-// the song view and the vector PDF writer for printable sheets. Pure functions, no DOM.
+// Fret grids for chord voicings and scale positions. Chord and position diagrams are vertical (strings
+// top to bottom with the low string on the left, nut on top); the whole-neck overview is horizontal (high
+// string on top, nut on the left). One geometry feeds two backends: inline SVG for the song view and the
+// vector PDF writer for printable sheets. Pure functions, no DOM.
 
 /**
  * Lay out a grid.
- * strings: string count. from/to: first and last fret column (from >= 1).
- * notes: [{ string, fret, text, filled }] (fret 0 = open string, drawn left of the nut).
+ * strings: string count. from/to: first and last fret (from >= 1).
+ * notes: [{ string, fret, text, filled }] (fret 0 = open string, drawn before the nut).
  * mutes: string indices drawn as ×. barres: [{ fret, from, to }] (string indices).
- * fretNumbers: 'start' (number under the first column when it is not fret 1) or 'neck' (3, 5, 7, 9, 12 …).
- * sy: string spacing; sx: fret width (defaults to 1.75 × sy).
+ * fretNumbers: 'start' (number beside the first fret when it is not fret 1) or 'neck' (3, 5, 7, 9, 12 …).
+ * sy: string spacing; sx: fret length; vertical: frets run downwards.
  * Returns { width, height, items } with items of type line / circle / text in grid units (y down).
  */
-export function fretGrid({ strings, from = 1, to = 5, notes = [], mutes = [], barres = [], fretNumbers = 'start', sy = 12, sx = sy * 1.75 }) {
+export function fretGrid({ strings, from = 1, to = 5, notes = [], mutes = [], barres = [], fretNumbers = 'start', vertical = false, sy = 12, sx = sy * (vertical ? 1.45 : 1.75) }) {
   const items = [];
   const r = sy * 0.42;
-  const left = sy * 1.25; // room for open-string circles and mute marks
-  const top = r + 1;
-  const columns = to - from + 1;
-  const right = left + columns * sx;
-  const bottom = top + (strings - 1) * sy;
-  const y = (s) => top + (strings - 1 - s) * sy;
-  const cx = (fret) => (fret === 0 ? left - sy * 0.62 : left + (fret - from + 0.5) * sx);
+  const head = sy * 1.25; // room before the nut for open-string circles and mute marks
+  const side = r + 1;
+  const offset = vertical ? sy * 1.2 : 0; // vertical: start-fret numbers sit left of the grid
+  const frets = to - from + 1;
+  const end = head + frets * sx;
+  const span = (strings - 1) * sy;
+  const across = (s) => offset + side + (vertical ? s : strings - 1 - s) * sy;
+  const along = (fret) => (fret === 0 ? head - sy * 0.62 : head + (fret - from + 0.5) * sx);
+  const P = (a, c) => (vertical ? { x: c, y: a } : { x: a, y: c });
+  const line = (a1, c1, a2, c2, width, color, cap) => {
+    const p1 = P(a1, c1);
+    const p2 = P(a2, c2);
+    items.push({ type: 'line', x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y, width, color, ...(cap ? { cap } : {}) });
+  };
+  const text = (a, c, value, size, extra = {}) => {
+    const p = P(a, c);
+    items.push({ type: 'text', x: p.x, y: p.y + size * 0.36, text: value, size, align: 'center', ...extra });
+  };
 
-  for (let k = 0; k <= columns; k++) {
-    const x = left + k * sx;
-    items.push({ type: 'line', x1: x, y1: top, x2: x, y2: bottom, width: k === 0 && from === 1 ? sy * 0.28 : 0.6, color: from === 1 && k === 0 ? 'ink' : 'fret' });
+  for (let k = 0; k <= frets; k++) {
+    const nut = k === 0 && from === 1;
+    line(head + k * sx, across(0), head + k * sx, across(strings - 1), nut ? sy * 0.28 : 0.6, nut ? 'ink' : 'fret');
   }
-  for (let s = 0; s < strings; s++) items.push({ type: 'line', x1: left, y1: y(s), x2: right, y2: y(s), width: 0.6, color: 'ink' });
+  for (let s = 0; s < strings; s++) line(head, across(s), end, across(s), 0.6, 'ink');
 
-  const labelY = bottom + sy * 1.3;
-  if (fretNumbers === 'start' && from > 1) {
-    items.push({ type: 'text', x: cx(from), y: labelY, text: String(from), size: sy * 0.72, align: 'center', color: 'muted' });
-  } else if (fretNumbers === 'neck') {
-    for (let f = from; f <= to; f++) {
-      if ([3, 5, 7, 9, 12, 15, 17, 19, 21, 24].includes(f)) items.push({ type: 'text', x: cx(f), y: labelY, text: String(f), size: sy * 0.72, align: 'center', color: 'muted' });
-    }
+  const numberSize = sy * 0.72;
+  const label = (fret) => {
+    if (vertical) items.push({ type: 'text', x: offset - sy * 0.3, y: along(fret) + numberSize * 0.36, text: String(fret), size: numberSize, align: 'right', color: 'muted' });
+    else text(along(fret), across(0) + sy * 1.05, String(fret), numberSize, { color: 'muted' });
+  };
+  if (fretNumbers === 'start' && from > 1) label(from);
+  else if (fretNumbers === 'neck') {
+    for (let f = from; f <= to; f++) if ([3, 5, 7, 9, 12, 15, 17, 19, 21, 24].includes(f)) label(f);
   }
 
-  mutes.forEach((s) => items.push({ type: 'text', x: cx(0), y: y(s) + sy * 0.26, text: '×', size: sy * 0.8, align: 'center', color: 'ink' }));
+  mutes.forEach((s) => text(along(0), across(s), '×', sy * 0.8, { color: 'ink' }));
   barres.forEach((b) => {
     if (b.fret < from || b.fret > to) return;
-    items.push({ type: 'line', x1: cx(b.fret), y1: y(b.from), x2: cx(b.fret), y2: y(b.to), width: r * 1.1, color: 'ink', cap: 'round' });
+    line(along(b.fret), across(b.from), along(b.fret), across(b.to), r * 1.1, 'ink', 'round');
   });
   notes.forEach((n) => {
     if (n.fret !== 0 && (n.fret < from || n.fret > to)) return;
-    const radius = n.fret === 0 ? r * 0.85 : r;
-    items.push({ type: 'circle', cx: cx(n.fret), cy: y(n.string), r: radius, fill: n.filled ? 'ink' : 'paper', stroke: 'ink', width: 0.8 });
+    const p = P(along(n.fret), across(n.string));
+    items.push({ type: 'circle', cx: p.x, cy: p.y, r: n.fret === 0 ? r * 0.85 : r, fill: n.filled ? 'ink' : 'paper', stroke: 'ink', width: 0.8 });
     if (n.text) {
       const size = sy * (String(n.text).length > 2 ? 0.44 : 0.54);
-      items.push({ type: 'text', x: cx(n.fret), y: y(n.string) + size * 0.36, text: String(n.text), size, bold: true, align: 'center', color: n.filled ? 'paper' : 'ink' });
+      text(along(n.fret), across(n.string), String(n.text), size, { bold: true, color: n.filled ? 'paper' : 'ink' });
     }
   });
-  return { width: right + 2, height: labelY + sy * 0.3, items };
+  const acrossEnd = offset + side * 2 + span;
+  if (vertical) return { width: acrossEnd + 1, height: end + 2, items };
+  const labels = fretNumbers === 'neck' || (fretNumbers === 'start' && from > 1) ? sy * 1.35 : sy * 0.3;
+  return { width: end + 2, height: acrossEnd + labels, items };
 }
 
 /**
  * Pick the fret window for a chord voicing: from the nut when it fits, otherwise from the lowest fretted note.
- * `columns` is the grid width (Ted Greene grids: up to 7 frets); wider voicings widen the grid.
+ * `columns` is the number of frets shown (5 by default); wider voicings widen the grid.
  */
 export function chordWindow(frets, columns = 5) {
   const fretted = frets.filter((f) => f > 0);
@@ -67,7 +83,7 @@ export function chordWindow(frets, columns = 5) {
   return { from: lo, to: lo + width - 1 };
 }
 
-/** Grid items for one chord voicing (labels: per-string text, roots: string indices that hold the root). */
+/** Vertical chord box for one voicing (labels: per-string text, roots: string indices that hold the root). */
 export function chordGrid(shape, strings, { labels = [], roots = [], columns = 5, sy = 12 } = {}) {
   const { from, to } = chordWindow(shape.frets, columns);
   const notes = [];
@@ -76,7 +92,7 @@ export function chordGrid(shape, strings, { labels = [], roots = [], columns = 5
     if (f < 0) mutes.push(s);
     else notes.push({ string: s, fret: f, text: labels[s] || '', filled: roots.includes(s) });
   });
-  return fretGrid({ strings, from, to, notes, mutes, barres: shape.barres || [], sy });
+  return fretGrid({ strings, from, to, notes, mutes, barres: shape.barres || [], sy, vertical: true });
 }
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

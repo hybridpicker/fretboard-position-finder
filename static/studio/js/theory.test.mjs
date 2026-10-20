@@ -390,17 +390,23 @@ test('PDF writer produces a valid A4 file with a correct xref table', async () =
   }
 });
 
-test('chord grids follow the Ted Greene layout: high string on top, nut left, 5–7 frets', async () => {
-  const { chordGrid, chordWindow } = await import('./grid.js');
+test('chord grids are vertical: low string left, nut on top, 5+ frets', async () => {
+  const { chordGrid, chordWindow, fretGrid } = await import('./grid.js');
   assert.deepEqual(chordWindow([-1, 3, 2, 0, 1, 0]), { from: 1, to: 5 }, 'open C from the nut');
   assert.deepEqual(chordWindow([8, 10, 10, 9, 8, 8]), { from: 8, to: 12 });
   assert.deepEqual(chordWindow([1, 8, -1, -1, -1, -1], 7), { from: 1, to: 8 }, 'wide voicing widens the grid');
-  const grid = chordGrid({ frets: [3, -1, -1, -1, -1, 3], barres: [] }, 6, { labels: ['1', '', '', '', '', '5'], roots: [0] });
+  const grid = chordGrid({ frets: [3, -1, -1, -1, -1, 5], barres: [] }, 6, { labels: ['1', '', '', '', '', '5'], roots: [0] });
   const dots = grid.items.filter((i) => i.type === 'circle');
   const low = dots.find((d) => d.fill === 'ink');
   const high = dots.find((d) => d.fill === 'paper');
-  assert.ok(low.cy > high.cy, 'low string at the bottom');
-  assert.ok(grid.items.some((i) => i.type === 'line' && i.width > 1 && i.x1 === i.x2), 'nut drawn');
+  assert.ok(low.cx < high.cx, 'low string on the left');
+  assert.ok(low.cy < high.cy, 'higher frets further down');
+  assert.ok(grid.height > grid.width, 'portrait box');
+  assert.ok(grid.items.some((i) => i.type === 'line' && i.width > 1 && i.y1 === i.y2), 'horizontal nut on top');
+  const moved = chordGrid({ frets: [8, 10, 10, 9, 8, 8], barres: [{ fret: 8, from: 0, to: 5 }] }, 6);
+  assert.ok(moved.items.some((i) => i.type === 'text' && i.text === '8' && i.align === 'right'), 'start fret beside the box');
+  const neck = fretGrid({ strings: 6, from: 1, to: 15, fretNumbers: 'neck' });
+  assert.ok(neck.width > neck.height, 'whole neck stays horizontal');
 });
 
 test('sheets build for scales, chords and songs', async () => {
