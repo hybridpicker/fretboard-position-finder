@@ -14,8 +14,8 @@ const byString = (notes, s) => notes.filter((n) => n.string === s).map((n) => n.
 test('A minor pentatonic box 1 is the classic shape with fingering', () => {
   const positions = scalePositions(9, [0, 3, 5, 7, 10], std, { system: 'box' });
   assert.equal(positions.length, 5);
-  const box1 = positions[0];
-  assert.equal(box1.startInterval, 0, 'position 1 starts on the root');
+  const box1 = positions.find((p) => p.startInterval === 0);
+  assert.ok(box1, 'a position starts on the root');
   assert.deepEqual([0, 1, 2, 3, 4, 5].map((s) => byString(box1.notes, s)), [[5, 8], [5, 7], [5, 7], [5, 7], [5, 8], [5, 8]]);
   assert.deepEqual(box1.notes.filter((n) => n.string === 0).map((n) => n.finger), [1, 4]);
 });
@@ -281,4 +281,26 @@ test('chordsForScale only returns chords whose notes are inside the scale', () =
   const scalePcs = scale.map((i) => (i + 9) % 12);
   for (const o of others) assert.ok(o.chord.intervals.every((iv) => scalePcs.includes((iv + o.root) % 12)));
   assert.ok(others.some((o) => o.root === 9 && o.chord.symbol === 'm7'));
+});
+
+// ---- Position numbering by neck place (2026-10-20 #2) ------------------------
+test('position 1 is always the lowest position on the neck, in every key', () => {
+  for (let root = 0; root < 12; root++) {
+    for (const intervals of [[0, 3, 5, 7, 10], [0, 2, 4, 5, 7, 9, 11]]) {
+      for (const system of intervals.length >= 6 ? ['box', 'nps'] : ['box']) {
+        const positions = scalePositions(root, intervals, std, { system });
+        positions.forEach((p, i) => assert.equal(p.index, i + 1));
+        for (let i = 1; i < positions.length; i++) {
+          assert.ok(positions[i].minFret >= positions[i - 1].minFret, `root ${root} ${system}: ascending`);
+        }
+        assert.ok(positions[0].minFret <= 3, `root ${root} ${system}: position 1 sits near the nut (fr ${positions[0].minFret})`);
+      }
+    }
+  }
+});
+
+test('B major: position 1 no longer starts at the 7th fret', () => {
+  const positions = scalePositions(11, [0, 2, 4, 5, 7, 9, 11], std, { system: 'box' });
+  assert.ok(positions[0].minFret <= 2);
+  assert.ok(positions[positions.length - 1].minFret >= 7);
 });
