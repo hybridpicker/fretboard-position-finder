@@ -419,3 +419,26 @@ test('sheets build for scales, chords and songs', async () => {
   assert.equal(song.pages.length, 1);
   assert.equal(pdfFileName('F♯ Dorian'), 'fsharp-dorian.pdf');
 });
+
+// ---- Songs & exercises (2026-10-20 #5) --------------------------------------------
+test('songs round-trip through the share link', async () => {
+  const { encodeSong, decodeSong, sameSong, moveItem, emptySong } = await import('./songs.js');
+  const song = { ...emptySong('Autumn Leaves'), note: 'Swing; two bars each', items: [
+    { section: 'A' }, { root: 9, key: 'minor-7', frets: [5, -1, 5, 5, 5, -1] }, { root: 2, key: 'dominant-7', frets: [-1, 5, 4, 5, 3, -1] },
+    { section: 'B #2' }, { root: 7, key: 'major-7', frets: [3, -1, 4, 4, 3, -1] }, { root: 10, key: 'major-7', frets: [6, -1, 7, 7, 6, -1] },
+  ] };
+  const params = encodeSong(song);
+  assert.equal(params.c, '#A;A.minor-7.5-x-5-5-5-x;D.dominant-7.x-5-4-5-3-x;#B  2;G.major-7.3-x-4-4-3-x;Bb.major-7.6-x-7-7-6-x');
+  const url = new URLSearchParams(params);
+  const back = decodeSong((k) => url.get(k));
+  assert.equal(back.title, 'Autumn Leaves');
+  assert.equal(back.note, 'Swing; two bars each');
+  assert.deepEqual(back.items.filter((it) => it.frets).map((it) => it.root), [9, 2, 7, 10]);
+  assert.ok(sameSong(back, decodeSong((k) => url.get(k))), 'a saved copy is recognised');
+  assert.ok(!sameSong(back, { ...back, title: 'Other' }));
+  assert.equal(decodeSong(() => null), null, 'no song in the link');
+  const junk = decodeSong((k) => ({ t: 'X', c: 'H.major.1-2-3;C.major.1;C.major.x-3-2-0-1-0' }[k] ?? null));
+  assert.equal(junk.items.length, 1, 'invalid items are dropped');
+  assert.deepEqual(moveItem([1, 2, 3], 0, 1), [2, 1, 3]);
+  assert.deepEqual(moveItem([1, 2, 3], 0, -1), [1, 2, 3]);
+});
