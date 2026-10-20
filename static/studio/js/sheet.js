@@ -62,15 +62,16 @@ export function scaleSheet(data) {
   pdf.drawGrid(neck, MARGIN, y);
   y += neck.height + 22;
 
-  // Positions as vertical diagrams, four (or five) per row, scaled down when they would not fit
+  // Positions in a grid of two (or three) columns, scaled down when they would not fit
   const positions = data.positions;
   if (positions.length) {
-    const cols = positions.length <= 4 ? positions.length : positions.length <= 8 ? 4 : 5;
+    const cols = positions.length > 8 ? 3 : 2;
     const gap = 24;
     const colW = (WIDTH - gap * (cols - 1)) / cols;
     const frets = Math.max(...positions.map((p) => p.to - p.from + 1));
-    const sy = Math.min(16, gridUnit(colW, data.strings));
-    const grids = positions.map((p) => fretGrid({ strings: data.strings, from: p.from, to: p.from + frets - 1, notes: p.notes, sy, vertical: true }));
+    const sy = data.strings > 6 ? 10.5 : 12;
+    const sx = Math.min(sy * 2.4, (colW - sy * 1.25 - 2) / frets);
+    const grids = positions.map((p) => fretGrid({ strings: data.strings, from: p.from, to: p.from + frets - 1, notes: p.notes, sy, sx }));
     const blockH = 16 + Math.max(...grids.map((g) => g.height)) + 14;
     const rows = Math.ceil(positions.length / cols);
     // Grow the diagrams into free space (up to 1.3×), shrink them when they would not fit
@@ -90,13 +91,16 @@ export function scaleSheet(data) {
 /** String spacing that makes a vertical diagram with `strings` strings fill `width`. */
 const gridUnit = (width, strings) => (width - 3) / (strings + 1.04);
 
-/** Shared cell layout for vertical chord boxes (labels inside the dots). */
-function cellLayout(chords, strings, columns) {
+/**
+ * Shared cell layout for chord diagrams (labels inside the dots): horizontal grids on chord sheets,
+ * vertical boxes on song sheets.
+ */
+function cellLayout(chords, strings, columns, { vertical = false } = {}) {
   const gap = 16;
   const colW = (WIDTH - gap * (columns - 1)) / columns;
   const frets = Math.max(5, ...chords.map((c) => { const w = chordWindow(c.frets, 5); return w.to - w.from + 1; }));
-  const sy = Math.min(14, gridUnit(colW, strings));
-  const grids = chords.map((c) => chordGrid(c, strings, { labels: c.labels, roots: c.roots, columns: frets, sy }));
+  const sy = vertical ? Math.min(14, gridUnit(colW, strings)) : Math.min(13, (colW - 2) / (1.25 + 1.75 * frets));
+  const grids = chords.map((c) => chordGrid(c, strings, { labels: c.labels, roots: c.roots, columns: frets, sy, vertical }));
   const cellH = Math.max(...grids.map((g) => g.height)) + 30;
   return { gap, colW, grids, cellH, columns };
 }
@@ -131,7 +135,7 @@ export function chordSheet(data) {
   const y = header(pdf, data.title, data.lines);
   const avail = A4.height - MARGIN - FOOTER - y;
   let best = null;
-  for (const columns of [5, 6, 7]) {
+  for (const columns of [4, 5, 6]) {
     const layout = cellLayout(data.chords, data.strings, columns);
     const rows = Math.ceil(data.chords.length / columns);
     const scale = Math.min(1, avail / (rows * (layout.cellH + 8)));
@@ -170,7 +174,7 @@ export function songSheet(data) {
       pdf.text(MARGIN, y, block.section, { size: 12, bold: true });
       y += 12;
     }
-    if (block.chords.length) y = chordCells(pdf, block.chords, cellLayout(block.chords, data.strings, 5), y);
+    if (block.chords.length) y = chordCells(pdf, block.chords, cellLayout(block.chords, data.strings, 5, { vertical: true }), y);
     y += 6;
   }
   footer(pdf, data.link);
