@@ -476,7 +476,7 @@ function buildWindow(start, rootPc, intervals, tuning) {
 export function scalePositions(rootPc, intervals, tuning, { system = 'box', maxStart = 12 } = {}) {
   const open0 = tuning.midi[0];
   const rootFret = mod12(rootPc - open0);
-  // Start frets: every scale degree on the lowest string, ascending from the root
+  // Start frets: every scale degree on the lowest string, folded below the 12th fret
   const starts = intervals.map((iv) => {
     let f = rootFret + iv;
     if (f >= maxStart) f -= 12;
@@ -520,7 +520,8 @@ export function scalePositions(rootPc, intervals, tuning, { system = 'box', maxS
       maxFret: Math.max(...frets),
     });
   });
-  // Conventional numbering: position 1 starts on the root, then up the neck (wrapping at the 12th fret)
+  // Numbered by place on the neck: position 1 is the lowest one (open strings included), whatever the key
+  positions.sort((a, b) => a.minFret - b.minFret || a.notes[0].fret - b.notes[0].fret);
   return positions.map((p, i) => ({ ...p, index: i + 1 }));
 }
 
