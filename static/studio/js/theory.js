@@ -929,8 +929,71 @@ export function parseChordQuery(text, chordLibrary) {
 const pcSet = (root, intervals) => intervals.map((iv) => mod12(iv + root));
 const isSubset = (small, big) => small.every((pc) => big.includes(pc));
 
-/** Scales on `rootPc` that contain every chord tone, most idiomatic and tightest fit first. */
+/**
+ * Chord-scale relationships after Nettles/Graf, "The Chord Scale Theory & Jazz Harmony".
+ * Each entry names the chords (library symbols, built on the scale root) the scale is the chord scale for,
+ * most characteristic first, with its available tensions and avoid notes. Scales are matched by interval
+ * set, so database entries with other names (e.g. "Super Locrian") resolve too. Pentatonic, blues and
+ * bebop entries follow the same idea for the scales the book does not list as chord scales.
+ */
+export const CHORD_SCALES = [
+  { name: 'Ionian', intervals: [0, 2, 4, 5, 7, 9, 11], chords: ['maj7', '6', 'maj9', '6/9', 'add9', ''], tensions: ['9', '13'], avoid: ['11'] },
+  { name: 'Dorian', intervals: [0, 2, 3, 5, 7, 9, 10], chords: ['m7', 'm6', 'm9', 'm11', 'm(add9)', 'm'], tensions: ['9', '11', '13'], avoid: [] },
+  { name: 'Phrygian', intervals: [0, 1, 3, 5, 7, 8, 10], chords: ['m7', 'm'], tensions: ['11'], avoid: ['b9', 'b13'] },
+  { name: 'Lydian', intervals: [0, 2, 4, 6, 7, 9, 11], chords: ['maj7#11', 'maj7', 'maj9', '6', '6/9', 'add9', ''], tensions: ['9', '#11', '13'], avoid: [] },
+  { name: 'Mixolydian', intervals: [0, 2, 4, 5, 7, 9, 10], chords: ['7', '9', '13', '7sus4', ''], tensions: ['9', '13'], avoid: ['11'] },
+  { name: 'Aeolian', intervals: [0, 2, 3, 5, 7, 8, 10], chords: ['m7', 'm9', 'm11', 'm(add9)', 'm'], tensions: ['9', '11'], avoid: ['b13'] },
+  { name: 'Locrian', intervals: [0, 1, 3, 5, 6, 8, 10], chords: ['m7b5', 'dim'], tensions: ['11', 'b13'], avoid: ['b9'] },
+  { name: 'Melodic Minor', intervals: [0, 2, 3, 5, 7, 9, 11], chords: ['m(maj7)', 'm6', 'm(add9)', 'm'], tensions: ['9', '11', '13'], avoid: [] },
+  { name: 'Harmonic Minor', intervals: [0, 2, 3, 5, 7, 8, 11], chords: ['m(maj7)', 'm'], tensions: ['9', '11'], avoid: ['b13'] },
+  { name: 'Dorian b2', intervals: [0, 1, 3, 5, 7, 9, 10], chords: ['7sus4', 'm7'], tensions: ['b9', '13'], avoid: [] },
+  { name: 'Lydian Augmented', intervals: [0, 2, 4, 6, 8, 9, 11], chords: ['maj7#5', 'aug'], tensions: ['9', '#11', '13'], avoid: [] },
+  { name: 'Lydian Dominant', intervals: [0, 2, 4, 6, 7, 9, 10], chords: ['7', '9', '13', '7b5', ''], tensions: ['9', '#11', '13'], avoid: [] },
+  { name: 'Mixolydian b6', intervals: [0, 2, 4, 5, 7, 8, 10], chords: ['7', '9', ''], tensions: ['9', 'b13'], avoid: ['11'] },
+  { name: 'Locrian #2', intervals: [0, 2, 3, 5, 6, 8, 10], chords: ['m7b5', 'dim'], tensions: ['9', '11', 'b13'], avoid: [] },
+  { name: 'Altered', intervals: [0, 1, 3, 4, 6, 8, 10], chords: ['7#5', '7b5'], tensions: ['b9', '#9', '#11', 'b13'], avoid: [] },
+  { name: 'Phrygian Dominant', intervals: [0, 1, 4, 5, 7, 8, 10], chords: ['7b9', '7', ''], tensions: ['b9', 'b13'], avoid: ['11'] },
+  { name: 'Diminished (half-whole)', intervals: [0, 1, 3, 4, 6, 7, 9, 10], chords: ['7b9', '7#9', '7', '7b5'], tensions: ['b9', '#9', '#11', '13'], avoid: [] },
+  { name: 'Diminished (whole-half)', intervals: [0, 2, 3, 5, 6, 8, 9, 11], chords: ['dim7', 'dim'], tensions: ['9', '11', 'b13', 'maj7'], avoid: [] },
+  { name: 'Whole Tone', intervals: [0, 2, 4, 6, 8, 10], chords: ['7#5', '7b5', 'aug'], tensions: ['9', '#11', 'b13'], avoid: [] },
+  { name: 'Major Pentatonic', intervals: [0, 2, 4, 7, 9], chords: ['6/9', '6', 'add9', ''], tensions: ['9', '13'], avoid: [] },
+  { name: 'Minor Pentatonic', intervals: [0, 3, 5, 7, 10], chords: ['m7', '7sus4', 'm'], tensions: ['11'], avoid: [] },
+  { name: 'Blues', intervals: [0, 3, 5, 6, 7, 10], chords: ['m7', 'm'], tensions: ['11'], avoid: [] },
+  { name: 'Bebop Dominant', intervals: [0, 2, 4, 5, 7, 9, 10, 11], chords: ['7', '9', '13'], tensions: ['9', '13'], avoid: ['11'] },
+  { name: 'Bebop Major', intervals: [0, 2, 4, 5, 7, 8, 9, 11], chords: ['6', 'maj7', '6/9', 'maj9', ''], tensions: ['9', '13'], avoid: ['11'] },
+  { name: 'Bebop Dorian', intervals: [0, 2, 3, 4, 5, 7, 9, 10], chords: ['m7', 'm9', 'm11', 'm6'], tensions: ['9', '11', '13'], avoid: [] },
+  { name: 'Bebop Harmonic Minor', intervals: [0, 2, 3, 5, 7, 8, 10, 11], chords: ['m(maj7)', 'm7', 'm'], tensions: ['9', '11'], avoid: ['b13'] },
+  { name: 'Bebop Melodic Minor', intervals: [0, 2, 3, 5, 7, 8, 9, 11], chords: ['m6', 'm(maj7)', 'm'], tensions: ['9', '11'], avoid: [] },
+];
+
+const chordBySymbol = (symbol, chordLibrary) => {
+  const builtin = CHORD_LIBRARY.find((c) => c.symbol === symbol);
+  return builtin ? chordLibrary.find((c) => sameSet(c.intervals, builtin.intervals)) || null : null;
+};
+
+/** The chord-scale entry for a scale (by interval set), with its chords resolved against the library. */
+export function chordScaleFor(scaleIntervals, chordLibrary) {
+  const entry = CHORD_SCALES.find((e) => sameSet(e.intervals, scaleIntervals));
+  if (!entry) return null;
+  return { ...entry, chords: entry.chords.map((sym) => chordBySymbol(sym, chordLibrary)).filter(Boolean) };
+}
+
+/**
+ * Scales on `rootPc` for a chord: the chord scales that list it (Nettles/Graf), most characteristic first.
+ * Chords outside the table (e.g. database-only types) fall back to every scale holding all chord tones.
+ */
 export function scalesForChord(rootPc, chordIntervals, scaleLibrary, limit = 8) {
+  const ranked = [];
+  CHORD_SCALES.forEach((entry, order) => {
+    const at = entry.chords.findIndex((sym) => {
+      const c = CHORD_LIBRARY.find((x) => x.symbol === sym);
+      return c && sameSet(c.intervals, chordIntervals);
+    });
+    if (at < 0) return;
+    const scale = scaleLibrary.find((sc) => sameSet(sc.intervals, entry.intervals));
+    if (scale) ranked.push({ scale, root: rootPc, chordScale: entry, score: at * 10 + order });
+  });
+  if (ranked.length) return ranked.sort((a, b) => a.score - b.score).slice(0, limit);
   const chordPcs = pcSet(rootPc, chordIntervals);
   return scaleLibrary
     .filter((scale) => isSubset(chordPcs, pcSet(rootPc, scale.intervals)))
@@ -942,7 +1005,10 @@ export function scalesForChord(rootPc, chordIntervals, scaleLibrary, limit = 8) 
 /**
  * Chords that live inside a scale.
  * diatonic: for heptatonic scales the stacked-thirds triads and sevenths per degree.
- * others: every library chord (3+ notes) on every scale degree whose notes are a subset of the scale.
+ * chordScale: the chords on the scale root this scale is the chord scale for (Nettles/Graf), with
+ *   tensions and avoid notes; null for scales outside the table.
+ * others: only for scales without a chord-scale entry, the library chords (3+ notes) on the scale root
+ *   built entirely from scale notes.
  */
 export function chordsForScale(rootPc, scaleIntervals, chordLibrary) {
   const sorted = [...scaleIntervals].sort((a, b) => a - b);
@@ -958,13 +1024,9 @@ export function chordsForScale(rootPc, scaleIntervals, chordLibrary) {
       });
     });
   }
-  const others = [];
-  for (const iv of sorted) {
-    const root = mod12(rootPc + iv);
-    for (const chord of chordLibrary) {
-      if (chord.intervals.length < 3) continue;
-      if (isSubset(pcSet(root, chord.intervals), scalePcs)) others.push({ root, interval: iv, chord });
-    }
-  }
-  return { diatonic, others };
+  const chordScale = chordScaleFor(sorted, chordLibrary);
+  const others = chordScale ? [] : chordLibrary
+    .filter((chord) => chord.intervals.length >= 3 && isSubset(pcSet(rootPc, chord.intervals), scalePcs))
+    .map((chord) => ({ root: rootPc, interval: 0, chord }));
+  return { diatonic, chordScale, others };
 }
