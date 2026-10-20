@@ -6,6 +6,7 @@ import {
   identifyChords, identifyScales, spellNote, intervalLabels, buildLibrary, voicingTemplateShapes,
   CHORD_LIBRARY, SCALE_LIBRARY, fingerStringGroup,
   parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes, CHORD_SCALES, chordScaleFor,
+  shapeFromFrets,
 } from './theory.js';
 
 const std = getTuning('standard');
@@ -351,4 +352,14 @@ test('B major: position 1 no longer starts at the 7th fret', () => {
   const positions = scalePositions(11, [0, 2, 4, 5, 7, 9, 11], std, { system: 'box' });
   assert.ok(positions[0].minFret <= 2);
   assert.ok(positions[positions.length - 1].minFret >= 7);
+});
+
+// ---- Shared links (2026-10-20 #3) -----------------------------------------------
+test('shapeFromFrets rebuilds a voicing from a link', () => {
+  const shape = shapeFromFrets([-1, 3, 5, 5, 5, 3], std, 0, [0, 4, 7]);
+  assert.equal(shape.minFret, 3);
+  assert.equal(shape.inversion, 'Root position');
+  assert.ok(shape.barres.length >= 1, 'A-shape barre');
+  assert.equal(shapeFromFrets([-1, -1, -1, -1, -1, -1], std, 0, [0, 4, 7]), null);
+  assert.equal(shapeFromFrets([0, 2, 2], std, 0, [0, 4, 7]), null, 'wrong string count');
 });

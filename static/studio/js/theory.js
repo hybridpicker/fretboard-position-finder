@@ -649,6 +649,19 @@ function scoreShape(frets, fingering, rootPc, intervals, tuning) {
   return score;
 }
 
+/** A complete shape record (fingers, barres, inversion, voicing) for an explicit fret array, e.g. from a link. */
+export function shapeFromFrets(frets, tuning, rootPc, intervals) {
+  if (frets.length !== tuning.midi.length || !frets.some((f) => f >= 0)) return null;
+  const fretted = frets.filter((f) => f > 0);
+  const fingering = assignFingers(frets) || { fingers: frets.map((f) => (f < 0 ? null : f === 0 ? 0 : 1)), barres: [] };
+  return {
+    frets: [...frets], ...fingering,
+    ...describeVoicing(frets, tuning, rootPc, intervals),
+    minFret: fretted.length ? Math.min(...fretted) : 0,
+    span: fretted.length ? Math.max(...fretted) - Math.min(...fretted) : 0,
+  };
+}
+
 /**
  * Find playable chord shapes anywhere on the neck.
  * options: { maxFret, maxSpan (frets between lowest and highest fretted note), minStrings, bass }
