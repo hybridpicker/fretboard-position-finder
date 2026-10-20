@@ -3,6 +3,7 @@ import {
   ROOT_NAMES, NOTE_SHARP, NOTE_FLAT, TUNINGS, getTuning, mod12, pretty, buildLibrary, spellCollection,
   intervalRole, neckNotes, scalePositions, findChordShapes, voicingTemplateShapes, assignFingers,
   identifyChords, identifyScales, midiName, DB_STRING_NUMBERS, parseChordQuery, scalesForChord, chordsForScale,
+  shapeFromFrets,
 } from './theory.js';
 import { renderFretboard, pulseNote } from './fretboard.js';
 import { chordDiagram } from './diagram.js';
@@ -38,6 +39,7 @@ const state = {
   sound: store.get('sound', true),
   bpm: store.get('bpm', 110),
   identify: [],
+  pinFrets: null, // voicing requested by a shared link, selected once the chord view is built
 };
 
 function readUrl() {
@@ -72,10 +74,17 @@ function readUrl() {
   if (p.get('strings')) state.vrange = p.get('strings');
   if (p.get('pos') !== null) state.position = Math.max(0, parseInt(p.get('pos'), 10) || 0);
   if (p.get('sys') === 'nps' || p.get('sys') === 'box') state.system = p.get('sys');
-  if (p.get('shape')) {
-    state.identify = p.get('shape').split(',').map((v) => (v === 'x' ? -1 : parseInt(v, 10)));
-  }
+  if (p.get('shape')) state.identify = parseFrets(p.get('shape'));
+  // Shared links carry the full view: tuning, labels, chord filters and the chosen voicing
+  if (TUNINGS.some((t) => t.id === p.get('tun'))) state.tuning = p.get('tun');
+  if (p.get('lab') === 'notes' || p.get('lab') === 'intervals') state.labels = p.get('lab');
+  if (p.get('bass') !== null && /^(any|\d{1,2})$/.test(p.get('bass'))) state.bass = p.get('bass');
+  if (['all', 'open', 'mid', 'high'].includes(p.get('neck'))) state.neck = p.get('neck');
+  if (p.get('v')) state.pinFrets = parseFrets(p.get('v'));
 }
+
+const parseFrets = (text) => text.split(',').map((v) => (v === 'x' ? -1 : Math.max(-1, Math.min(30, parseInt(v, 10) || 0))));
+const fretsText = (frets) => frets.map((f) => (f < 0 ? 'x' : f)).join(',');
 
 function pcOfName(name) {
   const base = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[name[0].toUpperCase()];
@@ -94,14 +103,52 @@ function writeUrl() {
     if (state.vsystem !== 'all') p.set('vs', state.vsystem);
     if (state.vrange !== 'all') p.set('strings', state.vrange);
   }
+  if (state.mode === 'chord') {
+    if (state.bass !== 'any') p.set('bass', state.bass);
+    if (state.neck !== 'all') p.set('neck', state.neck);
+    if (view.shape) p.set('v', fretsText(view.shape.frets));
+  }
   if (state.mode === 'scale' || state.mode === 'arpeggio') {
     p.set('pos', String(state.position));
     if (state.mode === 'scale') p.set('sys', state.system);
   }
   if (state.mode === 'identify' && state.identify.some((f) => f >= 0)) {
-    p.set('shape', state.identify.map((f) => (f < 0 ? 'x' : f)).join(','));
+    p.set('shape', fretsText(state.identify));
   }
-  history.replaceState(null, '', `${location.pathname}?${p.toString()}`);
+  if (state.tuning !== 'standard') p.set('tun', state.tuning);
+  if (state.labels !== 'intervals') p.set('lab', state.labels);
+  // Keep fret lists readable in shared links (x,3,2,0,1,0 rather than x%2C3%2C…)
+  history.replaceState(null, '', `${location.pathname}?${p.toString().replace(/%2C/g, ',')}`);
+}
+
+/** The current view as a link on the public site (also from the native apps and local dev). */
+function shareUrl() {
+  const base = document.querySelector('link[rel="canonical"]')?.href || 'https://fretboard.schoensgibl.com/';
+  return `${base.replace(/\/?$/, '/')}${location.search}`;
+}
+
+async function shareLink() {
+  const url = shareUrl();
+  const title = document.title;
+  if (navigator.share && window.matchMedia('(pointer: coarse)').matches) {
+    try { await navigator.share({ title, url }); return; } catch (err) { if (err?.name === 'AbortError') return; }
+  }
+  if (await copyText(url)) toast('Link copied');
+  else window.prompt('Copy this link', url);
+}
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch { /* fall back below */ }
+  const area = document.createElement('textarea');
+  area.value = text;
+  area.setAttribute('readonly', '');
+  area.style.cssText = 'position:fixed;opacity:0';
+  document.body.append(area);
+  area.select();
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch { ok = false; }
+  area.remove();
+  return ok;
 }
 
 const tuning = () => getTuning(state.tuning);
@@ -197,6 +244,14 @@ function computeChordView() {
   }
   shapes = filterNeck(shapes);
   if (state.source !== 'vsystem') shapes = shapes.slice(0, 36);
+  if (state.pinFrets) {
+    const wanted = fretsText(state.pinFrets);
+    let idx = shapes.findIndex((s) => fretsText(s.frets) === wanted);
+    const pinned = idx < 0 ? shapeFromFrets(state.pinFrets, t, state.root, type.intervals) : null;
+    if (pinned) { shapes = [pinned, ...shapes]; idx = 0; }
+    if (idx >= 0) state.selected = idx;
+    state.pinFrets = null;
+  }
   if (state.selected >= shapes.length) state.selected = 0;
   const shape = shapes[state.selected] || null;
   const maxFret = Math.max(state.frets, shape ? Math.max(...shape.frets) + 1 : 0);
@@ -736,6 +791,7 @@ function bind() {
   $('#tempo').value = state.bpm;
   $('#tempoOut').textContent = state.bpm;
   $('#tempo').addEventListener('input', (e) => { state.bpm = parseInt(e.target.value, 10); $('#tempoOut').textContent = state.bpm; store.set('bpm', state.bpm); });
+  $('#shareBtn').addEventListener('click', shareLink);
   $('#soundBtn').addEventListener('click', () => { state.sound = !state.sound; store.set('sound', state.sound); syncSegs(); if (!state.sound) stopPlayback(); });
 
   // Settings
