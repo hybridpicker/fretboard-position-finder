@@ -79,13 +79,14 @@
 - Fix: "Add chord" field in the song editor (type a symbol, click one of the eight easiest fingerings, Enter takes the first); dots show finger numbers by default (switchable to intervals / note names, also on the PDF).
 
 ### #7 · Chord diagrams always vertical
-- Status: done (de69142)
+- Status: done (de69142), corrected in d7bf830: only song chords are vertical
 - Area: Songs, PDF
 - Type: Wunsch · Priority: hoch
 - Platform: all
 - Observation: The horizontal (Ted Greene-style) grids from #5 are not wanted.
 - Expected: Fingering diagrams are always vertical.
 - Fix: chord boxes in songs and PDF sheets and the scale positions on PDF sheets are vertical (low string left, nut on top, start fret beside the box); only the whole-neck overview stays horizontal. Supersedes the orientation decision in #5.
+- Correction (user, same day): only song chords (song view, chord picker, song PDF) are vertical; scale positions and chord sheets stay horizontal (d7bf830).
 
 ### #8 · Explain the song workflow
 - Status: done (0c2e868)
@@ -94,3 +95,12 @@
 - Platform: all
 - Expected: Short, user-friendly explanation of how songs work.
 - Fix: "How songs work" box (four steps: new song, add chords, arrange, share/PDF), open while there are no songs or the song is empty.
+
+### #9 · Neighbouring positions almost identical (C Ionian 5 vs 6 differ by one note)
+- Status: done (09b03e1)
+- Area: Scales (box positions)
+- Type: Bug · Priority: hoch
+- Platform: all
+- Observation: In C Ionian, positions 5 and 6 differ by a single note; positions 1 and 2 are also nearly the same.
+- Cause: `scalePositions()` in `static/studio/js/theory.js` built one box per scale degree; degrees a semitone apart (B/C, E/F) yield near-identical boxes.
+- Fix: boxes sharing ≥ 85 % of their notes are merged (keep the more compact one, then the one on the root). 7-note scales now have five CAGED-like boxes (C major: fr 0–3, 2–6, 4–8, 7–10, 9–13); 3 notes per string keeps seven patterns. A test checks every scale, key and system for near-duplicates.
