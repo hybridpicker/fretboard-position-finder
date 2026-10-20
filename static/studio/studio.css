@@ -294,10 +294,7 @@ button.chip:hover b { text-decoration: underline; text-underline-offset: 3px; }
 .pill-row button { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 10px; border: 1px solid var(--line-strong); border-radius: 6px; font-size: 14px; }
 .pill-row button:hover { border-color: var(--text); }
 .pill-row small { color: var(--muted); font-size: 11px; }
-.all-chords { border-top: 1px solid var(--line); padding-top: 12px; }
-.all-chords summary { cursor: pointer; font-size: 14px; font-weight: 500; }
-.chord-root { display: flex; gap: 12px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--line); }
-.chord-root > b { flex: 0 0 32px; font-weight: 650; }
+.chord-rows p.small { margin: 8px 0 0; font-size: 12px; }
 .combo-suggest .tag { margin-left: 8px; }
 
 /* ---------- Footer & toast ---------- */
@@ -318,6 +315,40 @@ kbd { display: inline-block; min-width: 20px; padding: 1px 5px; border: 1px soli
 .help-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px 32px; }
 .help h3 { margin: 12px 0 6px; font-size: 13px; font-weight: 500; color: var(--muted); }
 .help dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: baseline; font-size: 14px; }
+/* ---------- Songs & exercises ---------- */
+.add-song { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; }
+.add-song select { max-width: 220px; }
+.ghost-btn:disabled { opacity: .45; cursor: default; }
+.songs h2 { margin: 0; font-size: 18px; font-weight: 650; letter-spacing: -0.01em; }
+.songs-body { display: grid; grid-template-columns: minmax(180px, 220px) 1fr; gap: 32px; border-top: 1px solid var(--line); padding-top: 20px; }
+.song-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.song-list button { width: 100%; display: flex; justify-content: space-between; gap: 8px; text-align: left; padding: 8px 10px; border-radius: 6px; font-size: 14px; }
+.song-list button:hover { background: var(--subtle); }
+.song-list button[aria-pressed="true"] { background: var(--subtle); font-weight: 600; }
+.song-list small { color: var(--muted); font-weight: 400; }
+.song-editor { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.song-field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.song-title { font: inherit; font-size: 16px; font-weight: 600; border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; background: var(--surface); color: var(--text); width: 100%; }
+.song-note { font: inherit; font-size: 14px; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--surface); color: var(--text); resize: vertical; width: 100%; }
+.song-title:focus, .song-note:focus, .song-section input:focus { outline: 2px solid var(--focus); outline-offset: 2px; }
+.song-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-top: 6px; }
+.song-section { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); padding-top: 8px; }
+.song-section input { font: inherit; font-size: 15px; font-weight: 650; border: 0; background: transparent; color: var(--text); flex: 1; min-width: 0; padding: 4px 0; }
+.song-chord { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.song-open { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 12px 12px 8px; text-align: left; }
+.song-open:hover { background: var(--subtle); }
+.song-open b { font-size: 14px; font-weight: 600; }
+.song-open span { font-size: 12px; color: var(--muted); }
+.song-open .frets { font-family: var(--mono); color: var(--text); letter-spacing: .06em; }
+.tg { width: 100%; max-width: 160px; height: auto; margin-bottom: 6px; font-family: var(--font); }
+.song-tools { display: flex; justify-content: flex-end; gap: 2px; padding: 0 6px 6px; }
+.song-section .song-tools { padding: 0; }
+.song-tools button { width: 28px; height: 28px; border-radius: 6px; color: var(--muted); }
+.song-tools button:hover { background: var(--subtle); color: var(--text); }
+.song-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.song-shared { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 8px; font-size: 14px; }
+.song-empty p { margin: 0 0 6px; }
+.song-hint { grid-column: 1 / -1; margin: 0; }
 .help dt { white-space: nowrap; }
 .help dd { margin: 0; color: var(--muted); }
 
@@ -329,6 +360,9 @@ kbd { display: inline-block; min-width: 20px; padding: 1px 5px; border: 1px soli
   .modes button { flex: 0 0 auto; }
   .kbd-hint { display: none; }
   .namer-body { grid-template-columns: 1fr; gap: 24px; }
+  .songs-body { grid-template-columns: 1fr; gap: 20px; }
+  .song-list { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+  .song-list button { width: auto; }
 }
 @media (max-width: 640px) {
   .stage { gap: 22px; padding-top: 20px; }
@@ -340,6 +374,7 @@ kbd { display: inline-block; min-width: 20px; padding: 1px 5px; border: 1px soli
   .namer-lists { grid-template-columns: 1fr; }
   .chord-rows { grid-template-columns: 1fr; }
   .cards { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .song-items { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .cd { width: 92px; }
   .control-group { width: 100%; }
   .filters { width: 100%; }

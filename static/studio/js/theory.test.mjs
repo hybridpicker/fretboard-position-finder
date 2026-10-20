@@ -5,7 +5,8 @@ import {
   TUNINGS, getTuning, scalePositions, assignFingers, findChordShapes, classifyVoicing,
   identifyChords, identifyScales, spellNote, intervalLabels, buildLibrary, voicingTemplateShapes,
   CHORD_LIBRARY, SCALE_LIBRARY, fingerStringGroup,
-  parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes,
+  parseChordQuery, scalesForChord, chordsForScale, MESSIAEN_MODES, neckNotes, CHORD_SCALES, chordScaleFor,
+  shapeFromFrets,
 } from './theory.js';
 
 const std = getTuning('standard');
@@ -14,8 +15,8 @@ const byString = (notes, s) => notes.filter((n) => n.string === s).map((n) => n.
 test('A minor pentatonic box 1 is the classic shape with fingering', () => {
   const positions = scalePositions(9, [0, 3, 5, 7, 10], std, { system: 'box' });
   assert.equal(positions.length, 5);
-  const box1 = positions[0];
-  assert.equal(box1.startInterval, 0, 'position 1 starts on the root');
+  const box1 = positions.find((p) => p.startInterval === 0);
+  assert.ok(box1, 'a position starts on the root');
   assert.deepEqual([0, 1, 2, 3, 4, 5].map((s) => byString(box1.notes, s)), [[5, 8], [5, 7], [5, 7], [5, 7], [5, 8], [5, 8]]);
   assert.deepEqual(box1.notes.filter((n) => n.string === 0).map((n) => n.finger), [1, 4]);
 });
@@ -272,13 +273,172 @@ test('C major yields the diatonic seventh chords', () => {
   assert.equal(diatonic[6].triad.symbol, 'dim');
 });
 
-test('chordsForScale only returns chords whose notes are inside the scale', () => {
+test('scales outside the chord-scale table fall back to chords on the root built from scale notes', () => {
   const lib = buildLibrary(null);
-  const scale = [0, 3, 5, 7, 10];
-  const { diatonic, others } = chordsForScale(9, scale, lib.chords);
-  assert.equal(diatonic.length, 0, 'no stacked thirds for a pentatonic');
-  assert.ok(others.length > 0);
-  const scalePcs = scale.map((i) => (i + 9) % 12);
-  for (const o of others) assert.ok(o.chord.intervals.every((iv) => scalePcs.includes((iv + o.root) % 12)));
-  assert.ok(others.some((o) => o.root === 9 && o.chord.symbol === 'm7'));
+  const mode5 = MESSIAEN_MODES.find((m) => m.mode === 5).intervals;
+  const { diatonic, chordScale, others } = chordsForScale(9, mode5, lib.chords);
+  assert.equal(diatonic.length, 0);
+  assert.equal(chordScale, null);
+  const scalePcs = mode5.map((i) => (i + 9) % 12);
+  for (const o of others) {
+    assert.equal(o.root, 9, 'only chords on the scale root');
+    assert.ok(o.chord.intervals.every((iv) => scalePcs.includes((iv + o.root) % 12)));
+  }
+});
+
+// ---- Chord-scale theory after Nettles/Graf (2026-10-20 #1) --------------------
+test('every chord-scale chord exists in the library and is built from scale notes', () => {
+  const lib = buildLibrary(null);
+  for (const entry of CHORD_SCALES) {
+    const resolved = chordScaleFor(entry.intervals, lib.chords);
+    assert.equal(resolved.chords.length, entry.chords.length, `${entry.name}: all symbols resolve`);
+    for (const chord of resolved.chords) {
+      assert.ok(chord.intervals.every((iv) => entry.intervals.includes(iv)), `${entry.name}: ${chord.symbol || 'major'} fits`);
+    }
+  }
+});
+
+test('chord-scale recommendations replace the full subset list', () => {
+  const lib = buildLibrary(null);
+  const ionian = chordsForScale(0, [0, 2, 4, 5, 7, 9, 11], lib.chords);
+  assert.equal(ionian.others.length, 0, 'no "all fitting chords" list');
+  assert.deepEqual(ionian.chordScale.chords.map((c) => c.symbol), ['maj7', '6', 'maj9', '6/9', 'add9', '']);
+  assert.deepEqual(ionian.chordScale.avoid, ['11']);
+  const dorian = chordsForScale(2, [0, 2, 3, 5, 7, 9, 10], lib.chords).chordScale;
+  assert.equal(dorian.chords[0].symbol, 'm7');
+  assert.ok(!dorian.chords.some((c) => c.symbol === 'maj7'));
+  const lydian = chordsForScale(5, [0, 2, 4, 6, 7, 9, 11], lib.chords).chordScale;
+  assert.equal(lydian.chords[0].symbol, 'maj7#11');
+});
+
+test('chord -> scales follows the same table', () => {
+  const lib = buildLibrary(null);
+  const names = (intervals) => scalesForChord(0, intervals, lib.scales).map((x) => x.scale.name);
+  assert.deepEqual(names([0, 4, 7, 11]).slice(0, 2), ['Major (Ionian)', 'Lydian']);
+  assert.equal(names([0, 3, 7, 10])[0], 'Dorian');
+  assert.equal(names([0, 4, 7, 10])[0], 'Mixolydian');
+  assert.equal(names([0, 3, 6, 10])[0], 'Locrian');
+  assert.ok(!names([0, 4, 7, 11]).includes('Mixolydian'), 'maj7 never suggests Mixolydian');
+  assert.ok(!names([0, 4, 7, 11]).includes('Bebop Dominant'));
+  const lydianDominant = { name: 'Lydian Dominant', intervals: [0, 2, 4, 6, 7, 9, 10] };
+  const withDb = buildLibrary({ scales: [lydianDominant] });
+  assert.ok(scalesForChord(0, [0, 4, 7, 10], withDb.scales).some((x) => x.scale.name === 'Lydian Dominant'));
+});
+
+test('chords outside the table still get scales by pitch content', () => {
+  const lib = buildLibrary(null);
+  assert.ok(scalesForChord(0, [0, 4, 7], lib.scales).length > 0);
+  const odd = scalesForChord(0, [0, 1, 6], lib.scales);
+  for (const x of odd) assert.ok([0, 1, 6].every((iv) => x.scale.intervals.includes(iv)));
+});
+
+// ---- Position numbering by neck place (2026-10-20 #2) ------------------------
+test('position 1 is always the lowest position on the neck, in every key', () => {
+  for (let root = 0; root < 12; root++) {
+    for (const intervals of [[0, 3, 5, 7, 10], [0, 2, 4, 5, 7, 9, 11]]) {
+      for (const system of intervals.length >= 6 ? ['box', 'nps'] : ['box']) {
+        const positions = scalePositions(root, intervals, std, { system });
+        positions.forEach((p, i) => assert.equal(p.index, i + 1));
+        for (let i = 1; i < positions.length; i++) {
+          assert.ok(positions[i].minFret >= positions[i - 1].minFret, `root ${root} ${system}: ascending`);
+        }
+        assert.ok(positions[0].minFret <= 3, `root ${root} ${system}: position 1 sits near the nut (fr ${positions[0].minFret})`);
+      }
+    }
+  }
+});
+
+test('B major: position 1 no longer starts at the 7th fret', () => {
+  const positions = scalePositions(11, [0, 2, 4, 5, 7, 9, 11], std, { system: 'box' });
+  assert.ok(positions[0].minFret <= 2);
+  assert.ok(positions[positions.length - 1].minFret >= 7);
+});
+
+// ---- Shared links (2026-10-20 #3) -----------------------------------------------
+test('shapeFromFrets rebuilds a voicing from a link', () => {
+  const shape = shapeFromFrets([-1, 3, 5, 5, 5, 3], std, 0, [0, 4, 7]);
+  assert.equal(shape.minFret, 3);
+  assert.equal(shape.inversion, 'Root position');
+  assert.ok(shape.barres.length >= 1, 'A-shape barre');
+  assert.equal(shapeFromFrets([-1, -1, -1, -1, -1, -1], std, 0, [0, 4, 7]), null);
+  assert.equal(shapeFromFrets([0, 2, 2], std, 0, [0, 4, 7]), null, 'wrong string count');
+});
+
+// ---- PDF sheets (2026-10-20 #4) ---------------------------------------------------
+test('PDF writer produces a valid A4 file with a correct xref table', async () => {
+  const { PdfWriter } = await import('./pdf.js');
+  const pdf = new PdfWriter({ title: 'C♯ Test (1)' });
+  pdf.text(42, 60, 'F♯m7♭5 · ×', { size: 12, bold: true });
+  pdf.circle(100, 100, 5, { fill: 0, stroke: 0 });
+  pdf.line(10, 10, 100, 10);
+  pdf.addPage();
+  pdf.text(42, 60, 'Page 2');
+  const bytes = pdf.output();
+  const text = Array.from(bytes, (b) => String.fromCharCode(b)).join('');
+  assert.ok(text.startsWith('%PDF-1.4'));
+  assert.ok(text.trimEnd().endsWith('%%EOF'));
+  assert.match(text, /\/MediaBox \[0 0 595\.28 841\.89\]/);
+  assert.match(text, /\/Count 2/);
+  assert.match(text, /\(F\) Tj/, 'accidentals are drawn, not sent as text');
+  const xref = parseInt(/startxref\n(\d+)/.exec(text)[1], 10);
+  assert.equal(text.slice(xref, xref + 4), 'xref');
+  const offsets = [...text.slice(xref).matchAll(/^(\d{10}) 00000 n $/gm)].map((m) => parseInt(m[1], 10));
+  offsets.forEach((o, i) => assert.equal(text.slice(o, o + `${i + 1} 0 obj`.length), `${i + 1} 0 obj`));
+  for (const m of text.matchAll(/<< \/Length (\d+) >>\nstream\n/g)) {
+    const start = m.index + m[0].length;
+    assert.equal(text.slice(start + parseInt(m[1], 10), start + parseInt(m[1], 10) + 10), '\nendstream');
+  }
+});
+
+test('chord grids follow the Ted Greene layout: high string on top, nut left, 5–7 frets', async () => {
+  const { chordGrid, chordWindow } = await import('./grid.js');
+  assert.deepEqual(chordWindow([-1, 3, 2, 0, 1, 0]), { from: 1, to: 5 }, 'open C from the nut');
+  assert.deepEqual(chordWindow([8, 10, 10, 9, 8, 8]), { from: 8, to: 12 });
+  assert.deepEqual(chordWindow([1, 8, -1, -1, -1, -1], 7), { from: 1, to: 8 }, 'wide voicing widens the grid');
+  const grid = chordGrid({ frets: [3, -1, -1, -1, -1, 3], barres: [] }, 6, { labels: ['1', '', '', '', '', '5'], roots: [0] });
+  const dots = grid.items.filter((i) => i.type === 'circle');
+  const low = dots.find((d) => d.fill === 'ink');
+  const high = dots.find((d) => d.fill === 'paper');
+  assert.ok(low.cy > high.cy, 'low string at the bottom');
+  assert.ok(grid.items.some((i) => i.type === 'line' && i.width > 1 && i.x1 === i.x2), 'nut drawn');
+});
+
+test('sheets build for scales, chords and songs', async () => {
+  const { scaleSheet, chordSheet, songSheet, pdfFileName } = await import('./sheet.js');
+  const positions = scalePositions(9, [0, 2, 3, 5, 7, 9, 10], std, { system: 'box' });
+  const scale = scaleSheet({
+    title: 'A Dorian', lines: ['Notes A B C D E F♯ G'], strings: 6, link: 'https://fretboard.schoensgibl.com/?mode=scale',
+    neck: { frets: 15, notes: neckNotes(9, [0, 2, 3, 5, 7, 9, 10], std, 15).map((n) => ({ ...n, text: '1', filled: n.interval === 0 })) },
+    positions: positions.map((p) => ({ label: `Position ${p.index}`, from: Math.max(1, p.minFret), to: Math.max(1, p.minFret) + 5, notes: p.notes.map((n) => ({ ...n, text: String(n.finger) })) })),
+  });
+  assert.equal(scale.pages.length, 1, 'scale sheet fits one A4 page');
+  const chords = findChordShapes(0, [0, 4, 7], std, { limit: 36 }).map((sh) => ({ name: 'C', meta: sh.inversion, frets: sh.frets, barres: sh.barres, labels: [], roots: [] }));
+  assert.equal(chordSheet({ title: 'C', lines: [], strings: 6, chords }).pages.length, 1, '36 shapes fit one page');
+  assert.ok(chordSheet({ title: 'C', lines: [], strings: 6, chords: [...chords, ...chords, ...chords] }).pages.length >= 2, 'very long lists continue on the next page');
+  const song = songSheet({ title: 'Song XY', note: 'Swing feel', lines: [], strings: 6, items: [{ section: 'Verse' }, ...chords.slice(0, 5), { section: 'Chorus' }, ...chords.slice(5, 9)] });
+  assert.equal(song.pages.length, 1);
+  assert.equal(pdfFileName('F♯ Dorian'), 'fsharp-dorian.pdf');
+});
+
+// ---- Songs & exercises (2026-10-20 #5) --------------------------------------------
+test('songs round-trip through the share link', async () => {
+  const { encodeSong, decodeSong, sameSong, moveItem, emptySong } = await import('./songs.js');
+  const song = { ...emptySong('Autumn Leaves'), note: 'Swing; two bars each', items: [
+    { section: 'A' }, { root: 9, key: 'minor-7', frets: [5, -1, 5, 5, 5, -1] }, { root: 2, key: 'dominant-7', frets: [-1, 5, 4, 5, 3, -1] },
+    { section: 'B #2' }, { root: 7, key: 'major-7', frets: [3, -1, 4, 4, 3, -1] }, { root: 10, key: 'major-7', frets: [6, -1, 7, 7, 6, -1] },
+  ] };
+  const params = encodeSong(song);
+  assert.equal(params.c, '#A;A.minor-7.5-x-5-5-5-x;D.dominant-7.x-5-4-5-3-x;#B  2;G.major-7.3-x-4-4-3-x;Bb.major-7.6-x-7-7-6-x');
+  const url = new URLSearchParams(params);
+  const back = decodeSong((k) => url.get(k));
+  assert.equal(back.title, 'Autumn Leaves');
+  assert.equal(back.note, 'Swing; two bars each');
+  assert.deepEqual(back.items.filter((it) => it.frets).map((it) => it.root), [9, 2, 7, 10]);
+  assert.ok(sameSong(back, decodeSong((k) => url.get(k))), 'a saved copy is recognised');
+  assert.ok(!sameSong(back, { ...back, title: 'Other' }));
+  assert.equal(decodeSong(() => null), null, 'no song in the link');
+  const junk = decodeSong((k) => ({ t: 'X', c: 'H.major.1-2-3;C.major.1;C.major.x-3-2-0-1-0' }[k] ?? null));
+  assert.equal(junk.items.length, 1, 'invalid items are dropped');
+  assert.deepEqual(moveItem([1, 2, 3], 0, 1), [2, 1, 3]);
+  assert.deepEqual(moveItem([1, 2, 3], 0, -1), [1, 2, 3]);
 });

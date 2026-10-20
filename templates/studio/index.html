@@ -39,10 +39,17 @@
       <button role="tab" data-mode="arpeggio" data-key="A" title="Arpeggios (⌃A)">Arpeggios</button>
       <button role="tab" data-mode="chord" data-key="C" title="Chords (⌃C)">Chords</button>
       <button role="tab" data-mode="identify" data-key="N" title="Chord Namer (⌃N)">Chord Namer</button>
+      <button role="tab" data-mode="song" data-key="O" title="Songs &amp; exercises (⌃O)">Songs</button>
     </nav>
     <div class="top-actions">
       <button class="icon-btn" id="helpBtn" title="Keyboard shortcuts (?)" aria-haspopup="dialog">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5zm2 .5v10h14V7zm1.5 1.5h2v2h-2zm3.5 0h2v2h-2zm3.5 0h2v2h-2zm3.5 0h1.5v2H17zM6.5 12h2v2h-2zm3.5 0h2v2h-2zm3.5 0h2v2h-2zm3.5 0h1.5v2H17zM8 15.25h8v1.5H8z"/></svg>
+      </button>
+      <button class="icon-btn" id="shareBtn" title="Share this view (copy link)" aria-label="Share this view">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a1 1 0 0 1 0-1.4l3.5-3.5a1 1 0 1 1 1.4 1.4L12 13.4a1 1 0 0 1-1.4 0zm-2.8 5.3a3.5 3.5 0 0 1-2.5-6l2.1-2.1a1 1 0 1 1 1.4 1.4l-2.1 2.1a1.5 1.5 0 0 0 2.1 2.1l2.1-2.1a1 1 0 1 1 1.4 1.4l-2.1 2.1a3.5 3.5 0 0 1-2.4 1.1zm8.5-5.6a1 1 0 0 1-.7-1.7l2.1-2.1a1.5 1.5 0 0 0-2.1-2.1l-2.1 2.1a1 1 0 1 1-1.4-1.4l2.1-2.1a3.5 3.5 0 0 1 4.9 4.9L17 12.8a1 1 0 0 1-.7.3z"/></svg>
+      </button>
+      <button class="icon-btn" id="pdfBtn" title="Download as PDF (A4, black and white)" aria-label="Download as PDF">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M6 2.5h8.4L19 7.1V20a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 20V4a1.5 1.5 0 0 1 1-1.5zm1 2V19.5h10V8h-4V4.5zm4 6h2v4.1l1.3-1.3 1.4 1.4-3.7 3.7-3.7-3.7 1.4-1.4 1.3 1.3z"/></svg>
       </button>
       <button class="icon-btn" id="soundBtn" aria-pressed="true" title="Sound on/off (M)">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path class="on" d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/><path class="off" d="M4 9v6h4l5 4V5L8 9H4zm15.6 3 2.1-2.1-1.4-1.4-2.1 2.1-2.1-2.1-1.4 1.4 2.1 2.1-2.1 2.1 1.4 1.4 2.1-2.1 2.1 2.1 1.4-1.4z"/></svg>
@@ -133,6 +140,11 @@
           </div>
         </div>
       </div>
+      <div class="add-song">
+        <label for="songTarget" class="muted">Selected voicing</label>
+        <select id="songTarget" aria-label="Song to add the chord to"></select>
+        <button class="ghost-btn" id="addSongBtn">Add to song</button>
+      </div>
       <div class="cards" id="cards"></div>
     </section>
 
@@ -155,6 +167,8 @@
         </div>
       </div>
     </section>
+
+    <section class="songs" id="songs" aria-label="Songs and exercises" hidden></section>
 
     <noscript>
       <p class="noscript">Guitar Positions Studio needs JavaScript. The <a href="{% url 'fretboard_classic' %}">classic version</a> works without the new interface.</p>
@@ -209,6 +223,7 @@
             <dt><kbd class="vmod">⌃</kbd> <kbd>A</kbd></dt><dd>Arpeggios</dd>
             <dt><kbd class="vmod">⌃</kbd> <kbd>C</kbd></dt><dd>Chords</dd>
             <dt><kbd class="vmod">⌃</kbd> <kbd>N</kbd></dt><dd>Chord Namer</dd>
+            <dt><kbd class="vmod">⌃</kbd> <kbd>O</kbd></dt><dd>Songs &amp; exercises</dd>
             <dt><kbd>V</kbd></dt><dd>Chords: best shapes ↔ V-System</dd>
           </dl>
         </section>
