@@ -7,6 +7,7 @@ import {
 } from './theory.js';
 import { renderFretboard, pulseNote } from './fretboard.js';
 import { chordDiagram } from './diagram.js';
+import { scaleSheet, chordSheet, pdfFileName } from './sheet.js';
 import { playNote, strum, playSequence, stopSequence, isSequencePlaying } from './audio.js';
 
 const $ = (sel) => document.querySelector(sel);
@@ -135,6 +136,118 @@ async function shareLink() {
   }
   if (await copyText(url)) toast('Link copied');
   else window.prompt('Copy this link', url);
+}
+
+// ---------------------------------------------------------------------------
+// PDF export (A4, black and white)
+// ---------------------------------------------------------------------------
+const labelFor = (interval) => pretty(state.labels === 'notes' ? view.names[interval] : view.labels[interval]);
+
+/** Chord-grid data for a shape: interval or note labels inside the dots, roots filled. */
+function chordCell(shape, rootPc, intervals, name, labels, names) {
+  const t = tuning();
+  const ivs = shape.frets.map((f, s) => (f < 0 ? null : mod12(t.midi[s] + f - rootPc)));
+  return {
+    name,
+    meta: [shape.voicing, shape.inversion].filter(Boolean).join(' · '),
+    frets: shape.frets,
+    barres: shape.barres || [],
+    labels: ivs.map((iv) => (iv === null ? '' : pretty(state.labels === 'notes' ? names[iv] : labels[iv]) || '')),
+    roots: ivs.map((iv, s) => (iv === 0 ? s : null)).filter((s) => s !== null),
+  };
+}
+
+function currentSheet() {
+  const t = tuning();
+  const strings = t.midi.length;
+  const link = shareUrl();
+  if (state.mode === 'scale' || state.mode === 'arpeggio') {
+    const type = view.type;
+    const title = $('#title').textContent;
+    const frets = Math.max(4, ...view.positions.map((p) => p.maxFret - Math.max(1, p.minFret) + 1));
+    const system = view.system === 'nps' ? '3 notes per string' : 'Box positions';
+    return scaleSheet({
+      title,
+      link,
+      strings,
+      lines: [
+        `Notes  ${type.intervals.map((iv) => pretty(view.names[iv])).join('  ')}`,
+        `Intervals  ${type.intervals.map((iv) => pretty(view.labels[iv])).join('  ')}`,
+        `${t.name} · ${state.mode === 'scale' ? `${system} · ` : ''}whole neck: ${state.labels === 'notes' ? 'note names' : 'intervals'} · positions: fingers (filled = root)`,
+      ],
+      neck: {
+        frets: Math.min(view.maxFret, 24),
+        notes: view.notes.filter((n) => n.fret <= Math.min(view.maxFret, 24)).map((n) => ({ string: n.string, fret: n.fret, text: labelFor(n.interval), filled: n.interval === 0 })),
+      },
+      positions: view.positions.map((p) => {
+        const from = Math.max(1, p.minFret);
+        return {
+          label: `Position ${p.index} · frets ${p.minFret}–${p.maxFret}`,
+          from,
+          to: from + frets - 1,
+          notes: p.notes.map((n) => ({ string: n.string, fret: n.fret, text: n.fret === 0 ? '' : String(n.finger || ''), filled: n.interval === 0 })),
+        };
+      }),
+    });
+  }
+  if (state.mode === 'chord') {
+    const type = view.type;
+    const name = pretty(rootName() + (type.symbol || ''));
+    const source = state.source === 'vsystem'
+      ? `V-System${state.vsystem !== 'all' ? ` ${state.vsystem}` : ''}${state.vrange !== 'all' ? ` · strings ${state.vrange}` : ''}`
+      : 'Best shapes, easiest first';
+    return chordSheet({
+      title: type.symbol ? `${name} · ${type.name}` : pretty(`${rootName()} ${type.name}`),
+      link,
+      strings,
+      lines: [
+        `Chord tones  ${type.intervals.map((iv) => `${pretty(view.names[iv])} (${pretty(view.labels[iv])})`).join('  ')}`,
+        `${source} · ${t.name} · dots: ${state.labels === 'notes' ? 'note names' : 'intervals'} (filled = root)`,
+      ],
+      chords: view.shapes.map((sh) => chordCell(sh, state.root, type.intervals, `${name}${sh.bassInterval ? `/${pretty(view.names[sh.bassInterval])}` : ''}`, view.labels, view.names)),
+    });
+  }
+  if (state.mode === 'identify' && view.best) {
+    const { best } = view;
+    const names = state.spelling === 'flat' ? NOTE_FLAT : state.spelling === 'sharp' ? NOTE_SHARP : ROOT_NAMES;
+    const spelled = spellCollection(names[best.root], best.chord.intervals, 'chord');
+    const shape = { frets: view.frets, barres: view.fingering?.barres || [], voicing: '', inversion: best.chord.name };
+    return chordSheet({
+      title: pretty(best.name),
+      link,
+      strings,
+      lines: [`${best.chord.name} · ${t.name}`],
+      chords: [chordCell(shape, best.root, best.chord.intervals, pretty(best.name), spelled.labels, spelled.names)],
+    });
+  }
+  return null;
+}
+
+async function savePdf(pdf) {
+  const bytes = pdf.output();
+  const name = pdfFileName(pdf.title);
+  const blob = new Blob([bytes], { type: 'application/pdf' });
+  // Native shells (Capacitor) cannot follow download links: hand the file to the share sheet instead
+  if (window.Capacitor?.isNativePlatform?.() && navigator.canShare) {
+    const file = new File([blob], name, { type: 'application/pdf' });
+    if (navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: pdf.title }); return; } catch (err) { if (err?.name === 'AbortError') return; }
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = name;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+function exportPdf() {
+  const pdf = currentSheet();
+  if (!pdf) { toast('Place some notes first'); return; }
+  savePdf(pdf).then(() => toast('PDF ready')).catch(() => toast('Could not create the PDF'));
 }
 
 async function copyText(text) {
@@ -792,6 +905,7 @@ function bind() {
   $('#tempoOut').textContent = state.bpm;
   $('#tempo').addEventListener('input', (e) => { state.bpm = parseInt(e.target.value, 10); $('#tempoOut').textContent = state.bpm; store.set('bpm', state.bpm); });
   $('#shareBtn').addEventListener('click', shareLink);
+  $('#pdfBtn').addEventListener('click', exportPdf);
   $('#soundBtn').addEventListener('click', () => { state.sound = !state.sound; store.set('sound', state.sound); syncSegs(); if (!state.sound) stopPlayback(); });
 
   // Settings
