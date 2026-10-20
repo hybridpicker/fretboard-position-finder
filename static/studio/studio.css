@@ -328,10 +328,24 @@ kbd { display: inline-block; min-width: 20px; padding: 1px 5px; border: 1px soli
 .song-list small { color: var(--muted); font-weight: 400; }
 .song-editor { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
 .song-field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.song-input { font: inherit; font-size: 15px; border: 1px solid var(--line-strong); border-radius: 6px; padding: 7px 10px; background: var(--surface); color: var(--text); width: 100%; max-width: 360px; }
+.song-input:focus { outline: 2px solid var(--focus); outline-offset: 2px; }
 .song-title { font: inherit; font-size: 16px; font-weight: 600; border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; background: var(--surface); color: var(--text); width: 100%; }
 .song-note { font: inherit; font-size: 14px; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--surface); color: var(--text); resize: vertical; width: 100%; }
 .song-title:focus, .song-note:focus, .song-section input:focus { outline: 2px solid var(--focus); outline-offset: 2px; }
-.song-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-top: 6px; }
+.song-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 6px; }
+.song-help { border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 14px; }
+.song-help summary { cursor: pointer; font-weight: 600; }
+.song-help ol { margin: 10px 0 2px; padding-left: 20px; display: grid; gap: 6px; color: var(--text); }
+.song-help li { line-height: 1.45; }
+.song-add { display: flex; flex-direction: column; gap: 8px; }
+.song-options p { margin: 0 0 6px; font-size: 13px; }
+.song-option-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.song-option { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 6px 6px; border: 1px solid var(--line); border-radius: 8px; }
+.song-option:hover { border-color: var(--ink); background: var(--subtle); }
+.song-option .tg { width: 76px; margin-bottom: 2px; }
+.song-option .frets { font-family: var(--mono); font-size: 11px; letter-spacing: .04em; }
+.song-dots { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; }
 .song-section { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); padding-top: 8px; }
 .song-section input { font: inherit; font-size: 15px; font-weight: 650; border: 0; background: transparent; color: var(--text); flex: 1; min-width: 0; padding: 4px 0; }
 .song-chord { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
@@ -340,7 +354,7 @@ kbd { display: inline-block; min-width: 20px; padding: 1px 5px; border: 1px soli
 .song-open b { font-size: 14px; font-weight: 600; }
 .song-open span { font-size: 12px; color: var(--muted); }
 .song-open .frets { font-family: var(--mono); color: var(--text); letter-spacing: .06em; }
-.tg { width: 100%; max-width: 160px; height: auto; margin-bottom: 6px; font-family: var(--font); }
+.tg { width: 104px; max-width: 100%; height: auto; margin-bottom: 6px; font-family: var(--font); }
 .song-tools { display: flex; justify-content: flex-end; gap: 2px; padding: 0 6px 6px; }
 .song-section .song-tools { padding: 0; }
 .song-tools button { width: 28px; height: 28px; border-radius: 6px; color: var(--muted); }
