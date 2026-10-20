@@ -1,33 +1,29 @@
 ![Logo_Guitar_Positions](https://github.com/user-attachments/assets/fef79724-95a0-4da6-bb31-161615622764)
 
 
-**Interactive guitar fretboard visualization for scales, chords, and arpeggios in all 12 keys**
-![guitar_positions_mockup](https://github.com/user-attachments/assets/2c44c7cf-e4cb-4b66-afc3-ea0dc8ef29a8)
+**Interactive guitar fretboard for scales, arpeggios and chords in all 12 keys, with fingerings, playable chord shapes and a chord namer.**
 
+### 🎸 Live: **[fretboard.schoensgibl.com](https://fretboard.schoensgibl.com/)**
+
+Free, no account needed. Installable as a PWA and also available as native apps (iOS, iPad, macOS, Android) that show the same Studio.
+
+| Scales with positions and fitting chords | Chord shapes |
+|---|---|
+| ![Scales view: A minor pentatonic with position 1, fingering and fitting chords](docs/screenshots/scales.png) | ![Chords view: Cmaj7 shapes](docs/screenshots/chords.png) |
+| **V-System voicings** | **Chord Namer** |
+| ![V-System voicings for Cmaj7](docs/screenshots/v-system.png) | ![Chord Namer recognising an open C chord](docs/screenshots/chord-namer.png) |
 
 ## Features
 
-- **Interactive Fretboard Display**: Visualize notes on the fretboard using HTML, CSS, and JavaScript.
-- **Scales**: Major, Minor, Modes, Custom scales with all possible positions.
-- **Arpeggios**: Major, Minor, Seventh, Extended arpeggios with multiple voicings.
-- **Chords**:
-  - Triads and seventh chords: Maj7, Dom7, Min7, m7♭5, Dim7.
-  - V-System voicings (V3–V7, V8–V10) for 4‑note chords with fixture generation.
-- **String Configurations**:
-  - Standard 6‑string (E, A, D, G, B, E).
-  - Extended 8‑string (B, E, A, D, G, B, E, A).
-- **All 12 Keys Supported**: Generate positions for any root note.
-- **Search & Filter**:
-  - Find scales, chords, or arpeggios by name or note content.
-  - API endpoints for JSON responses.
-- **Fixtures & Management**:
-  - `generate_v_system_fixture.py` script for auto-generating chord voicings.
-  - Load data via Django fixtures (`python manage.py loaddata`).
-- **Extensible Architecture**:
-  - Modular Django apps for models, views, templates, and filters.
-  - Pluggable string and tuning configurations.
-- **Custom Template Filters**: Note naming, color coding, and display utilities.
-- **Responsive & Themed UI**: Mobile-friendly layout and CSS theming.
+- **Scales**: modes of major, pentatonic and blues, melodic and harmonic minor families, symmetric scales (whole tone, diminished, Messiaen modes 1–7) and **Bebop** scales. Every scale has numbered positions with fingerings, as boxes or three notes per string.
+- **Arpeggios** for every chord type.
+- **Chords**: playable shapes ranked by ease, filterable by bass note (inversion) and neck region, plus Ted Greene style **V-System voicings** (V1–V14) for all chord types.
+- **Search**: type a chord symbol such as `Em7`, `F#m7b5` or `Maj7#11` and get the chord, its V-System voicings, the arpeggio and fitting scales (Em7 → Dorian, Phrygian, Aeolian on E).
+- **Chords in this scale**: diatonic triads and sevenths plus every chord that fits the scale; one click opens its shapes.
+- **Chord Namer**: tap a shape on the fretboard and get the chord name, alternatives and scales that fit.
+- **Instruments**: standard tuning, half step down, Drop D, DADGAD, open G/D, 7- and 8-string guitars, left-handed view, horizontal or vertical neck.
+- **Sound**: play scales and strum chords; keyboard shortcuts for everything (press `?`).
+- **Light and dark theme**, mobile friendly, works offline once installed.
 
 ## Tech Stack
 
@@ -79,13 +75,18 @@ python manage.py loaddata
 python manage.py runserver 0.0.0.0:8080
 ```
 
-   - Python
-   - JavaScript
-   - JSON
-   
-## Fretboard-Position-Finder in Action
+Open http://localhost:8080 to view the app, or use the live site at https://fretboard.schoensgibl.com/.
 
-Open http://localhost:8080 to view the app.
+## Tests
+
+```bash
+node --test static/studio/js/theory.test.mjs   # music theory and fingering engine
+python manage.py test positionfinder           # Django views and catalogue
+```
+
+## Native apps
+
+The iOS, iPad, macOS and Android apps (Capacitor, see [`apps/README.md`](apps/README.md) on branch `claude/festive-payne-53db8c`) bundle the same Studio code and must always be rebuilt together with the web version.
 
 ## API Endpoints
 
@@ -96,8 +97,8 @@ Open http://localhost:8080 to view the app.
 
 ## Deployment
 
-- **Server**: CentOS with Nginx & Gunicorn
-- **Port**: 8080
+- **Server**: AlmaLinux 9 with Nginx & Gunicorn, served only at https://fretboard.schoensgibl.com/
+- **Development port**: 8080
 
 Example Gunicorn command:
 ```bash
