@@ -326,8 +326,9 @@ function spelling(intervals, kind) {
 }
 
 function orientation() {
-  if (state.orientation !== 'auto') return state.orientation;
-  return window.matchMedia('(max-width: 640px) and (orientation: portrait)').matches ? 'vertical' : 'horizontal';
+  // Wide screens always show the neck horizontally; a saved "Vertical" only applies to narrow portrait screens
+  if (!window.matchMedia('(max-width: 640px) and (orientation: portrait)').matches) return 'horizontal';
+  return state.orientation === 'horizontal' ? 'horizontal' : 'vertical';
 }
 
 // ---------------------------------------------------------------------------
