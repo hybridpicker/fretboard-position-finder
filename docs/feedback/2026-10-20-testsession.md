@@ -104,3 +104,12 @@
 - Observation: In C Ionian, positions 5 and 6 differ by a single note; positions 1 and 2 are also nearly the same.
 - Cause: `scalePositions()` in `static/studio/js/theory.js` built one box per scale degree; degrees a semitone apart (B/C, E/F) yield near-identical boxes.
 - Fix: boxes sharing ≥ 85 % of their notes are merged (keep the more compact one, then the one on the root). 7-note scales now have five CAGED-like boxes (C major: fr 0–3, 2–6, 4–8, 7–10, 9–13); 3 notes per string keeps seven patterns. A test checks every scale, key and system for near-duplicates.
+
+### #10 · Fretboard upright on desktop
+- Status: done (03d5c06)
+- Area: Fretboard (orientation)
+- Type: Bug · Priority: hoch
+- Platform: Web (desktop, live site)
+- Observation: https://fretboard.schoensgibl.com/?mode=scale&root=C&type=major-ionian&pos=1&sys=box showed the main fretboard vertically on a wide screen.
+- Cause: not reproducible with default settings; most likely a saved "Neck: Vertical" choice in that browser, which `orientation()` in `static/studio/js/app.js` applied on every screen size.
+- Fix: wide screens always show the neck horizontally; the setting (now "Neck on phones") only applies to narrow portrait screens.
