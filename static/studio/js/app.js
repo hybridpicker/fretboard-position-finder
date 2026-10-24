@@ -1299,9 +1299,10 @@ function bind() {
 
   // Keyboard shortcuts (press ? for the overview)
   document.addEventListener('keydown', onKey);
-  $('#helpClose').addEventListener('click', () => toggleHelp(false));
-  $('#help').addEventListener('click', (e) => { if (e.target.id === 'help') toggleHelp(false); });
-  $('#helpBtn').addEventListener('click', () => toggleHelp(true));
+  // The native apps ship without the shortcut help
+  $('#helpClose')?.addEventListener('click', () => toggleHelp(false));
+  $('#help')?.addEventListener('click', (e) => { if (e.target.id === 'help') toggleHelp(false); });
+  $('#helpBtn')?.addEventListener('click', () => toggleHelp(true));
   document.querySelectorAll('.vmod').forEach((el) => { el.textContent = VIEW_MODIFIER; });
   document.querySelectorAll('.modes button[data-key]').forEach((b) => { b.title = `${b.textContent} (${VIEW_MODIFIER}${b.dataset.key})`; });
 
@@ -1325,6 +1326,7 @@ const VIEW_MODIFIER = IS_MAC ? '⌃' : 'Alt';
 const isViewChord = (e) => e.code in VIEW_KEYS && !e.metaKey && !e.shiftKey && (IS_MAC ? e.ctrlKey && !e.altKey : e.altKey && !e.ctrlKey);
 
 function toggleHelp(open) {
+  if (!$('#help')) return;
   $('#help').hidden = !open;
   if (open) $('#helpClose').focus();
 }
@@ -1403,7 +1405,7 @@ function onKey(e) {
     return;
   }
   if (e.metaKey || e.ctrlKey || e.altKey) return;
-  if (!$('#help').hidden) {
+  if ($('#help') && !$('#help').hidden) {
     if (e.key === 'Escape' || e.key === '?') { e.preventDefault(); toggleHelp(false); }
     return;
   }
