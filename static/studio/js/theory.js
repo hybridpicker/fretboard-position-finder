@@ -132,7 +132,7 @@ export const MESSIAEN_MODES = [
 const SCALE_GROUPS = [
   ['Modes of Major', ['major', 'ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian']],
   ['Pentatonic & Blues', ['pentatonic', 'blues']],
-  ['Melodic minor family', ['melodic minor', 'dorian b2', 'lydian augmented', 'lydian dominant', 'aeolian dominant', 'half diminished', 'altered', 'mixolydian b6']],
+  ['Melodic minor family', ['melodic minor', 'dorian b2', 'lydian augmented', 'lydian dominant', 'aeolian dominant', 'half diminished', 'locrian #2', 'altered', 'mixolydian b6']],
   ['Harmonic family', ['harmonic', 'locrian #6', 'major augmented', 'dorian #4', 'phrygian dominant', 'lydian #2', 'altered dominant bb7', 'dorian b5', 'phrygian b4', 'lydian b3', 'mixolydian b2', 'lydian augmented #2', 'locrian bb7']],
   ['Symmetric', ['whole tone', 'diminished', 'augmented', 'messiaen']],
   ['Bebop', ['bebop']],
@@ -152,6 +152,7 @@ export function cleanScaleName(name) {
 
 export function scaleGroup(name) {
   const lower = name.toLowerCase();
+  if (/pentatonic|blues/.test(lower)) return 'Pentatonic & Blues';
   // Exact family matches first so e.g. "Dorian b2" is not filed under the modes of major
   for (const [group, keys] of SCALE_GROUPS.slice(2)) {
     if (keys.some((k) => lower === k || lower.startsWith(k + ' ') || lower.startsWith(k + ' ('))) return group;
@@ -160,6 +161,27 @@ export function scaleGroup(name) {
     if (keys.some((k) => lower.includes(k))) return group;
   }
   return 'More scales';
+}
+
+// Parent scales whose modes are listed in degree order (I, II, III, ...) inside their group
+const MODE_PARENTS = [
+  [0, 2, 4, 5, 7, 9, 11], // major
+  [0, 2, 3, 5, 7, 9, 11], // melodic minor
+  [0, 2, 3, 5, 7, 8, 11], // harmonic minor
+  [0, 2, 4, 5, 7, 8, 11], // harmonic major
+];
+
+/** Sort rank of a heptatonic scale: parent scale first, then the degree it starts on; null for other scales. */
+export function modeRank(intervals) {
+  if (intervals.length !== 7) return null;
+  for (let p = 0; p < MODE_PARENTS.length; p++) {
+    const parent = MODE_PARENTS[p];
+    for (let d = 0; d < 7; d++) {
+      const rotated = parent.map((iv) => mod12(iv - parent[d])).sort((a, b) => a - b);
+      if (rotated.every((iv, i) => iv === intervals[i])) return p * 10 + d;
+    }
+  }
+  return null;
 }
 
 const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
@@ -185,6 +207,12 @@ export function buildLibrary(catalog) {
     if (existing) existing.alias = `${existing.alias || ''} messiaen mode ${m.mode}`.trim();
     else addScale(m, 'builtin');
   }
+
+  // Groups in menu order; inside a group modes follow their degree in the parent scale, other scales keep their order
+  const groupOrder = [...SCALE_GROUPS.map(([g]) => g), 'More scales'];
+  const original = new Map(scales.map((sc, i) => [sc, i]));
+  scales.sort((a, b) => groupOrder.indexOf(a.group) - groupOrder.indexOf(b.group)
+    || (modeRank(a.intervals) ?? 100) - (modeRank(b.intervals) ?? 100) || original.get(a) - original.get(b));
 
   const chords = CHORD_LIBRARY.map((c) => ({ ...c, key: slug(c.name), voicings: [], source: 'builtin' }));
   for (const dbChord of catalog?.chords || []) {

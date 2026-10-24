@@ -216,6 +216,20 @@ test('"maj7#11" and "Major 7#11" are the same chord, with or without root', () =
   assert.equal(parseChordQuery('dim', lib.chords).root, null);
 });
 
+test('modes are listed by degree inside their parent scale', () => {
+  const mm = [0, 2, 3, 5, 7, 9, 11];
+  const modeOf = (d) => mm.map((iv) => (iv - mm[d] + 12) % 12).sort((a, b) => a - b);
+  const names = ['Altered', 'Locrian #2', 'Melodic Minor', 'Mixolydian b6', 'Lydian Dominant', 'Dorian b2', 'Lydian Augmented'];
+  const degrees = [6, 5, 0, 4, 3, 1, 2];
+  const scales = names.map((name, i) => ({ name, intervals: modeOf(degrees[i]) }));
+  const lib = buildLibrary({ scales });
+  const family = lib.scales.filter((s) => s.group === 'Melodic minor family').map((s) => s.name);
+  assert.deepEqual(family, ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian #2', 'Altered']);
+  const major = lib.scales.filter((s) => s.group === 'Modes of Major').map((s) => s.name);
+  assert.deepEqual(major, ['Major (Ionian)', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian (Natural Minor)', 'Locrian']);
+  assert.ok(lib.scales.find((s) => s.name === 'Major Pentatonic').group === 'Pentatonic & Blues');
+});
+
 test('altered and extended dominants are found by symbol', () => {
   const lib = buildLibrary(null);
   const find = (q) => parseChordQuery(q, lib.chords);
