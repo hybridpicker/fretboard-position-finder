@@ -424,7 +424,7 @@ function computeIdentifyView() {
   const frets = state.identify;
   const sounding = frets.map((f, s) => (f >= 0 ? { string: s, fret: f, midi: t.midi[s] + f } : null)).filter(Boolean);
   const pcs = sounding.map((n) => mod12(n.midi));
-  const bassPc = sounding.length ? mod12(sounding[0].midi) : null;
+  const bassPc = sounding.length ? mod12(Math.min(...sounding.map((n) => n.midi))) : null; // lowest pitch, not lowest string (ukulele)
   const names = state.spelling === 'flat' ? NOTE_FLAT : state.spelling === 'sharp' ? NOTE_SHARP : ROOT_NAMES;
   const chords = identifyChords(pcs, bassPc, library.chords, names);
   const best = chords[0] || null;

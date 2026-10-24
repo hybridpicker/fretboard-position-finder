@@ -29,6 +29,11 @@ export const TUNINGS = [
   { id: 'opend', name: 'Open D (D A D F♯ A D)', midi: [38, 45, 50, 54, 57, 62], numbers: [6, 5, 4, 3, 2, 1] },
   { id: 'seven', name: '7-string (B E A D G B E)', midi: [35, 40, 45, 50, 55, 59, 64], numbers: [7, 6, 5, 4, 3, 2, 1] },
   { id: 'eight', name: '8-string (B E A D G B E A)', midi: [35, 40, 45, 50, 55, 59, 64, 69], numbers: [7, 6, 5, 4, 3, 2, 1, 0] },
+  // Other instruments. The ukulele is re-entrant (the G string is higher than the C string), so
+  // string order is not pitch order there: bass notes are taken from the lowest pitch, not the lowest string.
+  { id: 'ukulele', name: 'Ukulele (G C E A)', midi: [67, 60, 64, 69], numbers: [4, 3, 2, 1] },
+  { id: 'banjo', name: 'Banjo, open G (D G B D, without short string)', midi: [50, 55, 59, 62], numbers: [4, 3, 2, 1] },
+  { id: 'loog', name: 'Loog Guitar (G B E)', midi: [55, 59, 64], numbers: [3, 2, 1] },
 ];
 
 // Database string names -> classic string numbers
@@ -685,13 +690,8 @@ export function inversionName(bassInterval, intervals) {
 
 function describeVoicing(frets, tuning, rootPc, intervals) {
   const midis = [];
-  let bass = null;
-  frets.forEach((f, s) => {
-    if (f < 0) return;
-    const m = tuning.midi[s] + f;
-    midis.push(m);
-    if (bass === null) bass = mod12(m - rootPc);
-  });
+  frets.forEach((f, s) => { if (f >= 0) midis.push(tuning.midi[s] + f); });
+  const bass = mod12(Math.min(...midis) - rootPc);
   return {
     bassInterval: bass,
     inversion: inversionName(bass, intervals),
@@ -710,7 +710,7 @@ function scoreShape(frets, fingering, rootPc, intervals, tuning) {
   const span = fretted.length ? Math.max(...fretted.map((n) => n.f)) - Math.min(...fretted.map((n) => n.f)) : 0;
   const minF = fretted.length ? Math.min(...fretted.map((n) => n.f)) : 0;
   const opens = sounding.length - fretted.length;
-  const bass = mod12(tuning.midi[lowS] + frets[lowS] - rootPc);
+  const bass = mod12(Math.min(...sounding.map((n) => tuning.midi[n.s] + n.f)) - rootPc);
   const pcs = new Set(sounding.map((n) => mod12(tuning.midi[n.s] + n.f - rootPc)));
   const missingFifth = intervals.includes(7) && !pcs.has(7);
   const fingersUsed = new Set(fingering.fingers.filter((f) => f > 0)).size;
@@ -791,7 +791,7 @@ export function findChordShapes(rootPc, intervals, tuning, options = {}) {
       const highS = n - 1 - [...shape].reverse().findIndex((f) => f >= 0);
       const interior = shape.slice(lowS, highS + 1).filter((f) => f < 0).length;
       if (interior > 1) return;
-      const bassIv = mod12(tuning.midi[lowS] + shape[lowS] - rootPc);
+      const bassIv = mod12(Math.min(...shape.map((f, s) => (f >= 0 ? tuning.midi[s] + f : Infinity))) - rootPc);
       if (bass !== null && bassIv !== bass) return;
       const fingering = assignFingers(shape);
       if (!fingering) return;
