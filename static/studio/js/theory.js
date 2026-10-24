@@ -154,6 +154,7 @@ export function scaleGroup(name) {
   const lower = name.toLowerCase();
   if (/pentatonic|blues/.test(lower)) return 'Pentatonic & Blues';
   // Exact family matches first so e.g. "Dorian b2" is not filed under the modes of major
+  for (const [group, keys] of SCALE_GROUPS.slice(2)) if (keys.includes(lower)) return group;
   for (const [group, keys] of SCALE_GROUPS.slice(2)) {
     if (keys.some((k) => lower === k || lower.startsWith(k + ' ') || lower.startsWith(k + ' ('))) return group;
   }
@@ -169,6 +170,17 @@ const MODE_PARENTS = [
   [0, 2, 3, 5, 7, 9, 11], // melodic minor
   [0, 2, 3, 5, 7, 8, 11], // harmonic minor
   [0, 2, 4, 5, 7, 8, 11], // harmonic major
+];
+
+// Modes of the melodic minor, harmonic minor and harmonic major scales, by degree (I..VII), with search aliases.
+// Built in so the picker is complete and correct whatever the database holds.
+const MODE_NAMES = [
+  [1, [['Melodic Minor', ''], ['Dorian b2', 'phrygian #6'], ['Lydian Augmented', ''], ['Lydian Dominant', 'overtone lydian b7'],
+    ['Mixolydian b6', 'aeolian dominant hindu'], ['Locrian #2', 'half diminished aeolian b5'], ['Altered', 'super locrian diminished whole tone']]],
+  [2, [['Harmonic Minor', ''], ['Locrian #6', ''], ['Major Augmented', 'ionian #5'], ['Dorian #4', 'ukrainian dorian'],
+    ['Phrygian Dominant', 'spanish gypsy'], ['Lydian #2', ''], ['Altered Dominant bb7', 'super locrian bb7']]],
+  [3, [['Harmonic Major', ''], ['Dorian b5', ''], ['Phrygian b4', ''], ['Lydian b3', ''],
+    ['Mixolydian b2', ''], ['Lydian Augmented #2', ''], ['Locrian bb7', '']]],
 ];
 
 /** Sort rank of a heptatonic scale: parent scale first, then the degree it starts on; null for other scales. */
@@ -200,8 +212,21 @@ export function buildLibrary(catalog) {
     const name = cleanScaleName(entry.name);
     scales.push({ key: slug(name), id: entry.id ?? null, name, intervals, group: scaleGroup(name), source });
   };
-  (catalog?.scales || []).forEach((s) => addScale(s, 'db'));
   SCALE_LIBRARY.forEach((s) => addScale(s, 'builtin'));
+  for (const [parent, modes] of MODE_NAMES) {
+    modes.forEach(([name, alias], d) => {
+      const base = MODE_PARENTS[parent];
+      addScale({ name, intervals: base.map((iv) => mod12(iv - base[d])).sort((a, b) => a - b) }, 'builtin');
+      const added = scales.find((sc) => sc.name === name);
+      if (added && alias) added.alias = alias;
+    });
+  }
+  // Database scales add their ids; entries without a root (interval 0) are unusable and skipped
+  (catalog?.scales || []).filter((sc) => sc.intervals.map(mod12).includes(0)).forEach((sc) => {
+    const set = [...new Set(sc.intervals.map(mod12))].sort((a, b) => a - b);
+    const known = scales.find((x) => sameSet(x.intervals, set));
+    if (known) { known.id = known.id ?? sc.id ?? null; known.source = 'db'; } else addScale(sc, 'db');
+  });
   for (const m of MESSIAEN_MODES) {
     const existing = scales.find((x) => sameSet(x.intervals, m.intervals));
     if (existing) existing.alias = `${existing.alias || ''} messiaen mode ${m.mode}`.trim();

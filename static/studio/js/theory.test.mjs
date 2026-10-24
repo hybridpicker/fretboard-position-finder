@@ -217,17 +217,21 @@ test('"maj7#11" and "Major 7#11" are the same chord, with or without root', () =
 });
 
 test('modes are listed by degree inside their parent scale', () => {
-  const mm = [0, 2, 3, 5, 7, 9, 11];
-  const modeOf = (d) => mm.map((iv) => (iv - mm[d] + 12) % 12).sort((a, b) => a - b);
-  const names = ['Altered', 'Locrian #2', 'Melodic Minor', 'Mixolydian b6', 'Lydian Dominant', 'Dorian b2', 'Lydian Augmented'];
-  const degrees = [6, 5, 0, 4, 3, 1, 2];
-  const scales = names.map((name, i) => ({ name, intervals: modeOf(degrees[i]) }));
-  const lib = buildLibrary({ scales });
-  const family = lib.scales.filter((s) => s.group === 'Melodic minor family').map((s) => s.name);
-  assert.deepEqual(family, ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian #2', 'Altered']);
-  const major = lib.scales.filter((s) => s.group === 'Modes of Major').map((s) => s.name);
-  assert.deepEqual(major, ['Major (Ionian)', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian (Natural Minor)', 'Locrian']);
-  assert.ok(lib.scales.find((s) => s.name === 'Major Pentatonic').group === 'Pentatonic & Blues');
+  // A database with unusable entries (no root, wrong names) must not change the result
+  const lib = buildLibrary({ scales: [
+    { id: 1, name: 'Altered', intervals: [0, 1, 3, 4, 6, 8, 10] },
+    { id: 2, name: 'Lydian Dominant', intervals: [1, 2, 4, 5, 7, 9, 11] },
+  ] });
+  const names = (group) => lib.scales.filter((s) => s.group === group).map((s) => s.name);
+  assert.deepEqual(names('Melodic minor family'), ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian #2', 'Altered']);
+  assert.deepEqual(names('Modes of Major'), ['Major (Ionian)', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian (Natural Minor)', 'Locrian']);
+  assert.deepEqual(names('Harmonic family').slice(0, 7), ['Harmonic Minor', 'Locrian #6', 'Major Augmented', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Altered Dominant bb7']);
+  assert.deepEqual(names('Harmonic family').slice(7), ['Harmonic Major', 'Dorian b5', 'Phrygian b4', 'Lydian b3', 'Mixolydian b2', 'Lydian Augmented #2', 'Locrian bb7']);
+  assert.equal(lib.scales.find((s) => s.name === 'Altered').id, 1, 'database ids are kept');
+  assert.ok(lib.scales.every((s) => s.intervals.includes(0)), 'every scale contains its root');
+  assert.equal(lib.scales.find((s) => s.name === 'Major Pentatonic').group, 'Pentatonic & Blues');
+  const dorianB2 = lib.scales.find((s) => s.name === 'Dorian b2');
+  assert.deepEqual(dorianB2.intervals, [0, 1, 3, 5, 7, 9, 10]);
 });
 
 test('altered and extended dominants are found by symbol', () => {
