@@ -35,7 +35,7 @@ SONGS UND ÜBUNGEN
 ZUM ÜBEN GEMACHT
 - Favoriten: jede Ansicht mit einem Tipp merken
 - Haptisches Feedback beim Antippen des Griffbretts
-- Alternative Stimmungen, 12 bis 24 Bünde, Linkshänder-Modus, helles und dunkles Design
+- Alternative Stimmungen sowie Ukulele, Banjo und Loog Guitar (3 Saiten), 12 bis 24 Bünde, Linkshänder-Modus, helles und dunkles Design
 - Waagrechtes und senkrechtes Griffbrett, für Handy und Tablet
 
 DEINE DATEN BLEIBEN AUF DEINEM GERÄT

@@ -35,7 +35,7 @@ SONGS AND EXERCISES
 MADE FOR PRACTICE
 - Favourites: save any view with one tap
 - Haptic feedback when you tap the fretboard
-- Alternate tunings, 12 to 24 frets, left-handed mode, dark and light theme
+- Alternate tunings plus ukulele, banjo and Loog Guitar (3 strings), 12 to 24 frets, left-handed mode, dark and light theme
 - Horizontal and vertical neck, built for phones and tablets
 
 YOUR DATA STAYS ON YOUR DEVICE

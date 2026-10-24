@@ -529,3 +529,25 @@ test('three notes per string keeps one pattern per scale degree', () => {
   assert.equal(scalePositions(0, [0, 2, 4, 5, 7, 9, 11], std, { system: 'nps' }).length, 7);
   assert.equal(scalePositions(9, [0, 2, 3, 5, 7, 9, 10], std, { system: 'nps' }).length, 7);
 });
+
+test('other instruments: ukulele (re-entrant), banjo and Loog Guitar tunings exist', () => {
+  assert.deepEqual(getTuning('ukulele').midi, [67, 60, 64, 69]);
+  assert.deepEqual(getTuning('loog').midi, [55, 59, 64]);
+  assert.equal(getTuning('banjo').midi.length, 4);
+});
+
+test('ukulele chords take the bass from the lowest pitch, not the lowest string', () => {
+  const uke = getTuning('ukulele');
+  // G C E A with frets 0 0 0 3 = G C E C: lowest note is C, so C major is in root position
+  const shape = shapeFromFrets([0, 0, 0, 3], uke, 0, [0, 4, 7]);
+  assert.equal(shape.bassInterval, 0);
+  const rootBass = findChordShapes(0, [0, 4, 7], uke, { bass: 0 });
+  assert.ok(rootBass.length > 0);
+  assert.ok(rootBass.every((s) => s.bassInterval === 0));
+});
+
+test('Loog Guitar: three strings, triads are playable (open G B E is E minor, first inversion)', () => {
+  const loog = getTuning('loog');
+  const shapes = findChordShapes(4, [0, 3, 7], loog);
+  assert.ok(shapes.some((s) => s.frets.join(',') === '0,0,0'));
+});
