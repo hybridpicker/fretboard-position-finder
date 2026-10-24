@@ -235,6 +235,21 @@ test('modes are listed by degree inside their parent scale', () => {
   assert.deepEqual(dorianB2.intervals, [0, 1, 3, 5, 7, 9, 10]);
 });
 
+test('V-System exists only for chords that can be played with four voices', () => {
+  const voicing = (id, tones) => ({ id, system: 'V1', range: 'e - d', tones: tones.map((interval, i) => ({ string: i + 1, interval })) });
+  const lib = buildLibrary({ chords: [
+    { name: 'Major 7', intervals: [0, 4, 7, 11], voicings: [voicing(1, [0, 7, 11, 4])] },
+    { name: 'Major', intervals: [0, 4, 7], voicings: [voicing(2, [0, 4, 7])] },
+  ] });
+  const by = (symbol) => lib.chords.find((c) => c.symbol === symbol);
+  assert.ok(by('maj7').voicings.length, 'four-note chord keeps its voicings');
+  assert.ok(by('7').voicings.length && by('7').vsDerived, 'other four-note chords are derived');
+  assert.equal(by('').voicings.length, 0, 'triads have no V-System');
+  assert.equal(by('5').voicings.length, 0, 'power chords have no V-System');
+  assert.ok(by('9').vsDerived && by('9').vsOmitted.length > 0, 'five-note chords get a four-voice version');
+  assert.ok(lib.chords.every((c) => c.intervals.length >= 4 || c.voicings.length === 0));
+});
+
 test('altered and extended dominants are found by symbol', () => {
   const lib = buildLibrary(null);
   const find = (q) => parseChordQuery(q, lib.chords);

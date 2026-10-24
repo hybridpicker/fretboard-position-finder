@@ -145,6 +145,13 @@
         <select id="songTarget" aria-label="Song to add the chord to"></select>
         <button class="ghost-btn" id="addSongBtn">Add to song</button>
       </div>
+      <div class="inv-stepper" id="invStepper" role="group" aria-label="Step through V-System inversions" hidden>
+        <button class="ghost-btn" data-step="voicing-prev" title="Previous voicing (Shift+←)" aria-label="Previous voicing">⇤</button>
+        <button class="ghost-btn" data-step="inversion-prev" title="Previous inversion (←)" aria-label="Previous inversion">←</button>
+        <div class="inv-label"><b data-inv-label></b><span class="muted" data-inv-meta></span></div>
+        <button class="ghost-btn" data-step="inversion-next" title="Next inversion (→)" aria-label="Next inversion">→</button>
+        <button class="ghost-btn" data-step="voicing-next" title="Next voicing (Shift+→)" aria-label="Next voicing">⇥</button>
+      </div>
       <div class="cards" id="cards"></div>
     </section>
 
@@ -211,7 +218,8 @@
           <dl>
             <dt><kbd>1</kbd> … <kbd>9</kbd></dt><dd>Position (scales, arpeggios) · inversion (chords)</dd>
             <dt><kbd>0</kbd></dt><dd>Whole neck · any bass note</dd>
-            <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous / next position or shape</dd>
+            <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous / next position or shape · V-System: inversion</dd>
+            <dt><kbd>Shift</kbd> <kbd>←</kbd> <kbd>→</kbd></dt><dd>V-System: previous / next voicing</dd>
             <dt><kbd>,</kbd> <kbd>.</kbd></dt><dd>Previous / next scale or chord type</dd>
             <dt><kbd>/</kbd></dt><dd>Search scales and chords</dd>
           </dl>
