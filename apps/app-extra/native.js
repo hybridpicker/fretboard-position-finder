@@ -160,11 +160,8 @@
   function openInfo() {
     if (!openInfo.d) {
       var d = openInfo.d = dialog('infoDialog', 'About Guitar Positions');
-      var version = ($('.footer .muted') && $('.footer .muted').textContent.trim()) || '';
-      d.body.appendChild(el('p', { text: 'Scales, arpeggios, chords and fingerings on an interactive fretboard. ' + version }));
+      d.body.appendChild(el('p', { text: 'Scales, arpeggios, chords and fingerings on an interactive fretboard.' }));
       d.body.appendChild(el('p', { text: 'No ads, no tracking, no account. The app works offline and makes no network requests. Songs and favourites are stored only on this device.' }));
-      d.body.appendChild(el('h3', { text: 'Privacy' }));
-      d.body.appendChild(el('p', {}, [link(SITE + '/impressum/', 'Privacy policy and imprint'), document.createTextNode(' (opens in your browser)')]));
       d.body.appendChild(el('h3', { text: 'Licences' }));
       var ul = el('ul', { class: 'app-licences' });
       [
@@ -183,12 +180,13 @@
     openInfo.d.show();
   }
 
+  // The app has no footer; the licence notices stay reachable from the settings panel
   function addInfoLink() {
-    var nav = $('.footer nav');
-    if (!nav) return;
-    var a = el('a', { href: '#', id: 'appInfoLink', text: 'Info & licences' });
-    a.addEventListener('click', function (e) { e.preventDefault(); openInfo(); });
-    nav.insertBefore(a, nav.firstChild);
+    var grid = $('.settings-grid');
+    if (!grid) return;
+    var btn = el('button', { class: 'ghost-btn', id: 'appInfoLink', type: 'button', text: 'Info & licences' });
+    btn.addEventListener('click', openInfo);
+    grid.appendChild(btn);
   }
 
   function init() {

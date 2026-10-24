@@ -16,7 +16,7 @@ Catalogue sources (the catalogue holds music formulas only, no personal data):
 
 App-build differences from the web Studio (the web templates are not changed):
   - no donate link, no "Classic version" link, no service worker, no PWA manifest
-  - About and Impressum & Privacy link to SITE_URL and open in the system browser
+  - no footer (About, Impressum & Privacy, version) and no keyboard-shortcut help
   - a Content-Security-Policy that only allows the bundle itself (no third-party requests)
   - apps/www/app.css adds safe-area padding for notches and system bars
   - apps/www/native.js adds haptics, favourites, the info window and status bar sync (apps/app-extra/)
@@ -156,14 +156,12 @@ def build_index(catalog, version):
     html = sub_once(html, r'<p class="noscript">.*?</p>',
                     '<p class="noscript">Guitar Positions needs JavaScript.</p>', 'noscript text', re.S)
 
-    # Footer: keep About and Impressum (system browser), drop Classic version and donate
-    html = replace_once(html, "<a href=\"{% url 'about' %}\">About</a>",
-                        external_link('/about/', 'About'), 'about link')
-    html = replace_once(html, "<a href=\"{% url 'impressum' %}\">Impressum &amp; Privacy</a>",
-                        external_link('/impressum/', 'Impressum &amp; Privacy'), 'impressum link')
-    html = sub_once(html, r'\n[ \t]*<a href="\{% url \'fretboard_classic\' %\}">Classic version</a>', '',
-                    'classic link')
-    html = sub_once(html, r'\n[ \t]*\{% if STRIPE_DONATE_URL %\}.*?\{% endif %\}', '', 'donate link')
+    # No footer (About, Impressum & Privacy, version, Classic version, donate) and no keyboard-shortcut
+    # help in the apps; the website keeps them. app.js treats the help elements as optional.
+    html = sub_once(html, r'\n[ \t]*<footer class="footer">.*?</footer>\n', '\n', 'footer', re.S)
+    html = sub_once(html, r'\n[ \t]*<button class="icon-btn" id="helpBtn".*?</button>', '', 'help button', re.S)
+    html = sub_once(html, r'\n[ \t]*<div class="help" id="help".*?\n  </div>\n(?=\s*\{\{ catalog_json)', '\n',
+                    'help dialog', re.S)
 
     html = replace_once(html, '{{ catalog_json|json_script:"catalog-data" }}',
                         str(json_script(catalog, 'catalog-data')), 'catalog json_script')
@@ -176,7 +174,7 @@ def build_index(catalog, version):
     leftovers = re.findall(r'\{[%{#].*?[%}#]\}', html)
     if leftovers:
         raise SystemExit(f'build_app_bundle: unresolved template tags: {leftovers[:5]}')
-    for forbidden in ('Classic version', 'STRIPE', 'serviceWorker', 'manifest.webmanifest'):
+    for forbidden in ('Classic version', 'STRIPE', 'serviceWorker', 'manifest.webmanifest', 'Impressum', 'helpBtn', 'id="help"', '<footer'):
         if forbidden in html:
             raise SystemExit(f'build_app_bundle: "{forbidden}" is still in the app index.html')
     return html

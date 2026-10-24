@@ -25,8 +25,8 @@ and CI come later.
   music catalogue as `<script type="application/json" id="catalog-data">`, the same data
   `/api/catalog/` serves. The app needs no server and works fully offline;
 - leaves out the donate link, the "Classic version" link, the service worker, the PWA manifest
-  and the website's SEO tags. About and Impressum & Privacy link to
-  `https://fretboard.schoensgibl.com/…` with `target="_blank"`. Capacitor opens navigation to
+  and the website's SEO tags, and has no footer (About, Impressum & Privacy) and no keyboard-shortcut
+  help; the licence notices stay in Settings → "Info & licences". Capacitor opens navigation to
   other hosts in the system browser (Safari / the default Android browser);
 - adds a Content-Security-Policy that only allows the bundle itself, so the app makes no
   third-party requests (no tracking, no analytics, no CDNs), and `www/app.css` with
@@ -209,6 +209,6 @@ Catalyst project.
   `settings.VERSION` and derive build numbers from CI (plan 7.8).
 - **Native features for guideline 4.2:** haptics, share sheet, status bar, iOS audio session
   check (plan 7.4, 7.6).
-- **Device checks:** that About/Impressum open in the system browser and that the safe-area
+- **Device checks:** that "Info & licences" opens from Settings and that the safe-area
   padding looks right on a notched iPhone and on Android 15+ edge-to-edge.
 - **Privacy text:** the Impressum/privacy page must also describe the apps (plan 7.7).

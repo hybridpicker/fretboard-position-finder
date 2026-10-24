@@ -61,7 +61,7 @@ Bestand:
 
 - Django-Webanwendung (`fretboard/`, `positionfinder/`, `api/`), PostgreSQL; neue Oberfläche „Studio“ in reinem JavaScript (`static/studio/`, `templates/studio/index.html`) mit getesteter Musiktheorie (`theory.test.mjs`), PWA mit Service Worker (`templates/studio/sw.js`) und Manifest.
 - Songs und Übungen werden nur im Browser gespeichert, kein Konto (README).
-- Native Hüllen auf dem Zweig: Capacitor 8.5.3, iOS 15+ (iPhone und iPad, Swift Package Manager), Android minSdk 24, target/compile SDK 36, Mac Catalyst nur lokal. `scripts/build_app_bundle.py` erzeugt `www/` mit eingebettetem Katalog (nur Musikformeln), ohne Spendenlink, Service Worker, PWA-Manifest und SEO-Tags, mit einer Content-Security-Policy, die nur das Bundle erlaubt. Impressum und Datenschutz öffnen im System-Browser.
+- Native Hüllen auf dem Zweig: Capacitor 8.5.3, iOS 15+ (iPhone und iPad, Swift Package Manager), Android minSdk 24, target/compile SDK 36, Mac Catalyst nur lokal. `scripts/build_app_bundle.py` erzeugt `www/` mit eingebettetem Katalog (nur Musikformeln), ohne Spendenlink, Service Worker, PWA-Manifest und SEO-Tags, mit einer Content-Security-Policy, die nur das Bundle erlaubt. Kein Footer und keine Tastatur-Hilfe in den Apps (Beschluss 2026-10-24); Lizenzhinweise unter Einstellungen → „Info & licences“. Impressum und Datenschutz stehen nur auf der Website und im Store-Eintrag.
 - Lizenz: MIT, `LICENSE` seit 2026-10-24 im Repo.
 
 | Weg | Passt? | Begründung |
@@ -85,7 +85,7 @@ Aus `apps/README.md` („Not done yet“) und eigenen Befunden, Stand 2026-10-22
 6. **Exportkontrolle iOS:** `ITSAppUsesNonExemptEncryption` fehlt in `Info.plist`. Die App verschlüsselt nichts und macht keine Netzanfragen; nach Apples Tabelle wäre `false` passend (Einordnung ohne rechtliche Bewertung).
 7. **Privacy Manifest:** prüfen, ob ein `PrivacyInfo.xcprivacy` für das App-Target nötig ist; der erste Upload zeigt Beanstandungen.
 8. **Katalog:** vor dem Store-Build mit `--from-db` oder `--catalog` aus dem Produktionsstand bauen, wenn die Fixture älter ist (README).
-9. **Geräteprüfung:** Impressum/Datenschutz öffnen im System-Browser, Safe Areas auf iPhone mit Notch und Android 15+ (Edge-to-Edge).
+9. **Geräteprüfung:** „Info & licences“ in den Einstellungen öffnet, Safe Areas auf iPhone mit Notch und Android 15+ (Edge-to-Edge).
 10. **Lizenz der gebündelten Schrift** prüfen (das Bundle kopiert die Schrift aus `studio.css`) und im App-Info-Fenster Lizenzen nennen.
 
 ## 3. App-Kennung (unumkehrbar)
