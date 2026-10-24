@@ -20,6 +20,13 @@ Stand: 2026-10-24. **Entscheidung: bezahlte App, 1,99 € inkl. MwSt., werbefrei
 | Store-Texte | `docs/store/en.md`, `docs/store/de.md` |
 | Gerätetest | nur Emulator; **echtes Telefon fehlt** (adb sah keins). Ein iPad war angeschlossen (nur für iOS später). |
 
+### 7b. Apple-Test (Stand 2026-10-24)
+
+- Vorbereitet: `ITSAppUsesNonExemptEncryption=false` in `Info.plist`, `PrivacyInfo.xcprivacy` (kein Tracking, keine erhobenen Daten, keine Required-Reason-APIs im App-Target; Capacitor bringt sein eigenes Manifest mit). Beides noch nicht von Apples Upload-Prüfung bestätigt.
+- iOS-Simulator (iPhone 17 Pro): App startet, Bundle lädt, Favoriten (Stern, Lesezeichen) funktionieren. Geprüft mit `.dev`-Kennung, ohne Signatur.
+- Auf dem **iPad Air 13" (M2)**: Build mit `com.guitarpositions.dev` und Team `497LN7JS8P` gelingt, die Installation scheitert: dieses kostenlose Profil hat auf dem iPad bereits die Höchstzahl (3) Apps. Team `W7XNGYTLT5` (jüngstes Zertifikat) lehnt den Build ab, weil das iPad dort nicht registriert ist. Lösung durch den Eigentümer: in Xcode das Gerät für das bezahlte Team registrieren (Projekt öffnen, Team wählen, einmal auf das iPad starten) oder eine alte Entwickler-App vom iPad löschen.
+- Offen: Ton bei aktivem Stummschalter, Haptik (am iPad nicht fühlbar im Simulator), Mac-Catalyst-Build, Test mit echtem Gerät.
+
 ### 7a. Bezahlte App: was sich ändert
 
 - **Kostenlos oder bezahlt ist beim Anlegen fix:** Google: eine einmal kostenlos angebotene App lässt sich nicht auf bezahlt umstellen, dann bräuchte man eine neue App mit neuer Kennung ([Hilfe 6334373](https://support.google.com/googleplay/android-developer/answer/6334373), gelesen 2026-10-24). Ob ein interner Test schon als „angeboten“ zählt, steht dort nicht. Deshalb die App **gleich als bezahlt anlegen**.
