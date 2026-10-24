@@ -288,30 +288,27 @@ export function vSystemReduction(intervals, size) {
 }
 
 /**
- * The V-System only says which voice of the close-position chord sits on which string, so the database
- * templates of one 4-note chord (and one triad) apply to every other 4-note chord (and triad).
- * Chord types without voicings of their own get templates derived from Major 7 / Major.
+ * The V-System is a four-voice system: the database templates of one 4-note chord apply to every other
+ * 4-note chord. Chords with five or six notes get a four-voice version (vSystemReduction); triads and
+ * smaller chords have no V-System, so any voicings they carry are dropped.
  */
 export function deriveVSystem(chords) {
-  const sourceFor = (size) => chords
-    .filter((c) => c.voicings.length && !c.vsDerived && c.intervals.length === size)
+  for (const chord of chords) if (chord.intervals.length < 4) chord.voicings = [];
+  const source = chords
+    .filter((c) => c.voicings.length && !c.vsDerived && c.intervals.length === 4)
     .sort((a, b) => b.voicings.length - a.voicings.length)[0];
   for (const chord of chords) {
-    if (chord.voicings.length) continue;
-    for (const size of [4, 3]) {
-      const reduction = vSystemReduction(chord.intervals, size);
-      const source = sourceFor(size);
-      if (!reduction || !source) continue;
-      const from = [...source.intervals].sort((a, b) => a - b);
-      chord.voicings = source.voicings.map((v) => ({
-        ...v,
-        id: `${chord.key}-${v.id}`,
-        tones: v.tones.map((t) => ({ string: t.string, interval: reduction.intervals[from.indexOf(t.interval)] })),
-      }));
-      chord.vsDerived = true;
-      chord.vsOmitted = reduction.omitted;
-      break;
-    }
+    if (chord.voicings.length || chord.intervals.length < 4 || !source) continue;
+    const reduction = vSystemReduction(chord.intervals, 4);
+    if (!reduction) continue;
+    const from = [...source.intervals].sort((a, b) => a - b);
+    chord.voicings = source.voicings.map((v) => ({
+      ...v,
+      id: `${chord.key}-${v.id}`,
+      tones: v.tones.map((t) => ({ string: t.string, interval: reduction.intervals[from.indexOf(t.interval)] })),
+    }));
+    chord.vsDerived = true;
+    chord.vsOmitted = reduction.omitted;
   }
 }
 
@@ -873,7 +870,7 @@ export function voicingTemplateShapes(rootPc, chordIntervals, template, tuning, 
     order.forEach((t, k) => { frets[t.idx] = voiceFrets[k]; });
     const fingering = assignFingers(frets) || { fingers: frets.map((f) => (f < 0 ? null : f === 0 ? 0 : 1)), barres: [] };
     shapes.push({
-      frets, ...fingering, inversionIndex: inv, system: template.system, range: template.range,
+      frets, ...fingering, inversionIndex: inv, templateId: template.id ?? `${template.system}|${template.range}`, system: template.system, range: template.range,
       ...describeVoicing(frets, tuning, rootPc, chordIntervals),
       minFret: fretted.length ? Math.min(...fretted) : 0,
       span,
