@@ -62,6 +62,18 @@ test('finger assignment: open C, F barre, A-shape', () => {
   assert.equal(assignFingers([-1, 3, 0, 2, 1, 4]) !== null, true);
 });
 
+test('no shape needs a little-finger barre', () => {
+  assert.equal(assignFingers([13, 13, 12, 10, 11, 10]), null, 'Bb 13-13-12-10-11-10 is not playable');
+  for (const q of [[0, 4, 7], [0, 4, 7, 10], [0, 3, 7, 10], [0, 4, 7, 11]]) {
+    for (let root = 0; root < 12; root++) {
+      for (const sh of findChordShapes(root, q, std, { maxFret: 15, limit: 500 })) {
+        const pinkyBarre = sh.barres.some((b) => b.finger === 4);
+        assert.equal(pinkyBarre, false, `${root} ${q} ${sh.frets}`);
+      }
+    }
+  }
+});
+
 test('chord shape finder returns the shapes guitarists expect', () => {
   const shapes = findChordShapes(0, [0, 4, 7], std, { maxFret: 12, limit: 200 });
   const keys = shapes.map((s) => s.frets.join(','));

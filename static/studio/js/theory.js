@@ -584,7 +584,10 @@ export function assignFingers(frets) {
     units = [g, ...rest.filter((n) => !g.strings.includes(n.s)).map((n) => ({ fret: n.f, strings: [n.s] }))];
     if (units.length > 3) return null;
   }
-  units.sort((a, b) => a.fret - b.fret || a.strings[0] - b.strings[0]).forEach((u, i) => {
+  units.sort((a, b) => a.fret - b.fret || a.strings[0] - b.strings[0]);
+  // The little finger cannot bar several strings (e.g. frets 13-13-12-11-10-10 would need that)
+  if (units.length === 3 && units[2].strings.length > 1) return null;
+  units.forEach((u, i) => {
     const finger = i + 2;
     u.strings.forEach((s) => { fingers[s] = finger; });
     if (u.strings.length > 1) barres.push({ finger, fret: u.fret, from: u.strings[0], to: u.strings[u.strings.length - 1] });
