@@ -216,6 +216,20 @@ test('"maj7#11" and "Major 7#11" are the same chord, with or without root', () =
   assert.equal(parseChordQuery('dim', lib.chords).root, null);
 });
 
+test('altered and extended dominants are found by symbol', () => {
+  const lib = buildLibrary(null);
+  const find = (q) => parseChordQuery(q, lib.chords);
+  const g = find('G7#11');
+  assert.equal(g.root, 7);
+  assert.deepEqual(g.chords.map((c) => c.intervals), [[0, 4, 6, 7, 10]]);
+  assert.equal(find('G7(#11)').chords.length, 1);
+  assert.equal(find('G7+11').chords.length, 1);
+  for (const q of ['G9#11', 'G13#11', 'G7b13', 'G9sus4', 'Gmaj13', 'Gm13', 'Gm(maj9)']) assert.equal(find(q)?.chords.length, 1, q);
+  assert.ok(findChordShapes(7, [0, 4, 6, 7, 10], std, { maxFret: 12 }).length > 0, 'G7#11 has shapes');
+  const lydDom = chordScaleFor([0, 2, 4, 6, 7, 9, 10], lib.chords);
+  assert.equal(lydDom.chords[0].symbol, '7#11', 'Lydian Dominant lists 7#11 first');
+});
+
 test('parseChordQuery ignores bare roots and plain words', () => {
   const lib = buildLibrary(null);
   assert.equal(parseChordQuery('E', lib.chords), null);
@@ -315,7 +329,7 @@ test('chord-scale recommendations replace the full subset list', () => {
   const lib = buildLibrary(null);
   const ionian = chordsForScale(0, [0, 2, 4, 5, 7, 9, 11], lib.chords);
   assert.equal(ionian.others.length, 0, 'no "all fitting chords" list');
-  assert.deepEqual(ionian.chordScale.chords.map((c) => c.symbol), ['maj7', '6', 'maj9', '6/9', 'add9', '']);
+  assert.deepEqual(ionian.chordScale.chords.map((c) => c.symbol), ['maj7', '6', 'maj9', 'maj13', '6/9', 'add9', '']);
   assert.deepEqual(ionian.chordScale.avoid, ['11']);
   const dorian = chordsForScale(2, [0, 2, 3, 5, 7, 9, 10], lib.chords).chordScale;
   assert.equal(dorian.chords[0].symbol, 'm7');
