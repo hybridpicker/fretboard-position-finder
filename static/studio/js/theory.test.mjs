@@ -225,13 +225,29 @@ test('modes are listed by degree inside their parent scale', () => {
   const names = (group) => lib.scales.filter((s) => s.group === group).map((s) => s.name);
   assert.deepEqual(names('Melodic minor family'), ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian #2', 'Altered']);
   assert.deepEqual(names('Modes of Major'), ['Major (Ionian)', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian (Natural Minor)', 'Locrian']);
-  assert.deepEqual(names('Harmonic family').slice(0, 7), ['Harmonic Minor', 'Locrian #6', 'Major Augmented', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Altered Dominant bb7']);
-  assert.deepEqual(names('Harmonic family').slice(7), ['Harmonic Major', 'Dorian b5', 'Phrygian b4', 'Lydian b3', 'Mixolydian b2', 'Lydian Augmented #2', 'Locrian bb7']);
+  assert.deepEqual(names('Harmonic minor family'), ['Harmonic Minor', 'Locrian #6', 'Major Augmented', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Altered Dominant bb7']);
+  assert.deepEqual(names('Harmonic major family'), ['Harmonic Major', 'Dorian b5', 'Phrygian b4', 'Lydian b3', 'Mixolydian b2', 'Lydian Augmented #2', 'Locrian bb7']);
+  assert.deepEqual(names('Bebop').filter((n) => /harmonic/i.test(n)), ['Bebop Harmonic Minor']);
   assert.equal(lib.scales.find((s) => s.name === 'Altered').id, 1, 'database ids are kept');
   assert.ok(lib.scales.every((s) => s.intervals.includes(0)), 'every scale contains its root');
   assert.equal(lib.scales.find((s) => s.name === 'Major Pentatonic').group, 'Pentatonic & Blues');
   const dorianB2 = lib.scales.find((s) => s.name === 'Dorian b2');
   assert.deepEqual(dorianB2.intervals, [0, 1, 3, 5, 7, 9, 10]);
+});
+
+test('V-System exists only for chords that can be played with four voices', () => {
+  const voicing = (id, tones) => ({ id, system: 'V1', range: 'e - d', tones: tones.map((interval, i) => ({ string: i + 1, interval })) });
+  const lib = buildLibrary({ chords: [
+    { name: 'Major 7', intervals: [0, 4, 7, 11], voicings: [voicing(1, [0, 7, 11, 4])] },
+    { name: 'Major', intervals: [0, 4, 7], voicings: [voicing(2, [0, 4, 7])] },
+  ] });
+  const by = (symbol) => lib.chords.find((c) => c.symbol === symbol);
+  assert.ok(by('maj7').voicings.length, 'four-note chord keeps its voicings');
+  assert.ok(by('7').voicings.length && by('7').vsDerived, 'other four-note chords are derived');
+  assert.equal(by('').voicings.length, 0, 'triads have no V-System');
+  assert.equal(by('5').voicings.length, 0, 'power chords have no V-System');
+  assert.ok(by('9').vsDerived && by('9').vsOmitted.length > 0, 'five-note chords get a four-voice version');
+  assert.ok(lib.chords.every((c) => c.intervals.length >= 4 || c.voicings.length === 0));
 });
 
 test('altered and extended dominants are found by symbol', () => {
