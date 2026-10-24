@@ -1,6 +1,33 @@
 # Guitar Positions (Fretboard Position Finder) als App in Google Play und im App Store
 
-Stand: 2026-10-22. **Anleitung für den Eigentümer, nur Vorbereitung.** Noch nichts gebaut, kein Konto angelegt, keine App-Kennung belegt, nichts hochgeladen.
+Stand: 2026-10-24. **Entscheidung: bezahlte App, 1,99 € inkl. MwSt., werbefrei, ohne Konto, offline, Android zuerst.** Code ist vorbereitet; in der Play Console ist noch **nichts angelegt**, nichts hochgeladen, keine Kennung belegt.
+
+## Status 2026-10-24
+
+| Punkt | Stand |
+|---|---|
+| Kennung | `com.guitarpositions` (Eigentümer, 2026-10-24). Unumkehrbar ab dem ersten Upload. Debug-Builds nutzen `com.guitarpositions.dev`. Hinweis: Play prüft nicht, ob dir die Domain `guitarpositions.com` gehört; die Kennung ist nur ein Name. |
+| Name, Preis, Länder | „Guitar Positions“ (Annahme, nicht widersprochen), 1,99 € inkl. MwSt., alle Länder |
+| Lizenz | MIT, `LICENSE` ergänzt (Inhaber „Lukas Schönsgibl“, bitte prüfen) |
+| Mehrwert 1.0 | Offline-Betrieb, Haptik, Favoriten, Statusleiste/Safe Area, Info-Fenster mit Lizenzen; Teilen läuft über das Android-Teilen-Fenster (Web-Share-API der Webseite). Kein Übungsmodus (nicht gepflegt, bewusst weggelassen). |
+| Berechtigungen | `INTERNET` entfernt (Nachweis: `aapt2 dump badging` zeigt nur `VIBRATE`), `allowBackup=false` |
+| Version | `versionName` = `settings.VERSION` (2.1), `versionCode` = `apps/build-number.txt` (muss je Upload wachsen) |
+| Signatur | Gradle liest `GP_KEY_PROPERTIES` (Pfad zu `key.properties` außerhalb des Repos); Schlüssel noch nicht erzeugt |
+| Absturzschutz | `MainActivity` startet bei `onRenderProcessGone` neu, statt dass Android die App beendet |
+| DSA-Händlerstatus / Steuer | **offen** („kommt noch“, Frage an den Steuerberater). Bis dahin wird nichts veröffentlicht. |
+| Händlerprofil Play | **offen**, trägt der Eigentümer selbst ein (siehe 7a) |
+| Datenschutztext | Entwurf in `docs/store/privacy-apps.md`, Veröffentlichung = Auftrag für die Serversitzung |
+| Store-Texte | `docs/store/en.md`, `docs/store/de.md` |
+| Gerätetest | nur Emulator; **echtes Telefon fehlt** (adb sah keins). Ein iPad war angeschlossen (nur für iOS später). |
+
+### 7a. Bezahlte App: was sich ändert
+
+- **Kostenlos oder bezahlt ist beim Anlegen fix:** Google: eine einmal kostenlos angebotene App lässt sich nicht auf bezahlt umstellen, dann bräuchte man eine neue App mit neuer Kennung ([Hilfe 6334373](https://support.google.com/googleplay/android-developer/answer/6334373), gelesen 2026-10-24). Ob ein interner Test schon als „angeboten“ zählt, steht dort nicht. Deshalb die App **gleich als bezahlt anlegen**.
+- **Händlerprofil / Zahlungsprofil (Finanz- und Steuerdaten):** trägt **nur der Eigentümer** ein: Play Console → Einrichtung bzw. Monetarisieren mit Play → Zahlungsprofil / Händlerkonto (Name, Adresse, Bankverbindung, Steuerangaben). Claude trägt nichts davon ein und prüft danach nur den Status.
+- **Apple (später):** Vereinbarung „Paid Apps“ samt Bank- und Steuerdaten in App Store Connect → Agreements, Tax, and Banking. Ebenfalls nur der Eigentümer.
+- **Erstattung:** Play erstattet bezahlte Apps auf Wunsch kurz nach dem Kauf (laut Auftrag 2 Stunden) automatisch, normal.
+- **Tester:** Bei bezahlten Apps den Testern Lizenztest-Zugriff geben (Play Console → Einstellungen → Lizenztests), sonst müssten sie kaufen. Die Tester trägt der Eigentümer selbst ein.
+- **Store-Eintrag:** „1,99 €, werbefrei, ohne Konto, offline, keine In-App-Käufe“ steht in den Texten.
 
 Grundlagen auf dem Zweig `claude/festive-payne-53db8c` (noch **nicht** in `master`): `apps/README.md` (Capacitor-Hüllen, Bundle, Icons, Builds) und `docs/STUDIO_REDESIGN.md` Abschnitt 7 (Plan für die nativen Apps, Stand 2026-10-18). Dieses Dokument ergänzt beides um die Store-Schritte.
 
@@ -12,10 +39,10 @@ Grundlagen auf dem Zweig `claude/festive-payne-53db8c` (noch **nicht** in `maste
 |---|---|
 | Weg | **Capacitor 8** (auf dem Zweig schon angelegt: `apps/ios`, `apps/android`). Studio-Code und Musikkatalog werden in die App gepackt, die App läuft **ohne Server** und ohne Netzanfragen. |
 | Konten | Die vorhandenen Konten des Eigentümers: Google Play „Schoensgibl.com“ (privat, verifiziert), Apple-Einzelmitgliedschaft (Aktivierung ausstehend). Keine neuen Konten. |
-| App-Kennung | Vorschlag `com.schoensgibl.guitarpositions` (steht schon im Zweig). Unumkehrbar ab dem ersten Upload, Entscheidung des Eigentümers (Abschnitt 3). |
+| App-Kennung | `com.guitarpositions` (vom Eigentümer gewählt, steht im Zweig). Unumkehrbar ab dem ersten Upload (Abschnitt 3). |
 | Name im Store | „Guitar Positions“ (Vorschlag; Untertitel z. B. „Scales, chords, arpeggios“) |
 | Daten | Keine Konten, keine Analyse, keine Werbung, CSP erlaubt nur das Bundle: Ziel „Keine Daten erhoben“ |
-| Spenden | im App-Bundle schon entfernt (`build_app_bundle.py`), so lassen |
+| Preis | **1,99 € inkl. MwSt., bezahlt, keine In-App-Käufe**; Spenden im App-Bundle entfernt, durch Test abgesichert (`test_app_bundle.py`) |
 | Testphase | Play: interner Test → geschlossener Test mit mind. 12 Personen über 14 Tage → Produktion. Apple: TestFlight → App-Prüfung |
 | Mac | über „iPhone- und iPad-Apps auf Mac mit Apple-Chip“ aus dem iOS-Build, kein eigener Mac-Build für den Store |
 | Kosten | keine zusätzlichen Gebühren (Konten bestehen schon) |
@@ -27,7 +54,7 @@ Bestand:
 - Django-Webanwendung (`fretboard/`, `positionfinder/`, `api/`), PostgreSQL; neue Oberfläche „Studio“ in reinem JavaScript (`static/studio/`, `templates/studio/index.html`) mit getesteter Musiktheorie (`theory.test.mjs`), PWA mit Service Worker (`templates/studio/sw.js`) und Manifest.
 - Songs und Übungen werden nur im Browser gespeichert, kein Konto (README).
 - Native Hüllen auf dem Zweig: Capacitor 8.5.3, iOS 15+ (iPhone und iPad, Swift Package Manager), Android minSdk 24, target/compile SDK 36, Mac Catalyst nur lokal. `scripts/build_app_bundle.py` erzeugt `www/` mit eingebettetem Katalog (nur Musikformeln), ohne Spendenlink, Service Worker, PWA-Manifest und SEO-Tags, mit einer Content-Security-Policy, die nur das Bundle erlaubt. Impressum und Datenschutz öffnen im System-Browser.
-- Lizenz: README sagt **MIT**, im Repo liegt aber **keine `LICENSE`-Datei** (Abschnitt 10).
+- Lizenz: MIT, `LICENSE` seit 2026-10-24 im Repo.
 
 | Weg | Passt? | Begründung |
 |---|---|---|
@@ -59,10 +86,10 @@ Die Kennung (iOS Bundle-ID, Android `applicationId`) ist ab dem ersten Upload be
 
 | Option | Bemerkung |
 |---|---|
-| **`com.schoensgibl.guitarpositions`** (Vorschlag) | steht in `apps/capacitor.config.json`, Xcode- und Android-Projekt; passt zur Domain `schoensgibl.com` und zum App-Namen |
+| **`com.guitarpositions`** (Vorschlag) | steht in `apps/capacitor.config.json`, Xcode- und Android-Projekt; passt zur Domain `schoensgibl.com` und zum App-Namen |
 | `com.schoensgibl.fretboard` | passt zum Repo- und Domainnamen `fretboard.schoensgibl.com`, Projekte müssten angepasst werden |
 
-Für lokale Tests mit einem kostenlosen Personal Team **nicht** die echte Kennung registrieren, sondern z. B. `com.schoensgibl.guitarpositions.dev` (README: sonst ist die ID später womöglich blockiert). **Entscheidung des Eigentümers** (auch der Name: „Guitar Positions“ oder „Fretboard Position Finder“).
+Für lokale Tests mit einem kostenlosen Personal Team **nicht** die echte Kennung registrieren, sondern z. B. `com.guitarpositions.dev` (README: sonst ist die ID später womöglich blockiert). **Entscheidung des Eigentümers** (auch der Name: „Guitar Positions“ oder „Fretboard Position Finder“).
 
 ## 4. Store-Einträge und Assets
 
@@ -120,8 +147,8 @@ Der Plan (7.8) sieht später GitHub Actions mit fastlane vor, Schlüssel nur als
 
 ### Google Play
 
-1. Play Console (Konto „Schoensgibl.com“): App anlegen (Name, Standardsprache, App, kostenlos). **Ab dem ersten Upload ist die Kennung belegt.**
-2. **Interner Test:** E-Mail-Liste (bis 100), AAB hochladen, veröffentlichen, Teilnahme-Link verschicken. Keine Standardprüfung, Datensicherheitsformular nicht nötig. Vorläufig zeigt Play einen Namen wie „com.schoensgibl.guitarpositions (unreviewed)“ (bei SPÖ Connect so beobachtet).
+1. Play Console (Konto „Schoensgibl.com“): App anlegen (Name, Standardsprache, App, **bezahlt**; Zahlungsprofil vorher durch den Eigentümer). **Ab dem ersten Upload ist die Kennung belegt.**
+2. **Interner Test:** E-Mail-Liste (bis 100), AAB hochladen, veröffentlichen, Teilnahme-Link verschicken. Keine Standardprüfung, Datensicherheitsformular nicht nötig. Vorläufig zeigt Play einen Namen wie „com.guitarpositions (unreviewed)“ (bei SPÖ Connect so beobachtet).
 3. **Geschlossener Test (Pflicht für private Konten nach 2023-11-13):** mind. **12 Testpersonen, 14 Tage ununterbrochen** eingetragen; Austritt und Wiedereintritt startet neu. Vorher Store-Eintrag, Datensicherheit, Altersfreigabe, Datenschutz-URL fertig. Der interne Test zählt nicht. Ob die Pflicht je App gilt, sagt die Hilfeseite nicht ausdrücklich; vorsichtshalber je App einplanen. Tipp: gemeinsame Testgruppe (Google Group) mit LibreMetronome, beide Tests parallel.
 4. **Zugriff auf Produktion beantragen** (Dashboard, drei Abschnitte), Prüfung meist bis 7 Tage.
 5. Produktions-Release.
@@ -134,7 +161,7 @@ Den AAB lädt der Eigentümer selbst hoch (Claude in Chrome lädt nur bis 10 MB)
 2. App Store Connect: neue App, iOS, Bundle-ID, Name, SKU. **Ab hier ist die Bundle-ID belegt.**
 3. Build hochladen, Exportkontrolle beantworten.
 4. **TestFlight intern** (Team-Nutzer, bis 100, ohne Prüfung), dann **extern** (bis 10 000 per E-Mail oder Link, erster Build mit Beta-App-Prüfung). Builds laufen 90 Tage.
-5. Store-Eintrag, App Privacy, Altersfreigabe, Preis (kostenlos), Länder, DSA-Status; zur **App-Prüfung** einreichen, „manuell veröffentlichen“.
+5. Store-Eintrag, App Privacy, Altersfreigabe, Preis (1,99 € bzw. Stufe), Länder, DSA-Status; zur **App-Prüfung** einreichen, „manuell veröffentlichen“.
 6. Mac: „iPhone- und iPad-Apps auf Mac mit Apple-Chip“ aktiv lassen (Plan 7.2, „Designed for iPad“); vorher in Xcode auf „My Mac (Designed for iPad)“ testen.
 
 ## 9. Kosten
@@ -143,7 +170,7 @@ Den AAB lädt der Eigentümer selbst hoch (Claude in Chrome lädt nur bis 10 MB)
 |---|---|---|
 | Apple Developer Program | 99 USD pro Jahr (Landeswährung) | schon für SPÖ Connect bezahlt, gilt für alle Apps; Ablauf = Apps verschwinden aus dem Store |
 | Google Play Konto | 25 USD einmalig | schon bezahlt |
-| Store-Provision | 0 | kostenlos, keine Käufe |
+| Store-Provision | Anteil von Google/Apple | bei bezahlten Apps fällt eine Provision an; Satz für das Konto in der Play Console prüfen |
 | Werkzeuge | vorhanden | Xcode 26.6, Android Studio, Emulator (Stand 2026-10-18) |
 
 Apple zeigt bei Einzelmitgliedschaften den **bürgerlichen Namen** als Anbieter, Google den Kontonamen „Schoensgibl.com“.
@@ -160,6 +187,15 @@ Apple zeigt bei Einzelmitgliedschaften den **bürgerlichen Namen** als Anbieter,
 8. **Store-Sprachen** und **Länder**.
 9. **Mac:** nur „Designed for iPad“ (Vorschlag) oder später Catalyst/Tauri.
 10. **CI mit fastlane** (Plan 7.8) jetzt oder später.
+
+## 10a. Noch offen nach dem Stand 2026-10-24
+
+1. DSA-Händlerstatus und Steuerfrage (Steuerberater), Zahlungsprofil in Play (Eigentümer).
+2. Release-Schlüssel erzeugen (Abschnitt 7), `GP_KEY_PROPERTIES` setzen, signierte AAB bauen.
+3. Test auf einem **echten Telefon** (Touch-Flüssigkeit, Ton, Latenz, Bildschirm aus, Edge-to-Edge).
+4. Zugriff der Testgruppe (12 Personen, gemeinsam mit LibreMetronome) und Lizenztests; Eintrag durch den Eigentümer.
+5. Datenschutztext auf der Webseite veröffentlichen (Serversitzung auf almalinux9).
+6. Vor jedem Upload: `apps/build-number.txt` erhöhen und im Bundle Explorer prüfen, dass der Code neu ist.
 
 ## 11. Store-Regeln (Quellen)
 

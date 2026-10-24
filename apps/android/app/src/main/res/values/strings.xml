@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Guitar Positions</string>
     <string name="title_activity_main">Guitar Positions</string>
-    <string name="package_name">com.schoensgibl.guitarpositions</string>
-    <string name="custom_url_scheme">com.schoensgibl.guitarpositions</string>
+    <string name="package_name">com.guitarpositions</string>
+    <string name="custom_url_scheme">com.guitarpositions</string>
 </resources>

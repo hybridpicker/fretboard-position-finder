@@ -276,7 +276,7 @@ Total to both stores: roughly 4–6 calendar weeks of focused work, dominated by
 1. **Native path:** approve "PWA → Capacitor (iOS + Android) → Designed for iPad on Mac" or prefer a different macOS route (Catalyst/Tauri)?
 2. **Developer accounts:** publish as individual or organisation (affects Apple D-U-N-S requirement and Google's 12-tester rule)?
 3. **App price/monetisation:** free with no donation link in apps, or add an in-app "tip" purchase?
-4. **App name and bundle ID:** e.g. "Guitar Positions Studio", `com.schoensgibl.guitarpositions`?
+4. **App name and bundle ID:** e.g. "Guitar Positions Studio", `com.guitarpositions`?
 5. **Classic UI:** set a removal date for `/classic/` and the 56 legacy scripts / 42 stylesheets?
 6. **SEO pages:** approve the landing-page URL scheme (`/scales/<root>-<type>/` etc.) before content is generated.
 7. **i18n:** is German a launch requirement for the apps, or a later release? If later, remove the unused `i18n_patterns` prefixing or re-enable `LocaleMiddleware` consistently.
