@@ -62,6 +62,18 @@ test('finger assignment: open C, F barre, A-shape', () => {
   assert.equal(assignFingers([-1, 3, 0, 2, 1, 4]) !== null, true);
 });
 
+test('no shape needs a little-finger barre', () => {
+  assert.equal(assignFingers([13, 13, 12, 10, 11, 10]), null, 'Bb 13-13-12-10-11-10 is not playable');
+  for (const q of [[0, 4, 7], [0, 4, 7, 10], [0, 3, 7, 10], [0, 4, 7, 11]]) {
+    for (let root = 0; root < 12; root++) {
+      for (const sh of findChordShapes(root, q, std, { maxFret: 15, limit: 500 })) {
+        const pinkyBarre = sh.barres.some((b) => b.finger === 4);
+        assert.equal(pinkyBarre, false, `${root} ${q} ${sh.frets}`);
+      }
+    }
+  }
+});
+
 test('chord shape finder returns the shapes guitarists expect', () => {
   const shapes = findChordShapes(0, [0, 4, 7], std, { maxFret: 12, limit: 200 });
   const keys = shapes.map((s) => s.frets.join(','));
@@ -204,6 +216,38 @@ test('"maj7#11" and "Major 7#11" are the same chord, with or without root', () =
   assert.equal(parseChordQuery('dim', lib.chords).root, null);
 });
 
+test('modes are listed by degree inside their parent scale', () => {
+  // A database with unusable entries (no root, wrong names) must not change the result
+  const lib = buildLibrary({ scales: [
+    { id: 1, name: 'Altered', intervals: [0, 1, 3, 4, 6, 8, 10] },
+    { id: 2, name: 'Lydian Dominant', intervals: [1, 2, 4, 5, 7, 9, 11] },
+  ] });
+  const names = (group) => lib.scales.filter((s) => s.group === group).map((s) => s.name);
+  assert.deepEqual(names('Melodic minor family'), ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian #2', 'Altered']);
+  assert.deepEqual(names('Modes of Major'), ['Major (Ionian)', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian (Natural Minor)', 'Locrian']);
+  assert.deepEqual(names('Harmonic family').slice(0, 7), ['Harmonic Minor', 'Locrian #6', 'Major Augmented', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Altered Dominant bb7']);
+  assert.deepEqual(names('Harmonic family').slice(7), ['Harmonic Major', 'Dorian b5', 'Phrygian b4', 'Lydian b3', 'Mixolydian b2', 'Lydian Augmented #2', 'Locrian bb7']);
+  assert.equal(lib.scales.find((s) => s.name === 'Altered').id, 1, 'database ids are kept');
+  assert.ok(lib.scales.every((s) => s.intervals.includes(0)), 'every scale contains its root');
+  assert.equal(lib.scales.find((s) => s.name === 'Major Pentatonic').group, 'Pentatonic & Blues');
+  const dorianB2 = lib.scales.find((s) => s.name === 'Dorian b2');
+  assert.deepEqual(dorianB2.intervals, [0, 1, 3, 5, 7, 9, 10]);
+});
+
+test('altered and extended dominants are found by symbol', () => {
+  const lib = buildLibrary(null);
+  const find = (q) => parseChordQuery(q, lib.chords);
+  const g = find('G7#11');
+  assert.equal(g.root, 7);
+  assert.deepEqual(g.chords.map((c) => c.intervals), [[0, 4, 6, 7, 10]]);
+  assert.equal(find('G7(#11)').chords.length, 1);
+  assert.equal(find('G7+11').chords.length, 1);
+  for (const q of ['G9#11', 'G13#11', 'G7b13', 'G9sus4', 'Gmaj13', 'Gm13', 'Gm(maj9)']) assert.equal(find(q)?.chords.length, 1, q);
+  assert.ok(findChordShapes(7, [0, 4, 6, 7, 10], std, { maxFret: 12 }).length > 0, 'G7#11 has shapes');
+  const lydDom = chordScaleFor([0, 2, 4, 6, 7, 9, 10], lib.chords);
+  assert.equal(lydDom.chords[0].symbol, '7#11', 'Lydian Dominant lists 7#11 first');
+});
+
 test('parseChordQuery ignores bare roots and plain words', () => {
   const lib = buildLibrary(null);
   assert.equal(parseChordQuery('E', lib.chords), null);
@@ -303,7 +347,7 @@ test('chord-scale recommendations replace the full subset list', () => {
   const lib = buildLibrary(null);
   const ionian = chordsForScale(0, [0, 2, 4, 5, 7, 9, 11], lib.chords);
   assert.equal(ionian.others.length, 0, 'no "all fitting chords" list');
-  assert.deepEqual(ionian.chordScale.chords.map((c) => c.symbol), ['maj7', '6', 'maj9', '6/9', 'add9', '']);
+  assert.deepEqual(ionian.chordScale.chords.map((c) => c.symbol), ['maj7', '6', 'maj9', 'maj13', '6/9', 'add9', '']);
   assert.deepEqual(ionian.chordScale.avoid, ['11']);
   const dorian = chordsForScale(2, [0, 2, 3, 5, 7, 9, 10], lib.chords).chordScale;
   assert.equal(dorian.chords[0].symbol, 'm7');

@@ -81,6 +81,14 @@ export const CHORD_LIBRARY = [
   { name: 'Dominant 7b9', symbol: '7b9', intervals: [0, 1, 4, 7, 10], group: 'Extended' },
   { name: 'Dominant 7#9', symbol: '7#9', intervals: [0, 3, 4, 7, 10], group: 'Extended' },
   { name: 'Major 7#11', symbol: 'maj7#11', intervals: [0, 4, 6, 7, 11], group: 'Extended' },
+  { name: 'Dominant 7#11', symbol: '7#11', intervals: [0, 4, 6, 7, 10], group: 'Extended' },
+  { name: 'Dominant 9#11', symbol: '9#11', intervals: [0, 2, 4, 6, 7, 10], group: 'Extended' },
+  { name: 'Dominant 13#11', symbol: '13#11', intervals: [0, 2, 4, 6, 7, 9, 10], group: 'Extended' },
+  { name: 'Dominant 7b13', symbol: '7b13', intervals: [0, 4, 7, 8, 10], group: 'Extended' },
+  { name: 'Dominant 9 sus4', symbol: '9sus4', intervals: [0, 2, 5, 7, 10], group: 'Extended' },
+  { name: 'Major 13', symbol: 'maj13', intervals: [0, 2, 4, 7, 9, 11], group: 'Extended' },
+  { name: 'Minor 13', symbol: 'm13', intervals: [0, 2, 3, 7, 9, 10], group: 'Extended' },
+  { name: 'Minor Major 9', symbol: 'm(maj9)', intervals: [0, 2, 3, 7, 11], group: 'Extended' },
   { name: 'Minor 11', symbol: 'm11', intervals: [0, 2, 3, 5, 7, 10], group: 'Extended' },
   { name: 'Dominant 13', symbol: '13', intervals: [0, 2, 4, 7, 9, 10], group: 'Extended' },
 ];
@@ -124,7 +132,7 @@ export const MESSIAEN_MODES = [
 const SCALE_GROUPS = [
   ['Modes of Major', ['major', 'ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian']],
   ['Pentatonic & Blues', ['pentatonic', 'blues']],
-  ['Melodic minor family', ['melodic minor', 'dorian b2', 'lydian augmented', 'lydian dominant', 'aeolian dominant', 'half diminished', 'altered', 'mixolydian b6']],
+  ['Melodic minor family', ['melodic minor', 'dorian b2', 'lydian augmented', 'lydian dominant', 'aeolian dominant', 'half diminished', 'locrian #2', 'altered', 'mixolydian b6']],
   ['Harmonic family', ['harmonic', 'locrian #6', 'major augmented', 'dorian #4', 'phrygian dominant', 'lydian #2', 'altered dominant bb7', 'dorian b5', 'phrygian b4', 'lydian b3', 'mixolydian b2', 'lydian augmented #2', 'locrian bb7']],
   ['Symmetric', ['whole tone', 'diminished', 'augmented', 'messiaen']],
   ['Bebop', ['bebop']],
@@ -144,7 +152,9 @@ export function cleanScaleName(name) {
 
 export function scaleGroup(name) {
   const lower = name.toLowerCase();
+  if (/pentatonic|blues/.test(lower)) return 'Pentatonic & Blues';
   // Exact family matches first so e.g. "Dorian b2" is not filed under the modes of major
+  for (const [group, keys] of SCALE_GROUPS.slice(2)) if (keys.includes(lower)) return group;
   for (const [group, keys] of SCALE_GROUPS.slice(2)) {
     if (keys.some((k) => lower === k || lower.startsWith(k + ' ') || lower.startsWith(k + ' ('))) return group;
   }
@@ -152,6 +162,38 @@ export function scaleGroup(name) {
     if (keys.some((k) => lower.includes(k))) return group;
   }
   return 'More scales';
+}
+
+// Parent scales whose modes are listed in degree order (I, II, III, ...) inside their group
+const MODE_PARENTS = [
+  [0, 2, 4, 5, 7, 9, 11], // major
+  [0, 2, 3, 5, 7, 9, 11], // melodic minor
+  [0, 2, 3, 5, 7, 8, 11], // harmonic minor
+  [0, 2, 4, 5, 7, 8, 11], // harmonic major
+];
+
+// Modes of the melodic minor, harmonic minor and harmonic major scales, by degree (I..VII), with search aliases.
+// Built in so the picker is complete and correct whatever the database holds.
+const MODE_NAMES = [
+  [1, [['Melodic Minor', ''], ['Dorian b2', 'phrygian #6'], ['Lydian Augmented', ''], ['Lydian Dominant', 'overtone lydian b7'],
+    ['Mixolydian b6', 'aeolian dominant hindu'], ['Locrian #2', 'half diminished aeolian b5'], ['Altered', 'super locrian diminished whole tone']]],
+  [2, [['Harmonic Minor', ''], ['Locrian #6', ''], ['Major Augmented', 'ionian #5'], ['Dorian #4', 'ukrainian dorian'],
+    ['Phrygian Dominant', 'spanish gypsy'], ['Lydian #2', ''], ['Altered Dominant bb7', 'super locrian bb7']]],
+  [3, [['Harmonic Major', ''], ['Dorian b5', ''], ['Phrygian b4', ''], ['Lydian b3', ''],
+    ['Mixolydian b2', ''], ['Lydian Augmented #2', ''], ['Locrian bb7', '']]],
+];
+
+/** Sort rank of a heptatonic scale: parent scale first, then the degree it starts on; null for other scales. */
+export function modeRank(intervals) {
+  if (intervals.length !== 7) return null;
+  for (let p = 0; p < MODE_PARENTS.length; p++) {
+    const parent = MODE_PARENTS[p];
+    for (let d = 0; d < 7; d++) {
+      const rotated = parent.map((iv) => mod12(iv - parent[d])).sort((a, b) => a - b);
+      if (rotated.every((iv, i) => iv === intervals[i])) return p * 10 + d;
+    }
+  }
+  return null;
 }
 
 const sameSet = (a, b) => a.length === b.length && a.every((x) => b.includes(x));
@@ -170,13 +212,32 @@ export function buildLibrary(catalog) {
     const name = cleanScaleName(entry.name);
     scales.push({ key: slug(name), id: entry.id ?? null, name, intervals, group: scaleGroup(name), source });
   };
-  (catalog?.scales || []).forEach((s) => addScale(s, 'db'));
   SCALE_LIBRARY.forEach((s) => addScale(s, 'builtin'));
+  for (const [parent, modes] of MODE_NAMES) {
+    modes.forEach(([name, alias], d) => {
+      const base = MODE_PARENTS[parent];
+      addScale({ name, intervals: base.map((iv) => mod12(iv - base[d])).sort((a, b) => a - b) }, 'builtin');
+      const added = scales.find((sc) => sc.name === name);
+      if (added && alias) added.alias = alias;
+    });
+  }
+  // Database scales add their ids; entries without a root (interval 0) are unusable and skipped
+  (catalog?.scales || []).filter((sc) => sc.intervals.map(mod12).includes(0)).forEach((sc) => {
+    const set = [...new Set(sc.intervals.map(mod12))].sort((a, b) => a - b);
+    const known = scales.find((x) => sameSet(x.intervals, set));
+    if (known) { known.id = known.id ?? sc.id ?? null; known.source = 'db'; } else addScale(sc, 'db');
+  });
   for (const m of MESSIAEN_MODES) {
     const existing = scales.find((x) => sameSet(x.intervals, m.intervals));
     if (existing) existing.alias = `${existing.alias || ''} messiaen mode ${m.mode}`.trim();
     else addScale(m, 'builtin');
   }
+
+  // Groups in menu order; inside a group modes follow their degree in the parent scale, other scales keep their order
+  const groupOrder = [...SCALE_GROUPS.map(([g]) => g), 'More scales'];
+  const original = new Map(scales.map((sc, i) => [sc, i]));
+  scales.sort((a, b) => groupOrder.indexOf(a.group) - groupOrder.indexOf(b.group)
+    || (modeRank(a.intervals) ?? 100) - (modeRank(b.intervals) ?? 100) || original.get(a) - original.get(b));
 
   const chords = CHORD_LIBRARY.map((c) => ({ ...c, key: slug(c.name), voicings: [], source: 'builtin' }));
   for (const dbChord of catalog?.chords || []) {
@@ -584,7 +645,10 @@ export function assignFingers(frets) {
     units = [g, ...rest.filter((n) => !g.strings.includes(n.s)).map((n) => ({ fret: n.f, strings: [n.s] }))];
     if (units.length > 3) return null;
   }
-  units.sort((a, b) => a.fret - b.fret || a.strings[0] - b.strings[0]).forEach((u, i) => {
+  units.sort((a, b) => a.fret - b.fret || a.strings[0] - b.strings[0]);
+  // The little finger cannot bar several strings (e.g. frets 13-13-12-11-10-10 would need that)
+  if (units.length === 3 && units[2].strings.length > 1) return null;
+  units.forEach((u, i) => {
     const finger = i + 2;
     u.strings.forEach((s) => { fingers[s] = finger; });
     if (u.strings.length > 1) barres.push({ finger, fret: u.fret, from: u.strings[0], to: u.strings[u.strings.length - 1] });
@@ -898,6 +962,14 @@ const QUALITY_ALIASES = {
   '7#9': ['7+9'],
   '7b5': ['7-5'],
   m11: ['min11', 'minor11', '-11'],
+  '7#11': ['7+11', 'dom7#11', '7lyd', '7#4'],
+  '9#11': ['9+11'],
+  '13#11': ['13+11'],
+  '7b13': ['7-13', '7b6', '7+5b13'],
+  '9sus4': ['9sus'],
+  maj13: ['ma13', 'major13', 'Δ13'],
+  m13: ['min13', 'minor13', '-13'],
+  'mmaj9': ['minmaj9', 'm9maj7', '-maj9'],
 };
 
 /** Lowercase, drop spaces and parentheses, unify accidental glyphs. */
@@ -964,19 +1036,19 @@ const isSubset = (small, big) => small.every((pc) => big.includes(pc));
  * bebop entries follow the same idea for the scales the book does not list as chord scales.
  */
 export const CHORD_SCALES = [
-  { name: 'Ionian', intervals: [0, 2, 4, 5, 7, 9, 11], chords: ['maj7', '6', 'maj9', '6/9', 'add9', ''], tensions: ['9', '13'], avoid: ['11'] },
-  { name: 'Dorian', intervals: [0, 2, 3, 5, 7, 9, 10], chords: ['m7', 'm6', 'm9', 'm11', 'm(add9)', 'm'], tensions: ['9', '11', '13'], avoid: [] },
+  { name: 'Ionian', intervals: [0, 2, 4, 5, 7, 9, 11], chords: ['maj7', '6', 'maj9', 'maj13', '6/9', 'add9', ''], tensions: ['9', '13'], avoid: ['11'] },
+  { name: 'Dorian', intervals: [0, 2, 3, 5, 7, 9, 10], chords: ['m7', 'm6', 'm9', 'm11', 'm13', 'm(add9)', 'm'], tensions: ['9', '11', '13'], avoid: [] },
   { name: 'Phrygian', intervals: [0, 1, 3, 5, 7, 8, 10], chords: ['m7', 'm'], tensions: ['11'], avoid: ['b9', 'b13'] },
   { name: 'Lydian', intervals: [0, 2, 4, 6, 7, 9, 11], chords: ['maj7#11', 'maj7', 'maj9', '6', '6/9', 'add9', ''], tensions: ['9', '#11', '13'], avoid: [] },
-  { name: 'Mixolydian', intervals: [0, 2, 4, 5, 7, 9, 10], chords: ['7', '9', '13', '7sus4', ''], tensions: ['9', '13'], avoid: ['11'] },
+  { name: 'Mixolydian', intervals: [0, 2, 4, 5, 7, 9, 10], chords: ['7', '9', '13', '9sus4', '7sus4', ''], tensions: ['9', '13'], avoid: ['11'] },
   { name: 'Aeolian', intervals: [0, 2, 3, 5, 7, 8, 10], chords: ['m7', 'm9', 'm11', 'm(add9)', 'm'], tensions: ['9', '11'], avoid: ['b13'] },
   { name: 'Locrian', intervals: [0, 1, 3, 5, 6, 8, 10], chords: ['m7b5', 'dim'], tensions: ['11', 'b13'], avoid: ['b9'] },
-  { name: 'Melodic Minor', intervals: [0, 2, 3, 5, 7, 9, 11], chords: ['m(maj7)', 'm6', 'm(add9)', 'm'], tensions: ['9', '11', '13'], avoid: [] },
+  { name: 'Melodic Minor', intervals: [0, 2, 3, 5, 7, 9, 11], chords: ['m(maj7)', 'm(maj9)', 'm6', 'm(add9)', 'm'], tensions: ['9', '11', '13'], avoid: [] },
   { name: 'Harmonic Minor', intervals: [0, 2, 3, 5, 7, 8, 11], chords: ['m(maj7)', 'm'], tensions: ['9', '11'], avoid: ['b13'] },
   { name: 'Dorian b2', intervals: [0, 1, 3, 5, 7, 9, 10], chords: ['7sus4', 'm7'], tensions: ['b9', '13'], avoid: [] },
   { name: 'Lydian Augmented', intervals: [0, 2, 4, 6, 8, 9, 11], chords: ['maj7#5', 'aug'], tensions: ['9', '#11', '13'], avoid: [] },
-  { name: 'Lydian Dominant', intervals: [0, 2, 4, 6, 7, 9, 10], chords: ['7', '9', '13', '7b5', ''], tensions: ['9', '#11', '13'], avoid: [] },
-  { name: 'Mixolydian b6', intervals: [0, 2, 4, 5, 7, 8, 10], chords: ['7', '9', ''], tensions: ['9', 'b13'], avoid: ['11'] },
+  { name: 'Lydian Dominant', intervals: [0, 2, 4, 6, 7, 9, 10], chords: ['7#11', '9#11', '13#11', '7', '9', '13', '7b5', ''], tensions: ['9', '#11', '13'], avoid: [] },
+  { name: 'Mixolydian b6', intervals: [0, 2, 4, 5, 7, 8, 10], chords: ['7b13', '7', '9', ''], tensions: ['9', 'b13'], avoid: ['11'] },
   { name: 'Locrian #2', intervals: [0, 2, 3, 5, 6, 8, 10], chords: ['m7b5', 'dim'], tensions: ['9', '11', 'b13'], avoid: [] },
   { name: 'Altered', intervals: [0, 1, 3, 4, 6, 8, 10], chords: ['7#5', '7b5'], tensions: ['b9', '#9', '#11', 'b13'], avoid: [] },
   { name: 'Phrygian Dominant', intervals: [0, 1, 4, 5, 7, 8, 10], chords: ['7b9', '7', ''], tensions: ['b9', 'b13'], avoid: ['11'] },
