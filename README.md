@@ -16,10 +16,10 @@ Free, no account needed. Installable as a PWA; native apps for iOS, iPad, macOS 
 
 ## Features
 
-- **Scales**: modes of major, pentatonic and blues, melodic and harmonic minor families, symmetric scales (whole tone, diminished, Messiaen modes 1–7) and **Bebop** scales. Every scale has numbered positions with fingerings, as boxes (five distinct CAGED-like boxes for 7-note scales) or three notes per string; position 1 is always the lowest one on the neck, in every key.
+- **Scales**: modes of major, pentatonic and blues, melodic minor, harmonic minor and harmonic major families (every mode listed by degree), symmetric scales (whole tone, diminished, Messiaen modes 1–7) and **Bebop** scales. Every scale has numbered positions with fingerings, as boxes (five distinct CAGED-like boxes for 7-note scales) or three notes per string; position 1 is always the lowest one on the neck, in every key.
 - **Arpeggios** for every chord type.
-- **Chords**: playable shapes ranked by ease, filterable by bass note (inversion) and neck region, plus Ted Greene style **V-System voicings** (V1–V14) for all chord types.
-- **Search**: type a chord symbol such as `Em7`, `F#m7b5` or `Maj7#11` and get the chord, its V-System voicings, the arpeggio and fitting scales (Em7 → Dorian, Phrygian, Aeolian on E).
+- **Chords**: playable shapes ranked by ease, filterable by bass note (inversion) and neck region, plus Ted Greene style **V-System voicings** (V1–V14, sorted by system, with a stepper through every inversion: ←/→ inversions, Shift+←/→ voicings) for all four-voice chords.
+- **Search**: type a chord symbol such as `Em7`, `F#m7b5`, `Maj7#11` or `G7#11` and get the chord, its V-System voicings, the arpeggio and fitting scales (Em7 → Dorian, Phrygian, Aeolian on E).
 - **Chord-scale theory** after Nettles/Graf: each scale lists the chords it is the chord scale for, with available tensions and avoid notes, plus the diatonic triads and sevenths; search and the Chord Namer suggest scales for a chord the same way. One click opens the shapes.
 - **Chord Namer**: tap a shape on the fretboard and get the chord name, alternatives and scales that fit.
 - **Songs & exercises**: collect chord progressions for lessons (title, note, sections, chosen voicings). Type a chord such as `Am7` and pick a fingering; diagrams show finger numbers, intervals or note names. Saved in the browser only, no account.
