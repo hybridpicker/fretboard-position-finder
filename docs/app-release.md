@@ -24,8 +24,9 @@ Stand: 2026-10-24. **Entscheidung: bezahlte App, 1,99 € inkl. MwSt., werbefrei
 
 - Vorbereitet: `ITSAppUsesNonExemptEncryption=false` in `Info.plist`, `PrivacyInfo.xcprivacy` (kein Tracking, keine erhobenen Daten, keine Required-Reason-APIs im App-Target; Capacitor bringt sein eigenes Manifest mit). Beides noch nicht von Apples Upload-Prüfung bestätigt.
 - iOS-Simulator (iPhone 17 Pro): App startet, Bundle lädt, Favoriten (Stern, Lesezeichen) funktionieren. Geprüft mit `.dev`-Kennung, ohne Signatur.
-- Auf dem **iPad Air 13" (M2)**: Build mit `com.guitarpositions.dev` und Team `497LN7JS8P` gelingt, die Installation scheitert: dieses kostenlose Profil hat auf dem iPad bereits die Höchstzahl (3) Apps. Team `W7XNGYTLT5` (jüngstes Zertifikat) lehnt den Build ab, weil das iPad dort nicht registriert ist. Lösung durch den Eigentümer: in Xcode das Gerät für das bezahlte Team registrieren (Projekt öffnen, Team wählen, einmal auf das iPad starten) oder eine alte Entwickler-App vom iPad löschen.
-- Offen: Ton bei aktivem Stummschalter, Haptik (am iPad nicht fühlbar im Simulator), Mac-Catalyst-Build, Test mit echtem Gerät.
+- **iPad Air 13" (M2), echtes Gerät:** Build mit `com.guitarpositions.dev` und dem kostenlosen Team `497LN7JS8P` installiert und gestartet (2026-10-24), nachdem der Eigentümer eine alte Entwickler-App entfernt hatte (kostenloses Profil: höchstens 3 Apps, 7 Tage Laufzeit). Der Eigentümer bestätigt: „hat geklappt“. Welche Punkte im Einzelnen geprüft wurden (Ton bei Stummschalter, Offline, Querformat), ist nicht festgehalten und gilt daher als **nicht geprüft**.
+- Das Team `W7XNGYTLT5` lehnte den Build ab, weil das iPad dort nicht registriert ist; ob es das bezahlte Team ist, ist ungeklärt. Für den Store-Build wird das bezahlte Team gebraucht (Gerät registrieren, Xcode → Signing & Capabilities).
+- Offen: Ton bei aktivem Stummschalter, Mac-Catalyst-Build, TestFlight, Kennung `com.guitarpositions` (ohne `.dev`) erst beim ersten Upload belegen.
 
 ### 7a. Bezahlte App: was sich ändert
 
