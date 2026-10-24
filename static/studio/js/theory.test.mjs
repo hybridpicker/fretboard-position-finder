@@ -225,8 +225,9 @@ test('modes are listed by degree inside their parent scale', () => {
   const names = (group) => lib.scales.filter((s) => s.group === group).map((s) => s.name);
   assert.deepEqual(names('Melodic minor family'), ['Melodic Minor', 'Dorian b2', 'Lydian Augmented', 'Lydian Dominant', 'Mixolydian b6', 'Locrian #2', 'Altered']);
   assert.deepEqual(names('Modes of Major'), ['Major (Ionian)', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Aeolian (Natural Minor)', 'Locrian']);
-  assert.deepEqual(names('Harmonic family').slice(0, 7), ['Harmonic Minor', 'Locrian #6', 'Major Augmented', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Altered Dominant bb7']);
-  assert.deepEqual(names('Harmonic family').slice(7), ['Harmonic Major', 'Dorian b5', 'Phrygian b4', 'Lydian b3', 'Mixolydian b2', 'Lydian Augmented #2', 'Locrian bb7']);
+  assert.deepEqual(names('Harmonic minor family'), ['Harmonic Minor', 'Locrian #6', 'Major Augmented', 'Dorian #4', 'Phrygian Dominant', 'Lydian #2', 'Altered Dominant bb7']);
+  assert.deepEqual(names('Harmonic major family'), ['Harmonic Major', 'Dorian b5', 'Phrygian b4', 'Lydian b3', 'Mixolydian b2', 'Lydian Augmented #2', 'Locrian bb7']);
+  assert.deepEqual(names('Bebop').filter((n) => /harmonic/i.test(n)), ['Bebop Harmonic Minor']);
   assert.equal(lib.scales.find((s) => s.name === 'Altered').id, 1, 'database ids are kept');
   assert.ok(lib.scales.every((s) => s.intervals.includes(0)), 'every scale contains its root');
   assert.equal(lib.scales.find((s) => s.name === 'Major Pentatonic').group, 'Pentatonic & Blues');

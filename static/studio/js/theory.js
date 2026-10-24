@@ -133,7 +133,8 @@ const SCALE_GROUPS = [
   ['Modes of Major', ['major', 'ionian', 'dorian', 'phrygian', 'lydian', 'mixolydian', 'aeolian', 'locrian']],
   ['Pentatonic & Blues', ['pentatonic', 'blues']],
   ['Melodic minor family', ['melodic minor', 'dorian b2', 'lydian augmented', 'lydian dominant', 'aeolian dominant', 'half diminished', 'locrian #2', 'altered', 'mixolydian b6']],
-  ['Harmonic family', ['harmonic', 'locrian #6', 'major augmented', 'dorian #4', 'phrygian dominant', 'lydian #2', 'altered dominant bb7', 'dorian b5', 'phrygian b4', 'lydian b3', 'mixolydian b2', 'lydian augmented #2', 'locrian bb7']],
+  ['Harmonic minor family', ['harmonic minor', 'locrian #6', 'major augmented', 'dorian #4', 'phrygian dominant', 'lydian #2', 'altered dominant bb7']],
+  ['Harmonic major family', ['harmonic major', 'dorian b5', 'phrygian b4', 'lydian b3', 'mixolydian b2', 'lydian augmented #2', 'locrian bb7']],
   ['Symmetric', ['whole tone', 'diminished', 'augmented', 'messiaen']],
   ['Bebop', ['bebop']],
 ];
