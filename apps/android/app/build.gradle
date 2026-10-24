@@ -1,14 +1,28 @@
 apply plugin: 'com.android.application'
 
+// One version source: fretboard/settings.py VERSION. The build number (versionCode) lives in
+// apps/build-number.txt and must grow with every Play upload.
+def settingsText = file('../../../fretboard/settings.py').text
+def appVersion = (settingsText =~ /(?m)^VERSION\s*=\s*["']([^"']+)["']/)[0][1]
+def buildNumber = file('../../build-number.txt').text.trim().toInteger()
+
+// Release signing: GP_KEY_PROPERTIES points at a key.properties file outside the repo
+// (storeFile, storePassword, keyAlias, keyPassword). Without it, release builds are unsigned.
+def keyProps = new Properties()
+def keyPropsPath = System.getenv('GP_KEY_PROPERTIES')
+if (keyPropsPath && file(keyPropsPath).exists()) {
+    file(keyPropsPath).withInputStream { keyProps.load(it) }
+}
+
 android {
-    namespace = "com.schoensgibl.guitarpositions"
+    namespace = "com.guitarpositions"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.schoensgibl.guitarpositions"
+        applicationId "com.guitarpositions"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode buildNumber
+        versionName appVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,8 +30,23 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
-    buildTypes {
+    signingConfigs {
         release {
+            if (keyProps['storeFile']) {
+                storeFile file(keyProps['storeFile'])
+                storePassword keyProps['storePassword']
+                keyAlias keyProps['keyAlias']
+                keyPassword keyProps['keyPassword']
+            }
+        }
+    }
+    buildTypes {
+        debug {
+            // Local test builds never use the real store ID
+            applicationIdSuffix ".dev"
+        }
+        release {
+            if (keyProps['storeFile']) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

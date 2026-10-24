@@ -109,7 +109,7 @@ gunicorn fretboard.wsgi:application --bind 0.0.0.0:8080
 ```
 
 ## License
-MIT License
+MIT License, see [LICENSE](LICENSE).
 
 ## Fixtures
 Fretboard-Position-Finder loads all fingerings, that are stored as **fixtures** with the migrate-command:

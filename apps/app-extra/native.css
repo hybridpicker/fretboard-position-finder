@@ -1,0 +1,10 @@
+/* App-only styles for native.js (copied into the bundle by scripts/build_app_bundle.py). */
+#favBtn.is-on svg { fill: var(--accent); }
+.app-dialog { width: min(520px, 100%); }
+.app-dialog-body p { margin: 8px 0; font-size: 14px; line-height: 1.5; }
+.app-dialog-body a { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
+.app-licences, .app-fav-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: 14px; line-height: 1.45; }
+.app-fav-list li { display: flex; align-items: center; gap: 8px; }
+.app-fav-open { flex: 1; min-height: 44px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; text-align: left; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; }
+.app-fav-open span { font-size: 12px; }
+.help { padding-top: calc(16px + var(--app-inset-top)); padding-bottom: calc(16px + var(--app-inset-bottom)); }

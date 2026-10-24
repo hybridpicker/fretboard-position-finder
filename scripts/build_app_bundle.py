@@ -19,6 +19,7 @@ App-build differences from the web Studio (the web templates are not changed):
   - About and Impressum & Privacy link to SITE_URL and open in the system browser
   - a Content-Security-Policy that only allows the bundle itself (no third-party requests)
   - apps/www/app.css adds safe-area padding for notches and system bars
+  - apps/www/native.js adds haptics, favourites, the info window and status bar sync (apps/app-extra/)
 
 Run with a Python environment that has the project requirements installed:
     python scripts/build_app_bundle.py [--out apps/www]
@@ -36,6 +37,7 @@ TEMPLATE = REPO / 'templates' / 'studio' / 'index.html'
 STATIC = REPO / 'static'
 FIXTURE = REPO / 'fixtures' / 'studio_music_data.json'
 DEFAULT_OUT = REPO / 'apps' / 'www'
+APP_EXTRA = REPO / 'apps' / 'app-extra'  # native.js / native.css, loaded by the app only
 
 SITE_URL = 'https://fretboard.schoensgibl.com'
 
@@ -146,7 +148,9 @@ def build_index(catalog, version):
 
     html = replace_once(html, '<link rel="stylesheet" href="studio/studio.css?v=' + version + '">',
                         '<link rel="stylesheet" href="studio/studio.css?v=' + version + '">\n'
-                        '  <link rel="stylesheet" href="app.css?v=' + version + '">', 'stylesheet link')
+                        '  <link rel="stylesheet" href="app.css?v=' + version + '">\n'
+                        '  <link rel="stylesheet" href="native.css?v=' + version + '">', 'stylesheet link')
+    html = replace_once(html, '</body>', '  <script src="native.js?v=' + version + '" defer></script>\n</body>', 'body end')
 
     html = replace_once(html, "href=\"{% url 'fretboard' %}\"", 'href="index.html"', 'brand link')
     html = sub_once(html, r'<p class="noscript">.*?</p>',
@@ -230,6 +234,8 @@ def main():
         index = build_index(catalog, version)
         copy_static(staging)
         (staging / 'app.css').write_text(APP_CSS, encoding='utf-8')
+        for name in ('native.js', 'native.css'):
+            shutil.copy2(APP_EXTRA / name, staging / name)
         (staging / 'index.html').write_text(index, encoding='utf-8')
     except BaseException:
         shutil.rmtree(staging, ignore_errors=True)

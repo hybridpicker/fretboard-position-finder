@@ -3,7 +3,7 @@
   "version": "2.1.0",
   "private": true,
   "description": "Native iOS and Android shells (Capacitor) for Guitar Positions Studio. See README.md.",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "node": ">=22"
   },
@@ -19,7 +19,9 @@
   "dependencies": {
     "@capacitor/android": "8.5.3",
     "@capacitor/core": "8.5.3",
-    "@capacitor/ios": "8.5.3"
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/ios": "8.5.3",
+    "@capacitor/status-bar": "8.0.4"
   },
   "devDependencies": {
     "@capacitor/cli": "8.5.3"
