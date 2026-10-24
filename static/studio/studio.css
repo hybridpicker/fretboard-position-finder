@@ -246,6 +246,10 @@ button.chip:hover b { text-decoration: underline; text-underline-offset: 3px; }
 .source-tabs small { color: var(--muted); font-size: 12px; margin-left: 4px; }
 .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.inv-stepper { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; }
+.inv-stepper[hidden] { display: none; }
+.inv-label { flex: 1; min-width: 0; text-align: center; display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.inv-label span { font-size: 12px; }
 .group-head { grid-column: 1 / -1; padding: 14px 10px 8px; font-size: 13px; font-weight: 600; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--subtle); }
 .group-head span { color: var(--muted); font-weight: 400; margin-left: 6px; }
 .card { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 8px 12px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); text-align: center; }

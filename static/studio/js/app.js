@@ -382,9 +382,14 @@ function computeChordView() {
   const t = tuning();
   const bass = state.bass === 'any' ? null : parseInt(state.bass, 10);
   let shapes;
+  // The V-System only exists for chords that can be played with four voices
+  if (state.source === 'vsystem' && !type.voicings.length) state.source = 'finder';
   if (state.source === 'vsystem') {
+    const systemNumber = (name) => parseInt(String(name).replace(/\D/g, ''), 10) || 0;
+    // V1, V2, … in order (stable: string sets keep their library order), each with all inversions
     const templates = type.voicings.filter((v) => (state.vsystem === 'all' || v.system === state.vsystem)
-      && (state.vrange === 'all' || v.range === state.vrange));
+      && (state.vrange === 'all' || v.range === state.vrange))
+      .sort((a, b) => systemNumber(a.system) - systemNumber(b.system) || String(a.system).localeCompare(String(b.system)));
     shapes = templates.flatMap((tpl) => voicingTemplateShapes(state.root, type.intervals, tpl, t));
     if (bass !== null) shapes = shapes.filter((s) => s.bassInterval === bass);
   } else {
@@ -565,6 +570,7 @@ function renderFinder() {
   const bassOptions = [['any', 'Any bass']].concat(type.intervals.map((iv) => [String(iv), pretty(view.labels[iv]) + ' in bass']));
   bassSeg.innerHTML = bassOptions.map(([v, l]) => `<button data-bass="${v}" aria-pressed="${state.bass === v}">${l}</button>`).join('');
   const isVs = state.source === 'vsystem';
+  $('#sourceSeg').hidden = !type.voicings.length;
   $('#sourceSeg [data-source="vsystem"]').innerHTML = `V-System${type.voicings.length ? `<small>${type.voicings.length}</small>` : ''}`;
 
   const vs = $('#vsystemSelect');
@@ -591,6 +597,7 @@ function renderFinder() {
   const chordName = pretty(rootName() + (type.symbol || ''));
   if (isVs && !type.voicings.length) {
     const withVs = library.chords.filter((c) => c.voicings.length);
+    renderInversionStepper([]);
     $('#finderSummary').textContent = `The V-System library has no voicings for ${type.name} yet.`;
     $('#cards').innerHTML = `<div class="empty">Available for ${withVs.map((c) => `<button data-open-type="${c.key}">${pretty(rootName() + c.symbol)}</button>`).join('')}</div>`;
     return;
@@ -608,6 +615,7 @@ function renderFinder() {
     ? (isVs ? `${shapes.length} voicings, every inversion, grouped by system and string set.` : `${shapes.length} playable shapes, easiest first.`)
     : 'No shapes match these filters.') + derived + extra;
 
+  renderInversionStepper(isVs ? shapes : []);
   let lastGroup = null;
   const html = [];
   shapes.forEach((sh, i) => {
@@ -629,6 +637,56 @@ function renderFinder() {
     </button>`);
   });
   $('#cards').innerHTML = html.join('') || '<div class="empty">Try another bass note or neck region.</div>';
+}
+
+/** Index ranges of the voicings (one per template) in the V-System list; a voicing holds its inversions in order. */
+function voicingGroups(shapes) {
+  const groups = [];
+  shapes.forEach((sh, i) => {
+    const last = groups[groups.length - 1];
+    if (last && sh.templateId !== undefined && last.id === sh.templateId) last.indices.push(i);
+    else groups.push({ id: sh.templateId, indices: [i] });
+  });
+  return groups;
+}
+
+function renderInversionStepper(shapes) {
+  const host = $('#invStepper');
+  const shape = shapes[state.selected];
+  host.hidden = !shape;
+  if (!shape) return;
+  const groups = voicingGroups(shapes);
+  const g = groups.findIndex((x) => x.indices.includes(state.selected));
+  const inv = groups[g].indices.indexOf(state.selected);
+  host.querySelector('[data-inv-label]').textContent = shape.inversion;
+  host.querySelector('[data-inv-meta]').textContent = `${shape.system} · strings ${shape.range} · inversion ${inv + 1} of ${groups[g].indices.length} · voicing ${g + 1} of ${groups.length}`;
+}
+
+/** V-System: next/previous inversion of the selected voicing (wraps); falls back to voicings when each has one inversion. */
+function stepInversion(dir) {
+  const groups = voicingGroups(view.shapes);
+  const g = groups.find((x) => x.indices.includes(state.selected));
+  if (!g || g.indices.length < 2) { stepVoicing(dir); return; }
+  const pos = g.indices.indexOf(state.selected);
+  state.selected = g.indices[(pos + dir + g.indices.length) % g.indices.length];
+  afterShapeStep();
+}
+
+/** V-System: jump to the same inversion (or the first) of the next/previous voicing. */
+function stepVoicing(dir) {
+  const groups = voicingGroups(view.shapes);
+  if (groups.length < 2) return;
+  const g = groups.findIndex((x) => x.indices.includes(state.selected));
+  const inv = groups[g].indices.indexOf(state.selected);
+  const target = groups[(g + dir + groups.length) % groups.length];
+  state.selected = target.indices[Math.min(inv, target.indices.length - 1)];
+  afterShapeStep();
+}
+
+function afterShapeStep() {
+  if (state.sound) setTimeout(play, 0);
+  render();
+  document.querySelector('.card[aria-pressed="true"]')?.scrollIntoView({ block: 'nearest' });
 }
 
 function renderNamer() {
@@ -1128,6 +1186,12 @@ function bind() {
     state.selected = 0;
     render();
   });
+  $('#invStepper').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-step]');
+    if (!b) return;
+    if (b.dataset.step.startsWith('voicing')) stepVoicing(b.dataset.step.endsWith('next') ? 1 : -1);
+    else stepInversion(b.dataset.step.endsWith('next') ? 1 : -1);
+  });
   $('#bassSeg').addEventListener('click', (e) => {
     const b = e.target.closest('[data-bass]');
     if (!b) return;
@@ -1315,7 +1379,11 @@ function selectNumber(n) {
   }
 }
 
-function stepShape(dir) {
+function stepShape(dir, byVoicing = false) {
+  if (state.mode === 'chord' && state.source === 'vsystem' && view.shapes.length) {
+    (byVoicing ? stepVoicing : stepInversion)(dir);
+    return;
+  }
   if (state.mode === 'scale' || state.mode === 'arpeggio') {
     const count = view.positions.length;
     state.position = (state.position + dir + count + 1) % (count + 1);
@@ -1381,7 +1449,7 @@ function onKey(e) {
     case 'ArrowRight': case 'ArrowLeft':
       if (onButton && onButton.closest('.seg, .positions, .keys')) return;
       e.preventDefault();
-      stepShape(e.code === 'ArrowRight' ? 1 : -1);
+      stepShape(e.code === 'ArrowRight' ? 1 : -1, e.shiftKey);
       return;
     case 'KeyM': $('#soundBtn').click(); return;
     case 'KeyL':
@@ -1398,6 +1466,7 @@ function onKey(e) {
       return;
     case 'KeyV':
       if (state.mode !== 'chord') return;
+      if (state.source !== 'vsystem' && !view.type.voicings.length) { toast('V-System is for four-note chords'); return; }
       state.source = state.source === 'vsystem' ? 'finder' : 'vsystem';
       state.selected = 0;
       render();
