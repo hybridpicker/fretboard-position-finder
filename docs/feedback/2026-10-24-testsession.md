@@ -81,3 +81,43 @@
 - Conflicts with decisions: none (icon is a horizontal neck motif; no rule on icon orientation).
 - Open: Which position/shape (position 1 near the nut, or the common box 8–10 with F on the 8th fret)? Show all ten pentatonic notes or a reduced set for small icons? Keep the dark tile or switch to the light variant (`build_icons.py`)? Include the legacy header favicon (`static/favicon/v2`) in the change? Needs a new native build (Xcode/Android Studio) and App Store/Play listing icons are separate uploads.
 - Decision (2026-10-24, defaults): F major pentatonic box on frets 7–10 (F on A string fret 8 and G string fret 10, both in the accent colour), light tile (`scripts/build_icons.py` is the authoritative script; `build_studio_icons.py` is the older dark variant and no longer matches). The 4-string favicon variant keeps D, G, B, e. Legacy header icons `static/favicon/v2` regenerated from the same masters (typo `apple-icon114x114` fixed). Native icons follow via `npm run icons`.
+
+### #6 · V-System: order by V1, V2, … and click through all inversions
+- Status: done (60b5f46)
+- Area: Chords → V-System tab
+- Type: Wunsch · Priority: mittel
+- Platform: not specified (assumed all – shared Studio code)
+- Observation: The V-System voicings are not clearly sorted by system (V1, V2, …) and there is no direct way to step through all inversions of one voicing.
+- Expected: Voicings listed in system order (V1, V2, V3, …, then string set), and for a selected voicing a control to click through root position → 1st → 2nd → 3rd inversion (and back).
+- Steps: Chords → pick a chord (e.g. Cmaj7) → "V-System" tab → look at the card order; try to switch from root position to the next inversion of the same voicing.
+- Suspected location: `static/studio/js/app.js:380` `computeChordView()` builds the V-System list as `templates.flatMap(voicingTemplateShapes)` in database order (`type.voicings`, `app.js:386-388`); only the system dropdown is sorted numerically (`app.js:578`, `systemNumber()`), the cards are not – so the card order follows the database, not V1/V2. `voicingTemplateShapes()` (`theory.js:828`) already returns all inversions of a template in order (`inversionIndex`, `theory.js:~876`), but the list is flat (grouped by `system|range` headers, `app.js:615-620`) and each inversion is just another card. Existing ways to navigate: ←/→ step through `view.shapes` (`stepShape`, `app.js:1318`, which would also jump across templates), number keys 1–4 filter by bass note (`selectNumber`, `app.js:1302`), "bass" segment buttons (`renderFinder`, `app.js:~564`). Needed: sort `shapes` by (system number, string set, inversionIndex) and add an inversion stepper (prev / next buttons showing "Root position · 1st inversion …") that moves within the same template, wrapping around; keep ←/→ working.
+- Conflicts with decisions: none (chord view stays horizontal; V-System voicings are not song diagrams).
+- Open: Does "sorted by V1, V2" also mean grouping the dropdown/cards by system only (as now with headers), or one list per system with an "All systems" option kept? Should the inversion stepper replace the card grid for V-System, or sit above it as an extra control? Should ←/→ step through inversions of the selected voicing instead of all cards in V-System mode? Keyboard shortcut for next/previous inversion?
+- Decision (2026-10-24): the inversion stepper is an additional control above the card grid (cards stay). In V-System mode ←/→ step through the inversions of the selected voicing (wrapping); Shift+←/→ jump to the previous/next voicing (next string set / system), so both levels are reachable without new keys; the stepper buttons mirror this. Other modes keep ←/→ as today.
+
+### #7 · V-System tab only for four-note chords
+- Status: done (60b5f46)
+- Area: Chords → V-System tab (visibility, search suggestions)
+- Type: Wunsch · Priority: mittel
+- Platform: not specified (assumed all – shared Studio code)
+- Observation: The V-System tab is offered for every chord type, including triads and chords with five or more notes, where the voicings are derived or reduced.
+- Expected: V-System only appears for four-note chords (sevenths, 6ths, add-chords with four notes etc.).
+- Steps: Chords → e.g. Major (triad), Dominant 9 or 13 → "V-System" tab is shown with a count and voicings.
+- Suspected location: `templates/studio/index.html:124` always renders the V-System button; `static/studio/js/app.js:568` fills it with the voicing count and `app.js:~592` shows "V-System library has no voicings for …" when a type has none. Voicings come from the database plus `deriveVSystem()` (`theory.js:~292-315`): it builds templates for triads (`size 3`) and for chords with 5+ notes by reducing them to four (`vSystemReduction`, drop 5th, then 9th, then 11th; flagged `vsDerived`, text "Built from the V-System templates without the 5th" in `app.js:602`). Restriction therefore means: hide the tab (`#sourceSeg [data-source=vsystem]`), skip `type.vsDerived` for 3- and 5+-note chords, drop V-System entries in the search suggestions (`app.js:958`), and handle links/state with `src=vsystem` (`app.js:65/80/118`) and the `V` shortcut (`app.js:1401`) for types without V-System (fall back to "Best shapes").
+- Side effects to check: shared links and bookmarks with `src=vsystem` on triads/extended chords (fall back to the normal shapes); legacy ids (`app.js:60-66`); tests for `deriveVSystem`/`vSystemReduction` in `theory.test.mjs`. Relates to #6 (V-System ordering/inversion stepper) – same tab.
+- Conflicts with decisions: none.
+- Open: "Four-note" = exactly four notes in the chord formula (Maj7, 7, m7, m7b5, dim7, 6, m6, add9, 7sus4, 7b5, maj7#5 …) – what about 5-note chords such as 9/13 that are currently reduced to four notes (keep, since the 4-note shape is the usual V-System voicing, or hide)? Triads hidden entirely? Remove the derivation code or keep it unused? Hide the tab or show it disabled with a hint ("V-System is for four-note chords")?
+- Decision (2026-10-24, "smart version" delegated by user): V-System is a four-voice system, so the tab is available when the chord can be played as four voices: chords with exactly four notes use their own/derived templates; five- and six-note chords (9, 13, 6/9, m11 …) stay available only through the existing four-note reduction (5th, then 9th, then 11th dropped) and are labelled "Four-voice version without the …" (existing `vsOmitted` text). Triads, power chords and other types that cannot form four voices lose the tab entirely (hidden, not disabled), their search suggestions, and the derivation for size 3 is removed. Links/state with `src=vsystem` on such types fall back to "Best shapes" without an error; the `V` shortcut does nothing there (short toast). Tests: tab availability per chord type, fallback.
+
+### #8 · Split "Harmonic family" into Harmonic Minor and Harmonic Major categories
+- Status: done (f7978e4)
+- Area: Scales (type picker groups)
+- Type: Wunsch · Priority: niedrig
+- Platform: not specified (assumed all – shared Studio code)
+- Observation: Harmonic Minor and Harmonic Major modes are listed together under "Harmonic family" (14 entries, since 49025ab).
+- Expected: Two separate categories: "Harmonic minor family" (Harmonic Minor, Locrian #6, Major Augmented, Dorian #4, Phrygian Dominant, Lydian #2, Altered Dominant bb7) and "Harmonic major family" (Harmonic Major, Dorian b5, Phrygian b4, Lydian b3, Mixolydian b2, Lydian Augmented #2, Locrian bb7), each ordered by degree.
+- Steps: Scales → type picker → group "Harmonic family".
+- Suspected location: `static/studio/js/theory.js:132` `SCALE_GROUPS` has one entry `['Harmonic family', [...]]` with the keywords of both families; `scaleGroup()` (`theory.js:~148`) assigns by keyword, the order inside a group comes from `modeRank()` (`theory.js:~190`, harmonic minor = rank 20+d, harmonic major = 30+d) – so the split only needs two `SCALE_GROUPS` entries (keyword lists per family; exact-name match first, as `Lydian #2` / `Lydian Augmented #2` share prefixes with other names) and updating the group order list in `buildLibrary()`. Test `modes are listed by degree inside their parent scale` (`theory.test.mjs`) currently expects one group.
+- Conflicts with decisions: none; picker/URL keys are unaffected (keys come from scale names, not groups).
+- Open: Rename the melodic group to "Melodic minor family" (unchanged) and the major modes group "Modes of Major" – keep? Name the new ones "Harmonic minor family" / "Harmonic major family"?
+- Decision (2026-10-24): two groups named "Harmonic minor family" and "Harmonic major family" (after "Melodic minor family"), each by degree.
