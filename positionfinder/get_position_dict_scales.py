@@ -14,7 +14,8 @@ from positionfinder.template_notes import (
 
 
 # Function for getting every transposable Position
-def get_transposable_positions(position_options, position):
+def get_transposable_positions(position_options: int, position: dict) -> list:
+    """Return the position numbers whose tones all exist one octave lower."""
     transposition_positions = []
     for i in range(1, position_options):
         key = str(i)
@@ -52,7 +53,8 @@ def get_transposable_positions(position_options, position):
 
 
 # Add a helper to extract tones from a Notes object
-def get_tones_from_notes(notes_obj):
+def get_tones_from_notes(notes_obj: Notes) -> list:
+    """Return the non-empty note values of a Notes row."""
     note_fields = [
         "first_note",
         "second_note",
@@ -70,8 +72,8 @@ def get_tones_from_notes(notes_obj):
     return [getattr(notes_obj, f) for f in note_fields if getattr(notes_obj, f) is not None]
 
 
-def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, selected_root_name):
-    # Retrieve scale and build base note list
+def _find_scale_note(scale_name: str) -> Notes:
+    """Look up the Notes row by id, exact name, or fuzzy name match."""
     try:
         # First try to get the scale by ID (for arpeggios/scales selected from the search)
         # Try to convert scale_name to an integer if it's a numeric string (likely an ID)
@@ -83,10 +85,9 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
             pass
 
         if scale_id:
-            scale_note = Notes.objects.get(id=scale_id)
-        else:
-            # Try by exact name if not found by ID
-            scale_note = Notes.objects.get(note_name=scale_name)
+            return Notes.objects.get(id=scale_id)
+        # Try by exact name if not found by ID
+        return Notes.objects.get(note_name=scale_name)
     except Notes.DoesNotExist:
         # If exact match fails, try case-insensitive contains match
         matching_notes = Notes.objects.filter(note_name__icontains=scale_name)
@@ -99,58 +100,78 @@ def get_scale_position_dict(scale_name, root_note_id, root_pitch, tonal_root, se
                 matching_notes = Notes.objects.filter(note_name__icontains=search_term)
 
         if matching_notes.exists():
-            scale_note = matching_notes.first()
-        else:
-            raise Notes.DoesNotExist(f"Cannot find Notes with name: {scale_name}") from None
+            return matching_notes.first()
+        raise Notes.DoesNotExist(f"Cannot find Notes with name: {scale_name}") from None
 
-    SCALE_NOTES = get_tones_from_notes(scale_note)
-    NOTES_LIST = []
-    for interval in SCALE_NOTES:
+
+def _scale_note_names(scale_note: Notes, root_pitch: int, selected_root_name: str) -> list:
+    """Note names (sharp or flat spelling) of the scale for the given root."""
+    notes_list = []
+    for interval in get_tones_from_notes(scale_note):
         if interval is None:
             continue
         step = (interval + root_pitch) % 12
-        NOTES_LIST.append(
+        notes_list.append(
             NOTES_SHARP[step]
             if root_pitch in SHARP_NOTES or "#" in selected_root_name
             else NOTES[step]
         )
-    # Fetch available positions
-    available_positions = NotesPosition.objects.filter(notes_name_id=scale_note.id)
-    POSITION_DICT = {}
-    # Position '0': open strings
+    return notes_list
+
+
+def _open_position(notes_list: list) -> dict:
+    """Position '0': every tone of the scale on every string."""
     base_dict = {}
     for string in STRING_NOTE_OPTIONS:
         cell = STRING_NOTE_OPTIONS[string][0]
         tones = []
-        for note in NOTES_LIST:
+        for note in notes_list:
             info = cell.get(note, [{}])[0]
             for tone in info.get("tone", []):
                 if tone not in tones:
                     tones.append(tone)
         base_dict[string] = [{"tones": tones}]
-    POSITION_DICT["0"] = base_dict
+    return base_dict
+
+
+def _fretted_position(notes_list: list, pos_list: list) -> dict:
+    """Tones of the scale on every string, restricted to the frets of one position."""
+    fretted = {}
+    for string in STRING_NOTE_OPTIONS:
+        cell = STRING_NOTE_OPTIONS[string][0]
+        tones = []
+        for note in notes_list:
+            info = cell.get(note, [{}])[0]
+            frets = info.get("fret", [])
+            tone_opts = info.get("tone", [])
+            for idx, fret in enumerate(frets):
+                if idx < len(tone_opts) and fret in pos_list:
+                    tone = tone_opts[idx]
+                    if tone not in tones:
+                        tones.append(tone)
+        fretted[string] = [{"tones": tones}]
+    return fretted
+
+
+def get_scale_position_dict(
+    scale_name: str, root_note_id: int, root_pitch: int, tonal_root: int, selected_root_name: str
+) -> dict:
+    """Build the position dictionary ('0' open, then each fretted position) of a scale."""
+    # Retrieve scale and build base note list
+    scale_note = _find_scale_note(scale_name)
+    notes_list = _scale_note_names(scale_note, root_pitch, selected_root_name)
+    # Fetch available positions
+    available_positions = NotesPosition.objects.filter(notes_name_id=scale_note.id)
+    POSITION_DICT = {"0": _open_position(notes_list)}
     # Fretted positions
     for pos in available_positions:
-        fretted = {}
         pos_list = get_notes_position(pos.id, root_pitch)
-        for string in STRING_NOTE_OPTIONS:
-            cell = STRING_NOTE_OPTIONS[string][0]
-            tones = []
-            for note in NOTES_LIST:
-                info = cell.get(note, [{}])[0]
-                frets = info.get("fret", [])
-                tone_opts = info.get("tone", [])
-                for idx, fret in enumerate(frets):
-                    if idx < len(tone_opts) and fret in pos_list:
-                        tone = tone_opts[idx]
-                        if tone not in tones:
-                            tones.append(tone)
-            fretted[string] = [{"tones": tones}]
-        POSITION_DICT[str(pos.position_order)] = fretted
+        POSITION_DICT[str(pos.position_order)] = _fretted_position(notes_list, pos_list)
     return POSITION_DICT
 
 
-def transpose_position(y):
+def transpose_position(y: list) -> list:
+    """Lower every tone name in the list by one octave."""
     y_trans = []
     for x in y:
         base = x[: (len(x) - 1)]
@@ -159,7 +180,8 @@ def transpose_position(y):
     return y_trans
 
 
-def transpose_actual_position(position, transposable_position):
+def transpose_actual_position(position: dict, transposable_position: list) -> dict:
+    """Lower the tones of the given positions by one octave (in place)."""
     for x in transposable_position:
         for string in STRINGS:
             if "tones" in position[str(x)][string][0]:
@@ -172,7 +194,8 @@ def transpose_actual_position(position, transposable_position):
     return position
 
 
-def ordering_positions(position):
+def ordering_positions(position: dict) -> OrderedDict:
+    """Order position numbers by the average pitch score of their e-string tones."""
     score_board = {}
     for i in range(1, len(position)):
         score_list = []
@@ -205,7 +228,8 @@ def ordering_positions(position):
     return ordered_score
 
 
-def re_ordering_positions(position):
+def re_ordering_positions(position: dict) -> dict:
+    """Renumber the positions in ascending pitch order (position 0 is kept)."""
     new_order = ordering_positions(position)
     re_order_list = list(new_order.keys())
     new_position = {}

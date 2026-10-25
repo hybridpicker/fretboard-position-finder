@@ -5,12 +5,55 @@ without changing the database structure or view logic.
 """
 
 import logging
+from collections.abc import Callable
+
+from django.http import HttpRequest, HttpResponse
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def integrated_search_json(request, original_search_function):
+def _format_chord_results(chord_results: list) -> list[dict]:
+    """Convert improved chord results to the search_json chord result format."""
+    formatted_results = []
+    for item in chord_results:
+        formatted_results.append(
+            {
+                "note_name": item.get("name", ""),
+                "description": item.get("type", ""),
+                "intervals": item.get("intervals", ""),
+                "url": item.get("url", ""),
+            }
+        )
+    return formatted_results
+
+
+def _replace_chord_results(response, formatted_results: list[dict]) -> None:
+    """Replace the chord results (and total) of a DRF or JsonResponse in place."""
+    if hasattr(response, "data"):
+        response.data["chord_results"] = formatted_results
+        response.data["total_results"] = (
+            len(response.data.get("scale_results", []))
+            + len(response.data.get("arpeggio_results", []))
+            + len(formatted_results)
+        )
+    else:
+        # For JsonResponse objects
+        import json
+
+        data = json.loads(response.content)
+        data["chord_results"] = formatted_results
+        data["total_results"] = (
+            len(data.get("scale_results", []))
+            + len(data.get("arpeggio_results", []))
+            + len(formatted_results)
+        )
+        response.content = json.dumps(data)
+
+
+def integrated_search_json(
+    request: HttpRequest, original_search_function: Callable
+) -> HttpResponse:
     """
     A wrapper for the search_json function that enhances chord search results
 
@@ -55,38 +98,8 @@ def integrated_search_json(request, original_search_function):
         # Replace chord results with our improved results
         chord_results = improved_search_chords(query)
 
-        # Convert to the expected format
-        formatted_results = []
-        for item in chord_results:
-            formatted_results.append(
-                {
-                    "note_name": item.get("name", ""),
-                    "description": item.get("type", ""),
-                    "intervals": item.get("intervals", ""),
-                    "url": item.get("url", ""),
-                }
-            )
-
-        # Update the response
-        if hasattr(response, "data"):
-            response.data["chord_results"] = formatted_results
-            response.data["total_results"] = (
-                len(response.data.get("scale_results", []))
-                + len(response.data.get("arpeggio_results", []))
-                + len(formatted_results)
-            )
-        else:
-            # For JsonResponse objects
-            import json
-
-            data = json.loads(response.content)
-            data["chord_results"] = formatted_results
-            data["total_results"] = (
-                len(data.get("scale_results", []))
-                + len(data.get("arpeggio_results", []))
-                + len(formatted_results)
-            )
-            response.content = json.dumps(data)
+        # Convert to the expected format and update the response
+        _replace_chord_results(response, _format_chord_results(chord_results))
 
         return response
 
@@ -94,7 +107,7 @@ def integrated_search_json(request, original_search_function):
     return original_search_function(request)
 
 
-def integrated_search_chords(query):
+def integrated_search_chords(query: str) -> list[dict]:
     """
     An enhanced replacement for the search_chords function
 
@@ -113,7 +126,7 @@ def integrated_search_chords(query):
     return improved_search_chords(query)
 
 
-def apply_chord_search_integration():
+def apply_chord_search_integration() -> bool:
     """
     Apply the integration by monkey-patching the relevant functions
 

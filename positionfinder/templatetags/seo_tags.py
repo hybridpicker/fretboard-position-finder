@@ -12,7 +12,9 @@ register = template.Library()
 
 
 @register.simple_tag
-def chord_structured_data(chord_root, chord_type, chord_positions, is_printable=True):
+def chord_structured_data(
+    chord_root: str, chord_type: str, chord_positions: list | None, is_printable: bool = True
+) -> str:
     """
     Generates Schema.org structured data for a chord page.
 
@@ -54,7 +56,12 @@ def chord_structured_data(chord_root, chord_type, chord_positions, is_printable=
 
 
 @register.simple_tag
-def scale_structured_data(scale_root, scale_type, scale_formula=None, scale_positions=None):
+def scale_structured_data(
+    scale_root: str,
+    scale_type: str,
+    scale_formula: str | None = None,
+    scale_positions: list | None = None,
+) -> str:
     """
     Generates Schema.org structured data for a scale page.
 
@@ -94,7 +101,7 @@ def scale_structured_data(scale_root, scale_type, scale_formula=None, scale_posi
 
 
 @register.simple_tag
-def fretboard_breadcrumbs(path_parts):
+def fretboard_breadcrumbs(path_parts: list) -> str:
     """
     Generates Schema.org breadcrumb structured data.
 

@@ -5,12 +5,13 @@ Context processors for providing data to templates globally.
 import re  # Needed for natural sort
 
 from django.conf import settings
+from django.http import HttpRequest
 
 from positionfinder.models import Notes, Root
 from positionfinder.models_chords import ChordNotes
 
 
-def unified_menu_context(request):
+def unified_menu_context(request: HttpRequest) -> dict:
     """
     Provides context variables needed for the unified menu.
     This makes all menu options available without requiring separate API calls.
@@ -46,7 +47,8 @@ def unified_menu_context(request):
         ordered_standard_types.insert(0, "Triads")
 
     # Sort V-System types naturally (V1, V2, V3...)
-    def natural_sort_key(s):
+    def natural_sort_key(s: str) -> list:
+        """Split a string into text and int chunks for natural ordering."""
         return [int(text) if text.isdigit() else text.lower() for text in re.split("([0-9]+)", s)]
 
     v_system_types_sorted = sorted(list(set(v_system_types)), key=natural_sort_key)
@@ -68,7 +70,7 @@ def unified_menu_context(request):
     }
 
 
-def app_version_context(request):
+def app_version_context(request: HttpRequest) -> dict:
     """
     Provides the application version to templates.
     """

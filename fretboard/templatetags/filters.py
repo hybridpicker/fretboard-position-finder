@@ -4,12 +4,14 @@ register = template.Library()
 
 
 @register.filter
-def times(number):
+def times(number: int) -> range:
+    """Iterate from 1 up to ``number`` (inclusive)."""
     return range(1, number + 1)
 
 
 @register.filter
-def to_english(num):
+def to_english(num: int) -> str:
+    """Spell out numbers below eighteen in English, else return the number as text."""
     english_numbers = [
         "zero",
         "one",
@@ -36,7 +38,8 @@ def to_english(num):
 
 
 @register.filter
-def to_roman(num):
+def to_roman(num: int) -> str:
+    """Convert a positive integer to a Roman numeral."""
     val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1]
     syb = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"]
     roman_num = ""
@@ -50,7 +53,8 @@ def to_roman(num):
 
 
 @register.filter
-def format_note_name(note):
+def format_note_name(note: str) -> str:
+    """Format a lowercase note id such as 'bb2' or 'cs3' for display."""
     # Converts flat notes to the correct format
     flats = {
         "bb": "Bb",
@@ -230,7 +234,8 @@ NOTES = {
 
 
 @register.filter
-def get_notes(string_name, fret):
+def get_notes(string_name: str, fret: int) -> list[str]:
+    """Return the note ids at the given fret of a string, or an empty list."""
     notes = NOTES.get(string_name, [])
     if fret - 1 < len(notes):
         return notes[fret - 1]

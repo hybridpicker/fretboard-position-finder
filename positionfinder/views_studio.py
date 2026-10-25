@@ -7,7 +7,7 @@ so the musical content stays managed in Django while the UI is a fast SPA.
 """
 
 from django.core.cache import cache
-from django.http import JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
 
@@ -62,7 +62,8 @@ def _normalise_chord_name(name):
     return "Minor 7b5" if name.replace(" ", "") == "Minor7b5" else name.strip()
 
 
-def build_catalog():
+def build_catalog() -> dict:
+    """Build the studio catalogue (scales, arpeggios, chords, roots) from the database."""
     scales, arpeggios = [], []
     for note in Notes.objects.select_related("category").order_by("category_id", "ordering", "id"):
         intervals = sorted(_intervals(note, NOTE_FIELDS))
@@ -116,11 +117,13 @@ def build_catalog():
     }
 
 
-def clear_catalog_cache(**kwargs):
+def clear_catalog_cache(**kwargs) -> None:
+    """Drop the cached catalogue (used as a model-signal receiver)."""
     cache.delete(CATALOG_CACHE_KEY)
 
 
-def get_catalog():
+def get_catalog() -> dict:
+    """Return the catalogue, from cache when available."""
     catalog = cache.get(CATALOG_CACHE_KEY)
     if catalog is None:
         catalog = build_catalog()
@@ -129,7 +132,8 @@ def get_catalog():
 
 
 @require_GET
-def catalog_json(request):
+def catalog_json(request: HttpRequest) -> JsonResponse:
+    """Serve the catalogue as cacheable JSON."""
     response = JsonResponse(get_catalog())
     response["Cache-Control"] = "public, max-age=3600"
     return response
@@ -164,7 +168,8 @@ def _legacy_state(request):
     return state
 
 
-def studio_view(request):
+def studio_view(request: HttpRequest) -> HttpResponse:
+    """Render the studio single-page app."""
     context = {
         "catalog_json": get_catalog(),
         "legacy_state_json": _legacy_state(request),

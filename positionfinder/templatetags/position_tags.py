@@ -4,7 +4,7 @@ register = template.Library()
 
 
 @register.filter
-def friendly_string_name(string_name):
+def friendly_string_name(string_name: str) -> str:
     """Convert internal string name to user-friendly display name"""
     string_display = {
         "eString": "High E (1st)",
@@ -20,7 +20,7 @@ def friendly_string_name(string_name):
 
 
 @register.filter
-def position_description(position_order):
+def position_description(position_order: int) -> str:
     """Provide a helpful description of the position"""
     descriptions = {
         1: "Open Position (0-4 Frets)",
@@ -37,7 +37,7 @@ def position_description(position_order):
 
 
 @register.filter
-def position_difficulty(position_order):
+def position_difficulty(position_order: int) -> str:
     """Rate the difficulty of a position"""
     difficulties = {
         1: "Beginner",
@@ -54,7 +54,7 @@ def position_difficulty(position_order):
 
 
 @register.filter
-def position_color_class(position_order):
+def position_color_class(position_order: int) -> str:
     """Assign a color class based on position difficulty"""
     if position_order <= 2:
         return "position-beginner"
