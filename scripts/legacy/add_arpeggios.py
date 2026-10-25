@@ -75,7 +75,7 @@ def create_pentatonic_arpeggios():
 
 def create_extended_arpeggios():
     """Create extended arpeggios for 8-string guitars"""
-    from positionfinder.eight_string_setup import create_eight_string_ranges
+    from positionfinder.eight_string_setup import create_eight_string_ranges  # removed module; legacy script
     
     # Get all pentatonic arpeggios
     pentatonic_arpeggios = ChordNotes.objects.filter(

@@ -1,5 +1,11 @@
 # 8-String Guitar Chord Implementation Guide
 
+> **Note (2026-10-25):** the `fix_chord_validation` and `fix_8string_chords` management
+> commands and the modules `chord_validation.py`, `eight_string_setup.py` and
+> `optimized_chords.py` were removed (untested one-off repair tooling; the 8-string data
+> ships in `fixtures/`). Commands and file names below refer to the removed tooling and
+> can be restored from git history (commit before 'Remove 8-string repair tooling').
+
 This document provides instructions for implementing and troubleshooting 8-string guitar chord positions within the Fretboard Position Finder application.
 
 ## Note Validation Issues and Fixes
