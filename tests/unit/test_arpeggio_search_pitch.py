@@ -1,7 +1,7 @@
 # tests/test_arpeggio_search_pitch.py
 """
 Tests specifically for the updated arpeggio search logic that uses pitch values instead of ID values.
-This focuses on verifying the fix in fix_search_arpeggios.py works correctly.
+This focuses on verifying the fix in scripts/legacy/fix_search_arpeggios.py works correctly.
 """
 import pytest
 from django.test import TestCase

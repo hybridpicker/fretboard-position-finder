@@ -1,0 +1,26 @@
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "fretboard.settings_test"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-ra --strict-markers"
+filterwarnings = ["ignore::django.utils.deprecation.RemovedInDjango50Warning"]
+
+[tool.coverage.run]
+source = ["positionfinder", "api", "utils", "fretboard"]
+branch = true
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "manage.py",
+    "fretboard/settings.py",
+    "fretboard/settings_test.py",
+    "fretboard/wsgi.py",
+    "fretboard/asgi.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]

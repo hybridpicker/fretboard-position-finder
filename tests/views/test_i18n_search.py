@@ -9,7 +9,7 @@ import positionfinder.views_search
 import factory
 from positionfinder.models import Notes, Root, NotesCategory
 from django.conf import settings
-from tests.test_utils import SearchTestHelpers
+from tests.helpers import SearchTestHelpers
 
 # Define LocaleContext helper class
 class LocaleContext:
