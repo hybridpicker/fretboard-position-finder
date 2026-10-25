@@ -1,3 +1,4 @@
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils.datastructures import MultiValueDictKeyError
@@ -7,7 +8,8 @@ from .views_helpers import get_common_context  # Import the correct helper
 # Removed import for non-existent get_initial_menu_options
 
 
-def about_view(request):
+def about_view(request: HttpRequest) -> HttpResponse:
+    """Render the about page."""
     # Removed call to non-existent get_initial_menu_options
     context = {
         "show_fretboard": False,  # Assuming this controls fretboard display
@@ -18,7 +20,8 @@ def about_view(request):
     return render(request, "about.html", context)
 
 
-def impressum_view(request):
+def impressum_view(request: HttpRequest) -> HttpResponse:
+    """Render the impressum (legal notice) page."""
     # Removed call to non-existent get_initial_menu_options
     context = {
         "show_fretboard": False,  # Assuming this controls fretboard display
@@ -29,7 +32,7 @@ def impressum_view(request):
     return render(request, "impressum.html", context)
 
 
-def fretboard_unified_view(request):
+def fretboard_unified_view(request: HttpRequest) -> HttpResponse:
     """
     Unified view that dispatches to the appropriate view handler based on the 'models_select' parameter.
     - models_select=1: Scales
@@ -60,7 +63,7 @@ def fretboard_unified_view(request):
         return fretboard_scale_view(request)
 
 
-def chord_search_test_view(request):
+def chord_search_test_view(request: HttpRequest) -> HttpResponse:
     """
     View for testing the chord search functionality.
     Renders a test page that includes all necessary JS for testing the chord search logic.
@@ -74,7 +77,7 @@ def chord_search_test_view(request):
     return render(request, "test_chords.html", context)
 
 
-def landing_page_view(request):
+def landing_page_view(request: HttpRequest) -> HttpResponse:
     """
     View for the optimized landing page with large buttons and search.
     """

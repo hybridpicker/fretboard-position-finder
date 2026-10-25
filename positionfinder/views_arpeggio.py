@@ -1,4 +1,4 @@
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 
 from .models import Notes, NotesCategory
 from .views_base import MusicalTheoryView
@@ -10,11 +10,11 @@ class ArpeggioView(MusicalTheoryView):
     Inherits from MusicalTheoryView to leverage common functionality
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize with arpeggios category ID (2)"""
         super().__init__(category_id=2)
 
-    def apply_defaults(self, params):
+    def apply_defaults(self, params: dict) -> dict:
         """
         Apply arpeggio-specific default values
 
@@ -45,7 +45,7 @@ class ArpeggioView(MusicalTheoryView):
         return params
 
 
-def fretboard_arpeggio_view(request: HttpRequest):
+def fretboard_arpeggio_view(request: HttpRequest) -> HttpResponse:
     """
     View function for displaying arpeggios on the fretboard
 
@@ -59,7 +59,7 @@ def fretboard_arpeggio_view(request: HttpRequest):
     return arpeggio_view.render(request)
 
 
-def arpeggio_list(request: HttpRequest):
+def arpeggio_list(request: HttpRequest) -> HttpResponse:
     """
     View function for displaying a list of arpeggios
 

@@ -16,8 +16,10 @@ class StaticViewSitemap(Sitemap):
     # itself comes from the request because django.contrib.sites is not installed.
     protocol = "https"
 
-    def items(self):
+    def items(self) -> list[str]:
+        """Return the URL names included in the sitemap."""
         return ["fretboard", "about", "impressum"]
 
-    def location(self, item):
+    def location(self, item: str) -> str:
+        """Return the URL path for a URL name."""
         return reverse(item)

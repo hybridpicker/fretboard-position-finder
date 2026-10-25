@@ -35,3 +35,4 @@ Env: Python 3.12.12 (.venv), Django 4.2.30, PostgreSQL via local socket.
 | 0 baseline | 78 | 4 s | 32 % | - | |
 | 1 coverage tests (3 parallel agents) | 1115 (+39 xfail) | 42 s | 97.8 % | 94.9 % | two identical runs; remaining gaps listed in report |
 | 2 ruff lint+format clean | 1115 (+39 xfail) | 55 s | 98 % | 95 % | ruff 2256 -> 0 findings; E501/UP031/DJ012 ignored with justification in pyproject |
+| 3 refactor: long functions split, hints+docstrings (5 agents) | 1115 (+39 xfail) | 47-59 s | 98.4 % | 95.9 % | 38 -> 5 functions over 60 lines (max 62, logged exceptions); no module over 800 lines |

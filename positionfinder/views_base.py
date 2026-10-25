@@ -1,6 +1,7 @@
 import json
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils.datastructures import MultiValueDictKeyError
 
@@ -23,6 +24,18 @@ from .root_note_setup import get_root_note
 from .template_notes import ALL_NOTES_POSITION
 from .views_helpers import get_common_context
 
+# String names (mirror-reversed for the template)
+STRING_NAMES = [
+    "lowBString",
+    "ELowString",
+    "AString",
+    "dString",
+    "gString",
+    "bString",
+    "eString",
+    "highAString",
+]
+
 
 class MusicalTheoryView:
     """
@@ -30,7 +43,7 @@ class MusicalTheoryView:
     Centralizes common functionality and standardizes request handling
     """
 
-    def __init__(self, category_id, template_name="fretboard.html"):
+    def __init__(self, category_id: int, template_name: str = "fretboard.html") -> None:
         """
         Initialize with category ID and template name
 
@@ -42,7 +55,7 @@ class MusicalTheoryView:
         self.template_name = template_name
         self.all_notes_position = ALL_NOTES_POSITION
 
-    def process_request(self, request):
+    def process_request(self, request: HttpRequest) -> dict:
         """
         Process GET parameters with standardized error handling
 
@@ -83,7 +96,7 @@ class MusicalTheoryView:
         except (MultiValueDictKeyError, KeyError):
             return default_value
 
-    def apply_defaults(self, params):
+    def apply_defaults(self, params: dict) -> dict:
         """
         Apply category-specific defaults to parameters
 
@@ -96,7 +109,9 @@ class MusicalTheoryView:
         # Override in subclasses
         return params
 
-    def get_position_data(self, notes_options_id, root_pitch, position_id="0"):
+    def get_position_data(
+        self, notes_options_id: str | int | None, root_pitch: int, position_id: str = "0"
+    ) -> object:
         """
         Get position data based on notes options and root pitch
 
@@ -120,13 +135,13 @@ class MusicalTheoryView:
 
     def build_position_json(
         self,
-        selected_notes_name,
-        selected_root_id,
-        root_pitch,
-        tonal_root,
-        selected_root_name,
-        notes_options_id,
-    ):
+        selected_notes_name: str,
+        selected_root_id: int,
+        root_pitch: int,
+        tonal_root: int,
+        selected_root_name: str,
+        notes_options_id: str | int | None,
+    ) -> str:
         """
         Build position JSON data for the template
 
@@ -166,7 +181,80 @@ class MusicalTheoryView:
 
         return json.dumps(position_json_data)
 
-    def get_context(self, request, params):
+    def _resolve_options(self, category_id, notes_options_id, position_id):
+        """Return (notes_options, position_options, position_id) for the category."""
+        # For arpeggios (category_id=2), use Notes model with arpeggio category
+        if int(category_id) == 2:
+            # Find arpeggio category
+            arpeggio_category = NotesCategory.objects.filter(
+                category_name__icontains="arpeggio"
+            ).first()
+            if arpeggio_category:
+                notes_options = Notes.objects.filter(category=arpeggio_category)
+            else:
+                notes_options = Notes.objects.none()
+            position_options = []  # TODO: implement arpeggio positions
+        else:
+            # For scales and chords, use Notes
+            notes_options = Notes.objects.filter(category_id=category_id)
+            position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
+
+            # Check if the requested position_id exists within the available options for the selected notes
+            # Fallback to 'All Notes' ('0') if the specific position doesn't exist to prevent DoesNotExist error
+            if position_id != "0" and not position_options.filter(pk=position_id).exists():
+                position_id = "0"
+        return notes_options, position_options, position_id
+
+    def _selected_notes_name(self, notes_options_id, category_id):
+        """Get the name of the selected notes - Use Notes model for all categories."""
+        try:
+            return Notes.objects.get(pk=notes_options_id).note_name
+        except Notes.DoesNotExist:
+            # For arpeggios, try to lookup by ID directly in the get_scale_position_dict function
+            if int(category_id) == 2:
+                return str(notes_options_id)  # Pass the ID directly to get_scale_position_dict
+            return "Unknown"
+
+    def _compute_template_data(
+        self, root_obj, root_id, category_id, position_id, notes_options_id
+    ) -> dict:
+        """Compute tones, tensions, positions and JSON data for the template."""
+        root_pitch = root_obj.pitch
+        data: dict = {}
+        # Calculate data for template
+        tonal_root = 0  # Default tonal root
+        data["tones"] = get_notes_tones(notes_options_id, root_pitch, tonal_root, root_id)
+        data["tensions"] = get_functionality_tones(notes_options_id, root_pitch)
+        data["root"] = get_root_note(root_pitch, tonal_root, root_id)
+        data["position"] = self.get_position_data(notes_options_id, root_pitch, position_id)
+
+        # Common metadata
+        data["selected_category_name"] = NotesCategory.objects.get(pk=category_id).category_name
+
+        # Format position name
+        if position_id != "0":
+            NotesPosition.objects.get(pk=position_id)  # raises if the position does not exist
+
+        data["selected_notes_name"] = self._selected_notes_name(notes_options_id, category_id)
+
+        # Prepare functionality data
+        data["note_names"] = get_functionality_note_names(
+            notes_options_id, root_pitch, tonal_root, root_id
+        )
+        data["tension_pitches"] = get_functionality_pitches(notes_options_id, root_pitch)
+
+        # Build position data JSON
+        data["scale_json_data"] = self.build_position_json(
+            data["selected_notes_name"],
+            root_obj.id,
+            root_pitch,
+            tonal_root,
+            root_obj.name,
+            notes_options_id,
+        )
+        return data
+
+    def get_context(self, request: HttpRequest, params: dict) -> dict:
         """
         Build common template context
 
@@ -188,122 +276,45 @@ class MusicalTheoryView:
         root_pitch = root_obj.pitch
         print(f"[ROOT DEBUG] Context root_id={root_id} -> Root: {root_obj} (pitch={root_pitch})")
 
-        # For arpeggios (category_id=2), use Notes model with arpeggio category
-        if int(category_id) == 2:
-            # Find arpeggio category
-            arpeggio_category = NotesCategory.objects.filter(
-                category_name__icontains="arpeggio"
-            ).first()
-            if arpeggio_category:
-                notes_options = Notes.objects.filter(category=arpeggio_category)
-            else:
-                notes_options = Notes.objects.none()
-            position_options = []  # TODO: implement arpeggio positions
-        else:
-            # For scales and chords, use Notes
-            notes_options = Notes.objects.filter(category_id=category_id)
-            position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
-
-            # Check if the requested position_id exists within the available options for the selected notes
-            # Fallback to 'All Notes' ('0') if the specific position doesn't exist to prevent DoesNotExist error
-            if position_id != "0" and not position_options.filter(pk=position_id).exists():
-                position_id = "0"
-
-        # Calculate data for template
-        tonal_root = 0  # Default tonal root
-        tones = get_notes_tones(notes_options_id, root_pitch, tonal_root, root_id)
-        tensions = get_functionality_tones(notes_options_id, root_pitch)
-        root = get_root_note(root_pitch, tonal_root, root_id)
-        position = self.get_position_data(notes_options_id, root_pitch, position_id)
-
-        # Common metadata
-        selected_category_name = NotesCategory.objects.get(pk=category_id).category_name
-        selected_root_name = root_obj.name
-        selected_root_id = root_obj.id
-
-        # Format position name
-        if position_id != "0":
-            selected_position_name = NotesPosition.objects.get(pk=position_id).position_order
-            selected_position_name = f"Position: {selected_position_name}"
-        else:
-            selected_position_name = "All Notes"
-
-        # Get the name of the selected notes - Use Notes model for all categories
-        try:
-            selected_notes_name = Notes.objects.get(pk=notes_options_id).note_name
-        except Notes.DoesNotExist:
-            # For arpeggios, try to lookup by ID directly in the get_scale_position_dict function
-            if int(category_id) == 2:
-                selected_notes_name = str(
-                    notes_options_id
-                )  # Pass the ID directly to get_scale_position_dict
-            else:
-                selected_notes_name = "Unknown"
-
-        # Prepare functionality data
-        note_names = get_functionality_note_names(notes_options_id, root_pitch, tonal_root, root_id)
-        tension_pitches = get_functionality_pitches(notes_options_id, root_pitch)
-
-        # Build JSON data
-        tensions_json_data = {"tensions": tensions}
-        tension_json_data = json.dumps(tensions_json_data)
-        note_name_json_data = {"tones": note_names}
-        note_name_json_data = json.dumps(note_name_json_data)
-
-        # Build position data JSON
-        scale_json_data = self.build_position_json(
-            selected_notes_name,
-            selected_root_id,
-            root_pitch,
-            tonal_root,
-            selected_root_name,
-            notes_options_id,
+        notes_options, position_options, position_id = self._resolve_options(
+            category_id, notes_options_id, position_id
         )
 
-        # String names (mirror-reversed for the template)
-        string_names = [
-            "lowBString",
-            "ELowString",
-            "AString",
-            "dString",
-            "gString",
-            "bString",
-            "eString",
-            "highAString",
-        ]
+        data = self._compute_template_data(
+            root_obj, root_id, category_id, position_id, notes_options_id
+        )
 
         # Base context
         context = {
-            "scale_json_data": scale_json_data,
-            "tension_json_data": tension_json_data,
-            "note_name_json_data": note_name_json_data,
-            "tones": tones,
-            "root": root,
+            "scale_json_data": data["scale_json_data"],
+            "tension_json_data": json.dumps({"tensions": data["tensions"]}),
+            "note_name_json_data": json.dumps({"tones": data["note_names"]}),
+            "tones": data["tones"],
+            "root": data["root"],
             "root_options": Root.objects.all(),
             "position_options": position_options,
-            "position": position,
+            "position": data["position"],
             "category": NotesCategory.objects.all(),
             "selected_category": int(category_id),
             "notes_options": notes_options,
             "selected_notes": int(notes_options_id),
             "selected_position": position_id if position_id is not None else "0",
-            "tensions": tensions,
-            "tension_pitches": tension_pitches,
-            "note_names": note_names,
-            "selected_root_name": selected_root_name,
-            "selected_root_id": selected_root_id,
-            "selected_category_name": selected_category_name,
-            "selected_notes_name": selected_notes_name,
-            "string_names": string_names,
+            "tensions": data["tensions"],
+            "tension_pitches": data["tension_pitches"],
+            "note_names": data["note_names"],
+            "selected_root_name": root_obj.name,
+            "selected_root_id": root_obj.id,
+            "selected_category_name": data["selected_category_name"],
+            "selected_notes_name": data["selected_notes_name"],
+            "string_names": list(STRING_NAMES),  # mirror-reversed for the template
         }
 
         # Add common context from helper
-        common_context = get_common_context(request)
-        context.update(common_context)
+        context.update(get_common_context(request))
 
         return context
 
-    def render(self, request):
+    def render(self, request: HttpRequest) -> HttpResponse:
         """
         Process request and render the template
 
@@ -321,7 +332,7 @@ class MusicalTheoryView:
 
         return render(request, self.template_name, context)
 
-    def add_view_specific_context(self, context, params):
+    def add_view_specific_context(self, context: dict, params: dict) -> dict:
         """
         Add view-specific context variables
 

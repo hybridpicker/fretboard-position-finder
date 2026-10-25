@@ -10,13 +10,16 @@ import os
 import shutil
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandParser
 
 
 class Command(BaseCommand):
+    """Management command; see ``help`` for details."""
+
     help = "Test if removing unused JS/CSS files affects the application"
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: CommandParser) -> None:
+        """Register the command-line options."""
         parser.add_argument(
             "--hide",
             help="Temporarily hide JS and/or CSS files (comma-separated)",
@@ -24,7 +27,8 @@ class Command(BaseCommand):
         )
         parser.add_argument("--restore", action="store_true", help="Restore all hidden files")
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options) -> None:
+        """Hide or restore the candidate unused static files."""
         # High confidence files to test removal
         js_files = [
             "base_fixed.js",
@@ -79,7 +83,9 @@ class Command(BaseCommand):
             )
         )
 
-    def hide_files(self, static_dir, file_type, files, backup_dir):
+    def hide_files(
+        self, static_dir: str, file_type: str, files: list[str], backup_dir: str
+    ) -> None:
         """Temporarily hide files by moving them to a backup directory."""
         type_dir = os.path.join(static_dir, file_type)
 
@@ -94,7 +100,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f"Hidden {count} {file_type} files"))
 
-    def restore_files(self, static_dir, backup_js_dir, backup_css_dir):
+    def restore_files(self, static_dir: str, backup_js_dir: str, backup_css_dir: str) -> None:
         """Restore all hidden files."""
         # Restore JS files
         js_count = self.restore_file_type(static_dir, "js", backup_js_dir)
@@ -106,7 +112,7 @@ class Command(BaseCommand):
             self.style.SUCCESS(f"Restored {js_count} JS files and {css_count} CSS files")
         )
 
-    def restore_file_type(self, static_dir, file_type, backup_dir):
+    def restore_file_type(self, static_dir: str, file_type: str, backup_dir: str) -> int:
         """Restore all files of a specific type."""
         type_dir = os.path.join(static_dir, file_type)
         count = 0

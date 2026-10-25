@@ -5,11 +5,13 @@ from .notes_choices import ChordChoicesField
 
 
 class Root(models.Model):
+    """A selectable root note."""
+
     name = models.CharField(max_length=30)
     display_name = models.CharField(max_length=30, null=True, blank=True)
     pitch = models.IntegerField()
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.name)
 
     class Meta:
@@ -23,17 +25,23 @@ class Root(models.Model):
 
 
 class NotesCategory(models.Model):
+    """Category of scale/chord tone sets."""
+
     category_name = models.CharField(max_length=30)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.category_name)
 
     class Meta:
+        """Model options."""
+
         verbose_name = "category name"
         verbose_name_plural = "category names"
 
 
 class Notes(models.Model):
+    """Tone set (scale or arpeggio) defined by up to twelve note values."""
+
     category = models.ForeignKey(
         NotesCategory,
         on_delete=models.CASCADE,
@@ -55,10 +63,12 @@ class Notes(models.Model):
     eleventh_note = models.IntegerField(null=True, blank=True)
     twelth_note = models.IntegerField(null=True, blank=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "%s : %s" % (self.category, self.note_name)
 
     class Meta:
+        """Model options."""
+
         ordering = ["category", "ordering", "note_name"]
         verbose_name = "Tones for Scale"
         verbose_name_plural = "Tones for Scales"

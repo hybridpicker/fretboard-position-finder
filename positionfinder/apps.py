@@ -6,9 +6,11 @@ logger = logging.getLogger(__name__)
 
 
 class PositionfinderConfig(AppConfig):
+    """App config: wires cache invalidation signals and the chord search integration."""
+
     name = "positionfinder"
 
-    def ready(self):
+    def ready(self) -> None:
         """
         Initialize the application and apply any patches.
         This is called when the application is ready during Django startup.

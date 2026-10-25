@@ -7,7 +7,8 @@ from .template_notes import NOTES, NOTES_SHARP, OCTAVES, SHARP_NOTES
 """ notes_notes from Field """
 
 
-def build_notes(notes):
+def build_notes(notes: Notes | ChordNotes) -> list:
+    """Return the non-empty note values of a Notes or ChordNotes row."""
     # Handle Notes model
     if isinstance(notes, Notes):
         cleaned = model_to_dict(
@@ -47,7 +48,8 @@ def build_notes(notes):
     return [v for f, v in cleaned.items() if v is not None]
 
 
-def get_tonal_all_notes_append(tonal_root, selected_root_name):
+def get_tonal_all_notes_append(tonal_root: int, selected_root_name: str) -> list[str]:
+    """List every note name with octave, in sharp or flat spelling."""
     all_notes = []
     if tonal_root in SHARP_NOTES or "#" in selected_root_name:
         for x in OCTAVES:
@@ -60,7 +62,8 @@ def get_tonal_all_notes_append(tonal_root, selected_root_name):
     return all_notes
 
 
-def all_notes_append(root, all_notes, notes_notes):
+def all_notes_append(root: int, all_notes: list, notes_notes: list) -> list[int]:
+    """Return the indexes into all_notes of the scale notes across all octaves."""
     all_notes_notes = []
     for y in OCTAVES:
         octave = y * 12 + int(root)
@@ -71,7 +74,8 @@ def all_notes_append(root, all_notes, notes_notes):
 
 
 # Create your views here.
-def get_notes_tones(notes_options_id, root, tonal_root, root_id):
+def get_notes_tones(notes_options_id: int, root: int, tonal_root: int, root_id: int) -> list[str]:
+    """Return the note names (with octave) of a scale or chord for the selected root."""
     tonal_root = int(tonal_root) + int(root)
     selected_root_name = Root.objects.get(pk=root_id).name
     if tonal_root > 12:

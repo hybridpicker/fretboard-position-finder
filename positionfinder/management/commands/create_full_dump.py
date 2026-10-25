@@ -8,13 +8,16 @@ from datetime import datetime
 
 from django.apps import apps
 from django.core.management import call_command
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandParser
 
 
 class Command(BaseCommand):
+    """Management command; see ``help`` for details."""
+
     help = "Create a full database dump for all positionfinder models"
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: CommandParser) -> None:
+        """Register the command-line options."""
         parser.add_argument(
             "--output",
             default="full_database_dump.json",
@@ -37,7 +40,8 @@ class Command(BaseCommand):
             help="Models to exclude from the dump",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options) -> None:
+        """Create a full dump of the app's models."""
         output_file = options["output"]
         indent = options["indent"]
         app_name = options["app"]

@@ -12,11 +12,12 @@ from .template_notes import (
 )
 
 
-def find_tone(tone, lst):
+def find_tone(tone: str, lst: list) -> bool:
+    """Whether the tone occurs in any entry of the list."""
     return any(tone in x for x in lst)
 
 
-def get_notes_object(notes_options_id):
+def get_notes_object(notes_options_id: int) -> Notes | ChordNotes | None:
     """
     Try to get notes from Notes or ChordNotes model
     """
@@ -29,7 +30,8 @@ def get_notes_object(notes_options_id):
             return None
 
 
-def get_functionality_tones(notes_options_id, root):
+def get_functionality_tones(notes_options_id: int, root: int) -> list[str]:
+    """Return the tension names (R, 3, 5, ...) of a scale or chord."""
     ALL_NOTES = [x for x in TENSIONS]
     ALL_NOTES_OPTIONAL = [x for x in TENSIONS_OPTIONAL]
 
@@ -54,7 +56,8 @@ def get_functionality_tones(notes_options_id, root):
     return ALL_NOTES_LIST
 
 
-def get_functionality_pitches(notes_options_id, root):
+def get_functionality_pitches(notes_options_id: int, root: int) -> list[str]:
+    """Return the tension names of a scale or chord, using optional names for repeats."""
     ALL_NOTES = [x for x in TENSIONS]
     ALL_NOTES_OPTIONAL = [x for x in TENSIONS_OPTIONAL]
 
@@ -78,7 +81,14 @@ def get_functionality_pitches(notes_options_id, root):
     return ALL_NOTES_LIST
 
 
-def get_tension_final_list(tonal_root, ALL_NOTES_NOTES, ALL_NOTES, NOTES_NOTES, ALL_NOTES_OPTIONAL):
+def get_tension_final_list(
+    tonal_root: int,
+    ALL_NOTES_NOTES: list,
+    ALL_NOTES: list,
+    NOTES_NOTES: list,
+    ALL_NOTES_OPTIONAL: list,
+) -> list[str]:
+    """Map note values onto note names, using optional names for repeated letters."""
     TENSION_NOTE_FINAL = [int(x) + tonal_root for x in ALL_NOTES_NOTES]
     TENSION_NOTE_FINAL = [x - 12 if x >= 12 else x for x in TENSION_NOTE_FINAL]
     TENSION_LIST = []
@@ -90,7 +100,8 @@ def get_tension_final_list(tonal_root, ALL_NOTES_NOTES, ALL_NOTES, NOTES_NOTES, 
     return TENSION_LIST
 
 
-def get_all_notes_functionality(root, root_id):
+def get_all_notes_functionality(root: int, root_id: int) -> list[str]:
+    """Return the 12 note names in sharp or flat spelling."""
     selected_root_name = Root.objects.get(pk=root_id).name
     if root in SHARP_NOTES or "#" in selected_root_name:
         ALL_NOTES = [x for x in NOTE_NAMES_SHARP]
@@ -99,7 +110,8 @@ def get_all_notes_functionality(root, root_id):
     return ALL_NOTES
 
 
-def get_all_notes_functionality_optional(root, root_id):
+def get_all_notes_functionality_optional(root: int, root_id: int) -> list[str]:
+    """Return the 12 optional (enharmonic) note names in sharp or flat spelling."""
     selected_root_name = Root.objects.get(pk=root_id).name
     if root in SHARP_NOTES or "#" in selected_root_name:
         ALL_NOTES = [x for x in NOTE_NAMES_SHARP_OPTION]
@@ -108,7 +120,10 @@ def get_all_notes_functionality_optional(root, root_id):
     return ALL_NOTES
 
 
-def get_functionality_note_names(notes_options_id, root, tonal_root, root_id):
+def get_functionality_note_names(
+    notes_options_id: int, root: int, tonal_root: int, root_id: int
+) -> list[str]:
+    """Return the note names of a scale or chord for the selected root."""
     ALL_NOTES = get_all_notes_functionality(root, root_id)
     ALL_NOTES_OPTIONAL = get_all_notes_functionality_optional(root, root_id)
     tonal_root += root

@@ -7,15 +7,18 @@ import os
 from datetime import datetime
 
 from django.core import serializers
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandParser
 
 from positionfinder.models_chords import ChordNotes, ChordPosition
 
 
 class Command(BaseCommand):
+    """Management command; see ``help`` for details."""
+
     help = "Export chord data to a JSON fixture file"
 
-    def add_arguments(self, parser):
+    def add_arguments(self, parser: CommandParser) -> None:
+        """Register the command-line options."""
         parser.add_argument(
             "--output",
             default="chord_data_dump.json",
@@ -36,7 +39,8 @@ class Command(BaseCommand):
             help="Create a timestamped backup if file exists",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options) -> None:
+        """Export chord notes and positions to a JSON fixture."""
         output_file = options["output"]
         chord_type = options["type"]
         pretty = options["pretty"]

@@ -5,10 +5,13 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
+    """Management command; see ``help`` for details."""
+
     args = ""
     help = "Loads the initial data in to database"
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **options) -> str:
+        """Flush the database and load the merged fixture."""
         # Your Code
         # Flush the database to remove all data, including content types
         self.stdout.write("Flushing the database...")
