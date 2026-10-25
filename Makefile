@@ -1,7 +1,7 @@
 PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 COV_MIN ?= 0
 
-.PHONY: test coverage lint format check
+.PHONY: test coverage lint format typecheck check
 
 test:
 	$(PYTHON) -m pytest -q
@@ -16,6 +16,9 @@ lint:
 format:
 	$(PYTHON) -m ruff check --fix .
 	$(PYTHON) -m ruff format .
+
+typecheck:  ## lenient, informational (not part of `check`)
+	$(PYTHON) -m mypy positionfinder api fretboard
 
 check: lint
 	$(PYTHON) manage.py check

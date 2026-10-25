@@ -34,6 +34,7 @@ jobs:
           pytest pytest-django pytest-cov coverage beautifulsoup4 factory-boy
           ruff mypy django-stubs
       - run: make check COV_MIN=90
+      - run: node --test static/studio/js/theory.test.mjs
       - name: Coverage summary
         if: always()
         run: python -m coverage report --skip-covered >> "$GITHUB_STEP_SUMMARY"
