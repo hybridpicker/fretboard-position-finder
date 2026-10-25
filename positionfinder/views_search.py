@@ -8,7 +8,13 @@ from django.shortcuts import render
 
 from .models import Notes, NotesCategory, Root
 from .models_chords import ChordNotes, ChordPosition
-from .search_utils import ROOT_NAME_TO_ID, parse_query, resolve_root
+from .search_utils import (
+    PITCH_TO_ROOT_NAME,
+    ROOT_NAME_TO_ID,
+    ROOT_NAME_TO_PITCH,
+    parse_query,
+    resolve_root,
+)
 from .views_helpers import get_common_context
 
 # Scale is an alias for Notes with scale category for testing compatibility
@@ -395,7 +401,7 @@ def search_chords(search_query: str) -> list[dict]:
         )
         matches = _chord_matches(matched_chord, matched_type)
         if matches is not None:
-            filtered = matches.filter(tonal_root=ROOT_NAME_TO_ID.get(note)) if note else matches
+            filtered = matches.filter(tonal_root=ROOT_NAME_TO_PITCH.get(note)) if note else matches
             return process_chord_results(filtered, root_note=note)
         logger.debug(
             f"search_chords: No matches found for chord_name='{matched_chord}', type_name='{matched_type}', including variants."
@@ -410,9 +416,9 @@ def search_chords(search_query: str) -> list[dict]:
 
 def _filter_chords_by_root(chords: list, root_note: str) -> list:
     """Filter chords by tonal_root, falling back to a name prefix, else keep all."""
-    root_id = ROOT_NAME_TO_ID.get(root_note)
-    filtered = [ch for ch in chords if getattr(ch, "tonal_root", None) == root_id]
-    logger.debug(f"Filtered by tonal_root ({root_note} -> {root_id}): {len(filtered)} matches.")
+    root_pitch = ROOT_NAME_TO_PITCH.get(root_note)
+    filtered = [ch for ch in chords if getattr(ch, "tonal_root", None) == root_pitch]
+    logger.debug(f"Filtered by tonal_root ({root_note} -> {root_pitch}): {len(filtered)} matches.")
     if filtered:
         return filtered
     # Fallback: match by chord_name prefix (e.g., 'A Major 7')
@@ -432,7 +438,11 @@ def _chord_to_result(chord, root_note: str | None) -> dict:
     notes = _collect_notes(chord, _CHORD_NOTE_ATTRS)
     intervals = _infer_intervals(chord, notes)
     name = _prefixed_name(chord.chord_name, root_note)
-    url = f"/?root={ROOT_NAME_TO_ID.get(root_note, getattr(chord, 'tonal_root', 1))}&models_select=3&type_options_select={chord.type_name}&chords_options_select={chord.chord_name}&note_range={chord.range}&position_select=Root+Position"
+    root_id = (
+        ROOT_NAME_TO_ID.get(root_note)
+        or ROOT_NAME_TO_ID[PITCH_TO_ROOT_NAME.get(getattr(chord, "tonal_root", 0), "C")]
+    )
+    url = f"/?root={root_id}&models_select=3&type_options_select={chord.type_name}&chords_options_select={chord.chord_name}&note_range={chord.range}&position_select=Root+Position"
     return {
         "id": chord.id,
         "name": name,

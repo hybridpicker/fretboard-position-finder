@@ -324,15 +324,9 @@ def test_non_trailing_slash_about_redirects(client):
     assert response["Location"].endswith("/about/")
 
 
-# ----------------------------------------------------------------------------- test route (template missing)
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: /test/chords/ renders 'test_chords.html' which does not exist (TemplateDoesNotExist)",
-)
-def test_chord_test_route_renders(client):
-    client.raise_request_exception = False
-    response = client.get("/test/chords/")
-    assert response.status_code == 200
+# ----------------------------------------------------------------------------- removed test route
+def test_chord_test_route_is_gone(client):
+    assert client.get("/test/chords/").status_code == 404
 
 
 # ----------------------------------------------------------------------------- SEO files / PWA

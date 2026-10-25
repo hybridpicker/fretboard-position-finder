@@ -96,15 +96,9 @@ class TestNormalizeSearchTerm:
         assert normalize_search_term(term) == "pentatonic"
 
     @pytest.mark.parametrize("term,expected", [("Bb7", "Bb Dominant 7"), ("Bbmaj7", "Bb Major 7")])
-    @pytest.mark.xfail(
-        strict=True, reason="BUG: the root is upper-cased as a whole, so flats become 'BB'"
-    )
     def test_flat_roots_keep_their_case(self, term, expected):
         assert normalize_search_term(term) == expected
 
-    @pytest.mark.xfail(
-        strict=True, reason="BUG: 'maj' -> 'Major' also rewrites 'major', giving 'Majoror'"
-    )
     def test_major_is_not_expanded_twice(self):
         assert "Majoror" not in normalize_search_term("ab major scale")
 
@@ -169,11 +163,6 @@ class TestAutocomplete:
         # tonal_root 0 -> Root with pitch 0 -> C (pk 1)
         assert params(by_name["Minor Pentatonic"]["url"])["root"] == "1"
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="BUG: without a root in the query the scale url uses Notes.tonal_root as root id "
-        "(negative for modes such as Dorian), which is not a valid Root primary key",
-    )
     def test_mode_without_root_gets_valid_root_id(self, api_get):
         results = api_get(reverse(AUTOCOMPLETE), q="Dorian").json()["results"]
         dorian = next(r for r in results if r["name"] == "Dorian")
@@ -189,21 +178,11 @@ class TestAutocomplete:
         assert query["models_select"] == "3"
         assert ChordNotes.objects.get(pk=query["notes_options_select"]).chord_name == "Major 7"
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="BUG: identical suggestions are repeated (match lookup always uses the first index "
-        "of the normalised name), e.g. 'C Major 7' is returned ten times",
-    )
     def test_results_contain_no_duplicates(self, api_get):
         results = api_get(reverse(AUTOCOMPLETE), q="Cmaj7").json()["results"]
         pairs = [(r["name"], r["url"]) for r in results]
         assert len(pairs) == len(set(pairs))
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="BUG: chord suggestions ignore the root typed by the user ('G7' -> 'C Dominant 7') "
-        "because the display name is built from ChordNotes.tonal_root",
-    )
     def test_chord_suggestion_keeps_requested_root(self, api_get):
         results = api_get(reverse(AUTOCOMPLETE), q="G7").json()["results"]
         assert results[0]["name"] == "G Dominant 7"
@@ -369,10 +348,6 @@ class TestDirectMatchPentatonicShortcuts:
             data = api_get(reverse(DIRECT), q="A minor pentatonic").json()
         assert params(data["url"])["notes_options_select"] == "49"
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="BUG: roots such as 'E#' or 'Fb' have no mapped id, so the shortcut builds 'root=None'",
-    )
     def test_override_with_unmapped_root_does_not_emit_none(self, api_get):
         data = api_get(reverse(DIRECT), q="E# minor pentatonic").json()
         assert "root=None" not in data["url"]

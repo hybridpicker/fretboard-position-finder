@@ -53,9 +53,13 @@ class TestGetRootIdFromName:
         assert get_root_id_from_name("C♯") == 3
         assert get_root_id_from_name("B♭") == 15
 
-    @pytest.mark.parametrize("bad", [None, "", "H", "Cb", "E#", "xyz"])
+    @pytest.mark.parametrize("bad", [None, "", "H", "xyz"])
     def test_unknown_or_empty_returns_none(self, bad):
         assert get_root_id_from_name(bad) is None
+
+    @pytest.mark.parametrize("name,same_as", [("E#", "F"), ("Fb", "E"), ("Cb", "B"), ("B#", "C")])
+    def test_rare_spellings_map_to_the_natural_note(self, name, same_as):
+        assert get_root_id_from_name(name) == ROOT_NAME_TO_ID[same_as]
 
     def test_ids_are_unique_and_dense(self):
         assert sorted(ROOT_NAME_TO_ID.values()) == list(range(1, 18))
