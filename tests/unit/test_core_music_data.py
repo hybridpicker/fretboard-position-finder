@@ -798,20 +798,6 @@ def test_scale_dict_with_repeated_interval_has_no_duplicate_tones():
 # --------------------------------------------------------------------------- improved search: root filtering
 
 
-def test_root_filter_keeps_chords_whose_tonal_root_equals_the_root_id():
-    """Legacy behaviour: tonal_root is compared with ROOT_NAME_TO_ID (a Root row id, G=11)."""
-    cat = NotesCategory.objects.get(category_name="Chords")
-    marker = _scratch_chord(
-        cat, type_name="V2", chord_name="Major 7", range="e - d", tonal_root=11, fourth_note=11
-    )
-    results = improved_search_chords("Gmaj7 V2")
-    assert [r["id"] for r in results] == [marker.id]
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: improved_search_chords filters tonal_root (a pitch, G=7) against ROOT_NAME_TO_ID (a Root row id, G=11), so a chord stored for G is never preferred",
-)
 def test_root_filter_prefers_chords_stored_with_the_matching_pitch():
     cat = NotesCategory.objects.get(category_name="Chords")
     g_chord = _scratch_chord(
@@ -877,12 +863,12 @@ def test_note_without_root_id_skips_root_filtering_and_defaults_to_c_url():
     assert all("root=1&" in r["url"] for r in results)
 
 
-def test_loose_search_applies_legacy_root_id_filter():
+def test_loose_search_narrows_by_root_pitch():
     cat = NotesCategory.objects.get(category_name="Chords")
     marker = _scratch_chord(
-        cat, type_name="V2", chord_name="Major 7", range="e - d", tonal_root=11, fourth_note=11
+        cat, type_name="V2", chord_name="Major 7", range="e - d", tonal_root=7, fourth_note=11
     )
-    # the strict pass finds nothing (no type contains "all positions"); the loose pass narrows by root id
+    # the strict pass finds nothing (no type contains "all positions"); the loose pass narrows by root pitch
     results = improved_search_chords("Gmaj7 all positions")
     assert [r["id"] for r in results] == [marker.id]
 
@@ -928,10 +914,6 @@ def test_chord_without_tonal_root_and_without_user_root_defaults_to_c():
     assert res["tonal_root"] is None
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: with no user-supplied root the display root is found by treating tonal_root (a pitch, F=5) as a Root row id (5 = Eb)",
-)
 def test_display_root_is_derived_from_the_pitch_of_tonal_root():
     chord = _cmaj7_v1()
     chord.tonal_root = 5  # F
