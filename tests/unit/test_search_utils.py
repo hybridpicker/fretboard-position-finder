@@ -1,9 +1,24 @@
 import pytest
-from .search_utils import parse_query, get_root_id_from_name
-import requests
+from positionfinder.search_utils import parse_query, get_root_id_from_name
+from urllib.parse import urlsplit
+
+from django.test import Client
 import os
 import json
 import django
+
+pytestmark = [pytest.mark.django_db, pytest.mark.usefixtures("music_data")]
+
+
+class requests:  # noqa: N801
+    """In-process stand-in for the HTTP calls these tests used to make to a live server."""
+
+    @staticmethod
+    def get(url, params=None):
+        response = Client().get(urlsplit(url).path, params or {}, follow=True)
+        response.json = lambda: __import__('json').loads(response.content)
+        return response
+
 
 def test_typo_and_default_handling():
     # Typo in note and scale name
@@ -74,8 +89,8 @@ def test_search_chords_major7_v2():
     if chords:
         chord = chords[0]
         assert 'url' in chord, f"Chord result missing URL: {chord}"
-        assert 'Major' in chord['name'] or 'Maj7' in chord['name']
-        assert 'V2' in chord['type'] or 'V-2' in chord['type']
+        assert 'Major' in chord['note_name'] or 'Maj7' in chord['note_name']
+        assert 'V2' in chord['description'] or 'V-2' in chord['description']
     else:
         # If no chords, print a warning (not a failure)
         print("WARNING: No 'Major7 V2' chord found in the database. Seed test data for full test.")
@@ -93,7 +108,7 @@ def test_search_chords_triads():
     if chords:
         chord = chords[0]
         assert 'url' in chord, f"Chord result missing URL: {chord}"
-        assert 'Triad' in chord['name'] or 'Triad' in chord['type']
+        assert 'Triad' in chord['note_name'] or 'Triad' in chord['description']
     else:
         print("WARNING: No 'Triad' chord found in the database. Seed test data for full test.")
 
@@ -110,8 +125,8 @@ def test_search_chords_spread_triads():
     if chords:
         chord = chords[0]
         assert 'url' in chord, f"Chord result missing URL: {chord}"
-        assert 'Spread' in chord['name'] or 'Spread' in chord['type']
-        assert 'Triad' in chord['name'] or 'Triad' in chord['type']
+        assert 'Spread' in chord['note_name'] or 'Spread' in chord['description']
+        assert 'Triad' in chord['note_name'] or 'Triad' in chord['description']
     else:
         print("WARNING: No 'Spread Triad' chord found in the database. Seed test data for full test.")
 
@@ -129,7 +144,7 @@ def test_search_chords_v_system():
         if chords:
             chord = chords[0]
             assert 'url' in chord, f"Chord result missing URL: {chord}"
-            assert f'V{v}' in chord['type'] or f'V-{v}' in chord['type']
+            assert f'V{v}' in chord['description'] or f'V-{v}' in chord['description']
         else:
             print(f"WARNING: No 'V{v}' chord found in the database. Seed test data for full test.")
 
@@ -137,7 +152,6 @@ def test_search_scales_minor_pentatonic():
     """
     Test that querying 'E Minor Pentatonic' returns only the E-root scale, with dynamic fallback if no fixture exists.
     """
-    import requests
     resp = requests.get("http://localhost:8080/search_json", params={"q": "E Minor Pentatonic", "search_type": "all"})
     assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
     data = resp.json()
@@ -150,16 +164,15 @@ def test_search_chords_major7():
     """
     Test that querying 'C Major7' returns only chords.
     """
-    import requests
     resp = requests.get("http://localhost:8080/search_json", params={"q": "C Major7", "search_type": "all"})
     assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
     data = resp.json()
     assert data["total_results"] == len(data["chord_results"]), "Should only return chords for Major7 query"
-    assert all("C" in r["name"] for r in data["chord_results"]), f"Non-C chord found: {[r['name'] for r in data['chord_results']]}"
+    assert all("C" in r["note_name"] for r in data["chord_results"]), f"Non-C chord found: {[r['note_name'] for r in data['chord_results']]}"
     assert any(
-        "maj7" in r["name"].lower() or
-        "major7" in r["name"].lower() or
-        "major 7" in r["name"].lower()
+        "maj7" in r["note_name"].lower() or
+        "major7" in r["note_name"].lower() or
+        "major 7" in r["note_name"].lower()
         for r in data["chord_results"]
     ), "No Major7 chord returned"
 
@@ -167,7 +180,6 @@ def test_search_typo_scale_name():
     """
     Test typo tolerance for scale queries (e.g., 'A Minorr Pentatonik').
     """
-    import requests
     resp = requests.get("http://localhost:8080/search_json", params={"q": "A Minorr Pentatonik", "search_type": "all"})
     assert resp.status_code == 200
     data = resp.json()
@@ -179,16 +191,15 @@ def test_search_typo_chord_name():
     """
     Test typo tolerance for chord queries (e.g., 'G Majjor7').
     """
-    import requests
     resp = requests.get("http://localhost:8080/search_json", params={"q": "G Majjor7", "search_type": "all"})
     assert resp.status_code == 200
     data = resp.json()
     assert data["total_results"] == len(data["chord_results"])
-    assert all("G" in r["name"] for r in data["chord_results"]), f"Non-G chord found: {[r['name'] for r in data['chord_results']]}"
+    assert all("G" in r["note_name"] for r in data["chord_results"]), f"Non-G chord found: {[r['note_name'] for r in data['chord_results']]}"
     assert any(
-        "maj7" in r["name"].lower() or
-        "major7" in r["name"].lower() or
-        "major 7" in r["name"].lower()
+        "maj7" in r["note_name"].lower() or
+        "major7" in r["note_name"].lower() or
+        "major 7" in r["note_name"].lower()
         for r in data["chord_results"]
     ), "No Major7 chord returned"
 
@@ -196,7 +207,6 @@ def test_search_exact_arpeggio():
     """
     Test exact search for an arpeggio (e.g., 'C Major Arpeggio').
     """
-    import requests
     resp = requests.get("http://localhost:8080/search_json", params={"q": "C Major Arpeggio", "search_type": "arpeggios"})
     assert resp.status_code == 200
     data = resp.json()
@@ -208,7 +218,6 @@ def test_search_typo_arpeggio():
     """
     Test typo tolerance for arpeggio queries (e.g., 'D Minorr Arpegio').
     """
-    import requests
     resp = requests.get("http://localhost:8080/search_json", params={"q": "D Minorr Arpegio", "search_type": "arpeggios"})
     assert resp.status_code == 200
     data = resp.json()
@@ -220,7 +229,6 @@ def test_search_case_insensitivity():
     """
     Test that search is case-insensitive (e.g., 'f# minor pentatonic').
     """
-    import requests
     resp = requests.get("http://localhost:8080/search_json", params={"q": "f# minor pentatonic", "search_type": "all"})
     assert resp.status_code == 200
     data = resp.json()
@@ -231,12 +239,11 @@ def test_search_partial_quality():
     """
     Test partial quality search (e.g., 'Bb min').
     """
-    import requests
     resp = requests.get("http://localhost:8080/search_json", params={"q": "Bb min", "search_type": "all"})
     assert resp.status_code == 200
     data = resp.json()
-    assert any("Bb" in r["name"] for r in data["chord_results"]), f"Non-Bb chord found: {[r['name'] for r in data['chord_results']]}"
-    assert any("min" in r["name"].lower() or "minor" in r["name"].lower() for r in data["chord_results"]), "No minor chord returned"
+    assert any("Bb" in r["note_name"] for r in data["chord_results"]), f"Non-Bb chord found: {[r['note_name'] for r in data['chord_results']]}"
+    assert any("min" in r["note_name"].lower() or "minor" in r["note_name"].lower() for r in data["chord_results"]), "No minor chord returned"
 
 def test_root_id_mapping():
     # Provided user mapping

@@ -7,10 +7,10 @@ from django.urls import reverse
 from django.http import JsonResponse
 import json
 
-from .models_chords import ChordNotes, ChordPosition
-from .improved_chord_search import improved_search_chords
-from .search_integration import integrated_search_json
-from .views_search import search_json
+from positionfinder.models_chords import ChordNotes, ChordPosition
+from positionfinder.improved_chord_search import improved_search_chords
+from positionfinder.search_integration import integrated_search_json
+from positionfinder.views_search import search_json
 
 class ImprovedChordSearchTests(TestCase):
     """Test cases for the improved chord search functionality."""
@@ -27,7 +27,7 @@ class ImprovedChordSearchTests(TestCase):
         # You may need to adjust this based on your actual model fields
         try:
             # Import the necessary models
-            from .models import NotesCategory
+            from positionfinder.models import NotesCategory
             
             # Create or get a chord category
             category, _ = NotesCategory.objects.get_or_create(

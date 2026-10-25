@@ -645,6 +645,7 @@ def add_eighth_string_voicings():
                         # Handle rare case of 7-note chord (e.g. 13th chords)
                         # Warning: Check if your ChordNotes model supports this
                         # If not, skip adding this note but continue with the voicing
+                        pass
                 
                 # Create or update the chord
                 try:
@@ -699,3 +700,4 @@ def add_8string_specific_ranges():
     # This function doesn't actually modify the database
     # It's meant to show what ranges should be added to STRING_RANGE_CHOICES
     for range_str in new_8string_ranges:
+        pass

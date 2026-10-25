@@ -3,9 +3,9 @@ Tests for the V-System implementation.
 """
 from django.test import TestCase
 from django.db import transaction
-from .v_system_generator import VoicingSystem
-from .models_chords import ChordNotes, ChordPosition
-from .notes_choices import NOTES_CHOICES
+from positionfinder.v_system_generator import VoicingSystem
+from positionfinder.models_chords import ChordNotes, ChordPosition
+from positionfinder.notes_choices import NOTES_CHOICES
 
 class VSystemTest(TestCase):
     """
@@ -17,7 +17,7 @@ class VSystemTest(TestCase):
         Set up test data.
         """
         # Create necessary categories for tests
-        from .models import NotesCategory
+        from positionfinder.models import NotesCategory
         self.v_system_category, _ = NotesCategory.objects.get_or_create(category_name='V-System')
         
         # Create a voicing system instance with the V-System category ID
