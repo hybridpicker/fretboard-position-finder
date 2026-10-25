@@ -84,7 +84,8 @@ Open http://localhost:8080 to view the app, or use the live site at https://fret
 
 ```bash
 node --test static/studio/js/theory.test.mjs   # music theory and fingering engine
-python manage.py test positionfinder           # Django views and catalogue
+make test                                      # Python tests (pytest, needs PostgreSQL)
+make check                                     # lint, Django checks and coverage, as in CI
 ```
 
 ## Native apps
