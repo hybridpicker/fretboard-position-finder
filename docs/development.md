@@ -160,79 +160,43 @@ has_8string = "lowBString" in available_strings or "highAString" in available_st
 
 ## Testing Strategy
 
-### Test Types
+Tests use pytest with pytest-django and live in `tests/`:
 
-1. **Unit Tests**: Test individual functions and methods
-2. **Integration Tests**: Test interactions between components
-3. **Functional Tests**: Test complete features from user perspective
-4. **Compatibility Tests**: Test with different string configurations
+| Directory | Content |
+|---|---|
+| `tests/unit/` | Pure music logic, models, search parsing, V-System generator |
+| `tests/views/` | Django test-client tests for every page, helper and template tag |
+| `tests/api/` | REST API endpoints (`/api/...`) |
+| `tests/seo/` | SEO context processor, template tags, sitemap |
+| `tests/commands/` | Management commands |
 
-### Setting Up Test Databases
+Tests run against an isolated PostgreSQL database (`test_fretboard_test`, created and
+dropped by Django) using `fretboard/settings_test.py`; `local_settings.py` is not needed and
+the development database is never touched. Connection details come from the libpq
+environment (`PGHOST`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`). The test database is empty by
+default; tests that need real data use the `music_data` fixture from `tests/conftest.py`
+(loads `fixtures/studio_music_data.json` once per test module).
 
-Create test-specific settings:
-
-```python
-# test_settings.py
-from .settings import *
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
-    }
-}
-```
-
-Run tests with these settings:
-
-```bash
-python manage.py test --settings=fretboard.test_settings
-```
-
-### Example Test Cases
-
-```python
-from django.test import TestCase
-from positionfinder.models import Notes, NotesCategory, Root
-from positionfinder.get_position_dict_scales import get_scale_position_dict
-
-
-class ScalePositionTests(TestCase):
-    def setUp(self):
-        # Create test data
-        self.category = NotesCategory.objects.create(id=1, category_name="Scales")
-        self.root = Root.objects.create(id=1, name="C", pitch=0)
-        self.scale = Notes.objects.create(
-            category=self.category,
-            note_name="Major",
-            first_note=0,
-            second_note=2,
-            third_note=4,
-            fourth_note=5,
-            fifth_note=7,
-            sixth_note=9,
-            seventh_note=11,
-        )
-
-    def test_scale_position_dict(self):
-        # Test the position dictionary generation
-        position_dict = get_scale_position_dict("Major", 1, 0, 0, "C")
-        self.assertIsNotNone(position_dict)
-        # More assertions...
-```
+Known bugs are pinned with `@pytest.mark.xfail(strict=True, reason="BUG: ...")`. Fixing a bug
+turns its test into an unexpected pass, which fails the suite: remove the marker in the same
+change.
 
 ### Running Tests
 
 ```bash
-# Run all tests
-python manage.py test
+make test          # pytest
+make coverage      # pytest with line + branch coverage report
+make lint          # ruff check + ruff format --check
+make format        # ruff autofix + format
+make check         # lint + manage.py check + migrations check + coverage (what CI runs)
 
-# Run specific test class
-python manage.py test positionfinder.tests.ScalePositionTests
-
-# Run specific test method
-python manage.py test positionfinder.tests.ScalePositionTests.test_scale_position_dict
+.venv/bin/python -m pytest tests/api -q                  # one directory
+.venv/bin/python -m pytest -k "chord and not search"     # by name
+node --test static/studio/js/theory.test.mjs             # Studio theory engine (JS)
 ```
+
+Pre-commit hooks (`pip install pre-commit && pre-commit install`) run ruff and the unit tests.
+CI (`.github/workflows/ci.yml`) runs `make check` against a PostgreSQL service.
 
 ## Database Schema Evolution
 
@@ -390,53 +354,12 @@ Before deploying:
 
 ## Continuous Integration
 
-### Setting Up CI/CD
+### CI
 
-Use GitHub Actions for CI/CD:
-
-```yaml
-# .github/workflows/ci.yml
-name: CI
-
-on:
-  push:
-    branches: [ develop, main ]
-  pull_request:
-    branches: [ develop ]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:12
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: github_actions
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-    
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    
-    - name: Run tests
-      env:
-        DATABASE_URL: postgres://postgres:postgres@localhost:5432/github_actions
-      run: |
-        python manage.py test
-```
+`.github/workflows/ci.yml` runs on pushes to `master` and on pull requests: PostgreSQL 16
+service, Python 3.12, runtime pins from `requirements-prod.txt` plus the dev tools, then
+`make check COV_MIN=90` (ruff, `manage.py check`, migration check, pytest with coverage and a
+minimum line-coverage threshold). Run the same command locally before pushing.
 
 ## Coding Standards
 
@@ -444,7 +367,7 @@ jobs:
 
 Follow PEP 8 guidelines:
 - Use 4 spaces for indentation
-- Keep lines under 79 characters
+- Keep lines at most 100 characters (ruff format enforces this; run `make format`)
 - Use clear, descriptive variable names
 - Use docstrings for documentation
 
