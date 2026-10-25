@@ -45,20 +45,20 @@ Create a `local_settings.py` file in the project root:
 
 ```python
 # local_settings.py
-SECRET_KEY = 'your-secret-key-here'
+SECRET_KEY = "your-secret-key-here"
 
 DEBUG = True
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
         # For 6-string: 'NAME': 'fretboard-devel',
         # For 8-string: 'NAME': 'fretboard',
-        'NAME': 'fretboard',  # Current setting
-        'USER': 'your-db-user',
-        'PASSWORD': 'your-db-password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        "NAME": "fretboard",  # Current setting
+        "USER": "your-db-user",
+        "PASSWORD": "your-db-password",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 ```
@@ -118,16 +118,16 @@ For improved security, consider using environment variables for sensitive inform
 ```python
 import os
 
-SECRET_KEY = os.environ.get('FRETBOARD_SECRET_KEY', 'default-dev-key')
+SECRET_KEY = os.environ.get("FRETBOARD_SECRET_KEY", "default-dev-key")
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('FRETBOARD_DB_NAME', 'fretboard'),
-        'USER': os.environ.get('FRETBOARD_DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('FRETBOARD_DB_PASSWORD', ''),
-        'HOST': os.environ.get('FRETBOARD_DB_HOST', 'localhost'),
-        'PORT': os.environ.get('FRETBOARD_DB_PORT', '5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get("FRETBOARD_DB_NAME", "fretboard"),
+        "USER": os.environ.get("FRETBOARD_DB_USER", "postgres"),
+        "PASSWORD": os.environ.get("FRETBOARD_DB_PASSWORD", ""),
+        "HOST": os.environ.get("FRETBOARD_DB_HOST", "localhost"),
+        "PORT": os.environ.get("FRETBOARD_DB_PORT", "5432"),
     }
 }
 ```

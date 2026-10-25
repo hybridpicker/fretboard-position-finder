@@ -1,21 +1,26 @@
-from django.utils.translation import gettext_lazy as _
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 from .notes_choices import ChordChoicesField
+
 
 class Root(models.Model):
     name = models.CharField(max_length=30)
     display_name = models.CharField(max_length=30, null=True, blank=True)
     pitch = models.IntegerField()
+
     def __str__(self):
         return str(self.name)
 
     class Meta:
-        '''
+        """
         Meta class for Root
-        '''
-        ordering = ('pitch', 'name')
-        verbose_name = u'Rootnote'
-        verbose_name_plural = u'Rootnotes'
+        """
+
+        ordering = ("pitch", "name")
+        verbose_name = "Rootnote"
+        verbose_name_plural = "Rootnotes"
+
 
 class NotesCategory(models.Model):
     category_name = models.CharField(max_length=30)
@@ -24,17 +29,19 @@ class NotesCategory(models.Model):
         return str(self.category_name)
 
     class Meta:
-        verbose_name = u'category name'
-        verbose_name_plural = u'category names'
+        verbose_name = "category name"
+        verbose_name_plural = "category names"
+
 
 class Notes(models.Model):
     category = models.ForeignKey(
         NotesCategory,
-        on_delete=models.CASCADE,)
+        on_delete=models.CASCADE,
+    )
     note_name = models.CharField(max_length=30)
     ordering = models.IntegerField(null=True, blank=True)
-    chords = ChordChoicesField(_("Chord Name"),null=True, blank=True)
-    tonal_root = models.IntegerField(default=0, help_text='defines the tonal space of the notes')
+    chords = ChordChoicesField(_("Chord Name"), null=True, blank=True)
+    tonal_root = models.IntegerField(default=0, help_text="defines the tonal space of the notes")
     first_note = models.IntegerField(default=0)
     second_note = models.IntegerField(null=True, blank=True)
     third_note = models.IntegerField(null=True, blank=True)
@@ -49,9 +56,9 @@ class Notes(models.Model):
     twelth_note = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return '%s : %s' % (self.category, self.note_name)
+        return "%s : %s" % (self.category, self.note_name)
 
     class Meta:
-        ordering = ['category', 'ordering', 'note_name']
-        verbose_name = u'Tones for Scale'
-        verbose_name_plural = u'Tones for Scales'
+        ordering = ["category", "ordering", "note_name"]
+        verbose_name = "Tones for Scale"
+        verbose_name_plural = "Tones for Scales"

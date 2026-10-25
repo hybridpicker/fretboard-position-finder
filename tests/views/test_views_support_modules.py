@@ -1,20 +1,19 @@
 """views_helpers, context processors, PWA service worker, template tags and the chord-search integration."""
+
 import json
-import types
 
 import pytest
 from django.http import JsonResponse
 from django.template import Context, Template
 from django.test import RequestFactory, override_settings
 
+from fretboard.templatetags import custom_tags, filters
 from positionfinder import search_integration, views_pwa, views_search
 from positionfinder.context_processors import app_version_context, unified_menu_context
 from positionfinder.context_stripe import stripe_url_context
-from positionfinder.models import Root
 from positionfinder.models_chords import ChordNotes
 from positionfinder.templatetags import position_tags
 from positionfinder.views_helpers import get_common_context
-from fretboard.templatetags import custom_tags, filters
 
 RF = RequestFactory()
 
@@ -39,12 +38,15 @@ def test_common_context_setting_true():
 @override_settings()
 def test_common_context_without_setting_defaults_to_false():
     from django.conf import settings
+
     del settings.USE_OPTIMIZED_CHORD_VIEW
     assert get_common_context(session_request())["use_optimized_chord_view"] is False
 
 
-@pytest.mark.parametrize("raw,expected", [("true", True), ("YES", True), ("1", True), ("no", False), ("0", False),
-                                          ("garbage", False)])
+@pytest.mark.parametrize(
+    "raw,expected",
+    [("true", True), ("YES", True), ("1", True), ("no", False), ("0", False), ("garbage", False)],
+)
 def test_common_context_query_parameter_is_parsed_and_stored(raw, expected):
     request = session_request(query={"optimized": raw})
     assert get_common_context(request)["use_optimized_chord_view"] is expected
@@ -53,7 +55,9 @@ def test_common_context_query_parameter_is_parsed_and_stored(raw, expected):
 
 @override_settings(USE_OPTIMIZED_CHORD_VIEW=False)
 def test_common_context_session_wins_over_query_and_settings():
-    request = session_request(query={"optimized": "false"}, session={"use_optimized_chord_view": True})
+    request = session_request(
+        query={"optimized": "false"}, session={"use_optimized_chord_view": True}
+    )
     assert get_common_context(request)["use_optimized_chord_view"] is True
     assert request.session["use_optimized_chord_view"] is True
 
@@ -66,6 +70,7 @@ def test_app_version_context_reads_settings():
 
 def test_app_version_context_default_when_setting_missing():
     from django.conf import settings
+
     with override_settings():
         del settings.VERSION
         assert app_version_context(RF.get("/")) == {"APP_VERSION": "2.1"}
@@ -73,7 +78,9 @@ def test_app_version_context_default_when_setting_missing():
 
 def test_stripe_context_with_and_without_url():
     with override_settings(STRIPE_DONATE_URL="https://example.test/donate"):
-        assert stripe_url_context(RF.get("/")) == {"STRIPE_DONATE_URL": "https://example.test/donate"}
+        assert stripe_url_context(RF.get("/")) == {
+            "STRIPE_DONATE_URL": "https://example.test/donate"
+        }
     with override_settings(STRIPE_DONATE_URL=None):
         assert stripe_url_context(RF.get("/")) == {"STRIPE_DONATE_URL": None}
 
@@ -197,43 +204,74 @@ class TestServiceWorkerView:
 
 
 # ----------------------------------------------------------------------------- position_tags
-@pytest.mark.parametrize("name,expected", [
-    ("eString", "High E (1st)"), ("bString", "B (2nd)"), ("gString", "G (3rd)"), ("dString", "D (4th)"),
-    ("AString", "A (5th)"), ("ELowString", "Low E (6th)"), ("highAString", "High A (0)"),
-    ("lowBString", "Low B (7th)"), ("mystery", "mystery"),
-])
+@pytest.mark.parametrize(
+    "name,expected",
+    [
+        ("eString", "High E (1st)"),
+        ("bString", "B (2nd)"),
+        ("gString", "G (3rd)"),
+        ("dString", "D (4th)"),
+        ("AString", "A (5th)"),
+        ("ELowString", "Low E (6th)"),
+        ("highAString", "High A (0)"),
+        ("lowBString", "Low B (7th)"),
+        ("mystery", "mystery"),
+    ],
+)
 def test_friendly_string_name(name, expected):
     assert position_tags.friendly_string_name(name) == expected
 
 
-@pytest.mark.parametrize("order,expected", [
-    (1, "Open Position (0-4 Frets)"), (7, "12th Position/Octave (12-16 Frets)"),
-    (9, "High Extended Position (For 8-string)"), (10, "Position 10"), (0, "Position 0"),
-])
+@pytest.mark.parametrize(
+    "order,expected",
+    [
+        (1, "Open Position (0-4 Frets)"),
+        (7, "12th Position/Octave (12-16 Frets)"),
+        (9, "High Extended Position (For 8-string)"),
+        (10, "Position 10"),
+        (0, "Position 0"),
+    ],
+)
 def test_position_description(order, expected):
     assert position_tags.position_description(order) == expected
 
 
-@pytest.mark.parametrize("order,expected", [
-    (1, "Beginner"), (2, "Beginner-Intermediate"), (3, "Intermediate"), (5, "Intermediate-Advanced"),
-    (6, "Advanced"), (8, "Advanced (8-string)"), (42, "Intermediate"),
-])
+@pytest.mark.parametrize(
+    "order,expected",
+    [
+        (1, "Beginner"),
+        (2, "Beginner-Intermediate"),
+        (3, "Intermediate"),
+        (5, "Intermediate-Advanced"),
+        (6, "Advanced"),
+        (8, "Advanced (8-string)"),
+        (42, "Intermediate"),
+    ],
+)
 def test_position_difficulty(order, expected):
     assert position_tags.position_difficulty(order) == expected
 
 
-@pytest.mark.parametrize("order,expected", [
-    (0, "position-beginner"), (1, "position-beginner"), (2, "position-beginner"),
-    (3, "position-intermediate"), (5, "position-intermediate"),
-    (6, "position-advanced"), (9, "position-advanced"),
-])
+@pytest.mark.parametrize(
+    "order,expected",
+    [
+        (0, "position-beginner"),
+        (1, "position-beginner"),
+        (2, "position-beginner"),
+        (3, "position-intermediate"),
+        (5, "position-intermediate"),
+        (6, "position-advanced"),
+        (9, "position-advanced"),
+    ],
+)
 def test_position_color_class(order, expected):
     assert position_tags.position_color_class(order) == expected
 
 
 def test_position_tags_in_template():
-    out = Template("{% load position_tags %}{{ s|friendly_string_name }}|{{ p|position_difficulty }}"
-                   ).render(Context({"s": "eString", "p": 6}))
+    out = Template(
+        "{% load position_tags %}{{ s|friendly_string_name }}|{{ p|position_difficulty }}"
+    ).render(Context({"s": "eString", "p": 6}))
     assert out == "High E (1st)|Advanced"
 
 
@@ -247,24 +285,47 @@ def test_filters_times_is_one_based_inclusive():
     assert list(filters.times(0)) == []
 
 
-@pytest.mark.parametrize("num,expected", [(0, "zero"), (5, "five"), (17, "seventeen"), (18, "18"), (-1, "-1")])
+@pytest.mark.parametrize(
+    "num,expected", [(0, "zero"), (5, "five"), (17, "seventeen"), (18, "18"), (-1, "-1")]
+)
 def test_to_english(num, expected):
     assert filters.to_english(num) == expected
 
 
-@pytest.mark.parametrize("num,expected", [
-    (0, ""), (1, "I"), (4, "IV"), (9, "IX"), (14, "XIV"), (40, "XL"), (90, "XC"), (400, "CD"),
-    (1994, "MCMXCIV"), (3999, "MMMCMXCIX"),
-])
+@pytest.mark.parametrize(
+    "num,expected",
+    [
+        (0, ""),
+        (1, "I"),
+        (4, "IV"),
+        (9, "IX"),
+        (14, "XIV"),
+        (40, "XL"),
+        (90, "XC"),
+        (400, "CD"),
+        (1994, "MCMXCIV"),
+        (3999, "MMMCMXCIX"),
+    ],
+)
 def test_to_roman(num, expected):
     assert filters.to_roman(num) == expected
 
 
-@pytest.mark.parametrize("raw,expected", [
-    ("bb2", "Bb2"), ("db3", "Db3"), ("eb4", "Eb4"), ("ab1", "Ab1"),
-    ("cs3", "C#3"), ("as2", "A#2"), ("fs0", "F#0"),
-    ("c3", "C3"), ("g2", "G2"), ("b1", "B1"),
-])
+@pytest.mark.parametrize(
+    "raw,expected",
+    [
+        ("bb2", "Bb2"),
+        ("db3", "Db3"),
+        ("eb4", "Eb4"),
+        ("ab1", "Ab1"),
+        ("cs3", "C#3"),
+        ("as2", "A#2"),
+        ("fs0", "F#0"),
+        ("c3", "C3"),
+        ("g2", "G2"),
+        ("b1", "B1"),
+    ],
+)
 def test_format_note_name(raw, expected):
     assert filters.format_note_name(raw) == expected
 
@@ -281,7 +342,9 @@ def test_get_notes_out_of_range_or_unknown_string():
 
 
 def test_filters_in_template():
-    out = Template("{% load filters %}{% for i in 3|times %}{{ i|to_roman }}{% endfor %}").render(Context())
+    out = Template("{% load filters %}{% for i in 3|times %}{{ i|to_roman }}{% endfor %}").render(
+        Context()
+    )
     assert out == "IIIIII"
 
 
@@ -303,12 +366,21 @@ class TestSearchIntegration:
 
     def test_non_chord_query_uses_original_response(self):
         original = stub_original({"marker": 2})
-        response = search_integration.integrated_search_json(RF.get("/s", {"q": "G pentatonic"}), original)
+        response = search_integration.integrated_search_json(
+            RF.get("/s", {"q": "G pentatonic"}), original
+        )
         assert json.loads(response.content) == {"marker": 2}
 
     def test_chord_query_replaces_chord_results_in_json_response(self):
-        original = stub_original({"query": "Am7", "total_results": 1, "chord_results": [{"old": True}],
-                                  "scale_results": [{"s": 1}, {"s": 2}], "arpeggio_results": [{"a": 1}]})
+        original = stub_original(
+            {
+                "query": "Am7",
+                "total_results": 1,
+                "chord_results": [{"old": True}],
+                "scale_results": [{"s": 1}, {"s": 2}],
+                "arpeggio_results": [{"a": 1}],
+            }
+        )
         response = search_integration.integrated_search_json(RF.get("/s", {"q": "Am7"}), original)
         data = json.loads(response.content)
         assert data["chord_results"], "improved search must return A minor 7 voicings"
@@ -322,7 +394,9 @@ class TestSearchIntegration:
 
     def test_word_chord_in_query_triggers_chord_enhancement(self):
         original = stub_original({"scale_results": [], "arpeggio_results": []})
-        response = search_integration.integrated_search_json(RF.get("/s", {"q": "C scale chord"}), original)
+        response = search_integration.integrated_search_json(
+            RF.get("/s", {"q": "C scale chord"}), original
+        )
         data = json.loads(response.content)
         assert "chord_results" in data
         assert data["total_results"] == len(data["chord_results"])
@@ -345,7 +419,11 @@ class TestSearchIntegration:
         sentinel_json, sentinel_chords = views_search.search_json, views_search.search_chords
         monkeypatch.setattr(views_search, "search_json", sentinel_json)
         monkeypatch.setattr(views_search, "search_chords", sentinel_chords)
-        monkeypatch.setattr(search_integration, "integrated_search_chords", search_integration.integrated_search_chords)
+        monkeypatch.setattr(
+            search_integration,
+            "integrated_search_chords",
+            search_integration.integrated_search_chords,
+        )
         assert search_integration.apply_chord_search_integration() is True
         assert views_search.search_chords is search_integration.integrated_search_chords
         assert views_search.search_json is not sentinel_json

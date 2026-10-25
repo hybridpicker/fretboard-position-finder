@@ -1,4 +1,5 @@
 """Tests for the static / parameter-only API views (no music data needed)."""
+
 import pytest
 from django.urls import reverse
 from rest_framework.request import Request
@@ -72,7 +73,9 @@ class TestChordVoicings:
         assert data["instrument"] == "6-string"
         assert data["string_set"] == "6-3"
 
-    @pytest.mark.parametrize("group,expected", [("V2", "V-2"), ("V-2", "V-2"), ("V12", "V-12"), ("W3", "W3")])
+    @pytest.mark.parametrize(
+        "group,expected", [("V2", "V-2"), ("V-2", "V-2"), ("V12", "V-12"), ("W3", "W3")]
+    )
     def test_voicing_group_is_normalised(self, client, group, expected):
         response = client.get(reverse(self.url), {"chord": "C", "voicing_group": group})
         assert response.status_code == 200
@@ -145,7 +148,14 @@ class TestFallbackPositions:
 
     @pytest.mark.parametrize("notes_id", ["10", "x", "-3", ""])
     def test_other_or_invalid_ids_get_default(self, client, notes_id):
-        assert self.orders(client.get(reverse(self.url), {"notes_id": notes_id})) == [0, 1, 2, 3, 4, 5]
+        assert self.orders(client.get(reverse(self.url), {"notes_id": notes_id})) == [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+        ]
 
     def test_inner_failure_defaults_to_five_positions(self, client, monkeypatch):
         # int() failing is not possible for digit strings, so make isdigit raise via a str subclass

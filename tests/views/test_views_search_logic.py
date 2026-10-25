@@ -4,6 +4,7 @@ The application monkey-patches ``views_search.search_json`` and ``views_search.s
 (see search_integration.py).  These tests load a pristine copy of the module so the original code paths are
 exercised; the patched URL behaviour is covered in test_views_urls_pages.py and test_search_integration.py.
 """
+
 import importlib.util
 import json
 import logging
@@ -11,7 +12,7 @@ import logging
 import pytest
 from django.test import RequestFactory
 
-from positionfinder import search_utils, views_search
+from positionfinder import views_search
 from positionfinder.models import Notes, NotesCategory, Root
 from positionfinder.models_chords import ChordNotes, ChordPosition
 
@@ -21,7 +22,9 @@ RF = RequestFactory()
 
 @pytest.fixture(scope="module")
 def vs():
-    spec = importlib.util.spec_from_file_location("positionfinder.views_search_unpatched", views_search.__file__)
+    spec = importlib.util.spec_from_file_location(
+        "positionfinder.views_search_unpatched", views_search.__file__
+    )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -36,7 +39,9 @@ def get(query=None, **headers):
 def make_chord_copies(type_name, chord_name, tonal_root, count=1):
     """Duplicate real voicings with a different tonal_root (the fixture only has tonal_root=0 templates)."""
     created = []
-    for template in ChordNotes.objects.filter(type_name=type_name, chord_name=chord_name).order_by("id")[:count]:
+    for template in ChordNotes.objects.filter(type_name=type_name, chord_name=chord_name).order_by(
+        "id"
+    )[:count]:
         template.pk = None
         template.tonal_root = tonal_root
         template.save()
@@ -65,7 +70,13 @@ def search_json_data(vs, **params):
 def test_search_json_blank_query_returns_empty_structure(vs):
     status, data = search_json_data(vs, q="   ")
     assert status == 200
-    assert data == {"query": "", "total_results": 0, "chord_results": [], "scale_results": [], "arpeggio_results": []}
+    assert data == {
+        "query": "",
+        "total_results": 0,
+        "chord_results": [],
+        "scale_results": [],
+        "arpeggio_results": [],
+    }
 
 
 def test_search_json_scales_only(vs):
@@ -88,7 +99,10 @@ def test_search_json_arpeggios_only(vs):
 
 def test_search_json_all_with_scale_query_uses_only_scale_search(vs):
     _, data = search_json_data(vs, q="G pentatonic")
-    assert sorted(s["name"] for s in data["scale_results"]) == ["G Minor Pentatonic", "G Pentatonic"]
+    assert sorted(s["name"] for s in data["scale_results"]) == [
+        "G Minor Pentatonic",
+        "G Pentatonic",
+    ]
     assert data["arpeggio_results"] == []
 
 
@@ -137,28 +151,42 @@ def test_unified_view_empty_query_renders_template_without_results(vs):
 
 
 def test_unified_view_blank_query_ajax_json(vs):
-    response = vs.unified_search_view(get({"search_query": "  "}, HTTP_X_REQUESTED_WITH="XMLHttpRequest"))
+    response = vs.unified_search_view(
+        get({"search_query": "  "}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+    )
     assert json.loads(response.content) == {
         "results": {"chords": [], "scales": [], "arpeggios": []},
-        "total_count": 0, "search_query": "", "search_type": "all",
+        "total_count": 0,
+        "search_query": "",
+        "search_type": "all",
     }
 
 
 def test_unified_view_ajax_all_types(vs, monkeypatch):
     monkeypatch.setattr(vs, "search_chords", lambda q: [{"id": 7, "name": "stub"}])
-    response = vs.unified_search_view(get({"search_query": "C major"}, HTTP_X_REQUESTED_WITH="XMLHttpRequest"))
+    response = vs.unified_search_view(
+        get({"search_query": "C major"}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+    )
     data = json.loads(response.content)
     assert data["results"]["chords"] == [{"id": 7, "name": "stub"}]
     assert data["results"]["scales"][0]["name"] == "C Major"
     assert data["results"]["arpeggios"][0]["name"] == "C Major Triad"
-    assert data["total_count"] == 1 + len(data["results"]["scales"]) + len(data["results"]["arpeggios"])
+    assert data["total_count"] == 1 + len(data["results"]["scales"]) + len(
+        data["results"]["arpeggios"]
+    )
 
 
-@pytest.mark.parametrize("search_type,filled", [("chords", "chords"), ("scales", "scales"), ("arpeggios", "arpeggios")])
+@pytest.mark.parametrize(
+    "search_type,filled", [("chords", "chords"), ("scales", "scales"), ("arpeggios", "arpeggios")]
+)
 def test_unified_view_search_type_limits_result_groups(vs, monkeypatch, search_type, filled):
     monkeypatch.setattr(vs, "search_chords", lambda q: [{"id": 7}])
     response = vs.unified_search_view(
-        get({"search_query": "C major", "search_type": search_type}, HTTP_X_REQUESTED_WITH="XMLHttpRequest"))
+        get(
+            {"search_query": "C major", "search_type": search_type},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+    )
     results = json.loads(response.content)["results"]
     for group, items in results.items():
         assert bool(items) == (group == filled)
@@ -176,9 +204,12 @@ def test_search_chords_returns_empty_list_for_templates_with_zero_tonal_root(vs)
     assert vs.search_chords("C major") == []
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: search_chords filters tonal_root against ROOT_NAME_TO_ID (a Root row id, "
-                                       "C=1) although tonal_root is a pitch (C=0), so a plain 'C major' query finds "
-                                       "no chord voicings at all (only the monkey patched replacement works)")
+@pytest.mark.xfail(
+    strict=True,
+    reason="BUG: search_chords filters tonal_root against ROOT_NAME_TO_ID (a Root row id, "
+    "C=1) although tonal_root is a pitch (C=0), so a plain 'C major' query finds "
+    "no chord voicings at all (only the monkey patched replacement works)",
+)
 def test_search_chords_finds_c_major_voicings(vs):
     assert vs.search_chords("C major")
 
@@ -189,7 +220,9 @@ def test_search_chords_chord_and_type_branch(vs):
     assert results
     assert {r["type"] for r in results} == {"V1"}
     assert all(r["name"].startswith("C ") for r in results)
-    assert all("models_select=3" in r["url"] and "type_options_select=V1" in r["url"] for r in results)
+    assert all(
+        "models_select=3" in r["url"] and "type_options_select=V1" in r["url"] for r in results
+    )
 
 
 def test_search_chords_chord_and_type_branch_without_rows_is_empty(vs):
@@ -232,14 +265,18 @@ def test_process_chord_results_without_root_note(vs):
     assert item["name"] == "Major"
     assert item["type"] == "Triads"
     assert item["category"] == "Chords"
-    assert item["positions"] == list(ChordPosition.objects.filter(notes_name=chord).values_list("inversion_order", flat=True))
+    assert item["positions"] == list(
+        ChordPosition.objects.filter(notes_name=chord).values_list("inversion_order", flat=True)
+    )
     assert item["notes"] == [chord.first_note, chord.second_note, chord.third_note]
     assert item["intervals"] == [(n - chord.first_note) % 12 for n in item["notes"]]
     assert item["url"].endswith("&position_select=Root+Position")
 
 
 def test_process_chord_results_root_filter_by_tonal_root_and_name_prefix(vs):
-    copies = make_chord_copies("Triads", "Major", tonal_root=14, count=1)  # 14 == ROOT_NAME_TO_ID['A']
+    copies = make_chord_copies(
+        "Triads", "Major", tonal_root=14, count=1
+    )  # 14 == ROOT_NAME_TO_ID['A']
     qs = ChordNotes.objects.filter(type_name="Triads", chord_name="Major")
     results = vs.process_chord_results(qs, root_note="A")
     assert [r["id"] for r in results] == [copies[0].id]
@@ -277,12 +314,16 @@ def test_process_chord_results_prioritises_lowercase_e_ranges(vs):
 def test_search_scales_template_fallback_for_other_roots(vs):
     results = vs.search_scales("G pentatonic")
     assert {r["name"] for r in results} == {"G Minor Pentatonic", "G Pentatonic"}
-    assert all(r["url"].startswith("/?root=11&models_select=1&notes_options_select=") for r in results)
+    assert all(
+        r["url"].startswith("/?root=11&models_select=1&notes_options_select=") for r in results
+    )
     assert all(r["type"] == "Scales" for r in results)
 
 
 def test_search_scales_prefers_root_specific_rows(vs):
-    template = Notes.objects.filter(category_id=1, note_name__icontains="pentatonic", tonal_root=0).first()
+    template = Notes.objects.filter(
+        category_id=1, note_name__icontains="pentatonic", tonal_root=0
+    ).first()
     template.pk = None
     template.tonal_root = Root.objects.get(name="G").pitch
     template.save()
@@ -297,7 +338,7 @@ def test_search_scales_numeric_query_filters_by_pk(vs):
 
 
 def test_search_scales_unresolvable_root(vs, monkeypatch):
-    monkeypatch.setattr(search_utils, "resolve_root", lambda note: None)
+    monkeypatch.setattr(vs, "resolve_root", lambda note: None)
     assert vs.search_scales("C major") == []
 
 
@@ -321,9 +362,14 @@ def test_search_scales_swallows_errors(vs, monkeypatch):
 # ----------------------------------------------------------------------------- process_scale_results
 def test_process_scale_results_fields(vs):
     scale = Notes.objects.get(pk=1)
-    [item] = vs.process_scale_results(Notes.objects.filter(pk=1), user_note="D", user_quality="major")
+    [item] = vs.process_scale_results(
+        Notes.objects.filter(pk=1), user_note="D", user_quality="major"
+    )
     assert item == {
-        "id": 1, "name": "D Major", "type": "Scales", "notes": item["notes"],
+        "id": 1,
+        "name": "D Major",
+        "type": "Scales",
+        "notes": item["notes"],
         "intervals": [(n - item["notes"][0]) % 12 for n in item["notes"]],
         "url": "/?root=4&models_select=1&notes_options_select=1&position_select=0",
     }

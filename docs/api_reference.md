@@ -26,8 +26,8 @@ def get_notes_tones(notes_id, root_pitch, tonal_root, root_id)
 **Example:**
 ```python
 # Get the pitches for C Major scale
-root = Root.objects.get(name='C')
-major_scale = Notes.objects.get(category__category_name='Scales', note_name='Major')
+root = Root.objects.get(name="C")
+major_scale = Notes.objects.get(category__category_name="Scales", note_name="Major")
 pitches = get_notes_tones(major_scale.id, root.pitch, 0, root.id)
 # Result: [0, 2, 4, 5, 7, 9, 11]
 ```
@@ -112,7 +112,7 @@ def get_scale_position_dict(scale_name, root_id, root_pitch, tonal_root, root_na
 **Example:**
 ```python
 # Get position dictionary for C Major scale
-positions = get_scale_position_dict('Major', 1, 0, 0, 'C')
+positions = get_scale_position_dict("Major", 1, 0, 0, "C")
 ```
 
 ### transpose_actual_position
@@ -157,7 +157,7 @@ def get_position_dict(inversion_name, chord_name, range_name, type_name, root_pi
 **Example:**
 ```python
 # Get position dictionary for C Major 7 chord
-position = get_position_dict('Basic Position', 'Major 7', 'e - g', 'V2', 0, 0, 'C')
+position = get_position_dict("Basic Position", "Major 7", "e - g", "V2", 0, 0, "C")
 ```
 
 ## Functionality Tones Module
@@ -217,10 +217,10 @@ note_names = get_functionality_note_names(1, 0, 0, 1)
 ### Constants
 
 ```python
-NOTES = ['c', 'db', 'd', 'eb', 'e', 'f', 'gb', 'g', 'ab', 'a', 'bb', 'b']
-NOTES_SHARP = ['c', 'cs', 'd', 'ds', 'e', 'f', 'fs', 'g', 'gs', 'a', 'as', 'b']
+NOTES = ["c", "db", "d", "eb", "e", "f", "gb", "g", "ab", "a", "bb", "b"]
+NOTES_SHARP = ["c", "cs", "d", "ds", "e", "f", "fs", "g", "gs", "a", "as", "b"]
 OCTAVES = [-1, 0, 1, 2, 3, 4]
-TENSIONS = ['R', 'b9', '9', 'b3', '3', '11', '#11', '5', 'b13', '13', 'b7', '7']
+TENSIONS = ["R", "b9", "9", "b3", "3", "11", "#11", "5", "b13", "13", "b7", "7"]
 ```
 
 ### STRING_NOTE_OPTIONS
@@ -244,14 +244,14 @@ c_on_e_string = STRING_NOTE_OPTIONS["eString"][0]["c"]
 
 ```python
 STRING_CHOICES = {
-    'eString': _(u'eString'),
-    'bString': _(u'bString'),
-    'gString': _(u'gString'),
-    'dString': _(u'dString'),
-    'AString': _(u'AString'),
-    'ELowString': _(u'ELowString'),
-    'lowBString': _(u'lowBString'),
-    'highAString': _(u'highAString'),
+    "eString": _("eString"),
+    "bString": _("bString"),
+    "gString": _("gString"),
+    "dString": _("dString"),
+    "AString": _("AString"),
+    "ELowString": _("ELowString"),
+    "lowBString": _("lowBString"),
+    "highAString": _("highAString"),
 }
 ```
 
@@ -279,8 +279,8 @@ class MyModel(models.Model):
 
 ```python
 STRING_RANGE_CHOICES = {
-    'a - b': _(u'a - b'),
-    'e - g': _(u'e - g'),
+    "a - b": _("a - b"),
+    "e - g": _("e - g"),
     # ... many more combinations
 }
 ```
@@ -376,9 +376,9 @@ def get_menu_options()
 **Example:**
 ```python
 menu = get_menu_options()
-scales = menu['scales_options']
-arpeggios = menu['arpeggios_options']
-chords = menu['chords_options']
+scales = menu["scales_options"]
+arpeggios = menu["arpeggios_options"]
+chords = menu["chords_options"]
 ```
 
 ## Django Models
@@ -400,15 +400,15 @@ class Notes(models.Model)
 ```python
 # Create a major scale
 major = Notes.objects.create(
-    category=NotesCategory.objects.get(category_name='Scales'),
-    note_name='Major',
-    first_note=0,   # Root
+    category=NotesCategory.objects.get(category_name="Scales"),
+    note_name="Major",
+    first_note=0,  # Root
     second_note=2,  # Major 2nd
-    third_note=4,   # Major 3rd
+    third_note=4,  # Major 3rd
     fourth_note=5,  # Perfect 4th
-    fifth_note=7,   # Perfect 5th
-    sixth_note=9,   # Major 6th
-    seventh_note=11 # Major 7th
+    fifth_note=7,  # Perfect 5th
+    sixth_note=9,  # Major 6th
+    seventh_note=11,  # Major 7th
 )
 ```
 
@@ -432,18 +432,18 @@ class ChordNotes(models.Model)
 ```python
 # Create a major 7 chord
 major7 = ChordNotes.objects.create(
-    category=NotesCategory.objects.get(category_name='Chords'),
-    type_name='V2',
-    chord_name='Major 7',
-    range='e - g',
-    first_note=0,                # Root
-    first_note_string='gString',
-    second_note=4,               # Major 3rd
-    second_note_string='bString',
-    third_note=7,                # Perfect 5th
-    third_note_string='eString',
-    fourth_note=11,              # Major 7th
-    fourth_note_string='eString'
+    category=NotesCategory.objects.get(category_name="Chords"),
+    type_name="V2",
+    chord_name="Major 7",
+    range="e - g",
+    first_note=0,  # Root
+    first_note_string="gString",
+    second_note=4,  # Major 3rd
+    second_note_string="bString",
+    third_note=7,  # Perfect 5th
+    third_note_string="eString",
+    fourth_note=11,  # Major 7th
+    fourth_note_string="eString",
 )
 ```
 

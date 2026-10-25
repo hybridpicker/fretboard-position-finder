@@ -12,6 +12,7 @@ The worker only handles public, anonymous, same-origin GET requests (the studio
 page, its static assets and the public catalogue). It stores no personal data,
 sends nothing anywhere and makes no third-party requests.
 """
+
 import hashlib
 import json
 import os
@@ -30,24 +31,24 @@ from .context_processors import app_version_context
 # so they are precached under that exact URL. The ES modules imported by app.js resolve
 # without a query string and are precached as plain paths.
 SHELL_ASSETS = (
-    ('studio/studio.css', True),
-    ('studio/js/app.js', True),
-    ('studio/js/theory.js', False),
-    ('studio/js/fretboard.js', False),
-    ('studio/js/diagram.js', False),
-    ('studio/js/grid.js', False),
-    ('studio/js/pdf.js', False),
-    ('studio/js/sheet.js', False),
-    ('studio/js/songs.js', False),
-    ('studio/js/audio.js', False),
-    ('studio/manifest.webmanifest', False),
-    ('studio/icons/icon-192.png', False),
-    ('studio/icons/icon-512.png', False),
-    ('studio/icons/icon-maskable-192.png', False),
-    ('studio/icons/icon-maskable-512.png', False),
-    ('studio/icons/apple-touch-icon.png', False),
-    ('studio/icons/icon-small.svg', False),
-    ('studio/icons/favicon-32.png', False),
+    ("studio/studio.css", True),
+    ("studio/js/app.js", True),
+    ("studio/js/theory.js", False),
+    ("studio/js/fretboard.js", False),
+    ("studio/js/diagram.js", False),
+    ("studio/js/grid.js", False),
+    ("studio/js/pdf.js", False),
+    ("studio/js/sheet.js", False),
+    ("studio/js/songs.js", False),
+    ("studio/js/audio.js", False),
+    ("studio/manifest.webmanifest", False),
+    ("studio/icons/icon-192.png", False),
+    ("studio/icons/icon-512.png", False),
+    ("studio/icons/icon-maskable-192.png", False),
+    ("studio/icons/icon-maskable-512.png", False),
+    ("studio/icons/apple-touch-icon.png", False),
+    ("studio/icons/icon-small.svg", False),
+    ("studio/icons/favicon-32.png", False),
 )
 
 
@@ -55,8 +56,8 @@ SHELL_ASSETS = (
 def _file_digest(path, mtime_ns, size):
     """Content hash of one file; memoised on its stat signature so unchanged files are not re-read."""
     digest = hashlib.sha256()
-    with open(path, 'rb') as handle:
-        for chunk in iter(lambda: handle.read(65536), b''):
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
             digest.update(chunk)
     return digest.hexdigest()
 
@@ -69,25 +70,26 @@ def _shell_fingerprint():
             stat = os.stat(path)
             combined.update(_file_digest(path, stat.st_mtime_ns, stat.st_size).encode())
         else:
-            combined.update(f'missing:{asset}'.encode())
+            combined.update(f"missing:{asset}".encode())
     return combined.hexdigest()[:12]
 
 
 @require_safe
 def service_worker(request):
-    app_version = app_version_context(request)['APP_VERSION']
+    app_version = app_version_context(request)["APP_VERSION"]
     precache = [
-        f'{static(asset)}?v={app_version}' if versioned else static(asset)
+        f"{static(asset)}?v={app_version}" if versioned else static(asset)
         for asset, versioned in SHELL_ASSETS
     ]
-    precache.insert(0, '/')  # the studio page itself, used as the offline fallback
+    precache.insert(0, "/")  # the studio page itself, used as the offline fallback
     context = {
         # JSON with `<` escaped is safe to embed verbatim in a JS file.
-        'precache_json': mark_safe(json.dumps(precache, indent=2).replace('<', '\\u003c')),
-        'cache_version': f'{app_version}-{_shell_fingerprint()}',
+        "precache_json": mark_safe(json.dumps(precache, indent=2).replace("<", "\\u003c")),
+        "cache_version": f"{app_version}-{_shell_fingerprint()}",
     }
-    response = render(request, 'studio/sw.js', context,
-                      content_type='application/javascript; charset=utf-8')
-    response['Service-Worker-Allowed'] = '/'
-    response['Cache-Control'] = 'no-cache'
+    response = render(
+        request, "studio/sw.js", context, content_type="application/javascript; charset=utf-8"
+    )
+    response["Service-Worker-Allowed"] = "/"
+    response["Cache-Control"] = "no-cache"
     return response

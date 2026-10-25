@@ -1,4 +1,5 @@
 """generate_vsystem and test_unused_files management commands."""
+
 from io import StringIO
 from unittest import mock
 
@@ -19,6 +20,7 @@ def run(*args, **kwargs):
 
 # --------------------------------------------------------------------------- generate_vsystem (real generator)
 
+
 @pytest.fixture
 def category_one(db):
     # the command uses VoicingSystem() whose default category id is 1
@@ -30,15 +32,29 @@ class TestGenerateVSystemReal:
     def test_specific_v1_chord(self, category_one):
         out = run("generate_vsystem", root=0, chord_type="Major 7")
         chord = ChordNotes.objects.get()
-        assert (chord.type_name, chord.chord_name, chord.range, chord.tonal_root) == ("V1", "Major 7", "e-b", 0)
+        assert (chord.type_name, chord.chord_name, chord.range, chord.tonal_root) == (
+            "V1",
+            "Major 7",
+            "e-b",
+            0,
+        )
         assert "Generating V1 voicing for root=0, chord_type=Major 7, string_set=e-b" in out
         assert f"Created chord: {chord}" in out
         assert out.rstrip().endswith("Done!")
         assert ChordPosition.objects.filter(notes_name=chord).count() == 4
 
     def test_specific_v2_chord_via_option_string(self, category_one):
-        out = run("generate_vsystem", "--v-system", "V2", "--root", "7", "--chord-type", "Minor 7",
-                  "--string-set", "g-A")
+        out = run(
+            "generate_vsystem",
+            "--v-system",
+            "V2",
+            "--root",
+            "7",
+            "--chord-type",
+            "Minor 7",
+            "--string-set",
+            "g-A",
+        )
         chord = ChordNotes.objects.get()
         assert (chord.type_name, chord.range, chord.tonal_root) == ("V2", "g-A", 7)
         assert "Generating V2 voicing for root=7" in out
@@ -60,10 +76,24 @@ class TestGenerateVSystemReal:
         assert "Created 13 V2 chords" in out
 
     def test_clean_removes_existing_v_system_chords_only(self, category_one):
-        other = ChordNotes.objects.create(category=category_one, type_name="Triads", chord_name="Major",
-                                          range="e - g", first_note=0, second_note=4, third_note=7)
-        old = ChordNotes.objects.create(category=category_one, type_name="V2", chord_name="Major",
-                                        range="b - d", first_note=0, second_note=4, third_note=7)
+        other = ChordNotes.objects.create(
+            category=category_one,
+            type_name="Triads",
+            chord_name="Major",
+            range="e - g",
+            first_note=0,
+            second_note=4,
+            third_note=7,
+        )
+        old = ChordNotes.objects.create(
+            category=category_one,
+            type_name="V2",
+            chord_name="Major",
+            range="b - d",
+            first_note=0,
+            second_note=4,
+            third_note=7,
+        )
         out = run("generate_vsystem", clean=True, root=0, chord_type="Major 7")
         assert not ChordNotes.objects.filter(pk=old.pk).exists()
         assert ChordNotes.objects.filter(pk=other.pk).exists()
@@ -93,6 +123,7 @@ class TestGenerateVSystemReal:
 
 # --------------------------------------------------------------------------- generate_vsystem (mocked generator)
 
+
 def fake_system():
     vs = mock.MagicMock()
     vs.chord_types = {"Major 7": [0, 4, 7, 11], "Minor 7": [0, 3, 7, 10]}
@@ -111,11 +142,17 @@ class TestGenerateVSystemMocked:
         vs = fake_system()
         with mock.patch(MODULE, return_value=vs):
             out = run("generate_vsystem")
-        assert [c.args for c in vs.generate_all_roots_v1.call_args_list] == [("Major 7", "e-b"), ("Minor 7", "e-b")]
+        assert [c.args for c in vs.generate_all_roots_v1.call_args_list] == [
+            ("Major 7", "e-b"),
+            ("Minor 7", "e-b"),
+        ]
         assert "Created 4 V1 chords" in out  # 2 per type, None entries filtered
         vs.generate_all_roots_v2.assert_not_called()
 
-    @pytest.mark.xfail(strict=True, reason="BUG: the V1 branch of 'all' rebinds the loop variable chord_type, so the V2 branch then only generates the last chord type")
+    @pytest.mark.xfail(
+        strict=True,
+        reason="BUG: the V1 branch of 'all' rebinds the loop variable chord_type, so the V2 branch then only generates the last chord type",
+    )
     def test_all_without_filters_generates_every_chord_type_for_both_systems(self):
         vs = fake_system()
         with mock.patch(MODULE, return_value=vs):
@@ -147,12 +184,31 @@ class TestGenerateVSystemMocked:
         vs.generate_all_roots_v2.assert_called_once_with("Major 7", "e-b")
         assert "Created 2 V2 chords" in out
 
-    @pytest.mark.parametrize("kwargs,method,label", [
-        ({"v_system": "v1", "root": 1}, "generate_all_types_v1", "Error generating V1 voicings: kaput"),
-        ({"v_system": "v1", "chord_type": "Major 7"}, "generate_all_roots_v1", "Error generating V1 voicings: kaput"),
-        ({"v_system": "v2", "root": 1}, "generate_all_types_v2", "Error generating V2 voicings: kaput"),
-        ({"v_system": "v2", "chord_type": "Major 7"}, "generate_all_roots_v2", "Error generating V2 voicings: kaput"),
-    ])
+    @pytest.mark.parametrize(
+        "kwargs,method,label",
+        [
+            (
+                {"v_system": "v1", "root": 1},
+                "generate_all_types_v1",
+                "Error generating V1 voicings: kaput",
+            ),
+            (
+                {"v_system": "v1", "chord_type": "Major 7"},
+                "generate_all_roots_v1",
+                "Error generating V1 voicings: kaput",
+            ),
+            (
+                {"v_system": "v2", "root": 1},
+                "generate_all_types_v2",
+                "Error generating V2 voicings: kaput",
+            ),
+            (
+                {"v_system": "v2", "chord_type": "Major 7"},
+                "generate_all_roots_v2",
+                "Error generating V2 voicings: kaput",
+            ),
+        ],
+    )
     def test_bulk_errors_are_reported_not_raised(self, kwargs, method, label):
         vs = fake_system()
         getattr(vs, method).side_effect = RuntimeError("kaput")
@@ -161,7 +217,9 @@ class TestGenerateVSystemMocked:
         assert label in out
         assert out.rstrip().endswith("Done!")
 
-    @pytest.mark.parametrize("v_system,method", [("v1", "generate_all_roots_v1"), ("v2", "generate_all_roots_v2")])
+    @pytest.mark.parametrize(
+        "v_system,method", [("v1", "generate_all_roots_v1"), ("v2", "generate_all_roots_v2")]
+    )
     def test_full_run_error_is_reported(self, v_system, method):
         vs = fake_system()
         getattr(vs, method).side_effect = RuntimeError("kaput")
@@ -227,7 +285,9 @@ class TestUnusedFilesCommand:
     def test_restore_moves_files_back(self, static_dir):
         run("test_unused_files")
         out = run("test_unused_files", restore=True)
-        assert sorted(p.name for p in (static_dir / "js").iterdir()) == sorted(JS_NAMES + ["keep_me.js"])
+        assert sorted(p.name for p in (static_dir / "js").iterdir()) == sorted(
+            JS_NAMES + ["keep_me.js"]
+        )
         assert list((static_dir / "backup_js").iterdir()) == []
         assert "Restored 4 JS files and 0 CSS files" in out
 
@@ -269,6 +329,9 @@ def test_full_v2_run_counts_all_chords_and_filters_none():
     vs = fake_system()
     with mock.patch(MODULE, return_value=vs):
         out = run("generate_vsystem", v_system="v2")
-    assert [c.args for c in vs.generate_all_roots_v2.call_args_list] == [("Major 7", "e-b"), ("Minor 7", "e-b")]
+    assert [c.args for c in vs.generate_all_roots_v2.call_args_list] == [
+        ("Major 7", "e-b"),
+        ("Minor 7", "e-b"),
+    ]
     assert "Created 4 V2 chords" in out
     vs.generate_all_roots_v1.assert_not_called()

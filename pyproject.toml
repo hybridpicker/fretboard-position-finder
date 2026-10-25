@@ -29,11 +29,15 @@ exclude_lines = [
 line-length = 100
 target-version = "py312"
 extend-exclude = [".claude", "static", "scripts/legacy", "*/migrations/*"]
+required-version = ">=0.17"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "DJ"]
 ignore = [
     "DJ001",  # nullable CharField/TextField are part of the existing schema (no model changes allowed)
+    "E501",   # the formatter wraps code; the remaining long lines are strings, comments and URLs
+    "UP031",  # %-formatting in a few legacy strings; rewriting risks subtle output changes
+    "DJ012",  # reordering model bodies is churn without benefit; schema must stay untouched
     "DJ008",  # models without __str__ are part of the existing schema
 ]
 

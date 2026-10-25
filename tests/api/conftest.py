@@ -1,4 +1,5 @@
 """Shared fixtures for the API test modules."""
+
 import pytest
 from django.core.cache import cache
 from django.db import transaction

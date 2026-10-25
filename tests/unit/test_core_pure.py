@@ -1,10 +1,12 @@
 """Pure-function tests (no database) for the core positionfinder helpers."""
+
 from collections import OrderedDict
 
 import pytest
 
 from positionfinder import template_notes as tn
 from positionfinder.chord_position_choices import INVERSION_CHOICES, ChordInversionChoicesField
+from positionfinder.functionality_tones_setup import find_tone
 from positionfinder.get_position_dict_chords import normalize_pitch_index
 from positionfinder.get_position_dict_scales import (
     get_tones_from_notes,
@@ -14,7 +16,6 @@ from positionfinder.get_position_dict_scales import (
     transpose_actual_position,
     transpose_position,
 )
-from positionfinder.functionality_tones_setup import find_tone
 from positionfinder.note_validation import (
     apply_note_validation,
     validate_and_filter_note_positions,
@@ -25,12 +26,12 @@ from positionfinder.notes_choices import (
     ChordChoicesField,
     NotesChoicesField,
 )
+from positionfinder.root_note_setup import root_pitch_list_append
 from positionfinder.string_choices import STRING_CHOICES, TUNING_NOTES, StringChoicesField
 from positionfinder.string_range_choices import STRING_RANGE_CHOICES, StringRangeChoicesField
-from positionfinder.root_note_setup import root_pitch_list_append
-
 
 # --------------------------------------------------------------------------- note_validation
+
 
 class TestValidateAndFilterNotePositions:
     def test_empty_input_returns_empty_dict(self):
@@ -98,7 +99,11 @@ class TestApplyNoteValidation:
     def test_validates_each_position_in_place(self):
         ctx = {
             "positions": [
-                {"assigned_strings": ["eString"], "eString": ["e3", "R", True, False], "bString": ["x"]},
+                {
+                    "assigned_strings": ["eString"],
+                    "eString": ["e3", "R", True, False],
+                    "bString": ["x"],
+                },
                 {},
             ]
         }
@@ -114,6 +119,7 @@ class TestApplyNoteValidation:
 
 
 # --------------------------------------------------------------------------- scale position helpers
+
 
 class TestTransposePosition:
     def test_lowers_octave_digit_by_one(self):
@@ -232,6 +238,7 @@ def test_get_tones_from_notes_skips_none_and_keeps_order():
 
 # --------------------------------------------------------------------------- misc small helpers
 
+
 @pytest.mark.parametrize("raw,expected", [(0, 0), (11, 11), (12, 0), (13, 1), (35, 11), (24, 0)])
 def test_normalize_pitch_index(raw, expected):
     assert normalize_pitch_index(raw) == expected
@@ -249,15 +256,23 @@ def test_find_tone():
 
 # --------------------------------------------------------------------------- template_notes invariants
 
+
 class TestTemplateNotes:
     def test_twelve_semitone_tables_have_12_entries(self):
-        for table in (tn.NOTES, tn.NOTES_SHARP, tn.TENSIONS, tn.TENSIONS_OPTIONAL,
-                      tn.NOTE_NAMES, tn.NOTE_NAMES_OPTION, tn.NOTE_NAMES_SHARP,
-                      tn.NOTE_NAMES_SHARP_OPTION):
+        for table in (
+            tn.NOTES,
+            tn.NOTES_SHARP,
+            tn.TENSIONS,
+            tn.TENSIONS_OPTIONAL,
+            tn.NOTE_NAMES,
+            tn.NOTE_NAMES_OPTION,
+            tn.NOTE_NAMES_SHARP,
+            tn.NOTE_NAMES_SHARP_OPTION,
+        ):
             assert len(table) == 12
 
     def test_flat_and_sharp_names_agree_on_naturals(self):
-        for i, (flat, sharp) in enumerate(zip(tn.NOTES, tn.NOTES_SHARP)):
+        for i, (flat, sharp) in enumerate(zip(tn.NOTES, tn.NOTES_SHARP, strict=False)):
             if len(flat) == 1:
                 assert flat == sharp, i
 
@@ -272,7 +287,10 @@ class TestTemplateNotes:
         for s in ("eString", "bString", "gString", "dString", "AString", "ELowString"):
             assert s in tn.STRING_NOTE_OPTIONS
 
-    @pytest.mark.parametrize("string", sorted(__import__("positionfinder.template_notes", fromlist=["x"]).STRING_NOTE_OPTIONS))
+    @pytest.mark.parametrize(
+        "string",
+        sorted(__import__("positionfinder.template_notes", fromlist=["x"]).STRING_NOTE_OPTIONS),
+    )
     def test_tones_and_frets_are_parallel_and_playable(self, string):
         table = tn.STRING_NOTE_OPTIONS[string][0]
         for note, entry in table.items():
@@ -283,15 +301,19 @@ class TestTemplateNotes:
             for tone in info["tone"]:
                 assert tone.startswith(note), (string, note, tone)
 
-    @pytest.mark.parametrize("string", sorted(__import__("positionfinder.template_notes", fromlist=["x"]).STRING_NOTE_OPTIONS))
+    @pytest.mark.parametrize(
+        "string",
+        sorted(__import__("positionfinder.template_notes", fromlist=["x"]).STRING_NOTE_OPTIONS),
+    )
     def test_enharmonic_spellings_share_frets(self, string):
         table = tn.STRING_NOTE_OPTIONS[string][0]
-        for flat, sharp in zip(tn.NOTES, tn.NOTES_SHARP):
+        for flat, sharp in zip(tn.NOTES, tn.NOTES_SHARP, strict=False):
             if flat in table and sharp in table:
                 assert table[flat][0]["fret"] == table[sharp][0]["fret"]
 
 
 # --------------------------------------------------------------------------- choices fields
+
 
 class TestChoicesFields:
     def test_notes_choices_cover_twelve_pitches(self):
@@ -325,7 +347,12 @@ class TestChoicesFields:
         assert set(INVERSION_CHOICES) == set(tn.INVERSIONS)
 
     def test_fields_are_deconstructible_for_migrations(self):
-        for field in (NotesChoicesField(), ChordChoicesField(), StringChoicesField(),
-                      StringRangeChoicesField(), ChordInversionChoicesField()):
+        for field in (
+            NotesChoicesField(),
+            ChordChoicesField(),
+            StringChoicesField(),
+            StringRangeChoicesField(),
+            ChordInversionChoicesField(),
+        ):
             name, path, args, kwargs = field.deconstruct()
             assert path.startswith("positionfinder.")

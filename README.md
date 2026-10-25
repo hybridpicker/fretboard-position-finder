@@ -55,13 +55,13 @@ Free, no account needed. Installable as a PWA; native apps for iOS, iPad, macOS 
 
 In your `settings_dev.py` (or `settings.py`), add:
 ```python
-TEMPLATES[0]['DIRS'] += [BASE_DIR / 'templates']
-MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_URL = '/media/'
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR.parent / 'fretboard' / 'static_cdn'
-FIXTURE_DIRS = [BASE_DIR / 'fixtures']
+TEMPLATES[0]["DIRS"] += [BASE_DIR / "templates"]
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR.parent / "fretboard" / "static_cdn"
+FIXTURE_DIRS = [BASE_DIR / "fixtures"]
 ```
 
 ## Loading Data

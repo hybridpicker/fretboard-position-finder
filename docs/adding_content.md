@@ -93,14 +93,14 @@ arpeggios_category = NotesCategory.objects.get(id=2)
 # Create the arpeggio
 new_arpeggio = Notes.objects.create(
     category=arpeggios_category,
-    note_name='Dominant 9',       # Name of the arpeggio
-    ordering=8,                   # Order in menus
+    note_name="Dominant 9",  # Name of the arpeggio
+    ordering=8,  # Order in menus
     tonal_root=0,
-    first_note=0,                 # Root
-    second_note=4,                # Major 3rd
-    third_note=7,                 # Perfect 5th
-    fourth_note=10,               # Minor 7th
-    fifth_note=14                 # 9th (2nd + octave)
+    first_note=0,  # Root
+    second_note=4,  # Major 3rd
+    third_note=7,  # Perfect 5th
+    fourth_note=10,  # Minor 7th
+    fifth_note=14,  # 9th (2nd + octave)
 )
 
 # Create positions (similar to scales)
@@ -120,18 +120,18 @@ chords_category = NotesCategory.objects.get(id=3)
 # Create a new chord type
 sus4_chord = ChordNotes.objects.create(
     category=chords_category,
-    type_name='Suspended',       # Chord type name
-    chord_name='Sus4',           # Specific chord name
-    range='e - g',               # String range
-    ordering=6,                  # Order in menus
-    chord_ordering=1,            # Order within type
+    type_name="Suspended",  # Chord type name
+    chord_name="Sus4",  # Specific chord name
+    range="e - g",  # String range
+    ordering=6,  # Order in menus
+    chord_ordering=1,  # Order within type
     tonal_root=0,
-    first_note=0,                # Root
-    first_note_string='gString',
-    second_note=5,               # Perfect 4th (instead of 3rd)
-    second_note_string='bString',
-    third_note=7,                # Perfect 5th
-    third_note_string='eString'
+    first_note=0,  # Root
+    first_note_string="gString",
+    second_note=5,  # Perfect 4th (instead of 3rd)
+    second_note_string="bString",
+    third_note=7,  # Perfect 5th
+    third_note_string="eString",
 )
 ```
 
@@ -148,18 +148,18 @@ For each chord, add the same chord with different string ranges:
 # Create the same chord with a different range
 sus4_chord_2 = ChordNotes.objects.create(
     category=chords_category,
-    type_name='Suspended',
-    chord_name='Sus4',
-    range='b - A',               # Different string range
+    type_name="Suspended",
+    chord_name="Sus4",
+    range="b - A",  # Different string range
     ordering=6,
     chord_ordering=1,
     tonal_root=0,
     first_note=0,
-    first_note_string='dString',
+    first_note_string="dString",
     second_note=5,
-    second_note_string='gString',
+    second_note_string="gString",
     third_note=7,
-    third_note_string='bString'
+    third_note_string="bString",
 )
 ```
 
@@ -171,22 +171,22 @@ To add an entirely new chord group (e.g., "Extended Chords"):
 # Create the base chord (e.g., Major 9)
 extended_chord = ChordNotes.objects.create(
     category=chords_category,
-    type_name='Extended',        # New type name
-    chord_name='Major 9',
-    range='e - E',               # Wider range for extended chords
-    ordering=7,                  # Later in menu
+    type_name="Extended",  # New type name
+    chord_name="Major 9",
+    range="e - E",  # Wider range for extended chords
+    ordering=7,  # Later in menu
     chord_ordering=1,
     tonal_root=0,
-    first_note=0,                # Root
-    first_note_string='ELowString',
-    second_note=4,               # Major 3rd
-    second_note_string='dString',
-    third_note=7,                # Perfect 5th
-    third_note_string='gString',
-    fourth_note=11,              # Major 7th
-    fourth_note_string='bString',
-    fifth_note=14,               # 9th (2nd + octave)
-    fifth_note_string='eString'
+    first_note=0,  # Root
+    first_note_string="ELowString",
+    second_note=4,  # Major 3rd
+    second_note_string="dString",
+    third_note=7,  # Perfect 5th
+    third_note_string="gString",
+    fourth_note=11,  # Major 7th
+    fourth_note_string="bString",
+    fifth_note=14,  # 9th (2nd + octave)
+    fifth_note_string="eString",
 )
 ```
 
@@ -198,17 +198,17 @@ If you need custom chord derivation logic, modify the `create_chord()` function 
 def create_chord(id):
     chord = ChordNotes.objects.get(id=id)
 
-    if chord.chord_name == 'Your New Base Chord':
+    if chord.chord_name == "Your New Base Chord":
         # Create derived chords
         derived_chord = ChordNotes.objects.create(
             category_id=chord.category.id,
             type_name=chord.type_name,
-            chord_name='Derived Chord',
+            chord_name="Derived Chord",
             range=chord.range,
             # Set appropriate intervals
             # ...
         )
-        
+
         # Create positions for the derived chord
         create_base_position(derived_chord.id)
 ```
@@ -222,15 +222,15 @@ For 8-string guitar content, include the additional strings in your definitions:
 eight_string_chord = ChordNotes.objects.create(
     # ... standard fields
     first_note=0,
-    first_note_string='lowBString',  # Use the low B string
+    first_note_string="lowBString",  # Use the low B string
     second_note=4,
-    second_note_string='ELowString',
+    second_note_string="ELowString",
     third_note=7,
-    third_note_string='AString',
+    third_note_string="AString",
     fourth_note=11,
-    fourth_note_string='dString',
+    fourth_note_string="dString",
     fifth_note=14,
-    fifth_note_string='gString'
+    fifth_note_string="gString",
 )
 ```
 
@@ -242,15 +242,15 @@ To add new positions for existing scales or arpeggios:
 from positionfinder.models import Notes, NotesPosition
 
 # Get the scale
-scale = Notes.objects.get(note_name='Major')
+scale = Notes.objects.get(note_name="Major")
 
 # Add a new position
 new_position = NotesPosition.objects.create(
     notes_name=scale,
-    position_order='Position 6',  # New position name
+    position_order="Position 6",  # New position name
     position_order_number=6,
-    first_note=12,               # Starting at 12th fret
-    first_note_string='ELowString',
+    first_note=12,  # Starting at 12th fret
+    first_note_string="ELowString",
     # ... other note placements
 )
 ```
@@ -324,20 +324,20 @@ chords_category = NotesCategory.objects.get(id=3)
 # Create a jazz voicing group
 jazz_m7 = ChordNotes.objects.create(
     category=chords_category,
-    type_name='Jazz Voicings',
-    chord_name='Minor 7',
-    range='d - g',               # 4-note voicing on middle strings
+    type_name="Jazz Voicings",
+    chord_name="Minor 7",
+    range="d - g",  # 4-note voicing on middle strings
     ordering=8,
     chord_ordering=2,
     tonal_root=0,
-    first_note=0,                # Root
-    first_note_string='dString',
-    second_note=3,               # Minor 3rd
-    second_note_string='gString',
-    third_note=7,                # Perfect 5th
-    third_note_string='bString',
-    fourth_note=10,              # Minor 7th
-    fourth_note_string='eString'
+    first_note=0,  # Root
+    first_note_string="dString",
+    second_note=3,  # Minor 3rd
+    second_note_string="gString",
+    third_note=7,  # Perfect 5th
+    third_note_string="bString",
+    fourth_note=10,  # Minor 7th
+    fourth_note_string="eString",
 )
 
 # The save method will automatically create inversions
@@ -371,22 +371,22 @@ For 8-string guitars, create scale patterns that span all 8 strings:
 # 8-string scale position
 NotesPosition.objects.create(
     notes_name=major_scale,
-    position_order='8-String Position 1',
+    position_order="8-String Position 1",
     position_order_number=10,  # Higher number to sort after standard positions
     first_note=0,
-    first_note_string='lowBString',  # Start on low B
+    first_note_string="lowBString",  # Start on low B
     second_note=2,
-    second_note_string='lowBString',
+    second_note_string="lowBString",
     third_note=4,
-    third_note_string='ELowString',
+    third_note_string="ELowString",
     fourth_note=5,
-    fourth_note_string='ELowString',
+    fourth_note_string="ELowString",
     fifth_note=7,
-    fifth_note_string='AString',
+    fifth_note_string="AString",
     sixth_note=9,
-    sixth_note_string='AString',
+    sixth_note_string="AString",
     seventh_note=11,
-    seventh_note_string='dString'
+    seventh_note_string="dString",
 )
 ```
 
@@ -398,44 +398,45 @@ For efficiently adding multiple related items, create helper functions:
 def create_extended_chord_set(type_name, ordering):
     """Create a set of extended chords with multiple voicings."""
     chords_category = NotesCategory.objects.get(id=3)
-    
+
     # Create Major 9
     maj9 = ChordNotes.objects.create(
         category=chords_category,
         type_name=type_name,
-        chord_name='Major 9',
-        range='e - E',
+        chord_name="Major 9",
+        range="e - E",
         ordering=ordering,
         chord_ordering=1,
         # ... note definitions
     )
-    
+
     # Create Minor 9
     min9 = ChordNotes.objects.create(
         category=chords_category,
         type_name=type_name,
-        chord_name='Minor 9',
-        range='e - E',
+        chord_name="Minor 9",
+        range="e - E",
         ordering=ordering,
         chord_ordering=2,
         # ... note definitions
     )
-    
+
     # Create Dominant 9
     dom9 = ChordNotes.objects.create(
         category=chords_category,
         type_name=type_name,
-        chord_name='Dominant 9',
-        range='e - E',
+        chord_name="Dominant 9",
+        range="e - E",
         ordering=ordering,
         chord_ordering=3,
         # ... note definitions
     )
-    
+
     return [maj9, min9, dom9]
 
+
 # Usage
-extended_chords = create_extended_chord_set('Extended', 10)
+extended_chords = create_extended_chord_set("Extended", 10)
 ```
 
 ## Migrating Content Between 6-String and 8-String Databases

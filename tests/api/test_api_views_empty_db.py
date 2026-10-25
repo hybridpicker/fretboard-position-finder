@@ -1,4 +1,5 @@
 """API views against an empty database, plus fakes for query stages PostgreSQL cannot reach."""
+
 from unittest import mock
 
 import pytest
@@ -38,12 +39,20 @@ class TestEmptyDatabase:
     def test_chord_ranges_without_params_is_400(self, api_get):
         response = api_get(reverse("api:ajax_chord_ranges"))
         assert response.status_code == 400
-        assert response.json() == {"error": "Missing required parameters and no database values found"}
+        assert response.json() == {
+            "error": "Missing required parameters and no database values found"
+        }
 
     def test_chord_ranges_with_params_returns_standard_ranges(self, api_get):
         response = api_get(reverse("api:ajax_chord_ranges"), type_name="V1", chord_name="Major 7")
         assert response.status_code == 200
-        assert [r["range"] for r in response.json()["ranges"]] == ["e - g", "b - d", "g - A", "d - E", "A - B"]
+        assert [r["range"] for r in response.json()["ranges"]] == [
+            "e - g",
+            "b - d",
+            "g - A",
+            "d - E",
+            "A - B",
+        ]
 
     def test_chord_positions_without_id_is_400(self, api_get):
         response = api_get(reverse("api:ajax_chord_positions"))
@@ -64,7 +73,9 @@ class TestEmptyDatabase:
         response = api_get(reverse("api:ajax_chord_positions"), chord_notes_id=str(chord.pk))
         assert response.json() == {"positions": [{"inversion_order": "Root Position"}]}
 
-    def test_request_failure_without_positions_returns_root_position(self, api_get, break_view_query_params):
+    def test_request_failure_without_positions_returns_root_position(
+        self, api_get, break_view_query_params
+    ):
         response = api_get(reverse("api:ajax_chord_positions"), chord_notes_id="5")
         assert response.json() == {"positions": [{"inversion_order": "Root Position"}]}
 
@@ -79,7 +90,9 @@ class TestEmptyDatabase:
         response = client.get(reverse("api:emergency_chord_names"), {"type_name": "V3"})
         assert names(response) == ["Major", "Minor"]
 
-    def test_chord_names_request_failure_uses_static_fallback(self, api_get, break_view_query_params):
+    def test_chord_names_request_failure_uses_static_fallback(
+        self, api_get, break_view_query_params
+    ):
         assert names(api_get(reverse("api:ajax_chord_names"))) == ["Major", "Minor"]
 
 
@@ -123,7 +136,9 @@ class TestChordRangesFallbackStages:
 
     def ranges(self, api_get, fake, **params):
         with mock.patch("api.views.ChordNotes", fake):
-            response = api_get(reverse("api:ajax_chord_ranges"), type_name="T", chord_name="C", **params)
+            response = api_get(
+                reverse("api:ajax_chord_ranges"), type_name="T", chord_name="C", **params
+            )
         assert response.status_code == 200
         return response.json()["ranges"]
 
@@ -159,7 +174,9 @@ class TestChordNamesLateFallbacks:
 
         ChordNotes.objects.create(
             category=NotesCategory.objects.create(category_name="Chords"),
-            type_name="Zt", chord_name="Zc", range="e - g",
+            type_name="Zt",
+            chord_name="Zc",
+            range="e - g",
         )
         with mock.patch("api.views.Response", side_effect=flaky):
             response = api_get(reverse("api:ajax_chord_names"), type_name="Zt")
@@ -179,5 +196,8 @@ class TestChordNamesLateFallbacks:
         with mock.patch("api.views.Response", side_effect=flaky):
             response = api_get(reverse("api:ajax_chord_names"), type_name="Zt")
         assert [c["chord_name"] for c in response.json()["chord_names"]] == [
-            "Major", "Minor", "Diminished", "Augmented",
+            "Major",
+            "Minor",
+            "Diminished",
+            "Augmented",
         ]

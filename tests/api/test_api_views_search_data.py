@@ -1,4 +1,5 @@
 """Tests for the search endpoints (autocomplete, direct match) with the real music fixture."""
+
 from unittest import mock
 from urllib.parse import parse_qs, urlparse
 
@@ -95,11 +96,15 @@ class TestNormalizeSearchTerm:
         assert normalize_search_term(term) == "pentatonic"
 
     @pytest.mark.parametrize("term,expected", [("Bb7", "Bb Dominant 7"), ("Bbmaj7", "Bb Major 7")])
-    @pytest.mark.xfail(strict=True, reason="BUG: the root is upper-cased as a whole, so flats become 'BB'")
+    @pytest.mark.xfail(
+        strict=True, reason="BUG: the root is upper-cased as a whole, so flats become 'BB'"
+    )
     def test_flat_roots_keep_their_case(self, term, expected):
         assert normalize_search_term(term) == expected
 
-    @pytest.mark.xfail(strict=True, reason="BUG: 'maj' -> 'Major' also rewrites 'major', giving 'Majoror'")
+    @pytest.mark.xfail(
+        strict=True, reason="BUG: 'maj' -> 'Major' also rewrites 'major', giving 'Majoror'"
+    )
     def test_major_is_not_expanded_twice(self):
         assert "Majoror" not in normalize_search_term("ab major scale")
 
@@ -120,7 +125,10 @@ class TestAutocomplete:
         assert all(r["type"] == "scale" for r in results)
         # root 14 is A in the canonical root mapping; 49 / 4 are the Notes pks
         assert params(results[0]["url"]) == {
-            "root": "14", "models_select": "1", "notes_options_select": "49", "position_select": "0",
+            "root": "14",
+            "models_select": "1",
+            "notes_options_select": "49",
+            "position_select": "0",
         }
         assert params(results[1]["url"])["notes_options_select"] == "4"
 
@@ -147,7 +155,11 @@ class TestAutocomplete:
     def test_arpeggio_query(self, api_get):
         results = api_get(reverse(AUTOCOMPLETE), q="C Arpeggios").json()["results"]
         assert results == [
-            {"name": "Arpeggios", "type": "arpeggio", "url": "/?models_select=2&notes_options_select=2"}
+            {
+                "name": "Arpeggios",
+                "type": "arpeggio",
+                "url": "/?models_select=2&notes_options_select=2",
+            }
         ]
 
     def test_scale_without_root_uses_root_of_tonal_pitch(self, api_get):
@@ -255,7 +267,10 @@ class TestDirectMatchBasics:
         assert info["match_method"] == "exact_match"
         assert info["best_match_key"] == "D Arpeggios"
         assert params(info["matched_url"]) == {
-            "root": "4", "models_select": "2", "notes_options_select": "2", "position_select": "0",
+            "root": "4",
+            "models_select": "2",
+            "notes_options_select": "2",
+            "position_select": "0",
         }
 
     def test_exact_scale_match_is_case_insensitive(self, api_get):
@@ -266,9 +281,17 @@ class TestDirectMatchBasics:
     def test_debug_block_is_complete_for_fuzzy_matches(self, api_get):
         info = debug(api_get(reverse(DIRECT), q="xyzzy"))
         assert set(info) == {
-            "query", "normalized_query", "processed_queries", "best_processed_query",
-            "total_potential_targets", "unique_processed_keys", "scorer_used",
-            "min_score_threshold", "best_match_key", "best_match_score", "matched_url",
+            "query",
+            "normalized_query",
+            "processed_queries",
+            "best_processed_query",
+            "total_potential_targets",
+            "unique_processed_keys",
+            "scorer_used",
+            "min_score_threshold",
+            "best_match_key",
+            "best_match_score",
+            "matched_url",
         }
         assert info["scorer_used"] == "token_set_ratio"
         assert info["min_score_threshold"] == 80
@@ -289,14 +312,20 @@ class TestDirectMatchBasics:
         info = debug(api_get(reverse(DIRECT), q="C Pentatonic"))
         assert info["scorer_used"] == "custom_pentatonic_scorer"
         assert params(info["matched_url"]) == {
-            "root": "1", "models_select": "1", "notes_options_select": "49", "position_select": "0",
+            "root": "1",
+            "models_select": "1",
+            "notes_options_select": "49",
+            "position_select": "0",
         }
 
     def test_internal_error_returns_500(self, api_get):
         with mock.patch.object(Root.objects, "all", side_effect=RuntimeError("kaputt")):
             response = api_get(reverse(DIRECT), q="C Major")
         assert response.status_code == 500
-        assert response.json() == {"error": "An internal server error occurred.", "details": "kaputt"}
+        assert response.json() == {
+            "error": "An internal server error occurred.",
+            "details": "kaputt",
+        }
 
 
 class TestDirectMatchPentatonicShortcuts:
@@ -315,7 +344,10 @@ class TestDirectMatchPentatonicShortcuts:
         data = api_get(reverse(DIRECT), q=query).json()
         assert data["url"] == data["debug"]["matched_url"]
         assert params(data["url"]) == {
-            "root": root, "models_select": "1", "notes_options_select": "49", "position_select": "0",
+            "root": root,
+            "models_select": "1",
+            "notes_options_select": "49",
+            "position_select": "0",
         }
 
     def test_override_prefers_the_minor_pentatonic_note_over_id_49(self, api_get):
@@ -366,7 +398,9 @@ class TestDirectMatchPentatonicShortcuts:
         assert info["scorer_used"] == "custom_pentatonic_scorer"
         assert "match_method" not in info
 
-    @pytest.mark.parametrize("query,root", [("A minor penta", "14"), ("e minor penta", "7"), ("Bb minor penta", "15")])
+    @pytest.mark.parametrize(
+        "query,root", [("A minor penta", "14"), ("e minor penta", "7"), ("Bb minor penta", "15")]
+    )
     def test_hardcoded_fix_for_short_pentatonic_names(self, api_get, query, root):
         info = debug(api_get(reverse(DIRECT), q=query))
         assert info["match_method"] == "direct_pentatonic_hardcoded"
@@ -407,8 +441,10 @@ class TestDirectMatchPentatonicShortcuts:
 
             return _filter
 
-        with mock.patch.object(NotesCategory.objects, "filter", side_effect=failing(real_cat)), \
-                mock.patch.object(Notes.objects, "filter", side_effect=failing(real_notes)):
+        with (
+            mock.patch.object(NotesCategory.objects, "filter", side_effect=failing(real_cat)),
+            mock.patch.object(Notes.objects, "filter", side_effect=failing(real_notes)),
+        ):
             info = debug(api_get(reverse(DIRECT), q="A minor penta"))
         assert info["match_method"] == "direct_pentatonic_hardcoded"
         assert params(info["matched_url"])["notes_options_select"] == "49"
