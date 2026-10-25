@@ -2,6 +2,7 @@
 
 Everything that touches the filesystem runs in a tmp dir; nothing touches the real dev DB.
 """
+
 import json
 import os
 from io import StringIO
@@ -32,14 +33,30 @@ def sample_rows(db):
     category = NotesCategory.objects.create(category_name="Chords")
     Root.objects.create(name="C", pitch=0)
     Notes.objects.create(category=category, note_name="Major", second_note=4, third_note=7)
-    v1 = ChordNotes.objects.create(category=category, type_name="V1", chord_name="Minor 7", range="b - d",
-                                   first_note=0, second_note=3, third_note=7, fourth_note=10)
-    v2 = ChordNotes.objects.create(category=category, type_name="V2", chord_name="Major", range="b - d",
-                                   first_note=0, second_note=4, third_note=7)
+    v1 = ChordNotes.objects.create(
+        category=category,
+        type_name="V1",
+        chord_name="Minor 7",
+        range="b - d",
+        first_note=0,
+        second_note=3,
+        third_note=7,
+        fourth_note=10,
+    )
+    v2 = ChordNotes.objects.create(
+        category=category,
+        type_name="V2",
+        chord_name="Major",
+        range="b - d",
+        first_note=0,
+        second_note=4,
+        third_note=7,
+    )
     return v1, v2
 
 
 # --------------------------------------------------------------------------- backup
+
 
 class TestBackup:
     def test_calls_dumpdata_with_natural_keys_into_fixture_path(self):
@@ -47,12 +64,20 @@ class TestBackup:
             out, _ = run("backup")
         expected = os.path.join("positionfinder", "fixtures", "databasedump.json")
         dump.assert_called_once_with(
-            "dumpdata", "--natural-foreign", "--natural-primary", "--indent", "2", "--output", expected)
+            "dumpdata",
+            "--natural-foreign",
+            "--natural-primary",
+            "--indent",
+            "2",
+            "--output",
+            expected,
+        )
         assert f"Backing up database to {expected}" in out
         assert f"Database backup complete: {expected}" in out
 
 
 # --------------------------------------------------------------------------- create_full_dump
+
 
 class TestCreateFullDump:
     def test_creates_fixtures_dir_and_dumps_all_positionfinder_models(self, in_tmp, sample_rows):
@@ -63,8 +88,13 @@ class TestCreateFullDump:
         assert "Successfully created database dump" in out
         data = json.loads(path.read_text())
         models = {row["model"] for row in data}
-        assert {"positionfinder.root", "positionfinder.notes", "positionfinder.notescategory",
-                "positionfinder.chordnotes", "positionfinder.chordposition"} <= models
+        assert {
+            "positionfinder.root",
+            "positionfinder.notes",
+            "positionfinder.notescategory",
+            "positionfinder.chordnotes",
+            "positionfinder.chordposition",
+        } <= models
         assert sum(r["model"] == "positionfinder.chordnotes" for r in data) == 2
         assert all(r["model"].startswith("positionfinder.") for r in data)
 
@@ -79,7 +109,10 @@ class TestCreateFullDump:
     def test_exclude_models(self, in_tmp, sample_rows):
         out, _ = run("create_full_dump", exclude=["ChordNotes", "ChordPosition"])
         data = json.loads((in_tmp / "fixtures" / "full_database_dump.json").read_text())
-        assert not any(r["model"] in ("positionfinder.chordnotes", "positionfinder.chordposition") for r in data)
+        assert not any(
+            r["model"] in ("positionfinder.chordnotes", "positionfinder.chordposition")
+            for r in data
+        )
         assert "positionfinder.ChordNotes" not in out
         assert "positionfinder.Root" in out
 
@@ -117,6 +150,7 @@ class TestCreateFullDump:
 
 
 # --------------------------------------------------------------------------- export_chord_data
+
 
 class TestExportChordData:
     def test_exports_chords_with_positions(self, in_tmp, sample_rows):
@@ -182,6 +216,7 @@ class TestExportChordData:
 
 # --------------------------------------------------------------------------- import_data
 
+
 class TestImportData:
     def test_flushes_then_loads_the_merged_fixture(self):
         with mock.patch("positionfinder.management.commands.import_data.call_command") as inner:
@@ -198,7 +233,10 @@ class TestImportData:
         def fake(name, *a, **k):
             if name == "flush":
                 raise RuntimeError("flush failed")
-        with mock.patch("positionfinder.management.commands.import_data.call_command", side_effect=fake) as inner:
+
+        with mock.patch(
+            "positionfinder.management.commands.import_data.call_command", side_effect=fake
+        ) as inner:
             with pytest.raises(RuntimeError, match="flush failed"):
                 run("import_data")
         assert [c.args[0] for c in inner.call_args_list] == ["flush"]

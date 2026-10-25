@@ -1,10 +1,11 @@
 # tests/conftest.py
 import pytest
 from django.core.management import call_command
-from positionfinder.models import Notes, Root, NotesCategory
-from positionfinder.models_chords import ChordNotes, ChordPosition
 from django.test import Client, RequestFactory
 from django.utils import translation
+
+from positionfinder.models import Notes, NotesCategory, Root
+from positionfinder.models_chords import ChordNotes, ChordPosition
 from tests.helpers import create_sample_data_fixture
 from tests.locale_setup import SUPPORTED_LANGUAGES
 
@@ -40,15 +41,15 @@ def factory():
 def set_language(request):
     """Fixture to set language in tests"""
     original_language = translation.get_language()
-    
+
     def _set_language(language_code):
         if language_code in SUPPORTED_LANGUAGES:
             translation.activate(language_code)
             return True
         return False
-    
+
     yield _set_language
-    
+
     # Reset language after test
     translation.activate(original_language)
 
@@ -57,17 +58,17 @@ def set_language(request):
 def multi_language_client(client):
     """Test client with language setting capabilities"""
     original_language = translation.get_language()
-    
+
     def set_language(language_code):
         if language_code in SUPPORTED_LANGUAGES:
             translation.activate(language_code)
             return True
         return False
-    
+
     client.set_language = set_language
-    
+
     yield client
-    
+
     # Reset language after test
     translation.activate(original_language)
 
@@ -102,11 +103,7 @@ def sample_categories(db):
     scale_category = NotesCategory.objects.create(category_name="scale")
     arpeggio_category = NotesCategory.objects.create(category_name="arpeggio")
     chord_category = NotesCategory.objects.create(category_name="chord")
-    return {
-        "scale": scale_category,
-        "arpeggio": arpeggio_category,
-        "chord": chord_category
-    }
+    return {"scale": scale_category, "arpeggio": arpeggio_category, "chord": chord_category}
 
 
 @pytest.fixture
@@ -291,21 +288,23 @@ def sample_chords(db, sample_categories, sample_roots):
             first_note=0,
             second_note=0,
             third_note=0,
-            fourth_note=0 if chord.fourth_note is not None else None
+            fourth_note=0 if chord.fourth_note is not None else None,
         )
         chords.append(chord)
     return chords
 
 
 @pytest.fixture
-def all_sample_data(sample_roots, sample_categories, sample_scales, sample_arpeggios, sample_chords):
+def all_sample_data(
+    sample_roots, sample_categories, sample_scales, sample_arpeggios, sample_chords
+):
     """Combine all sample data fixtures"""
     return {
         "roots": sample_roots,
         "categories": sample_categories,
         "scales": sample_scales,
         "arpeggios": sample_arpeggios,
-        "chords": sample_chords
+        "chords": sample_chords,
     }
 
 

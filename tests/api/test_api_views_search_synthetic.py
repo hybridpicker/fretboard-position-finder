@@ -1,4 +1,5 @@
 """Search endpoints against small synthetic databases (branches the full fixture cannot reach)."""
+
 from unittest import mock
 from urllib.parse import parse_qs, urlparse
 
@@ -126,12 +127,17 @@ class TestDirectMatchSynthetic:
     def test_empty_database_reports_no_items(self, api_get):
         response = api_get(reverse(DIRECT), q="C Major")
         assert response.status_code == 200
-        assert response.json() == {"debug": {"matched_url": None, "message": "No searchable items found."}}
+        assert response.json() == {
+            "debug": {"matched_url": None, "message": "No searchable items found."}
+        }
 
     def test_override_without_any_notes_uses_fallback_id(self, api_get):
         data = api_get(reverse(DIRECT), q="G minor pentatonic").json()
         assert params(data["url"]) == {
-            "root": "11", "models_select": "1", "notes_options_select": "49", "position_select": "0",
+            "root": "11",
+            "models_select": "1",
+            "notes_options_select": "49",
+            "position_select": "0",
         }
 
     def test_override_picks_minor_pentatonic_note_by_name(self, api_get):
@@ -147,7 +153,10 @@ class TestDirectMatchSynthetic:
         info = debug(api_get(reverse(DIRECT), q="A minor penta"))
         assert info["match_method"] == "direct_pentatonic_hardcoded"
         assert params(info["matched_url"]) == {
-            "root": "14", "models_select": "1", "notes_options_select": "49", "position_select": "0",
+            "root": "14",
+            "models_select": "1",
+            "notes_options_select": "49",
+            "position_select": "0",
         }
 
     def test_hardcoded_fix_prefers_existing_id_49(self, api_get):
@@ -166,7 +175,10 @@ class TestDirectMatchSynthetic:
         assert info["best_match_key"] == "A Minor Pentatonic Scale"
         assert info["best_match_score"] == 95
         assert params(info["matched_url"]) == {
-            "root": "14", "models_select": "1", "notes_options_select": "7", "position_select": "0",
+            "root": "14",
+            "models_select": "1",
+            "notes_options_select": "7",
+            "position_select": "0",
         }
 
     def test_special_match_requires_matching_root(self, api_get):
@@ -183,7 +195,10 @@ class TestDirectMatchSynthetic:
         assert info["scorer_used"] == "custom_pentatonic_scorer"
         assert info["best_match_score"] >= 80
         assert params(info["matched_url"]) == {
-            "root": "14", "models_select": "1", "notes_options_select": "7", "position_select": "0",
+            "root": "14",
+            "models_select": "1",
+            "notes_options_select": "7",
+            "position_select": "0",
         }
 
     def test_duplicate_scale_names_keep_first_item(self, api_get):
@@ -216,7 +231,10 @@ class TestDirectMatchSynthetic:
         Notes.objects.create(pk=602, category=chords, note_name="Minor Pentatonic")
         info = debug(api_get(reverse(DIRECT), q="A pentatonic chor"))
         assert params(info["matched_url"]) == {
-            "root": "14", "models_select": "1", "notes_options_select": "602", "position_select": "0",
+            "root": "14",
+            "models_select": "1",
+            "notes_options_select": "602",
+            "position_select": "0",
         }
 
     def test_pentatonic_chord_match_is_kept_without_a_scale_to_switch_to(self, api_get):
@@ -251,7 +269,10 @@ class TestEmergencyPentatonic:
         assert info["matched_url"] is None  # no root -> nothing to build
         info = debug(api_get(reverse(DIRECT), q="B penta"))
         assert params(info["matched_url"]) == {
-            "root": "17", "models_select": "1", "notes_options_select": "602", "position_select": "0",
+            "root": "17",
+            "models_select": "1",
+            "notes_options_select": "602",
+            "position_select": "0",
         }
 
     def test_without_note_there_is_no_url(self, api_get):

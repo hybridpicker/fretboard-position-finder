@@ -1,4 +1,5 @@
 """SEO helpers: context processor, template tags, structured-data helpers and the sitemap."""
+
 import json
 
 import pytest
@@ -15,8 +16,13 @@ RF = RequestFactory()
 
 DEFAULT_TITLE = "Guitar Positions | Complete Fretboard Visualization Tool"
 ALL_KEYS = {
-    "page_title", "meta_description", "meta_keywords", "og_title", "og_description",
-    "twitter_title", "twitter_description",
+    "page_title",
+    "meta_description",
+    "meta_keywords",
+    "og_title",
+    "og_description",
+    "twitter_title",
+    "twitter_description",
 }
 
 
@@ -55,7 +61,10 @@ def test_scale_page_with_root_and_type():
 def test_arpeggio_page_with_root_and_type():
     data = meta("/arpeggio/e/minor-7/")
     assert data["page_title"] == "E Minor 7 Arpeggio | Guitar Positions"
-    assert data["og_description"] == "Complete E Minor 7 arpeggio positions for guitar. Interactive fretboard visualization."
+    assert (
+        data["og_description"]
+        == "Complete E Minor 7 arpeggio positions for guitar. Interactive fretboard visualization."
+    )
 
 
 @pytest.mark.parametrize(
@@ -105,9 +114,12 @@ def test_generic_page_with_only_a_root_segment(segment, title):
 
 
 @pytest.mark.parametrize("segment,title", GENERIC)
-@pytest.mark.xfail(strict=True, reason="BUG: the generic scale/arpeggio/chord/mode branches are only reachable "
-                                       "with an extra path segment: '/scale/' is stripped to 'scale', which "
-                                       "does not start with 'scale/'")
+@pytest.mark.xfail(
+    strict=True,
+    reason="BUG: the generic scale/arpeggio/chord/mode branches are only reachable "
+    "with an extra path segment: '/scale/' is stripped to 'scale', which "
+    "does not start with 'scale/'",
+)
 def test_generic_page_without_further_segments(segment, title):
     assert meta(f"/{segment}/")["page_title"] == title
 
@@ -140,13 +152,20 @@ def test_chord_structured_data_with_none_positions():
 
 
 def test_scale_structured_data_full():
-    data = json.loads(seo_tags.scale_structured_data("A", "Minor Pentatonic", "1,b3,4,5,b7", ["p1", "p2"]))
+    data = json.loads(
+        seo_tags.scale_structured_data("A", "Minor Pentatonic", "1,b3,4,5,b7", ["p1", "p2"])
+    )
     assert data["name"] == "A Minor Pentatonic Scale"
     assert data["learningResourceType"] == "Guitar Scale"
-    assert data["additionalProperty"] == {"@type": "PropertyValue", "name": "Scale Formula", "value": "1,b3,4,5,b7"}
+    assert data["additionalProperty"] == {
+        "@type": "PropertyValue",
+        "name": "Scale Formula",
+        "value": "1,b3,4,5,b7",
+    }
     assert data["numberOfPatterns"] == 2
-    assert data["keywords"] == ("A Minor Pentatonic scale, guitar scale, Minor Pentatonic positions, "
-                                "A guitar scale")
+    assert data["keywords"] == (
+        "A Minor Pentatonic scale, guitar scale, Minor Pentatonic positions, A guitar scale"
+    )
 
 
 def test_scale_structured_data_minimal():
@@ -169,7 +188,9 @@ def test_fretboard_breadcrumbs_empty():
 
 
 def test_seo_tags_usable_from_template():
-    template = Template("{% load seo_tags %}{% chord_structured_data root kind positions False as sd %}{{ sd }}")
+    template = Template(
+        "{% load seo_tags %}{% chord_structured_data root kind positions False as sd %}{{ sd }}"
+    )
     rendered = template.render(Context({"root": "G", "kind": "Major", "positions": [1]}))
     assert "G Major Chord" in rendered.replace("&quot;", '"')
 
@@ -177,7 +198,12 @@ def test_seo_tags_usable_from_template():
 # ----------------------------------------------------------------------------- views_helpers SEO helpers
 def test_generate_seo_data_chord():
     result = generate_seo_data(
-        "chord", root="C", chord_type="Major", chord_notes=["C", "E", "G"], positions=[{"position": "Basic"}])
+        "chord",
+        root="C",
+        chord_type="Major",
+        chord_notes=["C", "E", "G"],
+        positions=[{"position": "Basic"}],
+    )
     assert result["chord_root"] == "C"
     assert result["chord_type"] == "Major"
     assert result["chord_notes_description"] == "C, E, G"
@@ -196,7 +222,11 @@ def test_generate_seo_data_chord_defaults():
 
 def test_generate_seo_data_scale():
     result = generate_seo_data("scale", root="A", scale_type="Minor", scale_formula="1 2 b3")
-    assert result["scale_root"] == "A" and result["scale_type"] == "Minor" and result["scale_formula"] == "1 2 b3"
+    assert (
+        result["scale_root"] == "A"
+        and result["scale_type"] == "Minor"
+        and result["scale_formula"] == "1 2 b3"
+    )
     structured = json.loads(result["scale_structured_data"])
     assert structured["name"] == "A Minor Scale"
     assert structured["learningResourceType"] == "Guitar Scale"
@@ -217,7 +247,12 @@ def test_generate_seo_data_unsupported_types_return_empty_dict(kind):
 def test_generate_breadcrumbs():
     data = json.loads(generate_breadcrumbs([("/", "Home"), ("/scales/", "Scales")]))
     assert [i["position"] for i in data["itemListElement"]] == [1, 2]
-    assert data["itemListElement"][1] == {"@type": "ListItem", "position": 2, "name": "Scales", "item": "/scales/"}
+    assert data["itemListElement"][1] == {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Scales",
+        "item": "/scales/",
+    }
 
 
 def test_generate_breadcrumbs_empty():

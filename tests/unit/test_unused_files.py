@@ -7,10 +7,10 @@ Usage:
     python manage.py test positionfinder.test_unused_files
 """
 
-import os
 from pathlib import Path
-from django.test import TestCase
+
 from django.conf import settings
+from django.test import TestCase
 
 
 class UnusedFilesTestCase(TestCase):
@@ -38,15 +38,15 @@ class UnusedFilesTestCase(TestCase):
         ]
 
         # Get the static JS directory path
-        static_js_dir = Path(settings.BASE_DIR) / 'static' / 'js'
-        
+        static_js_dir = Path(settings.BASE_DIR) / "static" / "js"
+
         # Check each file
         existing_files = []
         for file in high_confidence_js_files:
             file_path = static_js_dir / file
             if file_path.exists():
                 existing_files.append(file)
-        
+
         # If any files exist, fail the test with a helpful message
         if existing_files:
             files_str = "\n  - ".join(existing_files)
@@ -86,15 +86,21 @@ class UnusedFilesTestCase(TestCase):
             "chord-inversion-cycling.css",
             "cursor-images.css",
         ]
-        
+
         # Get the static directories
-        static_js_dir = Path(settings.BASE_DIR) / 'static' / 'js'
-        static_css_dir = Path(settings.BASE_DIR) / 'static' / 'css'
-        
+        static_js_dir = Path(settings.BASE_DIR) / "static" / "js"
+        static_css_dir = Path(settings.BASE_DIR) / "static" / "css"
+
         # Check which files exist
-        js_files = [f for f in medium_confidence_files if f.endswith('.js') and (static_js_dir / f).exists()]
-        css_files = [f for f in medium_confidence_files if f.endswith('.css') and (static_css_dir / f).exists()]
-        
+        js_files = [
+            f for f in medium_confidence_files if f.endswith(".js") and (static_js_dir / f).exists()
+        ]
+        css_files = [
+            f
+            for f in medium_confidence_files
+            if f.endswith(".css") and (static_css_dir / f).exists()
+        ]
+
         # Log but don't fail - this is just a reminder
         if js_files or css_files:
             if js_files:

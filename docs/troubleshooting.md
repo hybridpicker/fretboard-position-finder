@@ -163,14 +163,16 @@ This document provides solutions for common issues you might encounter when work
    ```python
    # In Django shell
    from positionfinder.models import Notes
-   scale = Notes.objects.get(note_name='Scale Name')
+
+   scale = Notes.objects.get(note_name="Scale Name")
    print(scale.first_note, scale.second_note, scale.third_note)  # etc.
    ```
 
 2. **Check position data:**
    ```python
    from positionfinder.models import NotesPosition
-   positions = NotesPosition.objects.filter(notes_name__note_name='Scale Name')
+
+   positions = NotesPosition.objects.filter(notes_name__note_name="Scale Name")
    for pos in positions:
        print(pos.position_order, pos.first_note, pos.first_note_string)
    ```
@@ -193,15 +195,17 @@ This document provides solutions for common issues you might encounter when work
    ```python
    # In Django shell
    from positionfinder.models import Notes, NotesCategory
-   scales = Notes.objects.filter(category__category_name='Scales')
+
+   scales = Notes.objects.filter(category__category_name="Scales")
    print([s.note_name for s in scales])
    ```
 
 2. **Verify menu options:**
    ```python
    from positionfinder.views_helpers import get_menu_options
+
    options = get_menu_options()
-   print(options['scales_options'])
+   print(options["scales_options"])
    ```
 
 3. **Check category assignments:**
@@ -247,7 +251,8 @@ This document provides solutions for common issues you might encounter when work
    ```python
    # In Django shell
    from positionfinder.models_chords import ChordNotes
-   ranges = ChordNotes.objects.values_list('range', flat=True).distinct()
+
+   ranges = ChordNotes.objects.values_list("range", flat=True).distinct()
    print(sorted(list(ranges)))
    ```
 
@@ -277,7 +282,7 @@ This document provides solutions for common issues you might encounter when work
 2. **Implement caching:**
    ```python
    from django.core.cache import cache
-   
+
    # Try to get from cache first
    cache_key = f"scale_{root_id}_{notes_options_id}"
    position_json_data = cache.get(cache_key)
@@ -285,7 +290,7 @@ This document provides solutions for common issues you might encounter when work
        # Generate if not in cache
        position_json_data = get_scale_position_dict(...)
        # Store in cache for future requests
-       cache.set(cache_key, position_json_data, 60*60)  # 1 hour cache
+       cache.set(cache_key, position_json_data, 60 * 60)  # 1 hour cache
    ```
 
 3. **Reduce template complexity:**
@@ -295,17 +300,18 @@ This document provides solutions for common issues you might encounter when work
 4. **Profile slow views:**
    ```python
    import cProfile
-   
+
+
    def profile_view(request):
        profiler = cProfile.Profile()
        profiler.enable()
-       
+
        # Run the view
        response = original_view(request)
-       
+
        profiler.disable()
-       profiler.print_stats(sort='cumtime')
-       
+       profiler.print_stats(sort="cumtime")
+
        return response
    ```
 
@@ -517,11 +523,13 @@ This document provides solutions for common issues you might encounter when work
 import json
 from decimal import Decimal
 
+
 class DecimalEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Decimal):
             return float(obj)
         return super(DecimalEncoder, self).default(obj)
+
 
 # Use this encoder
 json_data = json.dumps(data, cls=DecimalEncoder)
@@ -534,10 +542,10 @@ json_data = json.dumps(data, cls=DecimalEncoder)
 **Solution:**
 ```python
 # Instead of:
-chord = ChordNotes.objects.get(chord_name='Major 7')
+chord = ChordNotes.objects.get(chord_name="Major 7")
 
 # Use:
-chords = ChordNotes.objects.filter(chord_name='Major 7')
+chords = ChordNotes.objects.filter(chord_name="Major 7")
 if chords.exists():
     chord = chords.first()
     # Use chord

@@ -1,4 +1,5 @@
 """HTTP-level tests for every route in ``fretboard/urls.py`` (200 paths, 404s, invalid parameters)."""
+
 import json
 
 import pytest
@@ -253,7 +254,11 @@ def test_search_json_endpoints_empty_query(client, path):
     response = client.get(path)
     assert response.status_code == 200
     assert response.json() == {
-        "query": "", "total_results": 0, "chord_results": [], "scale_results": [], "arpeggio_results": [],
+        "query": "",
+        "total_results": 0,
+        "chord_results": [],
+        "scale_results": [],
+        "arpeggio_results": [],
     }
 
 
@@ -261,7 +266,9 @@ def test_search_json_endpoints_empty_query(client, path):
 def test_search_json_endpoints_with_chord_query(client, path):
     data = client.get(path, {"q": "Am7"}).json()
     assert data["query"] == "Am7"
-    assert data["total_results"] == len(data["chord_results"]) + len(data["scale_results"]) + len(data["arpeggio_results"])
+    assert data["total_results"] == len(data["chord_results"]) + len(data["scale_results"]) + len(
+        data["arpeggio_results"]
+    )
     first = data["chord_results"][0]
     assert first["note_name"] == "A Minor 7"
     assert first["intervals"] == [0, 3, 7, 10]
@@ -318,7 +325,10 @@ def test_non_trailing_slash_about_redirects(client):
 
 
 # ----------------------------------------------------------------------------- test route (template missing)
-@pytest.mark.xfail(strict=True, reason="BUG: /test/chords/ renders 'test_chords.html' which does not exist (TemplateDoesNotExist)")
+@pytest.mark.xfail(
+    strict=True,
+    reason="BUG: /test/chords/ renders 'test_chords.html' which does not exist (TemplateDoesNotExist)",
+)
 def test_chord_test_route_renders(client):
     client.raise_request_exception = False
     response = client.get("/test/chords/")

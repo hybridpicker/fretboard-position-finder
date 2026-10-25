@@ -1,4 +1,5 @@
 """Tests for the database-backed API views using the real studio music fixture."""
+
 import itertools
 from unittest import mock
 
@@ -68,14 +69,23 @@ class TestChordNames:
 
     def test_missing_type_uses_first_type_in_database(self, api_get):
         first = ChordNotes.objects.values_list("type_name", flat=True).distinct().first()
-        expected = sorted(set(ChordNotes.objects.filter(type_name=first).values_list("chord_name", flat=True)))
+        expected = sorted(
+            set(ChordNotes.objects.filter(type_name=first).values_list("chord_name", flat=True))
+        )
         assert self.names(api_get(reverse(self.url))) == expected
 
     def test_unknown_type_returns_all_chord_names(self, api_get):
         names = self.names(api_get(reverse(self.url), type_name="NoSuchType"))
         assert names == [
-            "Augmented", "Diminished", "Dominant 7", "Major", "Major 7",
-            "Minor", "Minor 7", "Minor 7b5", "Minor7b5",
+            "Augmented",
+            "Diminished",
+            "Dominant 7",
+            "Major",
+            "Major 7",
+            "Minor",
+            "Minor 7",
+            "Minor 7b5",
+            "Minor7b5",
         ]
 
     def test_count_failure_falls_back_to_all_names(self, api_get):
@@ -87,24 +97,41 @@ class TestChordNames:
         assert len(names) == len(set(names))
 
     def test_total_database_failure_returns_major_minor(self, api_get):
-        with mock.patch.object(ChordNotes.objects, "count", side_effect=RuntimeError("db")), \
-                mock.patch.object(ChordNotes.objects, "values_list", side_effect=RuntimeError("db")):
+        with (
+            mock.patch.object(ChordNotes.objects, "count", side_effect=RuntimeError("db")),
+            mock.patch.object(ChordNotes.objects, "values_list", side_effect=RuntimeError("db")),
+        ):
             response = api_get(reverse(self.url), type_name="Triads")
-        assert response.json() == {"chord_names": [{"chord_name": "Major"}, {"chord_name": "Minor"}]}
+        assert response.json() == {
+            "chord_names": [{"chord_name": "Major"}, {"chord_name": "Minor"}]
+        }
 
     def test_first_type_lookup_failure_defaults_to_triads(self, api_get):
         # values_list fails for the first-type lookup and for everything afterwards
-        with mock.patch.object(ChordNotes.objects, "values_list", side_effect=RuntimeError("db")), \
-                mock.patch.object(ChordNotes.objects, "filter", side_effect=RuntimeError("db")):
+        with (
+            mock.patch.object(ChordNotes.objects, "values_list", side_effect=RuntimeError("db")),
+            mock.patch.object(ChordNotes.objects, "filter", side_effect=RuntimeError("db")),
+        ):
             response = api_get(reverse(self.url))
-        assert response.json() == {"chord_names": [{"chord_name": "Major"}, {"chord_name": "Minor"}]}
+        assert response.json() == {
+            "chord_names": [{"chord_name": "Major"}, {"chord_name": "Minor"}]
+        }
 
     def test_request_failure_falls_back_to_database_names(self, api_get, break_view_query_params):
         response = api_get(reverse(self.url), type_name="Triads")
         assert response.status_code == 200
         names = self.names(response)
-        assert names and set(names) <= {"Major", "Minor", "Diminished", "Augmented", "Dominant 7",
-                                        "Major 7", "Minor 7", "Minor 7b5", "Minor7b5"}
+        assert names and set(names) <= {
+            "Major",
+            "Minor",
+            "Diminished",
+            "Augmented",
+            "Dominant 7",
+            "Major 7",
+            "Minor 7",
+            "Minor 7b5",
+            "Minor7b5",
+        }
 
 
 # --------------------------------------------------------------------------- chord-ranges
@@ -127,7 +154,9 @@ class TestChordRanges:
         assert self.ranges(response) == ["e - d", "b - A", "g - E"]
 
     def test_eight_string_query_param_keeps_all_ranges(self, api_get):
-        response = api_get(reverse(self.url), type_name="V1", chord_name="Major 7", string_mode="eight-string")
+        response = api_get(
+            reverse(self.url), type_name="V1", chord_name="Major 7", string_mode="eight-string"
+        )
         assert self.ranges(response) == ["e - d", "highA - g", "b - A", "g - E", "d - lowB"]
 
     def test_eight_string_cookie(self, api_get, client):
@@ -137,11 +166,15 @@ class TestChordRanges:
 
     def test_query_param_wins_over_cookie(self, api_get, client):
         client.cookies["stringConfig"] = "eight-string"
-        response = api_get(reverse(self.url), type_name="V1", chord_name="Major 7", string_mode="six-string")
+        response = api_get(
+            reverse(self.url), type_name="V1", chord_name="Major 7", string_mode="six-string"
+        )
         assert "highA - g" not in self.ranges(response)
 
     def test_invalid_mode_is_treated_as_six_string(self, api_get):
-        response = api_get(reverse(self.url), type_name="V1", chord_name="Major 7", string_mode="bogus")
+        response = api_get(
+            reverse(self.url), type_name="V1", chord_name="Major 7", string_mode="bogus"
+        )
         assert self.ranges(response) == ["e - d", "b - A", "g - E"]
 
     def test_missing_params_use_first_chord_of_database(self, api_get):
@@ -175,7 +208,10 @@ class TestChordRanges:
         make_chord("Zdup", "Zname", "same", ordering=1)
         make_chord("Zdup", "Zname", "same", ordering=2)
         make_chord("Zdup", "Zname", "other", ordering=3)
-        assert self.ranges(api_get(reverse(self.url), type_name="Zdup", chord_name="Zname")) == ["same", "other"]
+        assert self.ranges(api_get(reverse(self.url), type_name="Zdup", chord_name="Zname")) == [
+            "same",
+            "other",
+        ]
 
     @pytest.mark.xfail(
         strict=True,
@@ -187,7 +223,9 @@ class TestChordRanges:
         response = api_get(reverse(self.url), type_name="NoSuchType", chord_name="Major 7")
         body = response.json()["ranges"]
         assert body
-        assert all(isinstance(r["id"], int) for r in body)  # real database rows, not the hard-coded defaults
+        assert all(
+            isinstance(r["id"], int) for r in body
+        )  # real database rows, not the hard-coded defaults
 
     @pytest.mark.xfail(
         strict=True,
@@ -228,10 +266,14 @@ class TestChordRanges:
     def test_empty_database_uses_string_range_choices(self, api_get):
         # a MagicMock iterates as an empty sequence, so every list(...) call is []
         with mock.patch("api.views.ChordNotes", mock.MagicMock()):
-            response = api_get(reverse(self.url), type_name="X", chord_name="Y", string_mode="eight-string")
+            response = api_get(
+                reverse(self.url), type_name="X", chord_name="Y", string_mode="eight-string"
+            )
         from positionfinder.string_range_choices import STRING_RANGE_CHOICES
 
-        expected = [{"id": str(i + 1), "range": c[0]} for i, c in enumerate(STRING_RANGE_CHOICES)][:6]
+        expected = [{"id": str(i + 1), "range": c[0]} for i, c in enumerate(STRING_RANGE_CHOICES)][
+            :6
+        ]
         assert response.json()["ranges"] == expected
 
     def test_empty_database_six_string_filters_default_ranges(self, api_get):
@@ -242,9 +284,13 @@ class TestChordRanges:
         assert not any("highA" in r or "lowB" in r for r in ranges)
 
     def test_broken_range_choices_use_hardcoded_ranges(self, api_get):
-        with mock.patch("api.views.ChordNotes", mock.MagicMock()), \
-                mock.patch("positionfinder.string_range_choices.STRING_RANGE_CHOICES", 5):
-            response = api_get(reverse(self.url), type_name="X", chord_name="Y", string_mode="eight-string")
+        with (
+            mock.patch("api.views.ChordNotes", mock.MagicMock()),
+            mock.patch("positionfinder.string_range_choices.STRING_RANGE_CHOICES", 5),
+        ):
+            response = api_get(
+                reverse(self.url), type_name="X", chord_name="Y", string_mode="eight-string"
+            )
         assert self.ranges(response) == ["e - g", "b - d", "g - A", "d - E", "A - B", "highA - e"]
 
     def test_everything_filtered_out_leaves_single_range(self, api_get):
@@ -263,8 +309,12 @@ class TestChordRanges:
 
     def test_unexpected_failure_returns_emergency_ranges_eight_string(self, api_get):
         with mock.patch("builtins.print", side_effect=OSError("closed")):
-            response = api_get(reverse(self.url), type_name="Triads", chord_name="Major",
-                               string_mode="eight-string")
+            response = api_get(
+                reverse(self.url),
+                type_name="Triads",
+                chord_name="Major",
+                string_mode="eight-string",
+            )
         assert self.ranges(response) == ["e - g", "b - d", "g - A", "highA - e", "e - lowB"]
 
 
@@ -280,13 +330,19 @@ class TestChordPositions:
     def test_positions_for_seventh_chord_include_third_inversion(self, api_get):
         seventh = ChordNotes.objects.filter(fourth_note__isnull=False).first()
         assert inversions(api_get(reverse(self.url), chord_notes_id=str(seventh.pk))) == [
-            "Basic Position", "First Inversion", "Second Inversion", "Third Inversion",
+            "Basic Position",
+            "First Inversion",
+            "Second Inversion",
+            "Third Inversion",
         ]
 
     def test_missing_id_uses_first_chord(self, api_get):
         first = ChordNotes.objects.first()
-        expected = list(ChordPosition.objects.filter(notes_name=first).order_by("inversion_order")
-                        .values_list("inversion_order", flat=True))
+        expected = list(
+            ChordPosition.objects.filter(notes_name=first)
+            .order_by("inversion_order")
+            .values_list("inversion_order", flat=True)
+        )
         assert inversions(api_get(reverse(self.url))) == expected
 
     def test_chord_without_positions_falls_back_to_other_triads(self, api_get):
@@ -298,13 +354,19 @@ class TestChordPositions:
         chord = make_chord(fourth=10)
         response = api_get(reverse(self.url), chord_notes_id=str(chord.pk))
         assert inversions(response) == [
-            "Basic Position", "First Inversion", "Second Inversion", "Third Inversion",
+            "Basic Position",
+            "First Inversion",
+            "Second Inversion",
+            "Third Inversion",
         ]
 
     def test_unknown_id_falls_back_to_all_inversions(self, api_get):
         response = api_get(reverse(self.url), chord_notes_id="999999999")
         assert inversions(response) == [
-            "Basic Position", "First Inversion", "Second Inversion", "Third Inversion",
+            "Basic Position",
+            "First Inversion",
+            "Second Inversion",
+            "Third Inversion",
         ]
 
     def test_non_numeric_id_falls_back_to_all_inversions(self, api_get):
@@ -347,13 +409,17 @@ class TestChordPositions:
         assert response.status_code == 200
         assert len(response.json()["positions"]) == 3
 
-    def test_request_failure_and_database_failure_returns_root_position(self, api_get, break_view_query_params):
+    def test_request_failure_and_database_failure_returns_root_position(
+        self, api_get, break_view_query_params
+    ):
         with mock.patch("api.views.ChordPosition") as chord_position:
             chord_position.objects.values.side_effect = RuntimeError("db")
             response = api_get(reverse(self.url), chord_notes_id="52")
         assert response.json() == {"positions": [{"inversion_order": "Root Position"}]}
 
-    def test_request_failure_with_no_positions_returns_root_position(self, api_get, break_view_query_params):
+    def test_request_failure_with_no_positions_returns_root_position(
+        self, api_get, break_view_query_params
+    ):
         with mock.patch("api.views.ChordPosition") as chord_position:
             chord_position.objects.values.return_value.distinct.return_value.__getitem__.return_value = []
             response = api_get(reverse(self.url), chord_notes_id="52")
@@ -397,7 +463,7 @@ class TestScalePositions:
     @pytest.mark.parametrize(
         "name,category,expected",
         [
-            ("Zmajor", "Scales", list(range(8))),        # major-like -> 7 positions
+            ("Zmajor", "Scales", list(range(8))),  # major-like -> 7 positions
             ("Zmajor pentatonic", "Scales", DEFAULT_FIVE),  # excluded from the 7-position rule
             ("Zblues", "Scales", DEFAULT_FIVE),
             ("Zpentatonic", "Scales", DEFAULT_FIVE),
@@ -405,7 +471,9 @@ class TestScalePositions:
             ("Zother", "Scales", DEFAULT_FIVE),
         ],
     )
-    def test_note_without_any_positions_is_guessed_from_name(self, api_get, name, category, expected):
+    def test_note_without_any_positions_is_guessed_from_name(
+        self, api_get, name, category, expected
+    ):
         note = make_note(name, category)
         assert orders(api_get(reverse(self.url), notes_id=str(note.pk))) == expected
 
@@ -489,7 +557,9 @@ class TestEmergencyPositions:
         "so the endpoint returns every chord name once per stored row",
     )
     def test_chord_names_are_unique(self, client):
-        names = [c["chord_name"] for c in self.get(client, type_name="Triads").json()["chord_names"]]
+        names = [
+            c["chord_name"] for c in self.get(client, type_name="Triads").json()["chord_names"]
+        ]
         assert len(names) == len(set(names))
 
     def test_alias_url_behaves_identically(self, client):
@@ -512,8 +582,15 @@ class TestEmergencyPositions:
         assert [c["chord_name"] for c in response.json()["chord_names"]] == expected
 
     def test_type_without_database_rows_uses_static_names(self, client):
-        response = self.get(client, type_name="Triads x")  # not in database, no 'Triads'/'Spread' fix needed
-        assert [c["chord_name"] for c in response.json()["chord_names"]] == ["Major", "Minor", "Diminished", "Augmented"]
+        response = self.get(
+            client, type_name="Triads x"
+        )  # not in database, no 'Triads'/'Spread' fix needed
+        assert [c["chord_name"] for c in response.json()["chord_names"]] == [
+            "Major",
+            "Minor",
+            "Diminished",
+            "Augmented",
+        ]
         response = self.get(client, type_name="Nope")
         assert [c["chord_name"] for c in response.json()["chord_names"]] == ["Major", "Minor"]
 
@@ -538,7 +615,9 @@ class TestEmergencyPositions:
     )
     def test_scale_positions_by_notes_id(self, client, notes_id, expected_last):
         response = self.get(client, notes_id=notes_id)
-        assert [p["position_order"] for p in response.json()["positions"]] == list(range(expected_last + 1))
+        assert [p["position_order"] for p in response.json()["positions"]] == list(
+            range(expected_last + 1)
+        )
 
     def test_no_parameters_returns_all_notes_only(self, client):
         assert self.get(client).json() == {"positions": [{"position_order": 0}]}
@@ -548,6 +627,8 @@ class TestEmergencyPositions:
 
         from api.views import emergency_positions
 
-        response = emergency_positions(SimpleNamespace())  # no .GET -> AttributeError inside the view
+        response = emergency_positions(
+            SimpleNamespace()
+        )  # no .GET -> AttributeError inside the view
         assert response.status_code == 200
         assert response.content == b'{"positions": [{"position_order": 0}]}'

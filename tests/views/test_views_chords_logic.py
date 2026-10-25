@@ -1,4 +1,5 @@
 """Unit tests for positionfinder.views_chords helpers and the ChordView class."""
+
 import json
 
 import pytest
@@ -23,8 +24,25 @@ def pos(**strings):
     return {"assigned_strings": list(strings), **strings}
 
 
-PITCH = {"C": 0, "C#": 1, "Db": 1, "D": 2, "D#": 3, "Eb": 3, "E": 4, "F": 5, "F#": 6, "Gb": 6,
-         "G": 7, "G#": 8, "Ab": 8, "A": 9, "A#": 10, "Bb": 10, "B": 11}
+PITCH = {
+    "C": 0,
+    "C#": 1,
+    "Db": 1,
+    "D": 2,
+    "D#": 3,
+    "Eb": 3,
+    "E": 4,
+    "F": 5,
+    "F#": 6,
+    "Gb": 6,
+    "G": 7,
+    "G#": 8,
+    "Ab": 8,
+    "A": 9,
+    "A#": 10,
+    "Bb": 10,
+    "B": 11,
+}
 
 
 def pitches(names):
@@ -63,8 +81,15 @@ def test_extract_uses_top_level_root_only_when_no_positions():
 
 def test_extract_collects_notes_from_inversion_lists_sorted_from_root():
     data = chord_json(
-        "Major", ["A", 9],
-        [pos(eString=["c#3", "3", True, False], bString=["e2", "5", True, False], gString=["a2", "R", True, True])],
+        "Major",
+        ["A", 9],
+        [
+            pos(
+                eString=["c#3", "3", True, False],
+                bString=["e2", "5", True, False],
+                gString=["a2", "R", True, True],
+            )
+        ],
     )
     result = extract_and_convert_notes(data)
     assert result[0] == "A" and result[-1] == "E"
@@ -73,15 +98,23 @@ def test_extract_collects_notes_from_inversion_lists_sorted_from_root():
 
 def test_extract_without_top_level_root_uses_root_flag_from_note():
     data = chord_json(
-        "Major", None,
-        [pos(eString=["g2", "5", True, False], bString=["e2", "3", True, False], gString=["c2", "R", True, True])],
+        "Major",
+        None,
+        [
+            pos(
+                eString=["g2", "5", True, False],
+                bString=["e2", "3", True, False],
+                gString=["c2", "R", True, True],
+            )
+        ],
     )
     assert extract_and_convert_notes(data) == ["C", "E", "G"]
 
 
 def test_extract_without_any_root_sorts_by_global_note_order():
     data = chord_json(
-        "Major", None,
+        "Major",
+        None,
         [pos(eString=["g2", "5", True, False], bString=["e2", "3", True, False])],
     )
     assert extract_and_convert_notes(data) == ["E", "G"]
@@ -89,23 +122,30 @@ def test_extract_without_any_root_sorts_by_global_note_order():
 
 def test_extract_skips_invalid_entries():
     data = chord_json(
-        "Major", ["C", 0],
-        [{
-            "assigned_strings": ["eString"],
-            "eString": ["e2", "3"],
-            "bString": None,
-            "gString": "not-a-list",
-            "dString": [None, "x"],
-            "AString": ["lowBString", "x"],
-            "ELowString": ["x9", "?"],
-            "highAString": [],
-        }],
+        "Major",
+        ["C", 0],
+        [
+            {
+                "assigned_strings": ["eString"],
+                "eString": ["e2", "3"],
+                "bString": None,
+                "gString": "not-a-list",
+                "dString": [None, "x"],
+                "AString": ["lowBString", "x"],
+                "ELowString": ["x9", "?"],
+                "highAString": [],
+            }
+        ],
     )
     assert extract_and_convert_notes(data) == ["C", "E"]
 
 
 def test_extract_handles_nested_lists_and_non_container_items():
-    data = {"chord": "Major", "root": ["C", 0], "extra": [{"e - g": {"Basic Position": [pos(eString=["g2", "5"])]}}, "text"]}
+    data = {
+        "chord": "Major",
+        "root": ["C", 0],
+        "extra": [{"e - g": {"Basic Position": [pos(eString=["g2", "5"])]}}, "text"],
+    }
     assert extract_and_convert_notes(data) == ["C", "G"]
 
 
@@ -162,17 +202,30 @@ def test_extract_minor_7b5_uses_fixed_spelling(root, expected):
     assert extract_and_convert_notes(data) == expected
 
 
-@pytest.mark.parametrize("root,expected", [("A#", ["Bb", "Db", "E", "Ab"]), ("C#", ["Db", "E", "G", "B"]),
-                                           ("F#", ["Gb", "A", "C", "E"])])
-@pytest.mark.xfail(strict=True, reason="BUG: the 'standardise sharp roots to flats' step uses SHARP_ENHARMONICS "
-                                       "backwards, so sharp roots keep their sharp spelling")
+@pytest.mark.parametrize(
+    "root,expected",
+    [("A#", ["Bb", "Db", "E", "Ab"]), ("C#", ["Db", "E", "G", "B"]), ("F#", ["Gb", "A", "C", "E"])],
+)
+@pytest.mark.xfail(
+    strict=True,
+    reason="BUG: the 'standardise sharp roots to flats' step uses SHARP_ENHARMONICS "
+    "backwards, so sharp roots keep their sharp spelling",
+)
 def test_extract_minor_7b5_sharp_roots_are_flat_spelled(root, expected):
     data = chord_json("Minor 7b5", [root, 0], [pos(eString=["c3", "R"])])
     assert extract_and_convert_notes(data) == expected
 
 
-@pytest.mark.parametrize("root,expected", [("A#", [10, 1, 4, 8]), ("C#", [1, 4, 7, 11]), ("F#", [6, 9, 0, 4]),
-                                           ("D#", [3, 6, 9, 1]), ("G#", [8, 11, 2, 6])])
+@pytest.mark.parametrize(
+    "root,expected",
+    [
+        ("A#", [10, 1, 4, 8]),
+        ("C#", [1, 4, 7, 11]),
+        ("F#", [6, 9, 0, 4]),
+        ("D#", [3, 6, 9, 1]),
+        ("G#", [8, 11, 2, 6]),
+    ],
+)
 def test_extract_minor_7b5_sharp_roots_have_correct_pitches(root, expected):
     data = chord_json("Minor 7b5", [root, 0], [pos(eString=["c3", "R"])])
     assert pitches(extract_and_convert_notes(data)) == expected
@@ -218,16 +271,28 @@ def test_generate_chord_function(name, expected):
 def test_process_request_defaults():
     params = ChordView().process_request(RF.get("/chords"))
     assert params == {
-        "root_id": 1, "category_id": 3, "type_id": "Triads", "chord_select_name": "Major",
-        "selected_range": "e - g", "position_select": "Root Position", "is_six_string": True, "range": "e - g",
+        "root_id": 1,
+        "category_id": 3,
+        "type_id": "Triads",
+        "chord_select_name": "Major",
+        "selected_range": "e - g",
+        "position_select": "Root Position",
+        "is_six_string": True,
+        "range": "e - g",
     }
 
 
 def test_process_request_reads_query_and_eight_string_cookie():
     request = RF.get(
         "/chords",
-        {"root": "5", "models_select": "3", "type_options_select": "V2", "chords_options_select": "Minor 7",
-         "note_range": "b - A", "position_select": "Basic Position"},
+        {
+            "root": "5",
+            "models_select": "3",
+            "type_options_select": "V2",
+            "chords_options_select": "Minor 7",
+            "note_range": "b - A",
+            "position_select": "Basic Position",
+        },
     )
     request.COOKIES["stringConfig"] = "eight-string"
     params = ChordView().process_request(request)
@@ -264,7 +329,11 @@ class TestChordViewQueries:
     def test_all_root_options_and_categories(self):
         view = ChordView()
         assert view.get_all_root_options().count() == 17
-        assert sorted(c.category_name for c in view.get_category_objects()) == ["Arpeggios", "Chords", "Scales"]
+        assert sorted(c.category_name for c in view.get_category_objects()) == [
+            "Arpeggios",
+            "Chords",
+            "Scales",
+        ]
 
     def test_chord_options_for_type(self):
         options = list(ChordView().get_chord_options("Triads"))
@@ -311,13 +380,19 @@ class TestChordViewQueries:
         assert ranges[-1] == "zz - yy"
 
     def test_inversion_data_empty_positions(self):
-        assert ChordView().get_inversion_data_for_range([], "Major", "e - g", "Triads", 0, 0, "C") == {}
+        assert (
+            ChordView().get_inversion_data_for_range([], "Major", "e - g", "Triads", 0, 0, "C")
+            == {}
+        )
 
     def test_inversion_data_builds_dict_per_inversion(self):
-        chord = ChordNotes.objects.filter(type_name="Triads", chord_name="Major", range="e - g").first()
+        chord = ChordNotes.objects.filter(
+            type_name="Triads", chord_name="Major", range="e - g"
+        ).first()
         positions = list(ChordPosition.objects.filter(notes_name_id=chord.id))
         data = ChordView().get_inversion_data_for_range(
-            positions, "Major", "e - g", "Triads", 0, chord.tonal_root, "C")
+            positions, "Major", "e - g", "Triads", 0, chord.tonal_root, "C"
+        )
         assert set(data) == {p.inversion_order for p in positions}
         for value in data.values():
             assert "assigned_strings" in value
@@ -329,7 +404,9 @@ class TestChordViewQueries:
         monkeypatch.setattr(views_chords, "get_position_dict", boom)
         chord = ChordNotes.objects.filter(type_name="Triads", chord_name="Major").first()
         positions = list(ChordPosition.objects.filter(notes_name_id=chord.id))
-        data = ChordView().get_inversion_data_for_range(positions, "Major", "e - g", "Triads", 0, 0, "C")
+        data = ChordView().get_inversion_data_for_range(
+            positions, "Major", "e - g", "Triads", 0, 0, "C"
+        )
         assert data == {p.inversion_order: {} for p in positions}
 
     # --- get_context / render
@@ -339,8 +416,11 @@ class TestChordViewQueries:
         return request
 
     def test_get_context_core_values(self):
-        ctx = ChordView().get_context(self.request_with_session({"root": "14", "type_options_select": "V1",
-                                                                  "chords_options_select": "Minor 7"}))
+        ctx = ChordView().get_context(
+            self.request_with_session(
+                {"root": "14", "type_options_select": "V1", "chords_options_select": "Minor 7"}
+            )
+        )
         assert ctx["root_name"] == "A" and ctx["root_id"] == 14
         assert ctx["selected_chord"] == "Minor 7"
         assert ctx["chord_function"] == "R - b3 - 5 - b7"
@@ -391,8 +471,11 @@ class TestChordViewQueries:
         assert ctx["selected_notes"] == []
 
     def test_get_context_six_string_filters_range_options(self):
-        ctx = ChordView().get_context(self.request_with_session({"type_options_select": "V1",
-                                                                  "chords_options_select": "Major 7"}))
+        ctx = ChordView().get_context(
+            self.request_with_session(
+                {"type_options_select": "V1", "chords_options_select": "Major 7"}
+            )
+        )
         assert ctx["is_eight_string"] is False
         assert all("lowB" not in r.range and "highA" not in r.range for r in ctx["range_options"])
 
@@ -418,7 +501,7 @@ class TestChordViewQueries:
     @pytest.mark.xfail(
         strict=True,
         reason="BUG: extract_and_convert_notes only reads inversion values that are lists, but "
-               "ChordView stores them as dicts, so selected_notes only ever contains the root note",
+        "ChordView stores them as dicts, so selected_notes only ever contains the root note",
     )
     def test_selected_notes_contain_all_chord_tones(self):
         ctx = ChordView().get_context(self.request_with_session({}))

@@ -1,7 +1,8 @@
 from django.contrib import admin
-from .models import Notes, Root, NotesCategory
-from .positions import NotesPosition
+
+from .models import Notes, NotesCategory, Root
 from .models_chords import ChordNotes, ChordPosition
+from .positions import NotesPosition
 
 admin.site.register(Root)
 admin.site.register(Notes)

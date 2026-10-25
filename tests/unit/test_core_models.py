@@ -1,14 +1,14 @@
 """Model behaviour, chord generation, ordering helper, admin and app config (synthetic rows)."""
+
 import logging
 from unittest import mock
 
 import pytest
-from django.contrib import admin
-from django.db.models.signals import post_delete, post_save
 from django.apps import apps as django_apps
+from django.contrib import admin
 from django.core.cache import cache
+from django.db.models.signals import post_save
 
-from positionfinder import models_chords
 from positionfinder.models import Notes, NotesCategory, Root
 from positionfinder.models_chords import (
     ChordNotes,
@@ -21,7 +21,7 @@ from positionfinder.models_chords import (
 )
 from positionfinder.ordering import re_ordering
 from positionfinder.positions import NotesPosition
-from positionfinder.views_studio import CATALOG_CACHE_KEY, clear_catalog_cache
+from positionfinder.views_studio import CATALOG_CACHE_KEY
 
 pytestmark = pytest.mark.django_db
 
@@ -31,12 +31,14 @@ def category():
     return NotesCategory.objects.create(category_name="Chords")
 
 
-def make_chord(category, notes=(0, 4, 7, 11), type_name="T", chord_name="Major 7", rng="b - d", **extra):
+def make_chord(
+    category, notes=(0, 4, 7, 11), type_name="T", chord_name="Major 7", rng="b - d", **extra
+):
     kw = dict(category=category, type_name=type_name, chord_name=chord_name, range=rng)
     names = ["first", "second", "third", "fourth", "fifth", "sixth"]
-    for n, v in zip(names, notes):
+    for n, v in zip(names, notes, strict=False):
         kw[f"{n}_note"] = v
-    for n in names[len(notes):]:
+    for n in names[len(notes) :]:
         kw[f"{n}_note"] = None
     kw.update(extra)
     return ChordNotes.objects.create(**kw)
@@ -47,10 +49,13 @@ def positions_of(chord):
 
 
 def notes_of(obj):
-    return [getattr(obj, f"{n}_note") for n in ("first", "second", "third", "fourth", "fifth", "sixth")]
+    return [
+        getattr(obj, f"{n}_note") for n in ("first", "second", "third", "fourth", "fifth", "sixth")
+    ]
 
 
 # --------------------------------------------------------------------------- simple models
+
 
 class TestSimpleModels:
     def test_str_methods(self, category):
@@ -91,6 +96,7 @@ class TestSimpleModels:
 
 # --------------------------------------------------------------------------- ChordNotes.save
 
+
 class TestChordNotesSave:
     @pytest.mark.parametrize("bad", [12, -1, 99])
     def test_out_of_range_note_raises_and_does_not_save(self, category, bad):
@@ -106,7 +112,11 @@ class TestChordNotesSave:
     def test_seventh_chord_gets_four_positions_on_create(self, category):
         chord = make_chord(category)
         assert set(positions_of(chord)) == {
-            "Basic Position", "First Inversion", "Second Inversion", "Third Inversion"}
+            "Basic Position",
+            "First Inversion",
+            "Second Inversion",
+            "Third Inversion",
+        }
 
     def test_triad_gets_three_positions_on_create(self, category):
         chord = make_chord(category, notes=(0, 4, 7), chord_name="Major")
@@ -117,10 +127,16 @@ class TestChordNotesSave:
         assert positions_of(chord) == {}
 
     def test_v1_e_d_assigns_default_strings(self, category):
-        chord = make_chord(category, type_name="V1", rng="e - d", chord_name="Minor 7", notes=(0, 3, 7, 10))
+        chord = make_chord(
+            category, type_name="V1", rng="e - d", chord_name="Minor 7", notes=(0, 3, 7, 10)
+        )
         chord.refresh_from_db()
-        assert [chord.first_note_string, chord.second_note_string, chord.third_note_string,
-                chord.fourth_note_string] == ["dString", "gString", "bString", "eString"]
+        assert [
+            chord.first_note_string,
+            chord.second_note_string,
+            chord.third_note_string,
+            chord.fourth_note_string,
+        ] == ["dString", "gString", "bString", "eString"]
 
     def test_non_e_d_range_keeps_given_strings(self, category):
         chord = make_chord(category, type_name="V1", rng="b - d", first_note_string="gString")
@@ -135,10 +151,17 @@ class TestChordNotesSave:
         chord.save()
         new = positions_of(chord)
         assert {p.id for p in new.values()}.isdisjoint(old_ids)
-        assert set(new) == {"Basic Position", "First Inversion", "Second Inversion", "Third Inversion"}
+        assert set(new) == {
+            "Basic Position",
+            "First Inversion",
+            "Second Inversion",
+            "Third Inversion",
+        }
         # intervals w,x,y,z are now 3,4,4,1
-        assert [new["First Inversion"].__dict__[f] for f in
-                ("first_note", "second_note", "third_note", "fourth_note")] == [3, 4, 4, 1]
+        assert [
+            new["First Inversion"].__dict__[f]
+            for f in ("first_note", "second_note", "third_note", "fourth_note")
+        ] == [3, 4, 4, 1]
 
     def test_changing_other_fields_keeps_positions(self, category):
         chord = make_chord(category)
@@ -162,7 +185,9 @@ class TestChordNotesSave:
 class TestV1MajorSevenVariants:
     def test_creating_v1_major7_e_d_generates_dom7_min7_min7b5(self, category):
         make_chord(category, type_name="V1", rng="e - d")
-        variants = {c.chord_name: notes_of(c)[:4] for c in ChordNotes.objects.filter(type_name="V1")}
+        variants = {
+            c.chord_name: notes_of(c)[:4] for c in ChordNotes.objects.filter(type_name="V1")
+        }
         assert variants == {
             "Major 7": [0, 4, 7, 11],
             "Dominant 7": [0, 4, 7, 10],
@@ -172,7 +197,11 @@ class TestV1MajorSevenVariants:
         # every variant also got its inversions
         for chord in ChordNotes.objects.filter(type_name="V1"):
             assert len(positions_of(chord)) == 4
-        assert {c.chord_ordering for c in ChordNotes.objects.exclude(chord_name="Major 7")} == {2, 3, 4}
+        assert {c.chord_ordering for c in ChordNotes.objects.exclude(chord_name="Major 7")} == {
+            2,
+            3,
+            4,
+        }
 
     def test_variants_keep_string_assignment(self, category):
         make_chord(category, type_name="V1", rng="e - d")
@@ -189,7 +218,11 @@ class TestV1MajorSevenVariants:
         assert ChordNotes.objects.count() == 1
 
     def test_existing_variants_are_updated_not_duplicated(self, category):
-        for name, notes in (("Dominant 7", (0, 4, 7, 0)), ("Minor 7", (0, 0, 7, 0)), ("Minor 7b5", (0, 0, 0, 0))):
+        for name, notes in (
+            ("Dominant 7", (0, 4, 7, 0)),
+            ("Minor 7", (0, 0, 7, 0)),
+            ("Minor 7b5", (0, 0, 0, 0)),
+        ):
             make_chord(category, type_name="V1", rng="e - d", chord_name=name, notes=notes)
         before = ChordNotes.objects.count()
         make_chord(category, type_name="V1", rng="e - d")
@@ -201,6 +234,7 @@ class TestV1MajorSevenVariants:
 
 
 # --------------------------------------------------------------------------- create_base_position and friends
+
 
 class TestBasePositions:
     def test_returns_none_when_positions_exist(self, category):
@@ -244,19 +278,26 @@ class TestBasePositions:
     def test_notes_descending_across_octave_are_wrapped(self, category):
         chord = make_chord(category, notes=(7, 11, 2, 6))  # G B D F#
         first = positions_of(chord)["First Inversion"]
-        assert [first.first_note, first.second_note, first.third_note, first.fourth_note] == [4, 3, 4, 1]
+        assert [first.first_note, first.second_note, first.third_note, first.fourth_note] == [
+            4,
+            3,
+            4,
+            1,
+        ]
 
-    @pytest.mark.parametrize("notes", [(0, 4, 7, 11), (2, 5, 9, 0), (7, 11, 2, 6), (0, 3, 6, 9), (11, 3, 6, 10)])
+    @pytest.mark.parametrize(
+        "notes", [(0, 4, 7, 11), (2, 5, 9, 0), (7, 11, 2, 6), (0, 3, 6, 9), (11, 3, 6, 10)]
+    )
     def test_cumulative_offsets_return_to_same_pitch_classes(self, category, notes):
         """Every inversion offset-vector applied to the chord yields a rotation of the same pitch set."""
         chord = make_chord(category, notes=notes)
         original = sorted(n % 12 for n in notes)
-        for inversion, pos in positions_of(chord).items():
-            shifted = [(n + o) % 12 for n, o in zip(notes, notes_of(pos)[:4])]
+        for _inversion, pos in positions_of(chord).items():
+            shifted = [(n + o) % 12 for n, o in zip(notes, notes_of(pos)[:4], strict=False)]
             assert len(shifted) == 4
         # the first-inversion shift only moves each note up to the next chord tone
         first = positions_of(chord)["First Inversion"]
-        up = [(n + o) % 12 for n, o in zip(notes, notes_of(first)[:4])]
+        up = [(n + o) % 12 for n, o in zip(notes, notes_of(first)[:4], strict=False)]
         assert sorted(up) == original
 
     def test_create_triad_and_fourthnote_positions_are_idempotent(self, category):
@@ -274,9 +315,10 @@ class TestBasePositions:
 
 # --------------------------------------------------------------------------- create_chord
 
+
 def _stored_notes(category, name, rng="e - d"):
     chord = ChordNotes.objects.get(category=category, type_name="T", chord_name=name, range=rng)
-    return notes_of(chord)[:4 if chord.fourth_note is not None else 3]
+    return notes_of(chord)[: 4 if chord.fourth_note is not None else 3]
 
 
 class TestCreateChord:
@@ -284,8 +326,17 @@ class TestCreateChord:
         major7 = make_chord(category, rng="e - d")
         create_chord(major7.id)
         names = set(ChordNotes.objects.filter(type_name="T").values_list("chord_name", flat=True))
-        assert names == {"Major 7", "Major 7(#5)", "Major 7(b5)", "Minor 7", "MinMaj 7", "Minor 7b5",
-                         "Dominant 7", "Dominant 7(#5)", "Dominant 7(b5)"}
+        assert names == {
+            "Major 7",
+            "Major 7(#5)",
+            "Major 7(b5)",
+            "Minor 7",
+            "MinMaj 7",
+            "Minor 7b5",
+            "Dominant 7",
+            "Dominant 7(#5)",
+            "Dominant 7(b5)",
+        }
         assert _stored_notes(category, "Minor 7") == [0, 3, 7, 10]
         assert _stored_notes(category, "MinMaj 7") == [0, 3, 7, 11]
         assert _stored_notes(category, "Minor 7b5") == [0, 3, 6, 10]
@@ -296,8 +347,14 @@ class TestCreateChord:
     def test_chord_ordering_and_positions_of_generated_chords(self, category):
         major7 = make_chord(category, rng="e - d")
         create_chord(major7.id)
-        ordering = dict(ChordNotes.objects.filter(type_name="T").values_list("chord_name", "chord_ordering"))
-        assert ordering["Minor 7"] == 2 and ordering["Dominant 7"] == 3 and ordering["Dominant 7(b5)"] == 9
+        ordering = dict(
+            ChordNotes.objects.filter(type_name="T").values_list("chord_name", "chord_ordering")
+        )
+        assert (
+            ordering["Minor 7"] == 2
+            and ordering["Dominant 7"] == 3
+            and ordering["Dominant 7(b5)"] == 9
+        )
         for chord in ChordNotes.objects.filter(type_name="T"):
             assert len(positions_of(chord)) == 4
 
@@ -308,12 +365,18 @@ class TestCreateChord:
         create_chord(major7.id)
         assert ChordNotes.objects.count() == count
 
-    @pytest.mark.xfail(strict=True, reason="BUG: create_chord builds 'Major 7(#5)' with a flattened third ([0,3,8,11] instead of [0,4,8,11])")
+    @pytest.mark.xfail(
+        strict=True,
+        reason="BUG: create_chord builds 'Major 7(#5)' with a flattened third ([0,3,8,11] instead of [0,4,8,11])",
+    )
     def test_major_7_sharp5_has_major_third_and_augmented_fifth(self, category):
         create_chord(make_chord(category, rng="e - d").id)
         assert _stored_notes(category, "Major 7(#5)") == [0, 4, 8, 11]
 
-    @pytest.mark.xfail(strict=True, reason="BUG: create_chord builds 'Major 7(b5)' as [0,3,6,10] (a Minor 7b5) instead of [0,4,6,11]")
+    @pytest.mark.xfail(
+        strict=True,
+        reason="BUG: create_chord builds 'Major 7(b5)' as [0,3,6,10] (a Minor 7b5) instead of [0,4,6,11]",
+    )
     def test_major_7_flat5_is_a_major_seventh_with_flat_fifth(self, category):
         create_chord(make_chord(category, rng="e - d").id)
         assert _stored_notes(category, "Major 7(b5)") == [0, 4, 6, 11]
@@ -322,13 +385,20 @@ class TestCreateChord:
         major = make_chord(category, notes=(0, 4, 7), chord_name="Major", rng="e - d")
         create_chord(major.id)
         assert set(ChordNotes.objects.values_list("chord_name", flat=True)) == {
-            "Major", "Minor", "Diminished", "Augmented"}
+            "Major",
+            "Minor",
+            "Diminished",
+            "Augmented",
+        }
         assert _stored_notes(category, "Minor") == [0, 3, 7]
         assert _stored_notes(category, "Diminished") == [0, 3, 6]
         for chord in ChordNotes.objects.all():
             assert len(positions_of(chord)) == 3
 
-    @pytest.mark.xfail(strict=True, reason="BUG: create_chord raises the third of the augmented triad too ([0,5,8] instead of [0,4,8])")
+    @pytest.mark.xfail(
+        strict=True,
+        reason="BUG: create_chord raises the third of the augmented triad too ([0,5,8] instead of [0,4,8])",
+    )
     def test_augmented_triad_keeps_the_major_third(self, category):
         create_chord(make_chord(category, notes=(0, 4, 7), chord_name="Major", rng="e - d").id)
         assert _stored_notes(category, "Augmented") == [0, 4, 8]
@@ -341,6 +411,7 @@ class TestCreateChord:
 
 # --------------------------------------------------------------------------- create_eight_string_ranges
 
+
 class TestEightStringRanges:
     def test_triad_creates_three_extended_ranges(self, category):
         chord = make_chord(category, notes=(0, 4, 7), chord_name="Major", rng="e - g")
@@ -349,14 +420,19 @@ class TestEightStringRanges:
         assert ranges == {"highA - e", "highA - lowB", "e - lowB"}
         e_lowb = ChordNotes.objects.get(range="e - lowB")
         assert (e_lowb.first_note_string, e_lowb.second_note_string, e_lowb.third_note_string) == (
-            "lowBString", "AString", "eString")
+            "lowBString",
+            "AString",
+            "eString",
+        )
         assert len(positions_of(e_lowb)) == 3
 
     def test_seventh_chord_adds_extended_range_variant(self, category):
         chord = make_chord(category, rng="e - g")
         create_eight_string_ranges(chord.id)
         ranges = list(ChordNotes.objects.exclude(pk=chord.pk).values_list("range", flat=True))
-        assert sorted(ranges) == sorted(["highA - e", "highA - lowB", "e - lowB"])  # get_or_create reuses e - lowB
+        assert sorted(ranges) == sorted(
+            ["highA - e", "highA - lowB", "e - lowB"]
+        )  # get_or_create reuses e - lowB
 
     def test_is_idempotent(self, category):
         chord = make_chord(category, notes=(0, 4, 7), chord_name="Major", rng="e - g")
@@ -374,6 +450,7 @@ class TestEightStringRanges:
 
 
 # --------------------------------------------------------------------------- ordering helper
+
 
 class TestReOrdering:
     def test_sets_ordering_only_for_the_given_type(self, category):
@@ -398,12 +475,14 @@ class TestReOrdering:
 
 # --------------------------------------------------------------------------- admin
 
+
 def test_all_models_are_registered_in_admin():
     for model in (Root, Notes, NotesCategory, NotesPosition, ChordNotes, ChordPosition):
         assert model in admin.site._registry
 
 
 # --------------------------------------------------------------------------- app config
+
 
 class TestAppConfig:
     def test_app_config_is_positionfinder(self):
@@ -446,7 +525,9 @@ class TestAppConfig:
             with caplog.at_level(logging.ERROR, logger="positionfinder.apps"):
                 config.ready()
         messages = [r.getMessage() for r in caplog.records]
-        assert any("Error initializing chord search integration: no integration" in m for m in messages)
+        assert any(
+            "Error initializing chord search integration: no integration" in m for m in messages
+        )
         assert any("RuntimeError" in m for m in messages)
 
 
@@ -454,14 +535,32 @@ class TestEdgeCases:
     def test_v1_with_descending_notes_wraps_all_intervals(self, category):
         chord = make_chord(category, type_name="V1", rng="b - d", notes=(7, 11, 2, 6))
         first = positions_of(chord)["First Inversion"]
-        assert [first.first_note, first.second_note, first.third_note, first.fourth_note] == [4, 3, 4, 1]
+        assert [first.first_note, first.second_note, first.third_note, first.fourth_note] == [
+            4,
+            3,
+            4,
+            1,
+        ]
         wrapped = make_chord(category, type_name="V1", rng="g - A", notes=(11, 2, 6, 9))
         first = positions_of(wrapped)["First Inversion"]
-        assert [first.first_note, first.second_note, first.third_note, first.fourth_note] == [3, 4, 3, 2]
+        assert [first.first_note, first.second_note, first.third_note, first.fourth_note] == [
+            3,
+            4,
+            3,
+            2,
+        ]
 
     def test_saving_with_explicit_missing_pk_is_treated_as_new(self, category):
-        chord = ChordNotes(pk=987654, category=category, type_name="T", chord_name="Major", range="b - d",
-                           first_note=0, second_note=4, third_note=7)
+        chord = ChordNotes(
+            pk=987654,
+            category=category,
+            type_name="T",
+            chord_name="Major",
+            range="b - d",
+            first_note=0,
+            second_note=4,
+            third_note=7,
+        )
         chord.save()
         assert ChordNotes.objects.filter(pk=987654).exists()
         assert len(positions_of(chord)) == 3

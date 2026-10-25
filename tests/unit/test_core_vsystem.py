@@ -1,4 +1,5 @@
 """VoicingSystem (Ted Greene V-System generator) behaviour."""
+
 from unittest import mock
 
 import pytest
@@ -18,12 +19,24 @@ def vs():
 
 
 def notes_of(chord):
-    return [n for n in (chord.first_note, chord.second_note, chord.third_note, chord.fourth_note) if n is not None]
+    return [
+        n
+        for n in (chord.first_note, chord.second_note, chord.third_note, chord.fourth_note)
+        if n is not None
+    ]
 
 
 def strings_of(chord):
-    return [s for s in (chord.first_note_string, chord.second_note_string, chord.third_note_string,
-                        chord.fourth_note_string) if s]
+    return [
+        s
+        for s in (
+            chord.first_note_string,
+            chord.second_note_string,
+            chord.third_note_string,
+            chord.fourth_note_string,
+        )
+        if s
+    ]
 
 
 class TestTables:
@@ -46,7 +59,12 @@ class TestTables:
 class TestV1:
     def test_cmaj7_close_position(self, vs):
         chord = vs.generate_v1_voicing(0, "Major 7", "e-b")
-        assert (chord.type_name, chord.chord_name, chord.range, chord.tonal_root) == ("V1", "Major 7", "e-b", 0)
+        assert (chord.type_name, chord.chord_name, chord.range, chord.tonal_root) == (
+            "V1",
+            "Major 7",
+            "e-b",
+            0,
+        )
         assert notes_of(chord) == [0, 4, 7, 11]
         assert strings_of(chord) == ["bString", "gString", "dString", "eString"]
         assert ChordPosition.objects.filter(notes_name=chord).count() == 4
@@ -57,7 +75,10 @@ class TestV1:
         assert strings_of(chord) == ["ELowString", "AString", "dString"]
         assert chord.fourth_note is None
 
-    @pytest.mark.xfail(strict=True, reason="BUG: a V1 triad from VoicingSystem gets no ChordPosition rows because create_base_position requires 4 notes for type V1 (V2 triads do get 3)")
+    @pytest.mark.xfail(
+        strict=True,
+        reason="BUG: a V1 triad from VoicingSystem gets no ChordPosition rows because create_base_position requires 4 notes for type V1 (V2 triads do get 3)",
+    )
     def test_triad_gets_inversion_positions(self, vs):
         chord = vs.generate_v1_voicing(0, "Major", "d-E")
         assert ChordPosition.objects.filter(notes_name=chord).count() == 3
@@ -69,7 +90,9 @@ class TestV1:
     @pytest.mark.parametrize("root", range(12))
     def test_every_root_has_the_same_pitch_class_set_as_chord_type(self, vs, root):
         chord = vs.generate_v1_voicing(root, "Dominant 7", "g-A")
-        assert sorted(notes_of(chord)) == sorted((root + i) % 12 for i in vs.chord_types["Dominant 7"])
+        assert sorted(notes_of(chord)) == sorted(
+            (root + i) % 12 for i in vs.chord_types["Dominant 7"]
+        )
 
     def test_v1_notes_are_ascending(self, vs):
         for root in range(12):
@@ -90,7 +113,9 @@ class TestV1:
         assert ChordNotes.objects.count() == 0
 
     def test_position_creation_failure_still_returns_chord(self, vs):
-        with mock.patch.object(v_system_generator, "create_base_position", side_effect=RuntimeError("x")):
+        with mock.patch.object(
+            v_system_generator, "create_base_position", side_effect=RuntimeError("x")
+        ):
             chord = vs.generate_v1_voicing(0, "Major 7", "e-b")
         assert chord.pk is not None
 
@@ -127,11 +152,15 @@ class TestV2:
         chord = vs.generate_v2_voicing(0, "Major", "e-b")
         assert notes_of(chord) == [4, 0, 7]
 
-    @pytest.mark.parametrize("chord_type", ["Major 7", "Minor 7", "Minor 7b5", "Major", "Diminished"])
+    @pytest.mark.parametrize(
+        "chord_type", ["Major 7", "Minor 7", "Minor 7b5", "Major", "Diminished"]
+    )
     def test_drop2_keeps_the_pitch_class_set(self, vs, chord_type):
         for root in (0, 5, 9):
             chord = vs.generate_v2_voicing(root, chord_type, "d-E")
-            assert sorted(notes_of(chord)) == sorted((root + i) % 12 for i in vs.chord_types[chord_type])
+            assert sorted(notes_of(chord)) == sorted(
+                (root + i) % 12 for i in vs.chord_types[chord_type]
+            )
 
     def test_errors_and_skips(self, vs):
         with pytest.raises(ValueError):
@@ -141,7 +170,9 @@ class TestV2:
         assert vs.generate_v2_voicing(0, "Major 7", "highA-E") is None
 
     def test_position_creation_failure_still_returns_chord(self, vs):
-        with mock.patch.object(v_system_generator, "create_base_position", side_effect=RuntimeError("x")):
+        with mock.patch.object(
+            v_system_generator, "create_base_position", side_effect=RuntimeError("x")
+        ):
             assert vs.generate_v2_voicing(0, "Major 7", "e-b").pk is not None
 
     def test_database_failure_is_reraised(self, vs):

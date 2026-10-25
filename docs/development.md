@@ -30,18 +30,18 @@ Create a `local_settings.py` file:
 
 ```python
 # local_settings.py
-SECRET_KEY = 'your-development-secret-key'
+SECRET_KEY = "your-development-secret-key"
 
 DEBUG = True
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fretboard-devel',  # For 6-string development
-        'USER': 'your-db-user',
-        'PASSWORD': 'your-db-password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "fretboard-devel",  # For 6-string development
+        "USER": "your-db-user",
+        "PASSWORD": "your-db-password",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 ```
@@ -128,11 +128,18 @@ EIGHT_STRING_ENABLED = True
 
 # views.py
 if settings.EIGHT_STRING_ENABLED:
-    string_names = ['lowBString', 'ELowString', 'AString', 'dString', 
-                    'gString', 'bString', 'eString', 'highAString']
+    string_names = [
+        "lowBString",
+        "ELowString",
+        "AString",
+        "dString",
+        "gString",
+        "bString",
+        "eString",
+        "highAString",
+    ]
 else:
-    string_names = ['ELowString', 'AString', 'dString', 
-                    'gString', 'bString', 'eString']
+    string_names = ["ELowString", "AString", "dString", "gString", "bString", "eString"]
 ```
 
 ### Approach 3: Dynamic Configuration
@@ -148,7 +155,7 @@ for chord in ChordNotes.objects.all():
     # ... check other string fields
 
 # Determine if 8-string is available
-has_8string = 'lowBString' in available_strings or 'highAString' in available_strings
+has_8string = "lowBString" in available_strings or "highAString" in available_strings
 ```
 
 ## Testing Strategy
@@ -169,9 +176,9 @@ Create test-specific settings:
 from .settings import *
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
     }
 }
 ```
@@ -189,28 +196,27 @@ from django.test import TestCase
 from positionfinder.models import Notes, NotesCategory, Root
 from positionfinder.get_position_dict_scales import get_scale_position_dict
 
+
 class ScalePositionTests(TestCase):
     def setUp(self):
         # Create test data
-        self.category = NotesCategory.objects.create(id=1, category_name='Scales')
-        self.root = Root.objects.create(id=1, name='C', pitch=0)
+        self.category = NotesCategory.objects.create(id=1, category_name="Scales")
+        self.root = Root.objects.create(id=1, name="C", pitch=0)
         self.scale = Notes.objects.create(
             category=self.category,
-            note_name='Major',
+            note_name="Major",
             first_note=0,
             second_note=2,
             third_note=4,
             fourth_note=5,
             fifth_note=7,
             sixth_note=9,
-            seventh_note=11
+            seventh_note=11,
         )
-        
+
     def test_scale_position_dict(self):
         # Test the position dictionary generation
-        position_dict = get_scale_position_dict(
-            'Major', 1, 0, 0, 'C'
-        )
+        position_dict = get_scale_position_dict("Major", 1, 0, 0, "C")
         self.assertIsNotNone(position_dict)
         # More assertions...
 ```
@@ -252,35 +258,38 @@ For complex data migrations:
 # positionfinder/migrations/0010_custom_migration.py
 from django.db import migrations
 
+
 def migrate_data_forward(apps, schema_editor):
     # Get historical models
     Notes = apps.get_model("positionfinder", "Notes")
     NotesCategory = apps.get_model("positionfinder", "NotesCategory")
-    
+
     # Perform data migration
     scales_category = NotesCategory.objects.get(id=1)
     Notes.objects.create(
         category=scales_category,
-        note_name='Phrygian Dominant',
+        note_name="Phrygian Dominant",
         first_note=0,
         second_note=1,
         third_note=4,
         fourth_note=5,
         fifth_note=7,
         sixth_note=8,
-        seventh_note=10
+        seventh_note=10,
     )
+
 
 def migrate_data_backward(apps, schema_editor):
     # Reverse the data migration
     Notes = apps.get_model("positionfinder", "Notes")
-    Notes.objects.filter(note_name='Phrygian Dominant').delete()
+    Notes.objects.filter(note_name="Phrygian Dominant").delete()
+
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('positionfinder', '0009_previous_migration'),
+        ("positionfinder", "0009_previous_migration"),
     ]
-    
+
     operations = [
         migrations.RunPython(migrate_data_forward, migrate_data_backward),
     ]
@@ -294,19 +303,19 @@ class Migration(migrations.Migration):
    ```python
    class Meta:
        indexes = [
-           models.Index(fields=['category', 'note_name']),
+           models.Index(fields=["category", "note_name"]),
        ]
    ```
 
 2. **Query Optimization**: Use `select_related` and `prefetch_related`
    ```python
-   chords = ChordNotes.objects.select_related('category').all()
+   chords = ChordNotes.objects.select_related("category").all()
    ```
 
 3. **Batch Processing**: Process data in batches
    ```python
    for i in range(0, len(items), 100):
-       batch = items[i:i+100]
+       batch = items[i : i + 100]
        process_batch(batch)
    ```
 

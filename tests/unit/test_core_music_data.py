@@ -1,4 +1,5 @@
 """Property and value tests for the core positionfinder helpers using the real music fixture."""
+
 import pytest
 
 from positionfinder.functionality_tones_setup import (
@@ -55,12 +56,20 @@ def fret_of(string, tone):
 def chord_strings(chord):
     return {
         getattr(chord, f"{n}_string")
-        for n in ("first_note", "second_note", "third_note", "fourth_note", "fifth_note", "sixth_note")
+        for n in (
+            "first_note",
+            "second_note",
+            "third_note",
+            "fourth_note",
+            "fifth_note",
+            "sixth_note",
+        )
         if getattr(chord, n) is not None
     }
 
 
 # --------------------------------------------------------------------------- fixture sanity
+
 
 def test_fixture_counts():
     assert Root.objects.count() == 17
@@ -80,7 +89,9 @@ def test_every_chord_has_a_basic_position_and_matching_note_count():
         for p in positions:
             filled = sum(getattr(p, f) is not None for f in NOTE_FIELDS)
             assert filled == n_notes, (chord, p.inversion_order)
-            assert all(0 <= getattr(chord, f) <= 11 for f in NOTE_FIELDS if getattr(chord, f) is not None)
+            assert all(
+                0 <= getattr(chord, f) <= 11 for f in NOTE_FIELDS if getattr(chord, f) is not None
+            )
 
 
 def test_basic_position_is_all_zero_offsets():
@@ -94,14 +105,18 @@ ROOT_CASES = [(0, "C"), (1, "Db"), (6, "F#"), (7, "G"), (9, "A"), (11, "B")]
 
 
 def _all_chord_position_pairs():
-    return [(c, p) for c in ChordNotes.objects.all() for p in ChordPosition.objects.filter(notes_name=c)]
+    return [
+        (c, p) for c in ChordNotes.objects.all() for p in ChordPosition.objects.filter(notes_name=c)
+    ]
 
 
 def test_every_chord_position_is_resolvable_and_uses_the_chord_strings():
     pairs = _all_chord_position_pairs()
     assert len(pairs) == 904
     for chord, pos in pairs:
-        d = get_position_dict(pos.inversion_order, chord.chord_name, chord.range, chord.type_name, 0, 0, "C")
+        d = get_position_dict(
+            pos.inversion_order, chord.chord_name, chord.range, chord.type_name, 0, 0, "C"
+        )
         assert d, (chord.id, pos.inversion_order)
         assigned = d["assigned_strings"]
         assert set(assigned) <= chord_strings(chord)
@@ -115,7 +130,9 @@ def test_every_chord_position_is_resolvable_and_uses_the_chord_strings():
 
 def test_every_position_is_playable_within_the_fretboard():
     for chord, pos in _all_chord_position_pairs():
-        d = get_position_dict(pos.inversion_order, chord.chord_name, chord.range, chord.type_name, 0, 0, "C")
+        d = get_position_dict(
+            pos.inversion_order, chord.chord_name, chord.range, chord.type_name, 0, 0, "C"
+        )
         for string in d["assigned_strings"]:
             tone = d[string][0]
             assert tone[-1].isdigit(), (chord.id, string, tone)
@@ -126,9 +143,17 @@ def test_every_position_is_playable_within_the_fretboard():
 def test_transposing_the_root_shifts_every_pitch_class_by_the_same_amount(root_pitch, root_name):
     """Transposition is consistent: pitch classes at root r == pitch classes at root 0 shifted by r."""
     for chord, pos in _all_chord_position_pairs()[::7]:
-        base = get_position_dict(pos.inversion_order, chord.chord_name, chord.range, chord.type_name, 0, 0, "C")
+        base = get_position_dict(
+            pos.inversion_order, chord.chord_name, chord.range, chord.type_name, 0, 0, "C"
+        )
         moved = get_position_dict(
-            pos.inversion_order, chord.chord_name, chord.range, chord.type_name, root_pitch, 0, root_name
+            pos.inversion_order,
+            chord.chord_name,
+            chord.range,
+            chord.type_name,
+            root_pitch,
+            0,
+            root_name,
         )
         assert base["assigned_strings"] == moved["assigned_strings"]
         for string in base["assigned_strings"]:
@@ -192,6 +217,7 @@ def test_triad_dict_has_three_notes():
 
 # --------------------------------------------------------------------------- get_notes_position
 
+
 def test_get_notes_position_adds_root_pitch():
     pos = NotesPosition.objects.get(notes_name_id=10, position_order=1)
     assert pos.position == "3,4,5,6"
@@ -221,15 +247,18 @@ def test_get_notes_position_is_congruent_to_root_shift_mod_octave():
         base = [int(x) for x in pos.position.split(",")]
         for root in range(12):
             frets = get_notes_position(pos.id, root)
-            assert [(f - b - root) % 12 for f, b in zip(frets, base)] == [0] * len(base)
+            assert [(f - b - root) % 12 for f, b in zip(frets, base, strict=False)] == [0] * len(
+                base
+            )
 
 
 def test_get_notes_position_unknown_id_raises():
     with pytest.raises(NotesPosition.DoesNotExist):
-        get_notes_position(10 ** 9, 0)
+        get_notes_position(10**9, 0)
 
 
 # --------------------------------------------------------------------------- get_scale_position_dict
+
 
 def _fret_for(string, tone):
     return fret_of(string, tone)
@@ -246,23 +275,45 @@ def test_scale_dict_by_name_has_open_position_and_all_fretted_positions():
 
 
 def test_scale_dict_resolves_numeric_string_id_like_name():
-    by_id = get_scale_position_dict(str(Notes.objects.get(note_name="Major").id), C_ROOT_ID, 0, 0, "C")
+    by_id = get_scale_position_dict(
+        str(Notes.objects.get(note_name="Major").id), C_ROOT_ID, 0, 0, "C"
+    )
     by_name = get_scale_position_dict("Major", C_ROOT_ID, 0, 0, "C")
     assert by_id == by_name
 
 
-@pytest.mark.parametrize("scale_name,root_id,root_pitch,root_name", [
-    ("Major", 1, 0, "C"),
-    ("Major", 11, 7, "G"),
-    ("Minor Pentatonic", 14, 9, "A"),
-    ("Harmonic Minor", 3, 1, "C#"),
-    ("Whole Tone", 15, 10, "Bb"),
-])
-def test_scale_dict_tones_belong_to_the_scale_and_to_the_position(scale_name, root_id, root_pitch, root_name):
+@pytest.mark.parametrize(
+    "scale_name,root_id,root_pitch,root_name",
+    [
+        ("Major", 1, 0, "C"),
+        ("Major", 11, 7, "G"),
+        ("Minor Pentatonic", 14, 9, "A"),
+        ("Harmonic Minor", 3, 1, "C#"),
+        ("Whole Tone", 15, 10, "Bb"),
+    ],
+)
+def test_scale_dict_tones_belong_to_the_scale_and_to_the_position(
+    scale_name, root_id, root_pitch, root_name
+):
     scale = Notes.objects.get(note_name=scale_name)
-    intervals = {getattr(scale, f) for f in (
-        "first_note", "second_note", "third_note", "fourth_note", "fifth_note", "sixth_note", "seventh_note",
-        "eigth_note", "ninth_note", "tenth_note", "eleventh_note", "twelth_note") if getattr(scale, f) is not None}
+    intervals = {
+        getattr(scale, f)
+        for f in (
+            "first_note",
+            "second_note",
+            "third_note",
+            "fourth_note",
+            "fifth_note",
+            "sixth_note",
+            "seventh_note",
+            "eigth_note",
+            "ninth_note",
+            "tenth_note",
+            "eleventh_note",
+            "twelth_note",
+        )
+        if getattr(scale, f) is not None
+    }
     allowed = {(i + root_pitch) % 12 for i in intervals}
     d = get_scale_position_dict(scale_name, root_id, root_pitch, 0, root_name)
     for key, strings in d.items():
@@ -308,12 +359,15 @@ def test_scale_dict_unknown_scale_raises():
 def test_scale_dict_arpeggio_has_no_fretted_positions_but_open_tones():
     arp = Notes.objects.get(note_name="Major Triad")
     d = get_scale_position_dict(str(arp.id), 1, 0, 0, "C")
-    assert set(d) == {"0"} | {str(p.position_order) for p in NotesPosition.objects.filter(notes_name=arp)}
+    assert set(d) == {"0"} | {
+        str(p.position_order) for p in NotesPosition.objects.filter(notes_name=arp)
+    }
     covered = {pitch_class(t) for cell in d["0"].values() for t in cell[0]["tones"]}
     assert covered == {0, 4, 7}
 
 
 # --------------------------------------------------------------------------- note_setup
+
 
 def test_build_notes_for_scale_chord_and_other():
     major = Notes.objects.get(note_name="Major")
@@ -321,7 +375,10 @@ def test_build_notes_for_scale_chord_and_other():
     assert build_notes(object()) == []
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: build_notes(ChordNotes) does not exclude the *_string fields, so string names leak into the note list")
+@pytest.mark.xfail(
+    strict=True,
+    reason="BUG: build_notes(ChordNotes) does not exclude the *_string fields, so string names leak into the note list",
+)
 def test_build_notes_for_chordnotes_returns_only_pitches():
     chord = ChordNotes.objects.filter(type_name="V1", chord_name="Major 7", range="e - d").get()
     assert build_notes(chord) == [0, 4, 7, 11]
@@ -348,7 +405,10 @@ def test_get_notes_tones_flat_vs_sharp_root_spelling():
     assert "db" not in sharp and "cs" not in flat
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: ChordNotes fallback in get_notes_tones crashes because build_notes leaks *_string fields")
+@pytest.mark.xfail(
+    strict=True,
+    reason="BUG: ChordNotes fallback in get_notes_tones crashes because build_notes leaks *_string fields",
+)
 def test_get_notes_tones_accepts_chord_notes_primary_key():
     chord = ChordNotes.objects.filter(type_name="V1", chord_name="Major 7", range="e - d").get()
     tones = get_notes_tones(chord.id, 0, 0, C_ROOT_ID)
@@ -356,12 +416,12 @@ def test_get_notes_tones_accepts_chord_notes_primary_key():
 
 
 def test_get_notes_tones_unknown_id_returns_empty_list():
-    assert get_notes_tones(10 ** 8, 0, 0, C_ROOT_ID) == []
+    assert get_notes_tones(10**8, 0, 0, C_ROOT_ID) == []
 
 
 def test_get_notes_tones_unknown_root_raises():
     with pytest.raises(Root.DoesNotExist):
-        get_notes_tones(1, 0, 0, 10 ** 8)
+        get_notes_tones(1, 0, 0, 10**8)
 
 
 def test_get_notes_tones_large_tonal_root_branch():
@@ -372,12 +432,17 @@ def test_get_notes_tones_large_tonal_root_branch():
 
 # --------------------------------------------------------------------------- root note lookups
 
-@pytest.mark.parametrize("root_pitch,root_id,name", [(0, 1, "c"), (7, 11, "g"), (9, 14, "a"), (4, 7, "e")])
+
+@pytest.mark.parametrize(
+    "root_pitch,root_id,name", [(0, 1, "c"), (7, 11, "g"), (9, 14, "a"), (4, 7, "e")]
+)
 def test_get_root_note_one_name_per_octave(root_pitch, root_id, name):
     result = get_root_note(root_pitch, 0, root_id)
     assert len(result) == len(OCTAVES)
     assert {r.rstrip("-0123456789") for r in result} == {name}
-    assert {int(r.lstrip("abcdefgs")) if False else r[len(name):] for r in result} == {str(o) for o in OCTAVES}
+    assert {int(r.lstrip("abcdefgs")) if False else r[len(name) :] for r in result} == {
+        str(o) for o in OCTAVES
+    }
 
 
 def test_get_root_note_sharp_and_flat_spelling():
@@ -407,29 +472,33 @@ def test_chord_root_note_tonal_root_wraps_and_picks_sharps():
 
 def test_chord_root_note_unknown_root_raises():
     with pytest.raises(Root.DoesNotExist):
-        get_chord_root_note(0, 0, 10 ** 8)
+        get_chord_root_note(0, 0, 10**8)
 
 
 # --------------------------------------------------------------------------- functionality tones
+
 
 def test_get_notes_object_prefers_notes_then_chordnotes_then_none():
     assert get_notes_object(Notes.objects.get(note_name="Major").id).note_name == "Major"
     chord = ChordNotes.objects.first()
     assert get_notes_object(chord.id).pk == chord.pk
-    assert get_notes_object(10 ** 8) is None
+    assert get_notes_object(10**8) is None
 
 
-@pytest.mark.parametrize("name,expected", [
-    ("Major", ["R", "9", "3", "11", "5", "13", "7"]),
-    ("Harmonic Minor", ["R", "9", "b3", "11", "5", "b13", "7"]),
-    ("Minor Pentatonic", ["R", "b3", "11", "5", "b7"]),
-    ("Dominant 7", ["R", "3", "5", "b7"]),
-    ("Major Triad", ["R", "3", "5"]),
-    ("Diminished 7", ["R", "b3", "#11", "13"]),
-    ("Whole Tone", ["R", "9", "3", "#11", "b13", "b7"]),
-    # 13 after b13 would clash, so the optional spelling bb7 is used
-    ("Diminished", ["R", "9", "b3", "11", "#11", "b13", "bb7", "7"]),
-])
+@pytest.mark.parametrize(
+    "name,expected",
+    [
+        ("Major", ["R", "9", "3", "11", "5", "13", "7"]),
+        ("Harmonic Minor", ["R", "9", "b3", "11", "5", "b13", "7"]),
+        ("Minor Pentatonic", ["R", "b3", "11", "5", "b7"]),
+        ("Dominant 7", ["R", "3", "5", "b7"]),
+        ("Major Triad", ["R", "3", "5"]),
+        ("Diminished 7", ["R", "b3", "#11", "13"]),
+        ("Whole Tone", ["R", "9", "3", "#11", "b13", "b7"]),
+        # 13 after b13 would clash, so the optional spelling bb7 is used
+        ("Diminished", ["R", "9", "b3", "11", "#11", "b13", "bb7", "7"]),
+    ],
+)
 def test_functionality_tones(name, expected):
     notes = Notes.objects.get(note_name=name)
     assert get_functionality_tones(notes.id, 0) == expected
@@ -450,12 +519,15 @@ def test_functionality_pitches_equal_functionality_tones():
 
 
 def test_functionality_for_unknown_id_is_empty():
-    assert get_functionality_tones(10 ** 8, 0) == []
-    assert get_functionality_pitches(10 ** 8, 0) == []
-    assert get_functionality_note_names(10 ** 8, 0, 0, C_ROOT_ID) == []
+    assert get_functionality_tones(10**8, 0) == []
+    assert get_functionality_pitches(10**8, 0) == []
+    assert get_functionality_note_names(10**8, 0, 0, C_ROOT_ID) == []
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: ChordNotes fallback in get_functionality_tones crashes because build_notes leaks *_string fields")
+@pytest.mark.xfail(
+    strict=True,
+    reason="BUG: ChordNotes fallback in get_functionality_tones crashes because build_notes leaks *_string fields",
+)
 def test_functionality_for_chordnotes():
     chord = ChordNotes.objects.filter(type_name="V1", chord_name="Major 7", range="e - d").get()
     assert get_functionality_tones(chord.id, 0) == ["R", "3", "5", "7"]
@@ -472,12 +544,15 @@ def test_all_notes_functionality_sharp_vs_flat():
     assert get_all_notes_functionality_optional(7, G_ROOT_ID)[1] == "C#"
 
 
-@pytest.mark.parametrize("root_pitch,root_id,tonal,expected", [
-    (0, 1, 0, ["C", "D", "E", "F", "G", "A", "B"]),
-    (7, 11, 0, ["G", "A", "B", "C", "D", "E", "F#"]),
-    (10, 15, 0, ["Bb", "C", "D", "Eb", "F", "G", "A"]),
-    (2, 4, 0, ["D", "E", "F#", "G", "A", "B", "C#"]),
-])
+@pytest.mark.parametrize(
+    "root_pitch,root_id,tonal,expected",
+    [
+        (0, 1, 0, ["C", "D", "E", "F", "G", "A", "B"]),
+        (7, 11, 0, ["G", "A", "B", "C", "D", "E", "F#"]),
+        (10, 15, 0, ["Bb", "C", "D", "Eb", "F", "G", "A"]),
+        (2, 4, 0, ["D", "E", "F#", "G", "A", "B", "C#"]),
+    ],
+)
 def test_functionality_note_names_major_scale(root_pitch, root_id, tonal, expected):
     major = Notes.objects.get(note_name="Major")
     assert get_functionality_note_names(major.id, root_pitch, tonal, root_id) == expected
@@ -493,7 +568,9 @@ def test_functionality_note_names_are_enharmonically_correct_for_every_scale(roo
     for notes in Notes.objects.filter(category__category_name="Scales"):
         offsets = build_notes(notes)
         result = get_functionality_note_names(notes.id, root_pitch, 0, root_id)
-        assert [spelled_pitch_class(n) for n in result] == [(o + root_pitch) % 12 for o in offsets], notes.note_name
+        assert [spelled_pitch_class(n) for n in result] == [
+            (o + root_pitch) % 12 for o in offsets
+        ], notes.note_name
 
 
 def test_get_tension_final_list_substitutes_optional_name_on_duplicates():
@@ -507,10 +584,18 @@ def test_get_tension_final_list_substitutes_optional_name_on_duplicates():
 
 # --------------------------------------------------------------------------- improved chord search
 
-@pytest.mark.parametrize("raw,expected", [
-    ("maj7", "Major 7"), ("min7", "Minor 7"), ("m7b5", "Minor 7b5"), ("7", "Dominant 7"),
-    ("dim7", "Diminished 7"), ("+", "Augmented"),
-])
+
+@pytest.mark.parametrize(
+    "raw,expected",
+    [
+        ("maj7", "Major 7"),
+        ("min7", "Minor 7"),
+        ("m7b5", "Minor 7b5"),
+        ("7", "Dominant 7"),
+        ("dim7", "Diminished 7"),
+        ("+", "Augmented"),
+    ],
+)
 def test_chord_quality_map_values(raw, expected):
     assert CHORD_QUALITY_MAP[raw] == expected
 
@@ -527,7 +612,18 @@ def test_search_with_position_filters_on_voicing_type():
 def test_search_result_structure_and_url_contents():
     result = improved_search_chords("Gmaj7 V2")[0]
     chord = ChordNotes.objects.get(pk=result["id"])
-    assert set(result) == {"id", "name", "type", "category", "positions", "notes", "intervals", "url", "range", "tonal_root"}
+    assert set(result) == {
+        "id",
+        "name",
+        "type",
+        "category",
+        "positions",
+        "notes",
+        "intervals",
+        "url",
+        "range",
+        "tonal_root",
+    }
     assert result["category"] == "Chords"
     assert result["notes"] == [0, 4, 7, 11] or len(result["notes"]) == 4
     assert result["intervals"][0] == 0
@@ -538,7 +634,9 @@ def test_search_result_structure_and_url_contents():
 
 def test_search_orders_voicing_types_numerically():
     results = improved_search_chords("C#min7")
-    v_numbers = [int(r["type"][1:]) for r in results if r["type"].startswith("V") and r["type"][1:].isdigit()]
+    v_numbers = [
+        int(r["type"][1:]) for r in results if r["type"].startswith("V") and r["type"][1:].isdigit()
+    ]
     assert v_numbers == sorted(v_numbers)
     assert len(v_numbers) > 10
 
@@ -563,6 +661,7 @@ def test_blank_query_defaults_to_c_major():
 
 def test_error_in_search_is_swallowed(monkeypatch):
     import positionfinder.search_utils as su
+
     monkeypatch.setattr(su, "parse_query", lambda q: (_ for _ in ()).throw(RuntimeError("boom")))
     assert improved_search_chords("C major") == []
 
@@ -621,14 +720,23 @@ def test_process_results_skips_rows_that_fail_to_process():
 
 # --------------------------------------------------------------------------- degenerate chord / scale data
 
+
 @pytest.fixture
 def scratch_category():
     return NotesCategory.objects.get(category_name="Chords")
 
 
 def _scratch_chord(category, **kw):
-    base = dict(category=category, type_name="Scratch", chord_name="Major", range="b - d", tonal_root=0,
-                first_note=0, second_note=0, third_note=0)
+    base = dict(
+        category=category,
+        type_name="Scratch",
+        chord_name="Major",
+        range="b - d",
+        tonal_root=0,
+        first_note=0,
+        second_note=0,
+        third_note=0,
+    )
     base.update(kw)
     return ChordNotes.objects.create(**base)
 
@@ -636,25 +744,31 @@ def _scratch_chord(category, **kw):
 def test_position_dict_uses_alternate_octave_when_frets_are_far_apart():
     # C on the e string is fret 8, C on the b string fret 1: more than 5 frets apart -> alternate octave
     cat = NotesCategory.objects.get(category_name="Chords")
-    _scratch_chord(cat, first_note_string="eString", second_note_string="bString", third_note_string="gString")
+    _scratch_chord(
+        cat, first_note_string="eString", second_note_string="bString", third_note_string="gString"
+    )
     d = get_position_dict("Basic Position", "Major", "b - d", "Scratch", 0, 0, "C")
     assert d["assigned_strings"] == ["eString", "bString", "gString"]
     # eString has a single "c" option so the alternate octave falls back to it
     assert d["eString"][0] == "c3"
-    assert d["bString"][0] == "c3"      # second option (fret 13) instead of c2 (fret 1)
+    assert d["bString"][0] == "c3"  # second option (fret 13) instead of c2 (fret 1)
     assert d["gString"][0] == "c3" or d["gString"][0].startswith("c")
 
 
 def test_position_dict_without_far_apart_frets_uses_first_octave():
     cat = NotesCategory.objects.get(category_name="Chords")
-    _scratch_chord(cat, first_note_string="bString", second_note_string="gString", third_note_string="dString")
+    _scratch_chord(
+        cat, first_note_string="bString", second_note_string="gString", third_note_string="dString"
+    )
     d = get_position_dict("Basic Position", "Major", "b - d", "Scratch", 0, 0, "C")
     assert d["bString"][0] == "c2"
 
 
 def test_position_dict_ignores_notes_on_unknown_or_missing_strings():
     cat = NotesCategory.objects.get(category_name="Chords")
-    _scratch_chord(cat, first_note_string=None, second_note_string="bogusString", third_note_string="bString")
+    _scratch_chord(
+        cat, first_note_string=None, second_note_string="bogusString", third_note_string="bString"
+    )
     d = get_position_dict("Basic Position", "Major", "b - d", "Scratch", 0, 0, "C")
     assert d == {"bString": ["c2", "R", True, True], "assigned_strings": ["bString"]}
 
@@ -668,8 +782,9 @@ def test_position_dict_chord_without_positions_is_empty():
 
 def test_scale_dict_with_repeated_interval_has_no_duplicate_tones():
     cat = NotesCategory.objects.get(category_name="Scales")
-    scale = Notes.objects.create(category=cat, note_name="Octave Doubled", first_note=0, second_note=12,
-                                 third_note=7)
+    scale = Notes.objects.create(
+        category=cat, note_name="Octave Doubled", first_note=0, second_note=12, third_note=7
+    )
     pos = NotesPosition.objects.create(notes_name=scale, position_order=1, position="3,4,5,6,7,8")
     d = get_scale_position_dict("Octave Doubled", C_ROOT_ID, 0, 0, "C")
     assert set(d) == {"0", "1"}
@@ -686,24 +801,31 @@ def test_scale_dict_with_repeated_interval_has_no_duplicate_tones():
 def test_root_filter_keeps_chords_whose_tonal_root_equals_the_root_id():
     """Legacy behaviour: tonal_root is compared with ROOT_NAME_TO_ID (a Root row id, G=11)."""
     cat = NotesCategory.objects.get(category_name="Chords")
-    marker = _scratch_chord(cat, type_name="V2", chord_name="Major 7", range="e - d", tonal_root=11,
-                            fourth_note=11)
+    marker = _scratch_chord(
+        cat, type_name="V2", chord_name="Major 7", range="e - d", tonal_root=11, fourth_note=11
+    )
     results = improved_search_chords("Gmaj7 V2")
     assert [r["id"] for r in results] == [marker.id]
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: improved_search_chords filters tonal_root (a pitch, G=7) against ROOT_NAME_TO_ID (a Root row id, G=11), so a chord stored for G is never preferred")
+@pytest.mark.xfail(
+    strict=True,
+    reason="BUG: improved_search_chords filters tonal_root (a pitch, G=7) against ROOT_NAME_TO_ID (a Root row id, G=11), so a chord stored for G is never preferred",
+)
 def test_root_filter_prefers_chords_stored_with_the_matching_pitch():
     cat = NotesCategory.objects.get(category_name="Chords")
-    g_chord = _scratch_chord(cat, type_name="V2", chord_name="Major 7", range="e - d", tonal_root=7,
-                             fourth_note=11)
+    g_chord = _scratch_chord(
+        cat, type_name="V2", chord_name="Major 7", range="e - d", tonal_root=7, fourth_note=11
+    )
     results = improved_search_chords("Gmaj7 V2")
     assert [r["id"] for r in results] == [g_chord.id]
 
 
 def test_non_v_position_is_matched_against_type_name_text():
     cat = NotesCategory.objects.get(category_name="Chords")
-    chord = _scratch_chord(cat, type_name="All Positions Voicing", chord_name="Major 7", fourth_note=11)
+    chord = _scratch_chord(
+        cat, type_name="All Positions Voicing", chord_name="Major 7", fourth_note=11
+    )
     results = improved_search_chords("C major 7 all positions")
     assert chord.id in [r["id"] for r in results]
 
@@ -729,6 +851,7 @@ def test_spread_triad_query_without_spread_chords_falls_back_to_plain_chord_name
 
 
 # --------------------------------------------------------------------------- improved search: remaining branches
+
 
 class Rows:
     """Minimal queryset stand-in without .count() so process_improved_chord_results uses len()."""
@@ -756,8 +879,9 @@ def test_note_without_root_id_skips_root_filtering_and_defaults_to_c_url():
 
 def test_loose_search_applies_legacy_root_id_filter():
     cat = NotesCategory.objects.get(category_name="Chords")
-    marker = _scratch_chord(cat, type_name="V2", chord_name="Major 7", range="e - d", tonal_root=11,
-                            fourth_note=11)
+    marker = _scratch_chord(
+        cat, type_name="V2", chord_name="Major 7", range="e - d", tonal_root=11, fourth_note=11
+    )
     # the strict pass finds nothing (no type contains "all positions"); the loose pass narrows by root id
     results = improved_search_chords("Gmaj7 all positions")
     assert [r["id"] for r in results] == [marker.id]
@@ -804,7 +928,10 @@ def test_chord_without_tonal_root_and_without_user_root_defaults_to_c():
     assert res["tonal_root"] is None
 
 
-@pytest.mark.xfail(strict=True, reason="BUG: with no user-supplied root the display root is found by treating tonal_root (a pitch, F=5) as a Root row id (5 = Eb)")
+@pytest.mark.xfail(
+    strict=True,
+    reason="BUG: with no user-supplied root the display root is found by treating tonal_root (a pitch, F=5) as a Root row id (5 = Eb)",
+)
 def test_display_root_is_derived_from_the_pitch_of_tonal_root():
     chord = _cmaj7_v1()
     chord.tonal_root = 5  # F
