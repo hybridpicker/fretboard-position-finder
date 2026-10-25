@@ -33,3 +33,4 @@ Env: Python 3.12.12 (.venv), Django 4.2.30, PostgreSQL via local socket.
 | Iteration | Tests | Time | Line cov | Branch cov | Notes |
 |---|---|---|---|---|---|
 | 0 baseline | 78 | 4 s | 32 % | - | |
+| 1 coverage tests (3 parallel agents) | 1115 (+39 xfail) | 42 s | 97.8 % | 94.9 % | two identical runs; remaining gaps listed in report |
