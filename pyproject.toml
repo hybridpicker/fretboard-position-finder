@@ -24,3 +24,32 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "raise NotImplementedError",
 ]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [".claude", "static", "scripts/legacy", "*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "DJ"]
+ignore = [
+    "DJ001",  # nullable CharField/TextField are part of the existing schema (no model changes allowed)
+    "DJ008",  # models without __str__ are part of the existing schema
+]
+
+[tool.ruff.lint.per-file-ignores]
+"fretboard/settings_test.py" = ["F403", "F405"]  # star import of the base settings is intentional
+"tests/**" = ["B011"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["positionfinder", "api", "fretboard", "utils", "tests"]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+check_untyped_defs = false
+plugins = ["mypy_django_plugin.main"]
+exclude = ["migrations/", "tests/", "scripts/", "static/"]
+
+[tool.django-stubs]
+django_settings_module = "fretboard.settings_test"
