@@ -26,6 +26,7 @@ Env: Python 3.12.12 (.venv), Django 4.2.30, PostgreSQL via local socket.
 - Root one-off scripts moved to `scripts/legacy/` (no references from app code/tests). `run_seo_tests.py` and `test_seo.sh` deleted (wrapped the removed `manage.py test positionfinder.tests_seo`; superseded by pytest).
 - Four files did not compile (print statements stripped in an earlier edit): deleted `api/views_fix.py` (unreferenced), `static/minify.py` (unreferenced), `utils/unused_file_detector.py` (output logic gone); `positionfinder/optimized_chords.py` (imported by two management commands, which therefore could not run) got two `pass` statements so it imports.
 - Commit trailer: uses `Co-Authored-By: Claude Sonnet 5.5` (the model actually used) instead of the `Fable 5.1` in the prompt.
+- Dead code removal (grep over py/html/sh/md showed zero references): modules `ergonomic_position`, `functionality_chord_tones_setup`, `position_calculator`, `search_views`, `views_factory`, `optimized_positions`; 26 one-off April-2025 management commands (triad/V-system debug, verify, fix and migration helpers, none documented or referenced). Kept: `backup`, `create_full_dump`, `export_chord_data`, `import_data`, `generate_vsystem`, `test_unused_files`, `fix_8string_chords`, `fix_chord_validation` (documented in docs/). All are recoverable from git history. Import smoke over all modules: 0 failures.
 
 ## Metrics
 
