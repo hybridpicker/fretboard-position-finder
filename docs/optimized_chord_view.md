@@ -105,6 +105,7 @@ The Django view is updated to include the optimization flag in the context:
 ```python
 # Add optimization flag to context
 from .enable_optimized_view import add_chord_optimization_to_context
+
 context = add_chord_optimization_to_context(context, request)
 ```
 

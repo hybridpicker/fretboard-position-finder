@@ -55,13 +55,7 @@ If it fails, it will tell you which files need to be deleted.
 
 ### Step 1: Analyze the Project
 
-Run the analysis script to get an updated list of potentially unused files:
-
-```bash
-python utils/unused_file_detector.py
-```
-
-This will print out lists of files categorized by confidence level, along with a cleanup script.
+The former `utils/unused_file_detector.py` was removed (it no longer compiled). Find candidates with `grep -rn <filename> templates positionfinder static` before hiding anything.
 
 ### Step 2: Test Removing the Files
 

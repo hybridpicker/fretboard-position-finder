@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: localhost
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      DJANGO_SETTINGS_MODULE: fretboard.settings_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      # requirements.txt is a full local freeze (macOS-only packages); CI installs the runtime
+      # pins plus the dev tooling listed at the end of requirements.txt.
+      - run: >-
+          pip install -r requirements-prod.txt -c constraints.txt
+          pytest pytest-django pytest-cov coverage beautifulsoup4 factory-boy
+          ruff mypy django-stubs
+      - run: make check COV_MIN=90
+      - run: node --test static/studio/js/theory.test.mjs
+      - name: Coverage summary
+        if: always()
+        run: python -m coverage report --skip-covered >> "$GITHUB_STEP_SUMMARY"

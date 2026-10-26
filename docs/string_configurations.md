@@ -16,14 +16,14 @@ Strings are defined in `string_choices.py`:
 
 ```python
 STRING_CHOICES = {
-    'eString': _(u'eString'),         # High E (1st string)
-    'bString': _(u'bString'),         # B (2nd string)
-    'gString': _(u'gString'),         # G (3rd string)
-    'dString': _(u'dString'),         # D (4th string)
-    'AString': _(u'AString'),         # A (5th string)
-    'ELowString': _(u'ELowString'),   # Low E (6th string)
-    'lowBString': _(u'lowBString'),   # Low B (7th string, 8-string guitar only)
-    'highAString': _(u'highAString'), # High A (8th string, 8-string guitar only)
+    "eString": _("eString"),  # High E (1st string)
+    "bString": _("bString"),  # B (2nd string)
+    "gString": _("gString"),  # G (3rd string)
+    "dString": _("dString"),  # D (4th string)
+    "AString": _("AString"),  # A (5th string)
+    "ELowString": _("ELowString"),  # Low E (6th string)
+    "lowBString": _("lowBString"),  # Low B (7th string, 8-string guitar only)
+    "highAString": _("highAString"),  # High A (8th string, 8-string guitar only)
 }
 ```
 
@@ -32,8 +32,8 @@ The `StringChoicesField` is a custom Django field that provides these options in
 ```python
 class StringChoicesField(models.CharField):
     def __init__(self, *args, **kwargs):
-        kwargs['choices'] = tuple(sorted(STRING_CHOICES.items()))
-        kwargs['max_length'] = 20
+        kwargs["choices"] = tuple(sorted(STRING_CHOICES.items()))
+        kwargs["max_length"] = 20
         super(StringChoicesField, self).__init__(*args, **kwargs)
 ```
 
@@ -43,12 +43,12 @@ String ranges define which subset of strings a chord or scale uses. These are de
 
 ```python
 STRING_RANGE_CHOICES = {
-    'a - b': _(u'a - b'),   # High A to B (8-string only)
-    'e - g': _(u'e - g'),   # High E to G (common for 6-string)
-    'b - d': _(u'b - d'),   # B to D
-    'g - A': _(u'g - A'),   # G to A
-    'd - E': _(u'd - E'),   # D to Low E
-    'A - B': _(u'A - B'),   # A to Low B (8-string only)
+    "a - b": _("a - b"),  # High A to B (8-string only)
+    "e - g": _("e - g"),  # High E to G (common for 6-string)
+    "b - d": _("b - d"),  # B to D
+    "g - A": _("g - A"),  # G to A
+    "d - E": _("d - E"),  # D to Low E
+    "A - B": _("A - B"),  # A to Low B (8-string only)
     # Many more combinations...
 }
 ```
@@ -61,20 +61,26 @@ Note positions on each string are defined in `template_notes.py` in the `STRING_
 
 ```python
 STRING_NOTE_OPTIONS = {
-    "eString": [{
-        "c": [{"tone": ["c3"], "fret": [8]}],
-        "cs": [{"tone": ["cs3"], "fret": [9]}],
-        # ... more notes
-    }],
+    "eString": [
+        {
+            "c": [{"tone": ["c3"], "fret": [8]}],
+            "cs": [{"tone": ["cs3"], "fret": [9]}],
+            # ... more notes
+        }
+    ],
     # ... other 6-string entries
-    "lowBString": [{
-        "c": [{"tone": ["c0", "c1"], "fret": [1, 13]}],
-        # ... more notes with lower octaves
-    }],
-    "highAString": [{
-        "c": [{"tone": ["c4"], "fret": [3, 15]}],
-        # ... more notes with higher octaves
-    }]
+    "lowBString": [
+        {
+            "c": [{"tone": ["c0", "c1"], "fret": [1, 13]}],
+            # ... more notes with lower octaves
+        }
+    ],
+    "highAString": [
+        {
+            "c": [{"tone": ["c4"], "fret": [3, 15]}],
+            # ... more notes with higher octaves
+        }
+    ],
 }
 ```
 
@@ -90,10 +96,19 @@ In the views (e.g., `views_scale.py`, `views_chords.py`), string names are passe
 
 ```python
 # For 6-string configuration
-string_names = ['ELowString', 'AString', 'dString', 'gString', 'bString', 'eString']
+string_names = ["ELowString", "AString", "dString", "gString", "bString", "eString"]
 
 # For 8-string configuration
-string_names = ['lowBString', 'ELowString', 'AString', 'dString', 'gString', 'bString', 'eString', 'highAString']
+string_names = [
+    "lowBString",
+    "ELowString",
+    "AString",
+    "dString",
+    "gString",
+    "bString",
+    "eString",
+    "highAString",
+]
 ```
 
 The order is from lowest-pitched string (bottom of fretboard) to highest-pitched string (top of fretboard).
@@ -120,12 +135,12 @@ Chord models use string assignments to specify which string each note is played 
 ```python
 chord = ChordNotes.objects.create(
     # ... other fields
-    first_note=0,                  # Root note
-    first_note_string='gString',   # Root played on G string
-    second_note=4,                 # Major third
-    second_note_string='bString',  # Third played on B string
-    third_note=7,                  # Perfect fifth
-    third_note_string='eString',   # Fifth played on high E string
+    first_note=0,  # Root note
+    first_note_string="gString",  # Root played on G string
+    second_note=4,  # Major third
+    second_note_string="bString",  # Third played on B string
+    third_note=7,  # Perfect fifth
+    third_note_string="eString",  # Fifth played on high E string
 )
 ```
 
@@ -160,6 +175,7 @@ def test_6string_compatibility():
     # Test with 6-string database
     # Verify that only 6 strings are used in chord positions
     pass
+
 
 # Test for 8-string compatibility
 def test_8string_compatibility():

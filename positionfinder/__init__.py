@@ -1,1 +1,1 @@
-default_app_config = 'positionfinder.apps.PositionfinderConfig'
+default_app_config = "positionfinder.apps.PositionfinderConfig"

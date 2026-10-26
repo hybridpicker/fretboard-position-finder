@@ -12,15 +12,15 @@ To switch between versions, modify the database name in `local_settings.py`:
 
 ```python
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
         # For 6-String: 'NAME': 'fretboard-devel',
         # For 8-String: 'NAME': 'fretboard',
-        'NAME': 'fretboard',  # Current setting
-        'USER': 'postgres',
-        'PASSWORD': 'your-password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        "NAME": "fretboard",  # Current setting
+        "USER": "postgres",
+        "PASSWORD": "your-password",
+        "HOST": "localhost",
+        "PORT": "5432",
     }
 }
 ```

@@ -70,3 +70,7 @@ pytest-django
 pytest-cov
 factory-boy==3.2.1
 coverage
+beautifulsoup4
+ruff
+mypy
+django-stubs
