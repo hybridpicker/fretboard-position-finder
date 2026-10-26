@@ -29,7 +29,7 @@ import positionfinder.views_search
 
 # Import sitemap classes
 from positionfinder.sitemaps import StaticViewSitemap
-from positionfinder.views import chord_search_test_view, fretboard_unified_view
+from positionfinder.views import fretboard_unified_view
 from positionfinder.views_pwa import service_worker
 from positionfinder.views_search import search_json, unified_search_view
 from positionfinder.views_studio import catalog_json, studio_view
@@ -50,7 +50,6 @@ urlpatterns_non_i18n = [
     path("search/json/", search_json, name="search_json"),
     path("search_json/", search_json, name="search_json_alt"),
     # Testing route
-    path("test/chords/", chord_search_test_view, name="test_chords"),
     # SEO-related URLs
     path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
     path(

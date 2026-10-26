@@ -63,20 +63,6 @@ def fretboard_unified_view(request: HttpRequest) -> HttpResponse:
         return fretboard_scale_view(request)
 
 
-def chord_search_test_view(request: HttpRequest) -> HttpResponse:
-    """
-    View for testing the chord search functionality.
-    Renders a test page that includes all necessary JS for testing the chord search logic.
-    """
-    context = {
-        "show_fretboard": True,  # We need the fretboard to be displayed
-    }
-    # Add common context variables
-    common_context = get_common_context(request)
-    context.update(common_context)
-    return render(request, "test_chords.html", context)
-
-
 def landing_page_view(request: HttpRequest) -> HttpResponse:
     """
     View for the optimized landing page with large buttons and search.

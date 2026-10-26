@@ -71,21 +71,21 @@ def _build_chord_filters(chord_name, is_spread_triad_query: bool, position):
 
 
 def _filter_by_root(matches, note):
-    """Narrow ``matches`` to the given root when possible; returns (matches, root_id)."""
-    from .search_utils import ROOT_NAME_TO_ID
+    """Narrow ``matches`` to the given root when possible; returns (matches, root_pitch)."""
+    from .search_utils import ROOT_NAME_TO_PITCH
 
-    root_id = ROOT_NAME_TO_ID.get(note)
-    if root_id:
-        filtered_matches = matches.filter(tonal_root=root_id)
+    root_pitch = ROOT_NAME_TO_PITCH.get(note)
+    if root_pitch is not None:
+        filtered_matches = matches.filter(tonal_root=root_pitch)
         if filtered_matches.exists():
             matches = filtered_matches
-            logger.debug(f"Filtered to {matches.count()} matches by root {note} (ID: {root_id})")
+            logger.debug(f"Filtered to {matches.count()} matches by root {note} ({root_pitch})")
         else:
-            logger.debug(f"No matches with root {note} (ID: {root_id}), keeping original results")
-    return matches, root_id
+            logger.debug(f"No matches with root {note} ({root_pitch}), keeping original results")
+    return matches, root_pitch
 
 
-def _broader_spread_matches(chord_name, note, root_id):
+def _broader_spread_matches(chord_name, note, root_pitch):
     """Broader 'Spread' search used when a Spread Triad query has no matches."""
     from .models_chords import ChordNotes
 
@@ -97,8 +97,8 @@ def _broader_spread_matches(chord_name, note, root_id):
         spread_matches = spread_matches.filter(chord_name__icontains=chord_name)
 
     # Further filter by root if available
-    if note and root_id:
-        spread_matches = spread_matches.filter(tonal_root=root_id)
+    if note and root_pitch is not None:
+        spread_matches = spread_matches.filter(tonal_root=root_pitch)
 
     logger.debug(f"Found {spread_matches.count()} matches with broader 'Spread' search")
     return spread_matches
@@ -109,7 +109,7 @@ def _looser_chord_results(note, quality, chord_name) -> list:
     from django.db.models import Q
 
     from .models_chords import ChordNotes
-    from .search_utils import ROOT_NAME_TO_ID
+    from .search_utils import ROOT_NAME_TO_PITCH
 
     logger.debug(f"No exact matches - trying looser search for {note} {quality}")
 
@@ -119,9 +119,9 @@ def _looser_chord_results(note, quality, chord_name) -> list:
 
     # Apply root filtering if possible
     if note:
-        root_id = ROOT_NAME_TO_ID.get(note)
-        if root_id:
-            filtered_matches = looser_matches.filter(tonal_root=root_id)
+        root_pitch = ROOT_NAME_TO_PITCH.get(note)
+        if root_pitch is not None:
+            filtered_matches = looser_matches.filter(tonal_root=root_pitch)
             if filtered_matches.exists():
                 looser_matches = filtered_matches
 
@@ -170,13 +170,13 @@ def improved_search_chords(search_query: str) -> list[dict]:
         logger.debug(f"Found {matches.count()} initial matches")
 
         # 4. Further filter by root note if specified
-        root_id = None
+        root_pitch = None
         if note:
-            matches, root_id = _filter_by_root(matches, note)
+            matches, root_pitch = _filter_by_root(matches, note)
 
         # 5. Special handling for "Spread Triad" searches if still needed
         if is_spread_triad_query and matches.count() == 0:
-            matches = _broader_spread_matches(chord_name, note, root_id)
+            matches = _broader_spread_matches(chord_name, note, root_pitch)
 
         # 6. Process the matches into structured results
         results = process_improved_chord_results(matches, root_note=note)
@@ -196,7 +196,7 @@ def improved_search_chords(search_query: str) -> list[dict]:
 
 def _display_root(chord, root_note):
     """Determine the display root name and URL root id for a chord."""
-    from .search_utils import ROOT_NAME_TO_ID
+    from .search_utils import PITCH_TO_ROOT_NAME, ROOT_NAME_TO_ID
 
     display_root = root_note
     url_root_id = None
@@ -209,12 +209,11 @@ def _display_root(chord, root_note):
         # Otherwise use the chord's tonal_root if available
         tonal_root = getattr(chord, "tonal_root", None)
         if tonal_root is not None:
-            # Find the root name for this tonal_root
-            for name, root_id in ROOT_NAME_TO_ID.items():
-                if root_id == tonal_root:
-                    display_root = name
-                    url_root_id = root_id
-                    break
+            # tonal_root is a pitch class (C=0); look up the matching root name and Root id
+            name = PITCH_TO_ROOT_NAME.get(tonal_root)
+            if name:
+                display_root = name
+                url_root_id = ROOT_NAME_TO_ID[name]
 
     # Default to C (ID 1) if we couldn't determine a root
     if not url_root_id:
