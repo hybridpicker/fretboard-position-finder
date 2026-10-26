@@ -75,11 +75,6 @@ class TestAutocompleteSynthetic:
         assert results[0]["type"] == "chord"
         assert results[0]["url"] == f"/?models_select=3&notes_options_select={c.pk}"
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="BUG: a root-less chord display name goes through normalize_search_term, "
-        "which turns 'Major 7' into 'Majoror 7'",
-    )
     def test_root_less_major_chord_keeps_its_name(self, api_get):
         chord(category("Chords", 3), "Major 7", 500, tonal_root=3)
         results = api_get(reverse(AUTOCOMPLETE), q="Major 7").json()["results"]
@@ -290,10 +285,6 @@ class TestEmergencyPentatonic:
         assert response.status_code == 200
         assert debug(response)["matched_url"] is None
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="BUG: an unmapped root such as 'E#' makes the emergency url contain 'root=None'",
-    )
     def test_unmapped_root_does_not_emit_none(self, api_get):
         Notes.objects.create(pk=602, category_id=3, note_name="Minor Pentatonic")
         info = debug(api_get(reverse(DIRECT), q="E# penta"))

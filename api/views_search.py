@@ -59,6 +59,15 @@ def _autocomplete_root_pk(query: str) -> int | None:
     return root_pk
 
 
+def _typed_chord_root(normalized_query: str) -> tuple[str, int] | None:
+    """Return the (name, Root id) typed at the start of a normalised chord query, if any."""
+    match = re.match(r"^([A-G][#b]?)\s", normalized_query)
+    if not match:
+        return None
+    root_id = get_root_id_from_name(match.group(1))
+    return (match.group(1), root_id) if root_id else None
+
+
 def _autocomplete_scale_items(scales, root_pk: int | None, base_url: str) -> list[dict]:
     """Build the autocomplete items for all scales."""
     items = []
@@ -71,7 +80,8 @@ def _autocomplete_scale_items(scales, root_pk: int | None, base_url: str) -> lis
                 f"[SEARCH_AUTOCOMPLETE_FUZZY] Assigned root param: {used_root_pk} (custom mapping)"
             )
         else:
-            root_obj2 = Root.objects.filter(pitch=scale.tonal_root).first()
+            # tonal_root can be negative for modes; reduce it to a pitch class (0-11)
+            root_obj2 = Root.objects.filter(pitch=scale.tonal_root % 12).first()
             used_root_pk = root_obj2.pk if root_obj2 else scale.tonal_root
             logger.debug(
                 f"[SEARCH_AUTOCOMPLETE_FUZZY] Fallback root param: {used_root_pk} -> {root_obj2.name if root_obj2 else 'UNKNOWN'}"
@@ -111,20 +121,29 @@ def _autocomplete_arpeggio_items(arpeggio_types, base_url: str) -> list[dict]:
     return items
 
 
-def _autocomplete_chord_items(chord_types, base_url: str) -> list[dict]:
-    """Build the autocomplete items for all chord types."""
+def _autocomplete_chord_items(
+    chord_types, base_url: str, typed_root: tuple[str, int] | None = None
+) -> list[dict]:
+    """Build the autocomplete items for all chord types.
+
+    ``typed_root`` is the (name, Root id) the user typed; it overrides the stored root.
+    """
     items = []
     for chord in chord_types:
         # Use both root and chord_name for normalized display,
         # e.g. 'Dominant 7' with root G -> 'G Dominant 7'
         root_obj = None
-        if hasattr(chord, "tonal_root"):
+        if typed_root is None and hasattr(chord, "tonal_root"):
             root_obj = Root.objects.filter(pitch=chord.tonal_root).first()
-        root_name = root_obj.name if root_obj else None
-        display_name = normalize_search_term(
-            f"{root_name} {chord.chord_name}" if root_name else chord.chord_name
+        root_name = typed_root[0] if typed_root else (root_obj.name if root_obj else None)
+        display_name = (
+            normalize_search_term(f"{root_name} {chord.chord_name}")
+            if root_name
+            else chord.chord_name
         )
         url = f"{base_url}?models_select=3&notes_options_select={chord.pk}"
+        if typed_root is not None:
+            url += f"&root={typed_root[1]}"
         items.append(
             {
                 "name": display_name,  # Use display name for results!
@@ -139,19 +158,24 @@ def _autocomplete_chord_items(chord_types, base_url: str) -> list[dict]:
 def _autocomplete_fuzzy_suggestions(normalized_query: str, all_items: list[dict]) -> list[dict]:
     """Fuzzy match the query against the normalized item names."""
     normalized_names = [item["normalized_name"] for item in all_items]
-    matches = process.extract(normalized_query, normalized_names, limit=10)
+    matches = process.extract(normalized_query, normalized_names, limit=None)
     suggestions = []
+    seen = set()
     for match, score in matches:
-        if score >= MIN_SCORE_THRESHOLD:
-            idx = normalized_names.index(match)
-            # Return the original name
-            suggestions.append(
-                {
-                    "name": all_items[idx]["name"],
-                    "type": all_items[idx]["type"],
-                    "url": all_items[idx]["url"],
-                }
-            )
+        if score < MIN_SCORE_THRESHOLD or match in seen:
+            continue
+        seen.add(match)
+        idx = normalized_names.index(match)
+        # Return the original name
+        suggestions.append(
+            {
+                "name": all_items[idx]["name"],
+                "type": all_items[idx]["type"],
+                "url": all_items[idx]["url"],
+            }
+        )
+        if len(suggestions) == 10:
+            break
     return suggestions
 
 
@@ -187,7 +211,9 @@ def _autocomplete_results(query: str) -> JsonResponse:
     if type_ == "chord" or type_ == "all":
         # Only suggest chords if the query does not indicate a pentatonic/scale intent
         if not ("pentatonic" in quality.lower() or type_ == "scale"):
-            all_items += _autocomplete_chord_items(chord_types, base_fretboard_url)
+            all_items += _autocomplete_chord_items(
+                chord_types, base_fretboard_url, _typed_chord_root(normalized_query)
+            )
 
     suggestions = _autocomplete_fuzzy_suggestions(normalized_query, all_items)
 

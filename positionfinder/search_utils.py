@@ -76,6 +76,33 @@ ROOT_NAME_TO_ID = {
     "B": 17,
 }
 
+# Pitch class (0-11) of each root name; ``ChordNotes.tonal_root`` stores a pitch, not a Root id.
+ROOT_NAME_TO_PITCH = {
+    "C": 0,
+    "Db": 1,
+    "C#": 1,
+    "D": 2,
+    "Eb": 3,
+    "D#": 3,
+    "E": 4,
+    "F": 5,
+    "Gb": 6,
+    "F#": 6,
+    "G": 7,
+    "Ab": 8,
+    "G#": 8,
+    "A": 9,
+    "Bb": 10,
+    "A#": 10,
+    "B": 11,
+}
+
+# Preferred (flat) spelling for displaying a pitch class.
+PITCH_TO_ROOT_NAME = {
+    0: "C", 1: "Db", 2: "D", 3: "Eb", 4: "E", 5: "F",
+    6: "Gb", 7: "G", 8: "Ab", 9: "A", 10: "Bb", 11: "B",
+}  # fmt: skip
+
 
 # Common enharmonic equivalents (e.g., D# <-> Eb, Gb <-> F#)
 _ENHARMONICS = {
@@ -90,6 +117,9 @@ _ENHARMONICS = {
     "Bb": "A#",
     "A#": "Bb",
 }
+
+# Rarely used spellings that name the same pitch as a natural note
+_RARE_SPELLINGS = {"E#": "F", "Fb": "E", "Cb": "B", "B#": "C"}
 
 _COMPACT_CHORD_REGEX = re.compile(
     r"^([a-gA-G][b#]?)(maj7|min7|m7b5|dim7|m7|7|sus4|sus2|add9|6|9|11|13|aug|dim|maj|min|m)?$"
@@ -142,6 +172,8 @@ def get_root_id_from_name(note_name: str | None) -> int | None:
     # Try common enharmonic equivalents (e.g., D# <-> Eb, Gb <-> F#)
     if note_name in _ENHARMONICS and _ENHARMONICS[note_name] in ROOT_NAME_TO_ID:
         return ROOT_NAME_TO_ID[_ENHARMONICS[note_name]]
+    if note_name in _RARE_SPELLINGS:
+        return ROOT_NAME_TO_ID[_RARE_SPELLINGS[note_name]]
     return None
 
 

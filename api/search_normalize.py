@@ -31,7 +31,8 @@ def _shorthand_chord(term: str) -> str | None:
     for pattern, template in _SHORTHAND_CHORDS:
         match = re.match(pattern, term)
         if match:
-            return template.format(root=match.group(1).upper())
+            root = match.group(1)
+            return template.format(root=root[0].upper() + root[1:])
     return None
 
 
@@ -92,7 +93,7 @@ def normalize_search_term(term: str) -> str:
         return early
 
     # General replacements (no shorthand pattern matched above)
-    term = term.replace("maj", "Major")
+    term = re.sub(r"maj(?!or)", "Major", term)
     term = term.replace("#", "sharp")
     # Be careful with flat replacement - only replace 'b' when it's a note modifier
     term = re.sub(r"([a-g])b", r"\1flat", term)

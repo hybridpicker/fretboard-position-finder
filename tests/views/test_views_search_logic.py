@@ -200,22 +200,11 @@ def test_unified_view_html_context(vs, monkeypatch):
 
 
 # ----------------------------------------------------------------------------- search_chords
-def test_search_chords_returns_empty_list_for_templates_with_zero_tonal_root(vs):
-    assert vs.search_chords("C major") == []
-
-
-@pytest.mark.xfail(
-    strict=True,
-    reason="BUG: search_chords filters tonal_root against ROOT_NAME_TO_ID (a Root row id, "
-    "C=1) although tonal_root is a pitch (C=0), so a plain 'C major' query finds "
-    "no chord voicings at all (only the monkey patched replacement works)",
-)
 def test_search_chords_finds_c_major_voicings(vs):
     assert vs.search_chords("C major")
 
 
 def test_search_chords_chord_and_type_branch(vs):
-    make_chord_copies("V1", "Major 7", tonal_root=1, count=2)
     results = vs.search_chords("C major7 V1")
     assert results
     assert {r["type"] for r in results} == {"V1"}
@@ -225,20 +214,21 @@ def test_search_chords_chord_and_type_branch(vs):
     )
 
 
-def test_search_chords_chord_and_type_branch_without_rows_is_empty(vs):
-    assert vs.search_chords("C minor7 V1") == []
+def test_search_chords_chord_and_type_branch_for_minor_chords(vs):
+    results = vs.search_chords("C minor7 V1")
+    assert results
+    assert {r["type"] for r in results} == {"V1"}
+    assert all(r["name"].startswith("C Minor") for r in results)
 
 
 def test_search_chords_chord_only_branch(vs):
-    make_chord_copies("Triads", "Major", tonal_root=1)
     results = vs.search_chords("C major")
     assert results
-    assert all(r["type"] == "Triads" for r in results)
-    assert results[0]["name"] == "C Major"
+    assert "Triads" in {r["type"] for r in results}
+    assert all(r["name"].startswith("C Major") for r in results)
 
 
 def test_search_chords_type_only_branch(vs):
-    make_chord_copies("V1", "Major 7", tonal_root=1)
     results = vs.search_chords("C pentatonic V1")
     assert results and all(r["type"] == "V1" for r in results)
 
@@ -274,9 +264,7 @@ def test_process_chord_results_without_root_note(vs):
 
 
 def test_process_chord_results_root_filter_by_tonal_root_and_name_prefix(vs):
-    copies = make_chord_copies(
-        "Triads", "Major", tonal_root=14, count=1
-    )  # 14 == ROOT_NAME_TO_ID['A']
+    copies = make_chord_copies("Triads", "Major", tonal_root=9, count=1)  # pitch of A
     qs = ChordNotes.objects.filter(type_name="Triads", chord_name="Major")
     results = vs.process_chord_results(qs, root_note="A")
     assert [r["id"] for r in results] == [copies[0].id]
