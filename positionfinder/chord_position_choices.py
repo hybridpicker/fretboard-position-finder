@@ -1,19 +1,19 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.db.models import SmallIntegerField
 
 INVERSION_CHOICES = {
-    'Basic Position' : _(u'Basic Position'),
-    'First Inversion' : _(u'First Inversion'),
-    'Second Inversion' : _(u'Second Inversion'),
-    'Third Inversion' : _(u'Third Inversion'),
-    'Fourth Inversion' : _(u'Fourth Inversion'),
-    'Fifth Inversion' : _(u'Fifth Inversion'),
-    'Sixth Inversion' : _(u'Sixth Inversion'),
+    "Basic Position": _("Basic Position"),
+    "First Inversion": _("First Inversion"),
+    "Second Inversion": _("Second Inversion"),
+    "Third Inversion": _("Third Inversion"),
+    "Fourth Inversion": _("Fourth Inversion"),
+    "Fifth Inversion": _("Fifth Inversion"),
+    "Sixth Inversion": _("Sixth Inversion"),
 }
+
 
 class ChordInversionChoicesField(models.CharField):
     def __init__(self, *args, **kwargs):
-        kwargs['choices'] = tuple(sorted(INVERSION_CHOICES.items()))
-        kwargs['max_length'] = 20
-        super(ChordInversionChoicesField, self).__init__(*args, **kwargs)
+        kwargs["choices"] = tuple(sorted(INVERSION_CHOICES.items()))
+        kwargs["max_length"] = 20
+        super().__init__(*args, **kwargs)

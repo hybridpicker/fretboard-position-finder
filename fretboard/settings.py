@@ -21,62 +21,62 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # The public site lives only at https://fretboard.schoensgibl.com; localhost entries are for development.
-SITE_URL = 'https://fretboard.schoensgibl.com'
-ALLOWED_HOSTS = ['fretboard.schoensgibl.com', 'localhost', '127.0.0.1', '[::1]']
+SITE_URL = "https://fretboard.schoensgibl.com"
+ALLOWED_HOSTS = ["fretboard.schoensgibl.com", "localhost", "127.0.0.1", "[::1]"]
 CSRF_TRUSTED_ORIGINS = [SITE_URL]
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sitemaps',
-    'positionfinder.apps.PositionfinderConfig',
-    'django_extensions',
-    'fretboard',
-    'rest_framework',
-    'api',
-    ]
-
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    # Locale middleware removed
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sitemaps",
+    "positionfinder.apps.PositionfinderConfig",
+    "django_extensions",
+    "fretboard",
+    "rest_framework",
+    "api",
 ]
 
-ROOT_URLCONF = 'fretboard.urls'
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    # Locale middleware removed
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+ROOT_URLCONF = "fretboard.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'positionfinder.context_processors.unified_menu_context',
-                'positionfinder.context_processors.app_version_context',
-                'positionfinder.context_stripe.stripe_url_context',
-                'positionfinder.seo_context_processor.get_seo_metadata',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "positionfinder.context_processors.unified_menu_context",
+                "positionfinder.context_processors.app_version_context",
+                "positionfinder.context_stripe.stripe_url_context",
+                "positionfinder.seo_context_processor.get_seo_metadata",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'fretboard.wsgi.application'
+WSGI_APPLICATION = "fretboard.wsgi.application"
 
 
 # Password validation
@@ -84,16 +84,16 @@ WSGI_APPLICATION = 'fretboard.wsgi.application'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -101,9 +101,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = False  # Disable internationalization
 
@@ -117,41 +117,41 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-MEDIA_URL = '/media/'
+MEDIA_URL = "/media/"
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'fretboard/static_cdn')
+STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "fretboard/static_cdn")
 
 FIXTURE_DIRS = [
-    os.path.join(BASE_DIR, 'fixtures'),
+    os.path.join(BASE_DIR, "fixtures"),
 ]
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # REST Framework settings
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ],
-    'DEFAULT_RENDERER_CLASSES': [
-        'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+        "rest_framework.renderers.BrowsableAPIRenderer",
     ],
 }
 
 # Caching
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'fretboard-cache',
-        'TIMEOUT': 60 * 15,  # 15 minutes
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "fretboard-cache",
+        "TIMEOUT": 60 * 15,  # 15 minutes
     }
 }
 
@@ -161,8 +161,9 @@ USE_OPTIMIZED_CHORD_VIEW = True
 # Application version
 VERSION = "2.1"
 
-if os.path.isfile(os.path.join(BASE_DIR, 'local_settings.py')):
-    from local_settings import *
-    STRIPE_DONATE_URL = locals().get('STRIPE_DONATE_URL', None)
+if os.path.isfile(os.path.join(BASE_DIR, "local_settings.py")):
+    from local_settings import *  # noqa: F403
+
+    STRIPE_DONATE_URL = locals().get("STRIPE_DONATE_URL", None)
 else:
     STRIPE_DONATE_URL = None
