@@ -55,7 +55,7 @@ The search properly handles root notes specified in the query, matching them to 
 A test file has been provided to verify the improved search functionality. Run the tests with:
 
 ```
-python manage.py test positionfinder.test_chord_search
+python -m pytest tests/unit/test_chord_search.py
 ```
 
 ## Integration
