@@ -21,7 +21,7 @@ elif [ -d "venv" ]; then
 fi
 
 # Run the specific test
-python3 manage.py test positionfinder.test_unused_files
+python3 -m pytest tests/unit/test_unused_files.py
 
 # Check if the test passed
 if [ $? -eq 0 ]; then

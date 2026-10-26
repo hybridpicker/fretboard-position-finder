@@ -31,21 +31,23 @@ Fretboard Position Finder is a Django-based web application that visualizes scal
 
 ```
 fretboard-position-finder/
-├── fretboard/              # Main Django project
-│   ├── settings.py         # Project settings
-│   ├── urls.py             # URL routing
-│   └── wsgi.py             # WSGI configuration
+├── fretboard/              # Django project: settings, settings_test (CI), urls, template tags
 ├── positionfinder/         # Main application
-│   ├── models.py           # Models for scales and arpeggios
-│   ├── models_chords.py    # Models for chords
-│   ├── views.py            # Basic views
-│   ├── views_scale.py      # Scale-specific views
-│   ├── views_chords.py     # Chord-specific views
-│   ├── views_arpeggio.py   # Arpeggio-specific views
-│   ├── string_choices.py   # String configuration
-│   ├── template_notes.py   # Note position mapping
-│   └── get_position.py     # Position calculation logic
-├── static/                 # Static assets (CSS, JS)
+│   ├── models.py, models_chords.py     # Scales/arpeggios and chords (ChordNotes, ChordPosition)
+│   ├── views_studio.py     # Studio single-page UI and /api/catalog/
+│   ├── views.py, views_scale.py, views_chords.py, views_arpeggio.py, views_base.py
+│   │                       # Classic views (/classic/, /scales, /chords, /arpeggios)
+│   ├── chord_note_extraction.py        # Note walking/spelling for the chord view
+│   ├── views_search.py, improved_chord_search.py, search_integration.py, search_utils.py
+│   │                       # /search_json/ and query parsing
+│   ├── get_position*.py, template_notes.py, *_setup.py   # Position calculation helpers
+│   ├── v_system_generator.py           # V-System voicing generator
+│   ├── seo_context_processor.py, sitemaps.py, templatetags/
+│   └── management/commands/            # backup, create_full_dump, export_chord_data, import_data, generate_vsystem, test_unused_files
+├── api/                    # REST API (views.py, views_search.py + search_direct/normalize/common)
+├── tests/                  # pytest suite: unit, views, api, seo, commands
+├── scripts/                # Helper scripts (legacy/ holds retired one-offs)
+├── static/                 # Static assets (CSS, JS; static/studio is the Studio UI)
 └── templates/              # HTML templates
 ```
 

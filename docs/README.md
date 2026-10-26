@@ -14,3 +14,4 @@ Welcome to the developer documentation for the Fretboard Position Finder project
 - [Development](development.md) - Development workflow and version control
 - [Troubleshooting](troubleshooting.md) - Common issues and solutions
 - [API Reference](api_reference.md) - Core function documentation
+- [Quality reports](quality/2026-10-25-overnight-report.md) - Test/coverage/refactor pass of 2026-10-25, with the list of known bugs pinned by `xfail` tests
