@@ -37,12 +37,10 @@ F_PENTATONIC = [
 
 
 def glyph(scale=1.0, thick=False):
-    """Fretboard fragment (frets 7-10) with the F major pentatonic box; four strings in the bold favicon."""
-    sw, nut_w, r = (28, 44, 56) if thick else (6, 14, 33)
-    first = 2 if thick else 0  # the favicon keeps only D, G, B and high E
-    strings = 6 - first
+    """Fretboard fragment (frets 7-10) with the F major pentatonic box; always six strings."""
+    sw, nut_w, r = (16, 36, 37) if thick else (6, 14, 33)
     top, bottom, left, step = 312, 712, 192, 140
-    ys = {s: top + (5 - s) * (bottom - top) / (strings - 1) for s in range(first, 6)}
+    ys = {s: top + (5 - s) * (bottom - top) / 5 for s in range(6)}
     parts = []
     for y in ys.values():
         parts.append(
@@ -56,8 +54,6 @@ def glyph(scale=1.0, thick=False):
         f'<rect x="{left - nut_w / 2:.1f}" y="{top - 6}" width="{nut_w}" height="{bottom - top + 12}" rx="{nut_w / 2}" fill="{INK}"/>'
     )
     for string, fret, root in F_PENTATONIC:
-        if string < first:
-            continue
         x = left + (fret - 7) * step + step / 2
         parts.append(
             f'<circle cx="{x:.1f}" cy="{ys[string]:.1f}" r="{r}" fill="{ACCENT if root else INK}"/>'
@@ -75,7 +71,7 @@ def rounded(x, y, size, rx):
 
 ICONS = {
     "icon.svg": svg(rounded(3, 3, 1018, 224) + glyph(1.0)),
-    "icon-small.svg": svg(rounded(3, 3, 1018, 200) + glyph(1.05, thick=True)),
+    "icon-small.svg": svg(rounded(3, 3, 1018, 200) + glyph(1.35, thick=True)),
     "icon-macos.svg": svg(rounded(103, 103, 818, 185) + glyph(0.8)),
     "icon-full.svg": svg(f'<rect width="1024" height="1024" fill="{BG}"/>' + glyph(1.0)),
     "icon-android-foreground.svg": svg(glyph(0.82)),
