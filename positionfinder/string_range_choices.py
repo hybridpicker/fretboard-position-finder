@@ -1,58 +1,56 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.db.models import SmallIntegerField
 
 STRING_RANGE_CHOICES = {
     # Standard 6-string ranges
-    'a - b': _(u'a - b'),
-    'e - g': _(u'e - g'),
-    'b - d': _(u'b - d'),
-    'g - A': _(u'g - A'),
-    'd - E': _(u'd - E'),
-    'A - B': _(u'A - B'),
-    'a - g': _(u'a - g'),
-    'e - d': _(u'e - d'),
-    'b - A': _(u'b - A'),
-    'g - E': _(u'g - E'),
-    'd - B': _(u'd - B'),
-    'a - D': _(u'a - D'),
-    'e - A': _(u'e - A'),
-    'b - E': _(u'b - E'),
-    'g - B': _(u'g - B'),
-    'a - A': _(u'a - A'),
-    'e - E': _(u'e - E'),
-    'b - B': _(u'b - B'),
-    'a - E': _(u'a - E'),
-    'e - B': _(u'e - B'),
-    
+    "a - b": _("a - b"),
+    "e - g": _("e - g"),
+    "b - d": _("b - d"),
+    "g - A": _("g - A"),
+    "d - E": _("d - E"),
+    "A - B": _("A - B"),
+    "a - g": _("a - g"),
+    "e - d": _("e - d"),
+    "b - A": _("b - A"),
+    "g - E": _("g - E"),
+    "d - B": _("d - B"),
+    "a - D": _("a - D"),
+    "e - A": _("e - A"),
+    "b - E": _("b - E"),
+    "g - B": _("g - B"),
+    "a - A": _("a - A"),
+    "e - E": _("e - E"),
+    "b - B": _("b - B"),
+    "a - E": _("a - E"),
+    "e - B": _("e - B"),
     # 8-string specific ranges - high range
-    'highA - e': _(u'highA - e'),
-    'highA - b': _(u'highA - b'),
-    'highA - g': _(u'highA - g'),
-    'highA - d': _(u'highA - d'),
-    'highA - A': _(u'highA - A'),
-    'highA - E': _(u'highA - E'),
-    
+    "highA - e": _("highA - e"),
+    "highA - b": _("highA - b"),
+    "highA - g": _("highA - g"),
+    "highA - d": _("highA - d"),
+    "highA - A": _("highA - A"),
+    "highA - E": _("highA - E"),
     # 8-string specific ranges - full extended range
-    'highA - lowB': _(u'highA - lowB'),
-    
+    "highA - lowB": _("highA - lowB"),
     # 8-string specific ranges - mid to low range
-    'e - lowB': _(u'e - lowB'),
-    'b - lowB': _(u'b - lowB'),
-    'g - lowB': _(u'g - lowB'),
-    'd - lowB': _(u'd - lowB'),
-    'A - lowB': _(u'A - lowB'),
-    'E - lowB': _(u'E - lowB'),
-    
+    "e - lowB": _("e - lowB"),
+    "b - lowB": _("b - lowB"),
+    "g - lowB": _("g - lowB"),
+    "d - lowB": _("d - lowB"),
+    "A - lowB": _("A - lowB"),
+    "E - lowB": _("E - lowB"),
     # Additional optimized ranges for 8-string
-    'highA - AString': _(u'highA - AString'),
-    'highA - ELowString': _(u'highA - ELowString'),
-    'bString - lowB': _(u'bString - lowB'),
-    'dString - lowB': _(u'dString - lowB'),
+    "highA - AString": _("highA - AString"),
+    "highA - ELowString": _("highA - ELowString"),
+    "bString - lowB": _("bString - lowB"),
+    "dString - lowB": _("dString - lowB"),
 }
+
 
 class StringRangeChoicesField(models.CharField):
     def __init__(self, *args, **kwargs):
-        kwargs['choices'] = tuple(sorted(STRING_RANGE_CHOICES.items()))
-        kwargs['max_length'] = 20  # Increased to accommodate longer strings like 'highA - ELowString'
-        super(StringRangeChoicesField, self).__init__(*args, **kwargs)
+        kwargs["choices"] = tuple(sorted(STRING_RANGE_CHOICES.items()))
+        kwargs["max_length"] = (
+            20  # Increased to accommodate longer strings like 'highA - ELowString'
+        )
+        super().__init__(*args, **kwargs)

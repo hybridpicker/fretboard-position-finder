@@ -1,9 +1,11 @@
 from .positions import NotesPosition
 
-def get_notes_position(position_id, root):
+
+def get_notes_position(position_id: int, root: int) -> list[int]:
+    """Return the fret numbers of a stored position, shifted to the root."""
     position = NotesPosition.objects.get(pk=position_id).position
     # Transform into List and add root_pitch
-    position_list = [int(x) + int(root) for x in position.split(',')]
+    position_list = [int(x) + int(root) for x in position.split(",")]
     # Check if every item in list is not bigger than fretboard
     check_range = all(x <= 17 for x in position_list)
     if check_range:

@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{{ page_title|default:"Guitar Positions | Complete Fretboard Visualization Tool" }}</title>
+  <title>{{ page_title|default:"Guitar Positions | Fretboard Studio" }}</title>
 
   {% include "header/header.html" %}
   
@@ -43,7 +43,7 @@
 
   <!-- Meta Tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="title" content="{{ page_title|default:'Guitar Positions | Complete Fretboard Visualization Tool' }}">
+  <meta name="title" content="{{ page_title|default:'Guitar Positions | Fretboard Studio' }}">
   <meta name="description" content="{{ meta_description|default:'Find any scale, chord, or arpeggio position on the guitar fretboard. Free interactive tool for guitarists of all levels with comprehensive coverage of musical situations.' }}">
   <meta name="keywords" content="{{ meta_keywords|default:'guitar positions, fretboard finder, guitar scales, guitar chords, guitar arpeggios, fretboard visualization, guitar learning tool' }}">
 
@@ -51,15 +51,16 @@
   <link rel="canonical" href="{{ request.build_absolute_uri }}">
 
   <!-- Social Media Meta -->
-  <meta property="og:title" content="{{ og_title|default:'Guitar Positions | Ultimate Fretboard Tool' }}">
-  <meta property="og:description" content="{{ og_description|default:'Interactive fretboard visualization for guitarists. Explore scales, modes, arpeggios, and chord positions across the entire fretboard.' }}">
-  <meta property="og:image" content="{% static 'thumbnail/facebook/thumb_25.jpg' %}">
+  <meta property="og:title" content="{{ og_title|default:'Guitar Positions | Fretboard Studio' }}">
+  <meta property="og:description" content="{{ og_description|default:'Scales, arpeggios and chords with fingerings on an interactive fretboard.' }}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'thumbnail/og-image.png' %}">
   <meta property="og:url" content="{{ request.build_absolute_uri }}">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Guitar Positions">
 
-  <meta name="twitter:title" content="{{ twitter_title|default:'Guitar Positions | Fretboard Tool' }}">
-  <meta name="twitter:description" content="{{ twitter_description|default:'Find any guitar position instantly with our comprehensive fretboard visualization tool.' }}">
-  <meta name="twitter:image" content="{% static 'thumbnail/twitter/thumb_25.jpg' %}">
+  <meta name="twitter:title" content="{{ twitter_title|default:'Guitar Positions | Fretboard Studio' }}">
+  <meta name="twitter:description" content="{{ twitter_description|default:'Scales, arpeggios and chords with fingerings on an interactive fretboard.' }}">
+  <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'thumbnail/og-image.png' %}">
   <meta name="twitter:card" content="summary_large_image">
 
   <!-- Schema.org structured data for rich search results -->
@@ -67,7 +68,7 @@
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "{{ page_title|default:'Guitar Positions | Complete Fretboard Visualization Tool' }}",
+    "name": "{{ page_title|default:'Guitar Positions | Fretboard Studio' }}",
     "url": "{{ request.build_absolute_uri }}",
     "description": "{{ meta_description|default:'Find any scale, chord, or arpeggio position on the guitar fretboard. Free interactive tool for guitarists of all levels.' }}",
     "applicationCategory": "MusicApplication",

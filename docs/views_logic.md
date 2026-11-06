@@ -29,35 +29,35 @@ The `fretboard_scale_view` function handles scale visualization:
 ```python
 def fretboard_scale_view(request):
     # Process GET parameters
-    root_id = request.GET.get('root', 1)
-    category_id = request.GET.get('models_select', 1)
-    notes_options_id = request.GET.get('notes_options_select', '1')
-    position_id = request.GET.get('position_select', '0')
-    
+    root_id = request.GET.get("root", 1)
+    category_id = request.GET.get("models_select", 1)
+    notes_options_id = request.GET.get("notes_options_select", "1")
+    position_id = request.GET.get("position_select", "0")
+
     # Redirect if not a scale request
-    if category_id == '2':
-        return redirect('show_arpeggio_fretboard')
-    if category_id == '3':
-        return redirect('show_chords_fretboard')
-    
+    if category_id == "2":
+        return redirect("show_arpeggio_fretboard")
+    if category_id == "3":
+        return redirect("show_chords_fretboard")
+
     # Get data from models
     root_pitch = Root.objects.get(pk=root_id).pitch
-    notes_options = Notes.objects.filter(category=category_id).order_by('ordering')
+    notes_options = Notes.objects.filter(category=category_id).order_by("ordering")
     position_options = NotesPosition.objects.filter(notes_name=notes_options_id)
-    
+
     # Calculate musical information
     tones = get_notes_tones(notes_options_id, root_pitch, tonal_root, root_id)
     tensions = get_functionality_tones(notes_options_id, root_pitch)
     root = get_root_note(root_pitch, tonal_root, root_id)
-    
+
     # Generate position dictionary
     position_json_data = get_scale_position_dict(...)
-    
+
     # Format for JSON
     scale_json_data = json.dumps(position_json_data)
-    
+
     # Render template with context
-    return render(request, 'fretboard.html', context)
+    return render(request, "fretboard.html", context)
 ```
 
 ## Chords View (views_chords.py)
@@ -67,44 +67,45 @@ The `fretboard_chords_view` function handles chord visualization:
 ```python
 def fretboard_chords_view(request):
     # Process GET parameters
-    root_id = request.GET.get('root', 1)
-    category_id = request.GET.get('models_select', 3)
-    type_id = request.GET.get('type_options_select', 'Triads')
-    chord_select_name = request.GET.get('chords_options_select', 'Major')
-    range = request.GET.get('note_range', 'e - g')
-    
+    root_id = request.GET.get("root", 1)
+    category_id = request.GET.get("models_select", 3)
+    type_id = request.GET.get("type_options_select", "Triads")
+    chord_select_name = request.GET.get("chords_options_select", "Major")
+    range = request.GET.get("note_range", "e - g")
+
     # Redirect if not a chord request
-    if category_id == '2':
-        return redirect('show_arpeggio_fretboard')
-    elif category_id == '1':
-        return redirect('show_scale_fretboard')
-    
+    if category_id == "2":
+        return redirect("show_arpeggio_fretboard")
+    elif category_id == "1":
+        return redirect("show_scale_fretboard")
+
     # Get chord object
-    chord_object = ChordNotes.objects.get(chord_name=chord_select_name,
-                                         type_name=type_id, range=range)
-    
+    chord_object = ChordNotes.objects.get(
+        chord_name=chord_select_name, type_name=type_id, range=range
+    )
+
     # Get related data
     tonal_root = chord_object.tonal_root
     position_options = ChordPosition.objects.filter(notes_name_id=chord_object.id)
-    
+
     # Generate chord JSON data
     chord_json_data = {
         "chord": chord_object.chord_name,
         "type": chord_object.type_name,
         "root": get_root_note(root_pitch, tonal_root, root_id),
-        "note_range": range
+        "note_range": range,
     }
-    
+
     # Add inversions and positions
     for inversion in position_options:
         position_json_data = get_position_dict(...)
         chord_json_data[inversion.inversion_order] = position_json_data
-    
+
     # Format for JSON
     chord_json_data = json.dumps(chord_json_data)
-    
+
     # Render template with context
-    return render(request, 'fretboard.html', context)
+    return render(request, "fretboard.html", context)
 ```
 
 ## Helpers (views_helpers.py)
@@ -124,18 +125,18 @@ def get_menu_options():
     chords_category = NotesCategory.objects.get(id=chords_category_id)
 
     # Retrieve notes based on the categories
-    scales = Notes.objects.filter(category=scales_category).values('id', 'note_name')
-    arpeggios = Notes.objects.filter(category=arpeggios_category).values('id', 'note_name')
-    chords = ChordNotes.objects.filter(category=chords_category).values('id', 'type_name')
-    
+    scales = Notes.objects.filter(category=scales_category).values("id", "note_name")
+    arpeggios = Notes.objects.filter(category=arpeggios_category).values("id", "note_name")
+    chords = ChordNotes.objects.filter(category=chords_category).values("id", "type_name")
+
     # Remove duplicates from chords
-    unique_chords = list({chord['type_name']: chord for chord in chords}.values())
+    unique_chords = list({chord["type_name"]: chord for chord in chords}.values())
 
     # Return the menu options
     return {
-        'scales_options': list(scales),
-        'arpeggios_options': list(arpeggios),
-        'chords_options': unique_chords,
+        "scales_options": list(scales),
+        "arpeggios_options": list(arpeggios),
+        "chords_options": unique_chords,
     }
 ```
 
@@ -175,27 +176,30 @@ def get_scale_position_dict(scale_name, root_id, root_pitch, tonal_root, root_na
 The chord position calculation happens in `get_position_dict_chords.py`:
 
 ```python
-def get_position_dict(inversion_name, chord_name, string_range, 
-                      type_name, root_pitch, tonal_root, root_name):
+def get_position_dict(
+    inversion_name, chord_name, string_range, type_name, root_pitch, tonal_root, root_name
+):
     # Get chord objects
-    chord_object = ChordNotes.objects.get(chord_name=chord_name,
-                                         type_name=type_name,
-                                         range=string_range)
-    
-    position_object = ChordPosition.objects.get(notes_name=chord_object,
-                                              inversion_order=inversion_name)
-    
+    chord_object = ChordNotes.objects.get(
+        chord_name=chord_name, type_name=type_name, range=string_range
+    )
+
+    position_object = ChordPosition.objects.get(
+        notes_name=chord_object, inversion_order=inversion_name
+    )
+
     # Initialize result array
     positions = []
-    
+
     # Calculate note placements
     if chord_object.first_note_string:
-        note = calculate_note_position(root_pitch, position_object.first_note, 
-                                     chord_object.first_note_string)
+        note = calculate_note_position(
+            root_pitch, position_object.first_note, chord_object.first_note_string
+        )
         positions.append({chord_object.first_note_string: note})
-    
+
     # Add more notes...
-    
+
     return positions
 ```
 
@@ -225,15 +229,23 @@ The views support 8-string configuration through:
 
 1. **String names list**: Includes all eight strings in the correct order
    ```python
-   string_names = ['lowBString', 'ELowString', 'AString', 'dString', 
-                  'gString', 'bString', 'eString', 'highAString']
+   string_names = [
+       "lowBString",
+       "ELowString",
+       "AString",
+       "dString",
+       "gString",
+       "bString",
+       "eString",
+       "highAString",
+   ]
    ```
 
 2. **Template context**: Passed to the template for rendering
    ```python
    context = {
        # ... other context data
-       'string_names': string_names,
+       "string_names": string_names,
    }
    ```
 
@@ -246,7 +258,7 @@ The backend passes position data to the frontend as JSON:
 ```python
 scale_json_data = json.dumps(position_json_data)
 context = {
-    'scale_json_data': scale_json_data,
+    "scale_json_data": scale_json_data,
     # ... other context
 }
 ```
@@ -265,11 +277,11 @@ The URL routing is defined in `urls.py`:
 
 ```python
 urlpatterns = [
-    path('', views_scale.fretboard_scale_view, name='show_scale_fretboard'),
-    path('arpeggio/', views_arpeggio.fretboard_arpeggio_view, name='show_arpeggio_fretboard'),
-    path('chords/', views_chords.fretboard_chords_view, name='show_chords_fretboard'),
-    path('about/', views.about_view, name='about'),
-    path('impressum/', views.impressum_view, name='impressum'),
+    path("", views_scale.fretboard_scale_view, name="show_scale_fretboard"),
+    path("arpeggio/", views_arpeggio.fretboard_arpeggio_view, name="show_arpeggio_fretboard"),
+    path("chords/", views_chords.fretboard_chords_view, name="show_chords_fretboard"),
+    path("about/", views.about_view, name="about"),
+    path("impressum/", views.impressum_view, name="impressum"),
 ]
 ```
 
@@ -296,7 +308,7 @@ if position_json_data is None:
     # Generate if not in cache
     position_json_data = get_scale_position_dict(...)
     # Store in cache for future requests
-    cache.set(cache_key, position_json_data, 60*60*24)  # 24 hour cache
+    cache.set(cache_key, position_json_data, 60 * 60 * 24)  # 24 hour cache
 ```
 
 ### Database Query Optimization
@@ -305,12 +317,12 @@ Reduce database queries by:
 
 1. **Using select_related**: For foreign key relationships
    ```python
-   chord_object = ChordNotes.objects.select_related('category').get(id=notes_options_id)
+   chord_object = ChordNotes.objects.select_related("category").get(id=notes_options_id)
    ```
 
 2. **Prefetching related objects**: For reverse relationships
    ```python
-   position_options = NotesPosition.objects.prefetch_related('notes_name').filter(...)
+   position_options = NotesPosition.objects.prefetch_related("notes_name").filter(...)
    ```
 
 ## Custom Template Tags

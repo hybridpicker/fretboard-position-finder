@@ -28,9 +28,9 @@ class Root(models.Model):
         return str(self.name)
 
     class Meta:
-        ordering = ('pitch', 'name')
-        verbose_name = u'Rootnote'
-        verbose_name_plural = u'Rootnotes'
+        ordering = ("pitch", "name")
+        verbose_name = "Rootnote"
+        verbose_name_plural = "Rootnotes"
 ```
 
 Key fields:
@@ -49,8 +49,8 @@ class NotesCategory(models.Model):
         return str(self.category_name)
 
     class Meta:
-        verbose_name = u'category name'
-        verbose_name_plural = u'category names'
+        verbose_name = "category name"
+        verbose_name_plural = "category names"
 ```
 
 Key fields:
@@ -74,12 +74,12 @@ class Notes(models.Model):
     # ... more notes up to twelth_note
 
     def __str__(self):
-        return '%s : %s' % (self.category, self.note_name)
+        return "%s : %s" % (self.category, self.note_name)
 
     class Meta:
-        ordering = ['category', 'ordering', 'note_name']
-        verbose_name = u'Tones for Scale'
-        verbose_name_plural = u'Tones for Scales'
+        ordering = ["category", "ordering", "note_name"]
+        verbose_name = "Tones for Scale"
+        verbose_name_plural = "Tones for Scales"
 ```
 
 Key fields:
@@ -106,12 +106,12 @@ class NotesPosition(models.Model):
     # ... more notes and string assignments
 
     def __str__(self):
-        return '%s : %s' % (self.notes_name, self.position_order)
+        return "%s : %s" % (self.notes_name, self.position_order)
 
     class Meta:
-        ordering = ('notes_name', 'position_order_number')
-        verbose_name = u'Scale position'
-        verbose_name_plural = u'Scale positions'
+        ordering = ("notes_name", "position_order_number")
+        verbose_name = "Scale position"
+        verbose_name_plural = "Scale positions"
 ```
 
 Key fields:
@@ -145,12 +145,12 @@ class ChordNotes(models.Model):
         create_chords = create_chord(self.id)
 
     def __str__(self):
-        return '%s : %s (%s)' % (self.type_name, self.chord_name, self.range)
+        return "%s : %s (%s)" % (self.type_name, self.chord_name, self.range)
 
     class Meta:
-        ordering = ['category', 'ordering', 'range_ordering', 'chord_ordering']
-        verbose_name = u'Tones for Chord'
-        verbose_name_plural = u'Tones for Chords'
+        ordering = ["category", "ordering", "range_ordering", "chord_ordering"]
+        verbose_name = "Tones for Chord"
+        verbose_name_plural = "Tones for Chords"
 ```
 
 Key fields:
@@ -179,14 +179,18 @@ class ChordPosition(models.Model):
     sixth_note = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return '"%s" %s : %s %s (%s)' % (self.notes_name, self.inversion_order,
-                               self.notes_name.type_name, self.notes_name.chord_name,
-                               self.notes_name.chord_ordering)
+        return '"%s" %s : %s %s (%s)' % (
+            self.notes_name,
+            self.inversion_order,
+            self.notes_name.type_name,
+            self.notes_name.chord_name,
+            self.notes_name.chord_ordering,
+        )
 
     class Meta:
-        ordering = ('notes_name', 'inversion_order')
-        verbose_name = u'Chord position'
-        verbose_name_plural = u'Chord positions'
+        ordering = ("notes_name", "inversion_order")
+        verbose_name = "Chord position"
+        verbose_name_plural = "Chord positions"
 ```
 
 Key fields:
@@ -202,20 +206,21 @@ Custom field for string selections.
 
 ```python
 STRING_CHOICES = {
-    'eString': _(u'eString'),
-    'bString': _(u'bString'),
-    'gString': _(u'gString'),
-    'dString': _(u'dString'),
-    'AString': _(u'AString'),
-    'ELowString': _(u'ELowString'),
-    'lowBString': _(u'lowBString'),      # 8-string only
-    'highAString': _(u'highAString'),    # 8-string only
+    "eString": _("eString"),
+    "bString": _("bString"),
+    "gString": _("gString"),
+    "dString": _("dString"),
+    "AString": _("AString"),
+    "ELowString": _("ELowString"),
+    "lowBString": _("lowBString"),  # 8-string only
+    "highAString": _("highAString"),  # 8-string only
 }
+
 
 class StringChoicesField(models.CharField):
     def __init__(self, *args, **kwargs):
-        kwargs['choices'] = tuple(sorted(STRING_CHOICES.items()))
-        kwargs['max_length'] = 20
+        kwargs["choices"] = tuple(sorted(STRING_CHOICES.items()))
+        kwargs["max_length"] = 20
         super(StringChoicesField, self).__init__(*args, **kwargs)
 ```
 
@@ -225,15 +230,16 @@ Custom field for string range selections.
 
 ```python
 STRING_RANGE_CHOICES = {
-    'a - b': _(u'a - b'),
-    'e - g': _(u'e - g'),
+    "a - b": _("a - b"),
+    "e - g": _("e - g"),
     # ... many more combinations
 }
 
+
 class StringRangeChoicesField(models.CharField):
     def __init__(self, *args, **kwargs):
-        kwargs['choices'] = tuple(sorted(STRING_RANGE_CHOICES.items()))
-        kwargs['max_length'] = 8
+        kwargs["choices"] = tuple(sorted(STRING_RANGE_CHOICES.items()))
+        kwargs["max_length"] = 8
         super(StringRangeChoicesField, self).__init__(*args, **kwargs)
 ```
 
@@ -269,21 +275,21 @@ The 8-string version extends the models with:
 from positionfinder.models import Notes, NotesCategory
 
 # Get the scales category
-scales_category = NotesCategory.objects.get(category_name='Scales')
+scales_category = NotesCategory.objects.get(category_name="Scales")
 
 # Create a new scale (e.g., Altered Scale)
 altered_scale = Notes.objects.create(
     category=scales_category,
-    note_name='Altered',
+    note_name="Altered",
     ordering=10,  # Position in menus
     tonal_root=0,
-    first_note=0,   # Root
+    first_note=0,  # Root
     second_note=1,  # b2
-    third_note=3,   # #2
+    third_note=3,  # #2
     fourth_note=4,  # 3
-    fifth_note=6,   # b5
-    sixth_note=8,   # #5
-    seventh_note=10  # b7
+    fifth_note=6,  # b5
+    sixth_note=8,  # #5
+    seventh_note=10,  # b7
 )
 ```
 
@@ -294,24 +300,24 @@ from positionfinder.models_chords import ChordNotes
 from positionfinder.models import NotesCategory
 
 # Get the chords category
-chords_category = NotesCategory.objects.get(category_name='Chords')
+chords_category = NotesCategory.objects.get(category_name="Chords")
 
 # Create a new chord type (e.g., Add9 chord)
 add9_chord = ChordNotes.objects.create(
     category=chords_category,
-    type_name='Add9',
-    chord_name='Major Add9',
-    range='e - g',
+    type_name="Add9",
+    chord_name="Major Add9",
+    range="e - g",
     ordering=5,  # Position in menus
     tonal_root=0,
-    first_note=0,   # Root
-    first_note_string='gString',
+    first_note=0,  # Root
+    first_note_string="gString",
     second_note=4,  # Major 3rd
-    second_note_string='bString',
-    third_note=7,   # Perfect 5th
-    third_note_string='eString',
+    second_note_string="bString",
+    third_note=7,  # Perfect 5th
+    third_note_string="eString",
     fourth_note=14,  # 9th (2nd + octave)
-    fourth_note_string='eString'
+    fourth_note_string="eString",
 )
 ```
 

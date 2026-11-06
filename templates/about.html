@@ -3,24 +3,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>About</title>
-  
+  <title>{{ page_title }}</title>
+
   {% include "header/header.html" %}
 
   <!-- Meta Tags -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="title" content="Fretboard-Position-Finder">
-  <meta name="description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
+  <meta name="description" content="{{ meta_description }}">
+  <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
 
   <!-- Social Media Meta -->
-  <meta property="og:title" content="Guitar Positions">
-  <meta property="og:description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
-  <meta property="og:image" content="{% static 'thumbnail/facebook/thumb_25.jpg' %}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Guitar Positions">
+  <meta property="og:title" content="{{ og_title }}">
+  <meta property="og:description" content="{{ og_description }}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'thumbnail/og-image.png' %}">
   <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
 
-  <meta name="twitter:title" content="Guitar Positions">
-  <meta name="twitter:description" content="Position Generator on Guitar-Fretboard for Scales, Arpeggios, Chords in all 12 Keys">
-  <meta name="twitter:image" content="{% static 'thumbnail/twitter/thumb_25.jpg' %}">
+  <meta name="twitter:title" content="{{ twitter_title }}">
+  <meta name="twitter:description" content="{{ twitter_description }}">
+  <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'thumbnail/og-image.png' %}">
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="stylesheet" href="{% static 'css/about-page.css' %}">
