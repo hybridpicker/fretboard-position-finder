@@ -173,7 +173,7 @@ later paid team, so use a separate test ID such as `com.guitarpositions.dev`.
 ## App icons and launch screens
 
 The masters live in `static/studio/icons/` and are rendered from the SVG sources by
-`scripts/build_studio_icons.py`. After changing them, regenerate the native sets and commit the
+`scripts/build_icons.py`. After changing them, regenerate the native sets and commit the
 results:
 
 ```bash
