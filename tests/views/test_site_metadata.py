@@ -45,6 +45,12 @@ def test_page_titles(client, path, title):
     assert "Position Generator" not in html
 
 
+@pytest.mark.parametrize("icon", sorted((STATIC_DIR / "studio" / "icons").glob("*.svg")), ids=str)
+def test_icons_always_show_six_strings(icon):
+    # Only the strings have rounded line ends; the frets do not
+    assert icon.read_text().count('stroke-linecap="round"') == 6
+
+
 def test_share_image_exists():
     assert (STATIC_DIR / "thumbnail" / "og-image.png").is_file()
 
