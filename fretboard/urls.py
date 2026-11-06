@@ -18,8 +18,9 @@ from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns  # Re-added i18n_patterns import
 from django.contrib import admin
 from django.contrib.sitemaps.views import sitemap
+from django.templatetags.static import static
 from django.urls import include, path
-from django.views.generic.base import TemplateView
+from django.views.generic.base import RedirectView, TemplateView
 
 import positionfinder.views
 import positionfinder.views_arpeggio
@@ -51,6 +52,12 @@ urlpatterns_non_i18n = [
     path("search_json/", search_json, name="search_json_alt"),
     # Testing route
     # SEO-related URLs
+    # Crawlers and some browsers always request /favicon.ico, whatever the page links to
+    path(
+        "favicon.ico",
+        RedirectView.as_view(url=f"{static('favicon/v2/favicon.ico')}?v={settings.VERSION}"),
+        name="favicon",
+    ),
     path("robots.txt", TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
     path(
         "sitemap.xml", sitemap, {"sitemaps": sitemaps}, name="django.contrib.sitemaps.views.sitemap"

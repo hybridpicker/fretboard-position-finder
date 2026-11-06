@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Regenerate the Studio app icons (light, minimal) in static/studio/icons.
+"""Regenerate the Studio app icons (light, minimal) in static/studio/icons and the
+social share image in static/thumbnail.
 Motif: an F major pentatonic box on the neck, root F in the accent colour.
 
-Needs `rsvg-convert` (brew install librsvg) for the PNG exports.
+Needs `rsvg-convert` (brew install librsvg) for the PNG exports. The share image text
+uses a system font (Helvetica Neue on macOS, falling back to Arial or Helvetica).
 Usage: python scripts/build_icons.py
 """
 
@@ -118,7 +120,39 @@ def render(src, target, size):
     )
 
 
+OG_IMAGE = OUT.parent.parent / "thumbnail" / "og-image.png"
+OG_FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif"
+
+
+def build_og_image():
+    """Social share image (1200x630): wordmark and tagline beside the app icon."""
+    lines = ("Scales, arpeggios and chords", "with fingerings on an", "interactive fretboard.")
+    tagline = "".join(
+        f'<text x="84" y="{412 + i * 46}" font-size="33" fill="#5c5c58">{line}</text>'
+        for i, line in enumerate(lines)
+    )
+    source = OUT.parent / "og-image.svg"
+    source.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">'
+        '<rect width="1200" height="630" fill="#ffffff"/>'
+        f'<g font-family="{OG_FONT}">'
+        f'<text x="80" y="228" font-size="112" font-weight="700" letter-spacing="-3" fill="{INK}">Guitar</text>'
+        f'<text x="80" y="344" font-size="112" font-weight="700" letter-spacing="-3" fill="{INK}">Positions</text>'
+        f"{tagline}</g>"
+        f'<g transform="translate(650 90) scale(0.4395)">{rounded(3, 3, 1018, 224)}{glyph(1.0)}</g>'
+        "</svg>\n"
+    )
+    try:
+        subprocess.run(
+            ["rsvg-convert", "-w", "1200", "-h", "630", str(source), "-o", str(OG_IMAGE)],
+            check=True,
+        )
+    finally:
+        source.unlink()
+
+
 def main():
+    build_og_image()
     for name, content in ICONS.items():
         (OUT / name).write_text(content)
     for src, png, size in PNGS:
