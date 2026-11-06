@@ -134,9 +134,15 @@ class TestUnifiedMenuContext:
 
 
 # ----------------------------------------------------------------------------- PWA service worker internals
-def test_shell_assets_list_has_versioned_css_and_js():
+def test_shell_assets_list_has_versioned_css_js_and_linked_icons():
     versioned = [a for a, flag in views_pwa.SHELL_ASSETS if flag]
-    assert versioned == ["studio/studio.css", "studio/js/app.js"]
+    assert versioned == [
+        "studio/studio.css",
+        "studio/js/app.js",
+        "studio/icons/apple-touch-icon.png",
+        "studio/icons/icon-small.svg",
+        "studio/icons/favicon-32.png",
+    ]
 
 
 def test_file_digest_is_content_hash_and_memoised(tmp_path):
@@ -180,10 +186,10 @@ class TestServiceWorkerView:
     def test_body_contains_version_precache_and_catalog_path(self, client):
         response = client.get("/sw.js")
         body = response.content.decode()
-        assert "const VERSION = '2.1\\u002D" in body
+        assert "const VERSION = '2.2\\u002D" in body
         assert "const CATALOG_PATH = '/api/catalog/';" in body
         assert '"/"' in body.split("PRECACHE_URLS = ")[1]
-        assert "/static/studio/studio.css?v=2.1" in body
+        assert "/static/studio/studio.css?v=2.2" in body
         assert "/static/studio/js/theory.js" in body and "theory.js?v=" not in body
 
     def test_version_follows_setting(self, client):
