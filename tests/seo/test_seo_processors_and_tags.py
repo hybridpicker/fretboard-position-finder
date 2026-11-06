@@ -14,7 +14,7 @@ from positionfinder.views_helpers import generate_breadcrumbs, generate_seo_data
 
 RF = RequestFactory()
 
-DEFAULT_TITLE = "Guitar Positions | Complete Fretboard Visualization Tool"
+DEFAULT_TITLE = "Guitar Positions | Fretboard Studio"
 ALL_KEYS = {
     "page_title",
     "meta_description",
@@ -39,16 +39,22 @@ def test_metadata_always_has_all_keys(path):
 def test_default_metadata_for_unknown_path():
     data = meta("/something/else/")
     assert data["page_title"] == DEFAULT_TITLE
-    assert data["og_title"] == "Guitar Positions | Ultimate Fretboard Tool"
-    assert data["twitter_title"] == "Guitar Positions | Fretboard Tool"
+    assert data["og_title"] == DEFAULT_TITLE
+    assert data["twitter_title"] == DEFAULT_TITLE
 
 
 def test_home_page_metadata():
     data = meta("/")
-    assert data["page_title"] == "Guitar Positions | Ultimate Fretboard Visualization Tool"
-    assert "ad-free" in data["meta_description"]
-    # other keys keep the defaults
-    assert data["og_title"] == "Guitar Positions | Ultimate Fretboard Tool"
+    assert data["page_title"] == DEFAULT_TITLE
+    assert "chord namer" in data["meta_description"]
+    assert data["og_title"] == DEFAULT_TITLE
+
+
+def test_impressum_metadata():
+    data = meta("/impressum/")
+    assert data["page_title"] == "Impressum & Privacy | Guitar Positions"
+    assert data["og_title"] == data["page_title"]
+    assert "Legal notice" in data["twitter_description"]
 
 
 def test_scale_page_with_root_and_type():
@@ -97,7 +103,7 @@ def test_mode_page_with_root_and_name():
 
 def test_about_page_metadata():
     data = meta("/about/")
-    assert data["page_title"] == "About Guitar Positions | The Complete Fretboard Tool"
+    assert data["page_title"] == "About | Guitar Positions"
 
 
 GENERIC = [

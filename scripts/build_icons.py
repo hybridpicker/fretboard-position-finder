@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Regenerate the Studio app icons (light, minimal) in static/studio/icons.
+"""Regenerate the Studio app icons (light, minimal) in static/studio/icons and the
+social share image in static/thumbnail.
 Motif: an F major pentatonic box on the neck, root F in the accent colour.
 
-Needs `rsvg-convert` (brew install librsvg) for the PNG exports.
+Needs `rsvg-convert` (brew install librsvg) for the PNG exports. The share image text
+uses a system font (Helvetica Neue on macOS, falling back to Arial or Helvetica).
 Usage: python scripts/build_icons.py
 """
 
@@ -35,12 +37,10 @@ F_PENTATONIC = [
 
 
 def glyph(scale=1.0, thick=False):
-    """Fretboard fragment (frets 7-10) with the F major pentatonic box; four strings in the bold favicon."""
-    sw, nut_w, r = (28, 44, 56) if thick else (6, 14, 33)
-    first = 2 if thick else 0  # the favicon keeps only D, G, B and high E
-    strings = 6 - first
+    """Fretboard fragment (frets 7-10) with the F major pentatonic box; always six strings."""
+    sw, nut_w, r = (16, 36, 37) if thick else (6, 14, 33)
     top, bottom, left, step = 312, 712, 192, 140
-    ys = {s: top + (5 - s) * (bottom - top) / (strings - 1) for s in range(first, 6)}
+    ys = {s: top + (5 - s) * (bottom - top) / 5 for s in range(6)}
     parts = []
     for y in ys.values():
         parts.append(
@@ -54,8 +54,6 @@ def glyph(scale=1.0, thick=False):
         f'<rect x="{left - nut_w / 2:.1f}" y="{top - 6}" width="{nut_w}" height="{bottom - top + 12}" rx="{nut_w / 2}" fill="{INK}"/>'
     )
     for string, fret, root in F_PENTATONIC:
-        if string < first:
-            continue
         x = left + (fret - 7) * step + step / 2
         parts.append(
             f'<circle cx="{x:.1f}" cy="{ys[string]:.1f}" r="{r}" fill="{ACCENT if root else INK}"/>'
@@ -73,7 +71,7 @@ def rounded(x, y, size, rx):
 
 ICONS = {
     "icon.svg": svg(rounded(3, 3, 1018, 224) + glyph(1.0)),
-    "icon-small.svg": svg(rounded(3, 3, 1018, 200) + glyph(1.05, thick=True)),
+    "icon-small.svg": svg(rounded(3, 3, 1018, 200) + glyph(1.35, thick=True)),
     "icon-macos.svg": svg(rounded(103, 103, 818, 185) + glyph(0.8)),
     "icon-full.svg": svg(f'<rect width="1024" height="1024" fill="{BG}"/>' + glyph(1.0)),
     "icon-android-foreground.svg": svg(glyph(0.82)),
@@ -118,7 +116,39 @@ def render(src, target, size):
     )
 
 
+OG_IMAGE = OUT.parent.parent / "thumbnail" / "og-image.png"
+OG_FONT = "'Helvetica Neue', Helvetica, Arial, sans-serif"
+
+
+def build_og_image():
+    """Social share image (1200x630): wordmark and tagline beside the app icon."""
+    lines = ("Scales, arpeggios and chords", "with fingerings on an", "interactive fretboard.")
+    tagline = "".join(
+        f'<text x="84" y="{412 + i * 46}" font-size="33" fill="#5c5c58">{line}</text>'
+        for i, line in enumerate(lines)
+    )
+    source = OUT.parent / "og-image.svg"
+    source.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">'
+        '<rect width="1200" height="630" fill="#ffffff"/>'
+        f'<g font-family="{OG_FONT}">'
+        f'<text x="80" y="228" font-size="112" font-weight="700" letter-spacing="-3" fill="{INK}">Guitar</text>'
+        f'<text x="80" y="344" font-size="112" font-weight="700" letter-spacing="-3" fill="{INK}">Positions</text>'
+        f"{tagline}</g>"
+        f'<g transform="translate(650 90) scale(0.4395)">{rounded(3, 3, 1018, 224)}{glyph(1.0)}</g>'
+        "</svg>\n"
+    )
+    try:
+        subprocess.run(
+            ["rsvg-convert", "-w", "1200", "-h", "630", str(source), "-o", str(OG_IMAGE)],
+            check=True,
+        )
+    finally:
+        source.unlink()
+
+
 def main():
+    build_og_image()
     for name, content in ICONS.items():
         (OUT / name).write_text(content)
     for src, png, size in PNGS:

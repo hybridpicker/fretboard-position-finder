@@ -8,15 +8,24 @@
   <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <link rel="canonical" href="https://fretboard.schoensgibl.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Guitar Positions">
+  <meta property="og:url" content="https://fretboard.schoensgibl.com/">
   <meta property="og:title" content="{{ og_title|default:'Guitar Positions | Fretboard Studio' }}">
   <meta property="og:description" content="{{ og_description|default:'Scales, arpeggios and chords with fingerings on an interactive fretboard.' }}">
-  <meta property="og:image" content="{% static 'thumbnail/facebook/thumb_25.jpg' %}">
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'thumbnail/og-image.png' %}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Guitar Positions: an F major pentatonic box on the fretboard">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" type="image/svg+xml" href="{% static 'studio/icons/icon-small.svg' %}">
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'studio/icons/favicon-32.png' %}">
-  <link rel="icon" type="image/png" sizes="48x48" href="{% static 'studio/icons/favicon-48.png' %}">
+  <meta name="twitter:title" content="{{ twitter_title|default:'Guitar Positions | Fretboard Studio' }}">
+  <meta name="twitter:description" content="{{ twitter_description|default:'Scales, arpeggios and chords with fingerings on an interactive fretboard.' }}">
+  <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'thumbnail/og-image.png' %}">
+  <link rel="icon" type="image/svg+xml" href="{% static 'studio/icons/icon-small.svg' %}?v={{ APP_VERSION }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'studio/icons/favicon-32.png' %}?v={{ APP_VERSION }}">
+  <link rel="icon" type="image/png" sizes="48x48" href="{% static 'studio/icons/favicon-48.png' %}?v={{ APP_VERSION }}">
   <link rel="manifest" href="{% static 'studio/manifest.webmanifest' %}">
-  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'studio/icons/apple-touch-icon.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'studio/icons/apple-touch-icon.png' %}?v={{ APP_VERSION }}">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Guitar Positions">
