@@ -5,19 +5,18 @@ This processor analyzes the current page content and generates appropriate meta 
 
 from django.http import HttpRequest
 
-DEFAULT_METADATA = {
-    "page_title": "Guitar Positions | Complete Fretboard Visualization Tool",
-    "meta_description": "Find any scale, chord, or arpeggio position on the guitar fretboard. Free interactive tool for guitarists of all levels with comprehensive coverage of musical situations.",
-    "meta_keywords": "guitar positions, fretboard finder, guitar scales, guitar chords, guitar arpeggios, fretboard visualization, guitar learning tool",
-    "og_title": "Guitar Positions | Ultimate Fretboard Tool",
-    "og_description": "Interactive fretboard visualization for guitarists. Explore scales, modes, arpeggios, and chord positions across the entire fretboard.",
-    "twitter_title": "Guitar Positions | Fretboard Tool",
-    "twitter_description": "Find any guitar position instantly with our comprehensive fretboard visualization tool.",
-}
+SITE_TITLE = "Guitar Positions | Fretboard Studio"
+SHARE_DESCRIPTION = "Scales, arpeggios and chords with fingerings on an interactive fretboard."
 
-HOME_METADATA = {
-    "page_title": "Guitar Positions | Ultimate Fretboard Visualization Tool",
-    "meta_description": "Master the guitar fretboard with our comprehensive position finder. Find scales, modes, arpeggios, and chord positions for any musical situation, completely free and ad-free.",
+# Used for the Studio at "/" and for every page without a more specific rule
+DEFAULT_METADATA = {
+    "page_title": SITE_TITLE,
+    "meta_description": "Find every scale, arpeggio and chord on the guitar fretboard with fingerings, playable chord shapes, drop voicings and a chord namer. Free for all guitarists.",
+    "meta_keywords": "guitar positions, fretboard finder, guitar scales, guitar chords, guitar arpeggios, fretboard visualization, guitar learning tool",
+    "og_title": SITE_TITLE,
+    "og_description": SHARE_DESCRIPTION,
+    "twitter_title": SITE_TITLE,
+    "twitter_description": SHARE_DESCRIPTION,
 }
 
 GENERIC_SCALES_METADATA = {
@@ -45,9 +44,20 @@ GENERIC_MODES_METADATA = {
 }
 
 ABOUT_METADATA = {
-    "page_title": "About Guitar Positions | The Complete Fretboard Tool",
-    "meta_description": "Learn about our mission to provide guitarists with the most comprehensive, ad-free tool for mastering the fretboard. Created by guitarists for guitarists.",
+    "page_title": "About | Guitar Positions",
+    "meta_description": "Why Guitar Positions exists and how it helps guitarists of all levels find scales, arpeggios and chords on the fretboard. Free for all guitarists.",
     "meta_keywords": "about guitar positions, fretboard tool, guitar learning, music education, guitar teaching tool",
+    "og_title": "About | Guitar Positions",
+    "twitter_title": "About | Guitar Positions",
+}
+
+IMPRESSUM_METADATA = {
+    "page_title": "Impressum & Privacy | Guitar Positions",
+    "meta_description": "Legal notice and privacy information for Guitar Positions.",
+    "og_title": "Impressum & Privacy | Guitar Positions",
+    "og_description": "Legal notice and privacy information for Guitar Positions.",
+    "twitter_title": "Impressum & Privacy | Guitar Positions",
+    "twitter_description": "Legal notice and privacy information for Guitar Positions.",
 }
 
 
@@ -156,9 +166,7 @@ def get_seo_metadata(request: HttpRequest) -> dict:
     metadata = dict(DEFAULT_METADATA)
 
     # Path-specific metadata based on URL pattern
-    if path == "":
-        metadata.update(HOME_METADATA)
-    elif path.startswith("scale/"):
+    if path.startswith("scale/"):
         metadata.update(_scale_metadata(path_parts))
     elif path.startswith("arpeggio/"):
         metadata.update(_arpeggio_metadata(path_parts))
@@ -168,5 +176,7 @@ def get_seo_metadata(request: HttpRequest) -> dict:
         metadata.update(_mode_metadata(path_parts))
     elif path == "about":
         metadata.update(ABOUT_METADATA)
+    elif path == "impressum":
+        metadata.update(IMPRESSUM_METADATA)
 
     return metadata

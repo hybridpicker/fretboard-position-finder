@@ -46,9 +46,9 @@ SHELL_ASSETS = (
     ("studio/icons/icon-512.png", False),
     ("studio/icons/icon-maskable-192.png", False),
     ("studio/icons/icon-maskable-512.png", False),
-    ("studio/icons/apple-touch-icon.png", False),
-    ("studio/icons/icon-small.svg", False),
-    ("studio/icons/favicon-32.png", False),
+    ("studio/icons/apple-touch-icon.png", True),
+    ("studio/icons/icon-small.svg", True),
+    ("studio/icons/favicon-32.png", True),
 )
 
 
