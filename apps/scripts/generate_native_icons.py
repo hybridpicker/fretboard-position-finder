@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Generate the native app icons and launch screens from the icon masters in static/studio/icons/
-(which scripts/build_studio_icons.py renders from the SVG sources). Requires Pillow.
+(which scripts/build_icons.py renders from the SVG sources). Requires Pillow.
 
     python apps/scripts/generate_native_icons.py      (or: cd apps && npm run icons)
 

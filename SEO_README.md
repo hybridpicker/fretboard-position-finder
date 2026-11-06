@@ -40,7 +40,7 @@ This tool analyzes a running instance of your application for SEO best practices
 ./venv/bin/python manage.py runserver
 
 # In another terminal, run the SEO checker
-./venv/bin/python check_spa_seo.py http://localhost:8000/
+./venv/bin/python scripts/legacy/check_spa_seo.py http://localhost:8000/
 ```
 
 This will analyze:

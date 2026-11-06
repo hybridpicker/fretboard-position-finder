@@ -2,7 +2,9 @@
 """
 Mock objects and utilities for testing.
 """
+
 from unittest.mock import MagicMock
+
 from positionfinder.models import Notes
 
 # Create a mock Scale model based on Notes
