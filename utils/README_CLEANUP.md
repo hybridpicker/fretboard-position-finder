@@ -108,7 +108,7 @@ This will prevent commits if high-confidence unused files are detected in your p
 You can include the unused files test in your CI/CD pipeline by adding this command to your test suite:
 
 ```bash
-python manage.py test positionfinder.test_unused_files
+python -m pytest tests/unit/test_unused_files.py
 ```
 
 This will ensure that your codebase stays clean of the identified unused files.

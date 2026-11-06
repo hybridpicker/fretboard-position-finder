@@ -22,7 +22,7 @@ This script runs Django tests to verify that all SEO components are properly ins
 
 ```bash
 # Run the tests
-./venv/bin/python run_seo_tests.py
+.venv/bin/python -m pytest tests/seo -q
 ```
 
 This will:

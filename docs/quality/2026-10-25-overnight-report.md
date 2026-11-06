@@ -62,3 +62,16 @@ Pages: `/test/chords/` -> 500 (`test_chords.html` missing); `arpeggio_list` and 
 3. Triage the xfail list: the root-vs-pitch bug and the Major 7(#5)/(b5)/Augmented voicings are user-visible when fixed.
 4. Work down the 95 mypy findings, then add `mypy` to `make check`.
 5. `static/` (64 JS files) was only checked for unreferenced files; no JS tests were added beyond the existing theory test.
+
+## Addendum (2026-10-26)
+
+PR #70 (this pass) and PR #71 were merged into `master`; CI (`make check`, JS theory test) passed on GitHub.
+PR #71 fixed these of the bugs listed above, so their `xfail` tests became normal tests:
+chord search pitch-vs-Root-id mix-up (three places), `normalize_search_term` (`BB`, `Majoror`),
+autocomplete duplicates / wrong root / negative mode root, `root=None` URLs for `E#`/`Fb`/`Cb`/`B#`,
+and the `/test/chords/` 500 (route removed). State after the merge: 1128 passed, 26 strict xfail.
+
+Still open (one strict `xfail` each, see `pytest -rx`): `parse_query` compact `aug`/`dim`, chord-ranges
+fallback queries, duplicate names in `emergency_positions`, generic SEO pages, `create_chord` interval
+bugs, `build_notes(ChordNotes)`, V1 triads without positions, `extract_and_convert_notes` spelling,
+unrouted `arpeggio_list` / `landing_page_view`, `generate_vsystem --v-system all`.
