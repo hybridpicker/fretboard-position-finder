@@ -54,7 +54,7 @@ Fretboard    SVG neck · legend (role colours, "faded = same notes elsewhere")
 Mode panel   Scales/Arpeggios: positions bar (All, 1..n with fret range) · Box | 3NPS · Fingers | Intervals | Notes
              Chords: fingering finder (Best shapes | V-System) · bass filter · neck region · shape cards
              Chord Namer: tap frets → best name, alternatives, fitting scales, "Show all shapes"
-Settings     tuning (8) · frets (12–24) · orientation · left-handed · theme · note spelling
+Settings     tuning (11) · frets (12–24) · orientation · left-handed · theme · note spelling
 ```
 
 Cross-links close the loop: Chord Namer results open the Chords or Scales mode with the same root.
@@ -71,7 +71,7 @@ Cross-links close the loop: Chord Namer results open the Chords or Scales mode w
 - V-System templates from the database turned into concrete shapes for any root, with every inversion (each voice rotates to the next chord tone, mirroring the Django `ChordPosition` offsets).
 - Voicing classification: Close, Drop 2, Drop 3, Drop 2+4, Spread; inversion naming.
 - Reverse lookup: chord identification (incl. slash chords, rootless/no-5th tolerance) and fitting scales.
-- 8 tunings: Standard, Eb, Drop D, DADGAD, Open G, Open D, 7-string, 8-string.
+- 11 tunings: Standard, Eb, Drop D, DADGAD, Open G, Open D, 7-string, 8-string, plus ukulele (re-entrant G C E A), banjo (open G, without the short string) and Loog Guitar (3 strings).
 - Unit tests: `node --test static/studio/js/` (`theory.test.mjs`).
 
 **UI (`app.js`, `fretboard.js`, `diagram.js`, `audio.js`)**

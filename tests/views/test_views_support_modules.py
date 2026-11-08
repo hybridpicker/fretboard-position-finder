@@ -186,10 +186,10 @@ class TestServiceWorkerView:
     def test_body_contains_version_precache_and_catalog_path(self, client):
         response = client.get("/sw.js")
         body = response.content.decode()
-        assert "const VERSION = '2.2\\u002D" in body
+        assert "const VERSION = '2.3\\u002D" in body
         assert "const CATALOG_PATH = '/api/catalog/';" in body
         assert '"/"' in body.split("PRECACHE_URLS = ")[1]
-        assert "/static/studio/studio.css?v=2.2" in body
+        assert "/static/studio/studio.css?v=2.3" in body
         assert "/static/studio/js/theory.js" in body and "theory.js?v=" not in body
 
     def test_version_follows_setting(self, client):
