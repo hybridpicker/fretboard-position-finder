@@ -1,22 +1,5 @@
 [
-{
-    "model": "auth.user",
-    "pk": 1,
-    "fields": {
-        "password": "pbkdf2_sha256$1000000$jr6VdrfYBnwC474yRqUQ4O$7A4fX20T6c9jdd/x/3FsT1UWcQcVPok+n+yYXuk4AZM=",
-        "last_login": "2025-04-22T16:42:45.894Z",
-        "is_superuser": true,
-        "username": "Schoensgibl",
-        "first_name": "",
-        "last_name": "",
-        "email": "",
-        "is_staff": true,
-        "is_active": true,
-        "date_joined": "2025-04-05T06:24:24.915Z",
-        "groups": [],
-        "user_permissions": []
-    }
-},
+
 {
     "model": "positionfinder.root",
     "pk": 1,
