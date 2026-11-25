@@ -24,7 +24,7 @@ Free, no account needed. Installable as a PWA; native apps for iOS, iPad, macOS 
 - **Chord Namer**: tap a shape on the fretboard and get the chord name, alternatives and scales that fit.
 - **Songs & exercises**: collect chord progressions for lessons (title, note, sections, chosen voicings). Type a chord such as `Am7` and pick a fingering; diagrams show finger numbers, intervals or note names. Saved in the browser only, no account.
 - **Share & print**: every view, including the chosen voicing and songs, can be shared as a link; a PDF button creates a minimalist black-and-white A4 sheet (scale positions, chord shapes or a song).
-- **Instruments**: standard tuning, half step down, Drop D, DADGAD, open G/D, 7- and 8-string guitars, left-handed view, horizontal or vertical neck.
+- **Instruments**: standard tuning, half step down, Drop D, DADGAD, open G/D, 7- and 8-string guitars, ukulele, banjo (open G) and Loog Guitar, left-handed view, horizontal or vertical neck.
 - **Sound**: play scales and strum chords; keyboard shortcuts for everything (press `?`).
 - **Light and dark theme**, mobile friendly, works offline once installed.
 

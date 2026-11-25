@@ -159,7 +159,7 @@ CACHES = {
 USE_OPTIMIZED_CHORD_VIEW = True
 
 # Application version
-VERSION = "2.2"
+VERSION = "2.3"
 
 if os.path.isfile(os.path.join(BASE_DIR, "local_settings.py")):
     from local_settings import *  # noqa: F403
