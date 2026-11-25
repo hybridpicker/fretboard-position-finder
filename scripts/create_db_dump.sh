@@ -35,6 +35,7 @@ fi
 # Create the database dump
 cd "$PROJECT_ROOT" && $PYTHON manage.py dumpdata \
     --exclude auth.permission \
+    --exclude auth.user \
     --exclude contenttypes \
     --exclude admin.logentry \
     --exclude sessions.session \

@@ -3,6 +3,10 @@ import os
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
+# The dump is committed to a public repository, so it must never contain
+# accounts, sessions or admin history.
+EXCLUDED_MODELS = ("auth.user", "sessions.session", "admin.logentry")
+
 
 class Command(BaseCommand):
     """Management command; see ``help`` for details."""
@@ -17,6 +21,7 @@ class Command(BaseCommand):
             "dumpdata",
             "--natural-foreign",
             "--natural-primary",
+            *(f"--exclude={model}" for model in EXCLUDED_MODELS),
             "--indent",
             "2",
             "--output",
