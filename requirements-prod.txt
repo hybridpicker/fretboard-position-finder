@@ -2,7 +2,7 @@
 # Versions taken from the project virtualenv (pip freeze); gunicorn is the
 # current stable release. Requires Python >= 3.12 (numpy 2.5.x needs 3.12+).
 # Install with:  pip install -r requirements-prod.txt -c constraints.txt
-Django==4.2.30
+Django==5.2.17
 djangorestframework==3.17.2
 django-extensions==4.1
 thefuzz[speedup]==0.22.1
