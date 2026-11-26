@@ -63,7 +63,8 @@ NotesPosition.objects.create(
 
 ### Method 2: Using Django Admin
 
-1. Navigate to the admin interface (`/admin/`)
+1. Navigate to the admin interface (`/admin/`) and sign in with an account
+   created via `python manage.py createsuperuser`
 2. Go to "Notes" section
 3. Click "Add Note"
 4. Fill in the details:

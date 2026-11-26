@@ -75,6 +75,13 @@ python manage.py migrate
 python manage.py loaddata positionfinder/fixtures/databasedump.json
 ```
 
+The fixture contains app data only, no user accounts. If you need the Django
+admin (`/admin/`), create your own account:
+
+```bash
+python manage.py createsuperuser
+```
+
 ### 8. Run the Development Server
 
 ```bash

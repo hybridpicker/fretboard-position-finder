@@ -58,6 +58,9 @@ python manage.py migrate
 python manage.py loaddata positionfinder/fixtures/databasedump.json
 ```
 
+The fixture contains app data only. Run `python manage.py createsuperuser` if
+you need an admin account.
+
 ### 7. Run Development Server
 
 ```bash
