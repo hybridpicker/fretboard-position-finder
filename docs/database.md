@@ -235,6 +235,22 @@ python manage.py dumpdata positionfinder --indent 4 > dump.json
 python manage.py loaddata dump.json
 ```
 
+### Fixtures Committed to the Repository
+
+`positionfinder/fixtures/databasedump.json` is public, so it must only hold app
+data. Refresh it with one of the two commands that leave out user accounts,
+sessions and the admin log:
+
+```bash
+python manage.py backup
+# or
+scripts/create_db_dump.sh
+```
+
+Do not commit the output of a bare `python manage.py dumpdata`: without an app
+label it also exports `auth.user` (including password hashes),
+`sessions.session` and `admin.logentry`.
+
 ## Database Backup Strategy
 
 For production databases, implement a regular backup schedule:
